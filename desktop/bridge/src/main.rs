@@ -1,4 +1,4 @@
-//! Poki Setup's core behind a pipe, for the native macOS app (SwiftUI).
+//! Qeno Setup's core behind a pipe, for the native macOS app (SwiftUI).
 //!
 //! One JSON object per line on stdin: `{"id": 1, "cmd": "account", "args": {...}}`.
 //! One JSON object per line on stdout:
@@ -297,7 +297,7 @@ async fn dispatch(state: &Shared, out: &Out, cmd: &str, a: &Value) -> R {
             let r = out.reporter("sign");
             let built = with_signer(state, async |s| {
                 let team = s.team().await?;
-                let beside = std::path::Path::new(&ipa).with_file_name("Poki-signing.zip");
+                let beside = std::path::Path::new(&ipa).with_file_name("Qeno-signing.zip");
                 let zipp = beside.is_file().then_some(beside);
                 setup::sign_for_team(s, &team, None, std::path::Path::new(&ipa), zipp.as_deref(), std::path::Path::new(&out_path), &r).await
             })
@@ -324,7 +324,7 @@ async fn dispatch(state: &Shared, out: &Out, cmd: &str, a: &Value) -> R {
         "backup_agent" => {
             let udid: String = arg(a, "udid")?;
             let out_dir: String = arg(a, "out_dir")?;
-            let rec = keeper::get(&udid)?.ok_or_else(|| Error::msg("Set up Poki on this iPhone with Poki Setup first."))?;
+            let rec = keeper::get(&udid)?.ok_or_else(|| Error::msg("Set up Poki on this iPhone with Qeno Setup first."))?;
             let phone = setup::pick_phone(Some(&udid)).await?;
             let bytes = device::container::read_file(&phone, &rec.bundle_id, AGENT_BACKUP).await.map_err(|e| Error::msg(format!("Poki has not exported a backup yet. Open Poki once, then try again. ({e})")))?;
             let stamp = time_stamp();
@@ -335,7 +335,7 @@ async fn dispatch(state: &Shared, out: &Out, cmd: &str, a: &Value) -> R {
         "restore_agent" => {
             let udid: String = arg(a, "udid")?;
             let file: String = arg(a, "file")?;
-            let rec = keeper::get(&udid)?.ok_or_else(|| Error::msg("Set up Poki on this iPhone with Poki Setup first."))?;
+            let rec = keeper::get(&udid)?.ok_or_else(|| Error::msg("Set up Poki on this iPhone with Qeno Setup first."))?;
             let bytes = std::fs::read(&file).map_err(Error::from)?;
             let v: Value = serde_json::from_slice(&bytes).map_err(|e| Error::msg(format!("That file is not a Poki agent backup: {e}")))?;
             if !v.get("schema").and_then(|s| s.as_str()).map(|s| s.starts_with("poki.agent-backup/")).unwrap_or(false) {
@@ -425,7 +425,7 @@ async fn dispatch(state: &Shared, out: &Out, cmd: &str, a: &Value) -> R {
                     out2.send(json!({ "event": "log_lines", "data": batch }));
                 }
                 if let Ok(Err(e)) = stream.await {
-                    out2.send(json!({ "event": "log_lines", "data": [format!("[Poki Setup] The log stream ended: {e}")] }));
+                    out2.send(json!({ "event": "log_lines", "data": [format!("[Qeno Setup] The log stream ended: {e}")] }));
                 }
             });
             *state.logs.lock().await = Some(handle);

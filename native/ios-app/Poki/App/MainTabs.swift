@@ -2,22 +2,22 @@ import PokiCore
 import SwiftUI
 
 // The app's three tabs (the owner's layout, Nov 7 2026):
-// - Poki: every session, with Poki's state and controls on top; the button at the bottom left starts a
-//   new chat with Poki's own agent.
-// - Agents: the agents that drive this iPhone (their MCP addresses and the relay), Poki's own agent
+// - Qeno: every session, with Qeno's state and controls on top; the button at the bottom left starts a
+//   new chat with Qeno's own agent.
+// - Agents: the agents that drive this iPhone (their MCP addresses and the relay), Qeno's own agent
 //   (accounts, models, voice, memory) and the Activity Log.
-// - Setup: everything Poki needs, read live, each item fixed on its own page; advanced preferences and
+// - Setup: everything Qeno needs, read live, each item fixed on its own page; advanced preferences and
 //   debugging tools behind the button at the top right.
 
 /// Agents › a page.
 enum AgentsRoute: Hashable { case accounts, voice, activityLog }
 
 struct AgentsView: View {
-    /// The line under MCP Relay: the address to set, Poki being off, or the relay's live state.
+    /// The line under MCP Relay: the address to set, Qeno being off, or the relay's live state.
     private var relayLine: String {
         if model.relayAddress == nil { return String(localized: "Set an address first") }
         if !model.relayEnabled { return String(localized: "Off: agents can’t reach this iPhone") }
-        if !model.sessionOn { return String(localized: "Waiting for Poki: turn Poki on and agents can connect") }
+        if !model.sessionOn { return String(localized: "Waiting for Qeno: turn Qeno on and agents can connect") }
         return Health.relay(model).word
     }
 
@@ -45,9 +45,9 @@ struct AgentsView: View {
                         } label: { Label("Memory", systemImage: "brain") }
                     }
                 } header: {
-                    Text("Poki Agent")
+                    Text("Qeno Agent")
                 } footer: {
-                    Text("The model Poki’s chat and voice use on this iPhone. Memory holds the routines and notes every agent shares.")
+                    Text("The model Qeno’s chat and voice use on this iPhone. Memory holds the routines and notes every agent shares.")
                 }
 
                 Section {
@@ -102,8 +102,8 @@ struct AgentsView: View {
                             Image(systemName: "antenna.radiowaves.left.and.right")
                         }
                     }
-                    // Poki stopped: the switch keeps the owner's choice but is greyed, since nothing
-                    // connects until Poki is on; the line under it says so.
+                    // Qeno stopped: the switch keeps the owner's choice but is greyed, since nothing
+                    // connects until Qeno is on; the line under it says so.
                     .disabled(model.relayAddress == nil || !model.sessionOn)
                     NavigationLink(value: SettingsRoute.relay) {
                         LabeledContent {
@@ -116,7 +116,7 @@ struct AgentsView: View {
                 } header: {
                     Text("MCP Relay")
                 } footer: {
-                    Text("The relay forwards agents’ requests to this iPhone while Poki is open or in the background. It stores nothing.")
+                    Text("The relay forwards agents’ requests to this iPhone while Qeno is open or in the background. It stores nothing.")
                 }
 
                 Section {
@@ -187,7 +187,7 @@ struct AdvancedView: View {
                     Picker("Stop When Idle For", selection: $model.idleStopSeconds) {
                         ForEach(SettingsHome.idleChoices, id: \.0) { Text($0.1).tag($0.0) }
                     }
-                } header: { Text("Poki Runner") }
+                } header: { Text("Qeno Runner") }
             }
             Section {
                 Button("Notifications") {

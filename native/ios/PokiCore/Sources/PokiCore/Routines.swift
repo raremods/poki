@@ -1,7 +1,7 @@
 import Foundation
 
 // Routines and notes: the agent's memory, kept on the phone and shared by every agent that drives it
-// (Poki's own chat and any MCP client over the relay).
+// (Qeno's own chat and any MCP client over the relay).
 //
 // A task's `do` actions are recorded as they are sent, each target as what it is (role, label,
 // identifier, and where it was) rather than its number, which changes from read to read. A recorded
@@ -11,7 +11,7 @@ import Foundation
 // A routine keeps its runs, so one that keeps stopping is marked stale and no longer offered.
 //
 // Notes are short facts the agent or the owner saves ("Mom is the contact Mama"). Both live in one
-// JSON file in the app's own storage; a copy in Documents/AgentBackup is what Poki Setup backs up.
+// JSON file in the app's own storage; a copy in Documents/AgentBackup is what Qeno Setup backs up.
 // Typed text is a parameter of the routine; text typed into a password field is never stored.
 
 /// What a step acts on, as it was found when the step was recorded.
@@ -123,7 +123,7 @@ public final class RoutineStore: @unchecked Sendable {
     private var file = MemoryFile()
     /// Where the memory is kept (nil: in memory only, as in tests).
     public let url: URL?
-    /// Where a copy goes after every change, for Poki Setup's backup (Documents/AgentBackup).
+    /// Where a copy goes after every change, for Qeno Setup's backup (Documents/AgentBackup).
     public let backupDirectory: URL?
     private var lastBackupHash: String?
 
@@ -140,7 +140,7 @@ public final class RoutineStore: @unchecked Sendable {
     /// in Documents/AgentBackup). The app may replace it before PokiCore starts.
     public static var shared: RoutineStore = {
         let fm = FileManager.default
-        let support = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?.appendingPathComponent("Poki", isDirectory: true)
+        let support = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?.appendingPathComponent("Qeno", isDirectory: true)
         let documents = fm.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("AgentBackup", isDirectory: true)
         #if os(iOS)
         return RoutineStore(url: support?.appendingPathComponent("agent-memory.json"), backupDirectory: documents)
@@ -190,13 +190,13 @@ public final class RoutineStore: @unchecked Sendable {
     }
 
     static func hash(_ data: Data) -> String {
-        // FNV-1a: only to tell our own copy from one put there by Poki Setup.
+        // FNV-1a: only to tell our own copy from one put there by Qeno Setup.
         var h: UInt64 = 0xcbf29ce484222325
         for b in data { h = (h ^ UInt64(b)) &* 0x100000001b3 }
         return String(h, radix: 16)
     }
 
-    /// A backup file Poki Setup put in Documents/AgentBackup since the app last wrote it is merged in.
+    /// A backup file Qeno Setup put in Documents/AgentBackup since the app last wrote it is merged in.
     /// Returns what was imported, or nil when there was nothing new.
     @discardableResult
     public func importRestoredBackup() -> String? {
@@ -318,9 +318,9 @@ public final class RoutineStore: @unchecked Sendable {
     public func importData(_ data: Data, by: String) throws -> String {
         let incoming: MemoryFile
         do { incoming = try Self.decoder.decode(MemoryFile.self, from: data) }
-        catch { throw ImportError("not a Poki agent backup: \(error)") }
-        guard incoming.schema.hasPrefix("poki.agent-backup/") else { throw ImportError("not a Poki agent backup (schema \(incoming.schema))") }
-        guard incoming.schema == Self.schema else { throw ImportError("a backup of a newer Poki (\(incoming.schema)); update Poki to import it") }
+        catch { throw ImportError("not a Qeno agent backup: \(error)") }
+        guard incoming.schema.hasPrefix("poki.agent-backup/") else { throw ImportError("not a Qeno agent backup (schema \(incoming.schema))") }
+        guard incoming.schema == Self.schema else { throw ImportError("a backup of a newer Qeno (\(incoming.schema)); update Qeno to import it") }
         var added = 0, replaced = 0, kept = 0, notes = 0
         withFile(true) { f in
             for r in incoming.routines where !r.name.isEmpty {
@@ -705,7 +705,7 @@ extension PokiCore {
         guard let store = computer.memory else { return ToolResult(text: "routines: no memory on this phone", jpeg: nil, isError: true) }
         let action = args["action"]?.string ?? "list"
         let name = args["name"]?.string?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let by = session == nil ? "Poki" : (clientNames.value[session!].flatMap { $0.isEmpty ? nil : $0 } ?? "an MCP client")
+        let by = session == nil ? "Qeno" : (clientNames.value[session!].flatMap { $0.isEmpty ? nil : $0 } ?? "an MCP client")
         func fail(_ text: String) -> ToolResult { ToolResult(text: "routines \(action): \(text)", jpeg: nil, isError: true) }
         switch action {
         case "list":

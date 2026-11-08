@@ -31,7 +31,7 @@ PokiCore (Swift, `native/ios/PokiCore`) and PokiLauncher (Rust with a C ABI, `na
 
 ## Build
 
-GitHub Actions (`.github/workflows/ios-app.yml`) builds `Poki-unsigned.ipa` on demand, for
+GitHub Actions (`.github/workflows/ios-app.yml`) builds `Qeno-unsigned.ipa` on demand, for
 `ios-v*` release tags and for `ios-alpha-*` / `ios-prealpha-*` tags (see `docs/release-channels.md`), runs it on the iOS Simulator and uploads a screenshot of every screen in light and
 dark mode (artifact `simulator-smoke`, folder `shots`). Locally on a Mac with Xcode 26 or later:
 
@@ -113,10 +113,10 @@ the bridge runs the tools that move the phone (`open_settings`, `read_screen`, `
 - A dropped connection sends nothing again. A call outlives the session that asked for it; the next
   session is told how it ended instead of asking for it again.
 - Stop talking (or speaking over Poki) cancels the reply, never the step running on the phone.
-- A `poki://voice` link, from a web page or another app, only opens Voice: a link never
+- A `qeno://voice` link, from a web page or another app, only opens Voice: a link never
   changes the bridge and never turns on the microphone. The person enters the address and taps Talk
   to Poki.
-- Development builds only: the launch argument `-pokiVoiceLink "poki://voice?bridge=<address>&test=1-20"`
+- Development builds only: the launch argument `-qenoVoiceLink "qeno://voice?bridge=<address>&test=1-20"`
   runs recorded utterances from a bridge started with `--test-dir`, silently: the speech goes over
   the data channel instead of the microphone, and Poki's voice is muted. Release builds have no test
   runs.
@@ -125,22 +125,22 @@ the bridge runs the tools that move the phone (`open_settings`, `read_screen`, `
 
 | Entitlement | Needed for | Notes |
 |---|---|---|
-| App Groups `group.nz.zheha.poki` | Live Activity thumbnail, approvals between widget and app | Signing tools rewrite group ids per Apple ID; that works as long as both targets get the same rewritten group. |
+| App Groups `group.com.owaiken.qeno` | Live Activity thumbnail, approvals between widget and app | Signing tools rewrite group ids per Apple ID; that works as long as both targets get the same rewritten group. |
 | Network Extensions `packet-tunnel-provider` | Built-in local connection | Required in both Poki and PokiTunnel, with a matching provisioning profile for each bundle. A wildcard profile is insufficient. |
 
 Which build to sign depends on the Apple account:
 
 | Apple account | Build | Local connection | Signing |
 |---|---|---|---|
-| Paid Apple Developer Program team | `Poki-unsigned.ipa` (`project.yml`) | Built-in, or an external VPN app | App IDs for Poki, `.widgets` and `.tunnel`; the App Group on Poki and `.widgets`; Network Extensions (packet tunnel) on Poki and `.tunnel`; a development or ad-hoc profile for each of the three. |
-| Free Apple ID (Personal Team) | `Poki-external-unsigned.ipa` (`project-external.yml`) | An external VPN app or LocalDevVPN only | The App Group on Poki and `.widgets` (signing tools rewrite it per Apple ID). Apps signed this way expire after 7 days, and only 3 can be installed at a time; Poki uses one (two with Poki Runner on the Runner path). |
+| Paid Apple Developer Program team | `Qeno-unsigned.ipa` (`project.yml`) | Built-in, or an external VPN app | App IDs for Poki, `.widgets` and `.tunnel`; the App Group on Poki and `.widgets`; Network Extensions (packet tunnel) on Poki and `.tunnel`; a development or ad-hoc profile for each of the three. |
+| Free Apple ID (Personal Team) | `Qeno-external-unsigned.ipa` (`project-external.yml`) | An external VPN app or LocalDevVPN only | The App Group on Poki and `.widgets` (signing tools rewrite it per Apple ID). Apps signed this way expire after 7 days, and only 3 can be installed at a time; Poki uses one (two with Poki Runner on the Runner path). |
 
 On the Runner path, sign Poki Runner with the same account as Poki in both cases.
 
 The default `project.yml` builds Poki with its local VPN. Use signing that supports Network
 Extensions (including properly provisioned paid-team development/ad-hoc distribution). Free Personal
 Team signing cannot provision this capability. Re-signing must preserve the entitlement in both the
-app and its extension. CI includes the generated entitlements in `Poki-signing.zip`.
+app and its extension. CI includes the generated entitlements in `Qeno-signing.zip`.
 
 For a team that does not own the default identifiers, set `POKI_BUNDLE_ID`, `POKI_APP_GROUP` and
 optionally `POKI_DISPLAY_NAME` in Xcode or the `xcodebuild` invocation. Register the App Group and
@@ -155,7 +155,7 @@ xcodegen generate --spec native/ios-app/project-external.yml
 open native/ios-app/PokiExternal.xcodeproj
 ```
 
-CI produces `Poki-unsigned.ipa` and `Poki-external-unsigned.ipa`. Choose one; on the Runner path,
+CI produces `Qeno-unsigned.ipa` and `Qeno-external-unsigned.ipa`. Choose one; on the Runner path,
 also install Poki Runner with the same signing. The external build retains the App Group requirement for approvals and
 thumbnails; it does not solve other free-account signing restrictions.
 
@@ -205,15 +205,15 @@ screen has no viewport. Not yet checked in the gym on an iPad simulator with two
 
 Pairing on the phone itself (Settings > Privacy & Security > Developer Mode > Pair with Poki) exists
 from iOS 27 (`SetupStep.onDevicePairing`). On earlier versions the pairing page shows the other way
-only: pair from a computer with Poki Setup (or pymobiledevice3, jitterbugpair, StikPair), then send
+only: pair from a computer with Qeno Setup (or pymobiledevice3, jitterbugpair, StikPair), then send
 the file to the phone. Poki takes a pairing file three ways besides Import Pairing File:
 
 - A file opened with Poki from AirDrop or Files (`CFBundleDocumentTypes`: property lists and
   `.mobiledevicepairing`).
-- `poki://pairing?url=http://<computer on the LAN>:<port>/<file>&sha256=<hex>`: Poki fetches the
-  file over the local network and checks the digest; Poki Setup shows this link as a code for the
-  Camera. `poki://pairing?data=<base64url>` carries a small file in the link itself.
-- `poki://setup?relay=<origin>` sets the relay address Poki Setup configured.
+- `qeno://pairing?url=http://<computer on the LAN>:<port>/<file>&sha256=<hex>`: Poki fetches the
+  file over the local network and checks the digest; Qeno Setup shows this link as a code for the
+  Camera. `qeno://pairing?data=<base64url>` carries a small file in the link itself.
+- `qeno://setup?relay=<origin>` sets the relay address Qeno Setup configured.
 
 The pairing file and the setup state are mirrored into the Keychain (`SetupVault`,
 `ThisDeviceOnly`). An update keeps the container anyway; a delete-and-reinstall, or a sideloading
@@ -223,7 +223,7 @@ signs the app, so the owner is not sent through setup again.
 ## Device test checklist
 
 Install and launch
-- [ ] Install `Poki-unsigned.ipa`. Runner path only: also install the runner IPA with the same signing, and open Poki Runner by hand: no passcode prompt, no automation banner; it opens Poki (or shows Open Poki).
+- [ ] Install `Qeno-unsigned.ipa`. Runner path only: also install the runner IPA with the same signing, and open Poki Runner by hand: no passcode prompt, no automation banner; it opens Poki (or shows Open Poki).
 - [ ] Launch Poki: the Setup tab shows a badge with the steps left, and no Install Poki Runner step.
 
 Setup

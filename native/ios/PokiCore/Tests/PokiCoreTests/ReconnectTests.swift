@@ -2,7 +2,7 @@ import XCTest
 @testable import PokiCore
 
 /// GitHub issue 44: the built-in local VPN failed twice in an hour and stayed down for 101 s and 134 s,
-/// until someone opened Poki. These are the rules for dialling it again by itself.
+/// until someone opened Qeno. These are the rules for dialling it again by itself.
 final class ReconnectTests: XCTestCase {
     func testTriesBackOffAndStopAtTheCap() {
         var plan = ReconnectPlan()

@@ -1,12 +1,12 @@
 import AppKit
 import SwiftUI
 
-// Poki's look on the Mac: Liquid Glass on macOS 26 and later, the same shapes in system
+// Qeno's look on the Mac: Liquid Glass on macOS 26 and later, the same shapes in system
 // materials on macOS 14 and 15. Every glass call goes through here, so older systems never
 // reach an API they lack.
 
 extension View {
-    /// A glass surface in `shape`, tinted with Poki blue when `tinted`.
+    /// A glass surface in `shape`, tinted with Qeno blue when `tinted`.
     @ViewBuilder
     func pokiGlass<S: Shape>(in shape: S, tinted: Bool = false, interactive: Bool = false) -> some View {
         #if compiler(>=6.2)
@@ -33,7 +33,7 @@ extension View {
             .shadow(color: .black.opacity(0.10), radius: 10, y: 3)
     }
 
-    /// The main action of a page: a Poki-blue glass button (a filled blue button before macOS 26).
+    /// The main action of a page: a Qeno-blue glass button (a filled blue button before macOS 26).
     @ViewBuilder
     func pokiProminentButton() -> some View {
         #if compiler(>=6.2)
@@ -76,7 +76,7 @@ extension View {
         #endif
     }
 
-    /// A page of grouped rows over Poki's blue backdrop.
+    /// A page of grouped rows over Qeno's blue backdrop.
     func pokiPage() -> some View {
         self
             .formStyle(.grouped)
@@ -85,7 +85,7 @@ extension View {
     }
 }
 
-/// A soft wash of Poki blue at the top of each page, fading into the window background, so the
+/// A soft wash of Qeno blue at the top of each page, fading into the window background, so the
 /// glass has colour to pick up without making rows hard to read.
 struct BrandBackdrop: View {
     @Environment(\.colorScheme) private var scheme
@@ -118,7 +118,7 @@ struct AppIconImage: View {
     }
 }
 
-/// The big header of a page: Poki's icon or a symbol in a blue glass circle, a title and a line.
+/// The big header of a page: Qeno's icon or a symbol in a blue glass circle, a title and a line.
 struct PageHero<Trailing: View>: View {
     var symbol: String?
     var title: String
@@ -175,12 +175,12 @@ struct HeroSection<Content: View>: View {
 }
 
 extension Color {
-    /// Poki's lighter blue, for gradients.
+    /// Qeno's lighter blue, for gradients.
     static let pokiSky = Color(red: 90 / 255, green: 167 / 255, blue: 255 / 255)
 }
 
 /// The photo of the Apple Account this Mac is signed in to: macOS shows the same picture for the
-/// user and their Apple Account. Used only when that account is the one signed in to Poki Setup.
+/// user and their Apple Account. Used only when that account is the one signed in to Qeno Setup.
 @MainActor
 final class AccountPhoto {
     static let shared = AccountPhoto()

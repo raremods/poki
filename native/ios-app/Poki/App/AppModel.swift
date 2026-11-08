@@ -11,12 +11,12 @@ import UserNotifications
 final class AppModel {
     var setup = SetupState.load() { didSet { setup.save() } }
     let identity = RelayIdentity()
-    /// The person's own relay (Connect). Poki has no default relay and sends nothing until one is set.
+    /// The person's own relay (Connect). Qeno has no default relay and sends nothing until one is set.
     private(set) var relayAddress = RelayAddress.saved
     /// The relay on or off (Agents > MCP Relay). On by default, and turned on when an address is set;
-    /// off, Poki makes no relay connection and only its own chat agent can use the phone.
+    /// off, Qeno makes no relay connection and only its own chat agent can use the phone.
     private(set) var relayEnabled = UserDefaults.standard.object(forKey: "relayEnabled") as? Bool ?? true
-    /// The relay Poki connects to: the address, while the relay is on.
+    /// The relay Qeno connects to: the address, while the relay is on.
     var activeRelay: RelayAddress? { relayEnabled ? relayAddress : nil }
 
     func setRelayEnabled(_ on: Bool) {
@@ -31,7 +31,7 @@ final class AppModel {
     let tunnel = LoopbackTunnel()
     let background = BackgroundKeeper()
     let diskImage = DiskImageStore()
-    /// Poki keeps its own signing: the Apple Account, the next build ready ahead of time, Install.
+    /// Qeno keeps its own signing: the Apple Account, the next build ready ahead of time, Install.
     let signer = SelfSigner()
     let voice: VoiceModel
     private(set) var runner = RunnerStatus.idle
@@ -53,19 +53,19 @@ final class AppModel {
     /// Stop the runner after this long without agent activity; 0 never stops it.
     /// 60 s by default. An agent can think for about a minute between steps of a long task; after a
     /// longer pause the runner stops, and the agent's next request starts it again.
-    /// In-process: close the automation session (and iOS's banner) when Poki stands by. Off by
+    /// In-process: close the automation session (and iOS's banner) when Qeno stands by. Off by
     /// default until a session reopened in the same launch is shown to answer reads on the phone.
     var closeSessionWhenIdle: Bool = UserDefaults.standard.bool(forKey: "inProcess.closeWhenIdle") {
         didSet { UserDefaults.standard.set(closeSessionWhenIdle, forKey: "inProcess.closeWhenIdle"); log.add("runner", "close the session when idle: \(closeSessionWhenIdle ? "on" : "off")") }
     }
     /// Ask the owner before payments, deleting, sending, passwords and Wallet input. Off in the alpha;
-    /// PokiCore reads it when Poki starts.
+    /// PokiCore reads it when Qeno starts.
     var askBeforeSensitiveSteps: Bool = UserDefaults.standard.bool(forKey: LiveCore.askKey) {
-        didSet { UserDefaults.standard.set(askBeforeSensitiveSteps, forKey: LiveCore.askKey); log.add("approval", "ask before sensitive steps: \(askBeforeSensitiveSteps ? "on" : "off") (from the next start of Poki)") }
+        didSet { UserDefaults.standard.set(askBeforeSensitiveSteps, forKey: LiveCore.askKey); log.add("approval", "ask before sensitive steps: \(askBeforeSensitiveSteps ? "on" : "off") (from the next start of Qeno)") }
     }
     /// Approvals are decided by the chat model (ApprovalClassifier) instead of the owner. Testing only, off.
     var approvalClassifier: Bool = UserDefaults.standard.bool(forKey: ApprovalClassifier.onKey) {
-        didSet { UserDefaults.standard.set(approvalClassifier, forKey: ApprovalClassifier.onKey); log.add("approval", "auto-classifier: \(approvalClassifier ? "on" : "off") (from the next start of Poki)") }
+        didSet { UserDefaults.standard.set(approvalClassifier, forKey: ApprovalClassifier.onKey); log.add("approval", "auto-classifier: \(approvalClassifier ? "on" : "off") (from the next start of Qeno)") }
     }
     var classifierLevel: ApprovalClassifier.Level = ApprovalClassifier.Level.saved {
         didSet { UserDefaults.standard.set(classifierLevel.rawValue, forKey: ApprovalClassifier.levelKey); log.add("approval", "auto-classifier level: \(classifierLevel.rawValue)") }
@@ -77,7 +77,7 @@ final class AppModel {
     var idleStopSeconds: Int = UserDefaults.standard.object(forKey: "idleStopSeconds.v4") as? Int ?? 60 {
         didSet { UserDefaults.standard.set(idleStopSeconds, forKey: "idleStopSeconds.v4"); log.add("runner", "idle stop set to \(idleStopSeconds) s") }
     }
-    /// Poki was on when it last ran; it turns itself on again at launch.
+    /// Qeno was on when it last ran; it turns itself on again at launch.
     private var wantsOn: Bool {
         get { UserDefaults.standard.bool(forKey: "wantsOn") }
         set { UserDefaults.standard.set(newValue, forKey: "wantsOn") }
@@ -85,17 +85,17 @@ final class AppModel {
     /// The setup step the Live Activity is guiding, if any.
     private(set) var guiding: SetupStep?
     /// The pairing file, if it is really there. The path is never stored: the app's container moves
-    /// when Poki is installed again, and a stored path then points at nothing.
+    /// when Qeno is installed again, and a stored path then points at nothing.
     var pairingPath: String? {
         _ = pairingFileSeen
         if FileManager.default.fileExists(atPath: AppFiles.phonePairingFile.path) { return AppFiles.phonePairingFile.path }
         return FileManager.default.fileExists(atPath: AppFiles.pairingFile.path) ? AppFiles.pairingFile.path : nil
     }
-    /// Whether the pairing file was there at the last look. Poki Setup on a computer writes it into
-    /// Poki's container after an install, while Poki may be running: setting this redraws what depends
+    /// Whether the pairing file was there at the last look. Qeno Setup on a computer writes it into
+    /// Qeno's container after an install, while Qeno may be running: setting this redraws what depends
     /// on `pairingPath` (the file itself is not observed).
     private var pairingFileSeen = FileManager.default.fileExists(atPath: AppFiles.pairingFile.path)
-    /// Looks for a pairing file Poki Setup put in the container (at launch, on coming to the front,
+    /// Looks for a pairing file Qeno Setup put in the container (at launch, on coming to the front,
     /// and every few seconds on the pairing step).
     func lookForHandedPairing() {
         let there = FileManager.default.fileExists(atPath: AppFiles.pairingFile.path)
@@ -107,7 +107,7 @@ final class AppModel {
         setup.pairingFile = AppFiles.pairingFile.path
         SetupVault.mirrorPairingFromContainer()
         pairingTrouble = nil; pairingVerifiedAt = nil
-        log.add("pairing", "pairing file from Poki Setup found")
+        log.add("pairing", "pairing file from Qeno Setup found")
     }
     /// Why the phone refused the pairing the last time the runner started, until it is accepted again.
     private(set) var pairingTrouble: String?
@@ -118,7 +118,7 @@ final class AppModel {
     /// Turning on now will probably bring up iOS's passcode screen (no automation has started since
     /// this iPhone last restarted, or ever): the owner is told first (`passcodeHeadsUp`).
     var passcodeExpected: Bool { UserDefaults.standard.double(forKey: Self.automationBootKey) != BootClock.current }
-    /// The note before iOS's passcode screen is showing; Continue turns Poki on.
+    /// The note before iOS's passcode screen is showing; Continue turns Qeno on.
     var passcodeHeadsUp = false
     private var passcodeHeadsUpReconnect = true
     private var passcodeHeadsUpSeen = 0.0
@@ -128,7 +128,7 @@ final class AppModel {
         guard UserDefaults.standard.double(forKey: Self.automationBootKey) != BootClock.current else { return }
         UserDefaults.standard.set(BootClock.current, forKey: Self.automationBootKey)
     }
-    /// Continue on the note: Poki turns on, and iOS's passcode screen comes next.
+    /// Continue on the note: Qeno turns on, and iOS's passcode screen comes next.
     func continueAfterPasscodeHeadsUp() {
         passcodeHeadsUp = false
         passcodeHeadsUpSeen = BootClock.current
@@ -148,7 +148,7 @@ final class AppModel {
     private var launcherConfig: LauncherConfig?
 
     let host = AppCoreHost()
-    /// Poki Runner or Poki's own process, fixed for this launch (Debug tab).
+    /// Qeno Runner or Qeno's own process, fixed for this launch (Debug tab).
     let automationPath = AutomationPath.current
     private let core: LiveCore
     private let launcher: RunnerLauncher
@@ -160,7 +160,7 @@ final class AppModel {
     private var sessionStartTask: Task<Void, Never>?
     private(set) var sessionStarting = false
 
-    /// No task is running, so an install (which ends Poki) disturbs nothing: no agent step under way,
+    /// No task is running, so an install (which ends Qeno) disturbs nothing: no agent step under way,
     /// no approval waiting, and a minute since the agent last did something.
     var signingIdle: Bool { signingBusyReason == nil }
 
@@ -169,7 +169,7 @@ final class AppModel {
     /// lost event cannot keep Install off for good.
     var signingBusyReason: String? {
         if !approvals.isEmpty { return String(localized: "An approval is waiting for you.") }
-        if sessionStarting { return String(localized: "Poki is turning on.") }
+        if sessionStarting { return String(localized: "Qeno is turning on.") }
         if let step = stepUnderWay, sessionOn, Date().timeIntervalSince(step.started) < 120 {
             return String(localized: "The agent is doing a step: \(step.summary).")
         }
@@ -182,7 +182,7 @@ final class AppModel {
     func startSigner() {
         signer.phone = { [weak self] in
             guard let self, let path = self.pairingPath, self.loopback.isWorking else { return nil }
-            return ["device_address": "10.7.0.1", "pairing_file": path, "host_name": "Poki"]
+            return ["device_address": "10.7.0.1", "pairing_file": path, "host_name": "Qeno"]
         }
         signer.isIdle = { [weak self] in self?.signingIdle ?? false }
         signer.busyReason = { [weak self] in self?.signingBusyReason }
@@ -228,7 +228,7 @@ final class AppModel {
     var onProbeApproval: ((PendingApproval) -> Void)?
 
     /// The outside agent driving the phone now: its MCP session's client, or the agent that handed
-    /// a task to Poki. nil while Poki's own chat drives it.
+    /// a task to Qeno. nil while Qeno's own chat drives it.
     var currentCaller: String? {
         let store = SessionStore.shared
         if let id = store.activeSessionID, let client = store.session(id)?.client { return client }
@@ -298,11 +298,11 @@ final class AppModel {
             for await event in core.events { self?.handle(event) }
         }
         loopback.onChange = { [weak self] old, new in self?.loopbackChanged(from: old, to: new) }
-        // A built-in tunnel that fails or drops while Poki is on dials again by itself; the loopback
+        // A built-in tunnel that fails or drops while Qeno is on dials again by itself; the loopback
         // check that follows lets `loopbackChanged` start the runner, as for any other recovery.
         tunnel.wanted = { [weak self] in self?.sessionOn == true && self?.setup.loopback == .builtIn }
         tunnel.onReconnected = { [weak self] in self?.loopback.check() }
-        // When Poki detects the owner's own VPN it stops: the tunnel says so here, and the problem clears when it is back.
+        // When Qeno detects the owner's own VPN it stops: the tunnel says so here, and the problem clears when it is back.
         tunnel.onAttention = { [weak self] text in
             guard let self else { return }
             if let text { problem = text; tunnelAttention = text }
@@ -340,7 +340,7 @@ final class AppModel {
     private var inProcessWarmToken = 0
     /// A session of this launch was closed. One reopened in the same launch answers no reads (the
     /// phone, builds 144-149: every look timed out after a stand-by, a restart, or Off then On), so
-    /// Poki starts again as a new process for the next one instead.
+    /// Qeno starts again as a new process for the next one instead.
     private var inProcessUsedUp = false
 
     /// Ends the in-process session (Automation Mode and the banner go with it) off the main thread.
@@ -372,13 +372,13 @@ final class AppModel {
             Task { @MainActor [weak self] in
                 let paused = (result["paused"] as? Bool) == true
                 self?.log.add("runner", paused ? "Automation Mode turned off while standing by (\(result["how"] ?? "?")): the banner goes until an agent asks"
-                                               : "Automation Mode could not be turned off alone (\(result["how"] ?? "?"); the session offers: \(result["selectors"] ?? "nothing")): the banner stays while Poki is on")
+                                               : "Automation Mode could not be turned off alone (\(result["how"] ?? "?"); the session offers: \(result["selectors"] ?? "nothing")): the banner stays while Qeno is on")
             }
         }
     }
 
     /// Opens (or checks) the in-process session off the main thread before an agent needs it: when
-    /// the launcher has mounted the disk image, when Poki comes to the front, when an agent
+    /// the launcher has mounted the disk image, when Qeno comes to the front, when an agent
     /// connects, and when an agent's call finds the last try failed. prepare is idempotent: a session
     /// already open answers "reused" in milliseconds.
     func warmInProcess(_ why: String) {
@@ -419,31 +419,31 @@ final class AppModel {
         }
     }
 
-    /// Poki came to the front: turn on again if it was on, check the loopback live, and finish a
+    /// Qeno came to the front: turn on again if it was on, check the loopback live, and finish a
     /// setup step the person just did in Settings.
     func becameActive() {
         inFront = true
         cameToFront = Date()
-        // A pairing file and disk image Poki Setup put in the container while Poki was running (or
+        // A pairing file and disk image Qeno Setup put in the container while Qeno was running (or
         // since it last came to the front) count at once: mirrored to the Keychain, the disk image
         // checked again, and the pairing checked as soon as the loopback answers.
         SetupVault.mirrorPairingFromContainer()
         lookForHandedPairing()
         diskImage.notice()
-        warmInProcess("Poki came to the front")
+        warmInProcess("Qeno came to the front")
         loopback.resume()
-        // Swiped away, ended by iOS, or Poki turned on from the background (where iOS starts none):
-        // the Live Activity comes back while Poki is on, so the next thing that needs the owner pops up.
+        // Swiped away, ended by iOS, or Qeno turned on from the background (where iOS starts none):
+        // the Live Activity comes back while Qeno is on, so the next thing that needs the owner pops up.
         if sessionOn, !activity.isRunning {
             activity.start(deviceName: deviceName)
-            if activity.isRunning { log.add("activity", "Live Activity started again (Poki came to the front)") }
+            if activity.isRunning { log.add("activity", "Live Activity started again (Qeno came to the front)") }
         }
-        // Poki in front while an agent's step is under way: nobody opened it on purpose. A tap near the
+        // Qeno in front while an agent's step is under way: nobody opened it on purpose. A tap near the
         // top of the screen hit the expanded Dynamic Island (iOS opens the activity's app), or the agent
         // tapped the activity's own label in the tree. Logged so the phone log shows it; PokiCore sends
         // the agent back to the app it was in.
         if sessionOn, let step = stepUnderWay, Date().timeIntervalSince(step.started) < 20 {
-            log.add("app", "Poki came to the front during a step (\(step.summary)): a tap hit the Live Activity")
+            log.add("app", "Qeno came to the front during a step (\(step.summary)): a tap hit the Live Activity")
         }
         Task {
             await tunnel.refresh()
@@ -452,23 +452,23 @@ final class AppModel {
         if let step = guiding, isDone(step) { stopGuide() }
     }
 
-    /// In the background the loopback is still watched while Poki is on (the agent's runner depends on
+    /// In the background the loopback is still watched while Qeno is on (the agent's runner depends on
     /// it): every 6 s, light enough for the location-kept background time.
     func wentToBackground() {
         inFront = false
         sessionOn ? loopback.resume(every: 6) : loopback.pause()
-        if pairingUnderWay { log.add("pairing", "Poki in the background while pairing; keep-alive \(pairingKeepAlive.isOn ? "playing" : "off")") }
+        if pairingUnderWay { log.add("pairing", "Qeno in the background while pairing; keep-alive \(pairingKeepAlive.isOn ? "playing" : "off")") }
     }
     private var inFront = true
     private var cameToFront = Date()
 
-    /// Poki is being closed: end the runner now (the launcher kills its process) instead of leaving
+    /// Qeno is being closed: end the runner now (the launcher kills its process) instead of leaving
     /// iOS's automation banner up for half a minute. iOS gives a few seconds for this.
     private func appWillTerminate() {
         // The Live Activity goes with the app; the pause below gives its end time to reach iOS.
         ActivityController.endAll()
         guard sessionOn else { Thread.sleep(forTimeInterval: 0.5); return }
-        log.add("app", "Poki is closing: ending the runner")
+        log.add("app", "Qeno is closing: ending the runner")
         if automationPath == .inProcess { _ = PKInProcess.shared().close() }
         launcher.stop()
         Thread.sleep(forTimeInterval: 2.5)
@@ -588,21 +588,21 @@ final class AppModel {
             guard let self else { return true }
             defer { self.pairingCheck = nil }
             do {
-                _ = try await SignerBridge.call(["op": "udid", "device_address": "10.7.0.1", "pairing_file": path, "host_name": "Poki"])
+                _ = try await SignerBridge.call(["op": "udid", "device_address": "10.7.0.1", "pairing_file": path, "host_name": "Qeno"])
                 if self.pairingTrouble != nil { self.log.add("pairing", "check: accepted again") }
                 self.pairingTrouble = nil
                 self.pairingVerifiedAt = Date()
                 return true
             } catch {
                 let text = error.localizedDescription
-                // The launcher ends a refused pairing's message with its fix, "Pair again in Poki's setup."
+                // The launcher ends a refused pairing's message with its fix, "Pair again in Qeno's setup."
                 if text.contains("Pair again") {
                     if self.pairingTrouble == nil { self.log.add("pairing", "check: refused: \(text)") }
-                    self.pairingTrouble = text.replacingOccurrences(of: " Pair again in Poki's setup.", with: "")
+                    self.pairingTrouble = text.replacingOccurrences(of: " Pair again in Qeno's setup.", with: "")
                     return false
                 }
                 // iOS 27 and later take only a pairing made on the phone over the loopback: a lockdown
-                // record from a computer (Poki Setup) fails its TLS session here every time.
+                // record from a computer (Qeno Setup) fails its TLS session here every time.
                 if SetupStep.onDevicePairing, text.contains("device socket io failed"), Self.isLockdownRecord(path) {
                     if self.pairingTrouble == nil { self.log.add("pairing", "check: the computer's pairing file does not open the loopback on this iOS; pair on this iPhone") }
                     self.pairingTrouble = String(localized: "the pairing file from a computer does not work over the loopback on this iOS version. Pair this iPhone here once; the pairing stays.")
@@ -623,7 +623,7 @@ final class AppModel {
             return
         }
         // The first automation after a restart (or ever) brings up iOS's own passcode screen. With
-        // Poki in front, the owner is told first that it is expected and that Poki cannot see it.
+        // Qeno in front, the owner is told first that it is expected and that Qeno cannot see it.
         if passcodeExpected, passcodeHeadsUpSeen != BootClock.current, inFront, !Self.onSimulator {
             passcodeHeadsUpReconnect = reconnectLocal
             passcodeHeadsUp = true
@@ -636,7 +636,7 @@ final class AppModel {
         }
         if setup.loopback == .builtIn, !tunnel.connected {
             guard reconnectLocal else {
-                problem = "The local connection is off. Turn Poki on to reconnect, or choose an external connection in Setup."
+                problem = "The local connection is off. Turn Qeno on to reconnect, or choose an external connection in Setup."
                 return
             }
             sessionStarting = true
@@ -704,17 +704,17 @@ final class AppModel {
         idleTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in Task { @MainActor in self?.checkIdle() } }
     }
 
-    /// Turned on again after a session of this launch was closed: Poki starts over as a new process
+    /// Turned on again after a session of this launch was closed: Qeno starts over as a new process
     /// (the only way to a session that reads the screen) and comes back on by itself. A notice reopens
     /// it; `wantsOn` turns it on when it does.
     private func relaunchForFreshSession() {
-        log.add("session", "turning on after the automation session was closed: Poki restarts so agents can see the screen")
+        log.add("session", "turning on after the automation session was closed: Qeno restarts so agents can see the screen")
         wantsOn = true
         let content = UNMutableNotificationContent()
-        content.title = String(localized: "Tap to Open Poki")
-        content.body = String(localized: "Poki restarted so agents can see the screen again. It turns on when it opens.")
-        content.userInfo = ["poki_link": "poki://chat"]
-        UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "nz.zheha.poki.relaunch", content: content,
+        content.title = String(localized: "Tap to Open Qeno")
+        content.body = String(localized: "Qeno restarted so agents can see the screen again. It turns on when it opens.")
+        content.userInfo = ["poki_link": "qeno://chat"]
+        UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "com.owaiken.qeno.relaunch", content: content,
                                                                       trigger: UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)))
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             UIApplication.shared.perform(NSSelectorFromString("suspend"))
@@ -722,11 +722,11 @@ final class AppModel {
         }
     }
 
-    /// The owner tapped Install: Poki winds down for iOS to replace it. The automation session (and
+    /// The owner tapped Install: Qeno winds down for iOS to replace it. The automation session (and
     /// its banner) closes, the Live Activity ends, the log is written; the loopback stays, since the
-    /// install runs over it. `wantsOn` is kept, so Poki turns on again when it reopens.
+    /// install runs over it. `wantsOn` is kept, so Qeno turns on again when it reopens.
     func windDownForUpdate() {
-        log.add("signing", "installing the update: winding down (Poki closes, then reopens from the notice)")
+        log.add("signing", "installing the update: winding down (Qeno closes, then reopens from the notice)")
         if automationPath == .inProcess { closeInProcess("the update") }
         activity.end()
         AttentionNotice.clear()
@@ -800,10 +800,10 @@ final class AppModel {
         if automationPath == .inProcess {
             // The in-process session is closed, and with it Automation Mode and iOS's banner; the
             // next agent request opens a new one (a few seconds, no passcode within the same boot).
-            // The session stays open while Poki is on: a session reopened in the same launch answered
+            // The session stays open while Qeno is on: a session reopened in the same launch answered
             // no tree reads on the phone (0.2.8 build 144, after a stand-by every look timed out until
-            // Poki was relaunched), so standing by ends the task and leaves the session (and iOS's
-            // banner) as they are. Turning Poki off still closes it.
+            // Qeno was relaunched), so standing by ends the task and leaves the session (and iOS's
+            // banner) as they are. Turning Qeno off still closes it.
             // Without closing it, Automation Mode alone is turned off where iOS offers a way, so the
             // banner shows only while an agent works; the next request's prepare turns it on again.
             log.add("runner", closeSessionWhenIdle ? "standing by: \(reason); closing the in-process session, and the banner with it"
@@ -863,7 +863,7 @@ final class AppModel {
         }
     }
 
-    private static let stuckNotice = "Poki Runner is still running after Stop. Swipe it away in the app switcher; the banner goes with it."
+    private static let stuckNotice = "Qeno Runner is still running after Stop. Swipe it away in the app switcher; the banner goes with it."
     private func clearStuckNotice() { if problem == Self.stuckNotice { problem = nil } }
 
     /// The runner is off and starts on the next agent request.
@@ -885,9 +885,9 @@ final class AppModel {
         log.add("runner", automationPath == .inProcess ? "an agent asked: opening the automation session again" : "an agent asked: starting the runner")
         activity.update { $0.runnerPaused = false; $0.phase = .working; $0.headline = "Starting the runner"; $0.since = Date() }
         if automationPath == .inProcess, inProcessUsedUp {
-            log.add("runner", "an agent asked, but the session of this launch was closed: open Poki to start it again")
-            problem = String(localized: "Open Poki so agents can see the screen again: it restarts once.")
-            AttentionNotice.post(title: String(localized: "Open Poki"), body: String(localized: "An agent is waiting. Open Poki so it can see the screen again."))
+            log.add("runner", "an agent asked, but the session of this launch was closed: open Qeno to start it again")
+            problem = String(localized: "Open Qeno so agents can see the screen again: it restarts once.")
+            AttentionNotice.post(title: String(localized: "Open Qeno"), body: String(localized: "An agent is waiting. Open Qeno so it can see the screen again."))
         }
         if automationPath == .inProcess, runner.isRunning { warmInProcess("an agent asked"); return }
         launchRunner()
@@ -917,8 +917,8 @@ final class AppModel {
     /// (the runner dies with the tunnel, so every drop costs a restart).
     func loopbackChanged(from old: LoopbackMonitor.State, to new: LoopbackMonitor.State) {
         let wasWorking = { if case .working = old { true } else { false } }()
-        // 10.7.0.1 answers with no connection chosen in Setup: something outside Poki (a proxy app set
-        // up before, or by Poki Setup) provides it. The external connection is the recorded choice, so
+        // 10.7.0.1 answers with no connection chosen in Setup: something outside Qeno (a proxy app set
+        // up before, or by Qeno Setup) provides it. The external connection is the recorded choice, so
         // Setup's loopback step is done and Turn on does not ask to choose one (0.2.8 build 91: the step
         // never let the owner continue although the loopback was on).
         if loopback.isWorking, setup.loopback == .none {
@@ -950,7 +950,7 @@ final class AppModel {
         if preLaunch, !loopback.isWorking, loopback.state != .checking || status.state == "waiting_network" {
             if loopback.cellularRefused {
                 let since = loopback.droppedAt.map { " since \(Self.clock.string(from: $0))" } ?? ""
-                return .starting("waiting for Wi-Fi\(since): the phone has only cellular, and iOS refuses the developer services' loopback there. The owner connects Wi-Fi and opens Poki; the runner starts by itself, and once it runs the phone can switch back to cellular. Nothing on the phone changes meanwhile")
+                return .starting("waiting for Wi-Fi\(since): the phone has only cellular, and iOS refuses the developer services' loopback there. The owner connects Wi-Fi and opens Qeno; the runner starts by itself, and once it runs the phone can switch back to cellular. Nothing on the phone changes meanwhile")
             }
             return .waitingForLoopback(since: loopback.droppedAt.map(Self.clock.string(from:)),
                                        tunnelWithoutAnswer: loopback.state == .noAnswer,
@@ -972,7 +972,7 @@ final class AppModel {
             pairingVerifiedAt = Date()
             // The disk image mounted and the runner is starting, so Developer Mode is on; a running
             // runner means UI Automation is on too. Setup's confirm steps tick themselves (a pairing
-            // file from Poki Setup then needs nothing more on the phone).
+            // file from Qeno Setup then needs nothing more on the phone).
             if !setup.developerMode { setup.developerMode = true; log.add("setup", "Developer Mode is on (the runner started)") }
             if status.state == "running", !setup.uiAutomation { setup.uiAutomation = true; log.add("setup", "UI Automation is on (the runner runs)") }
             if status.state == "running", automationPath == .runner { automationStarted() }
@@ -1001,7 +1001,7 @@ final class AppModel {
         runner = status
         host.update(runner: coreState(of: status))
         // On the in-process path the session is opened as soon as the launcher is ready, so the
-        // owner's one-time Automation Mode passcode comes when they turn Poki on, not mid-task, and
+        // owner's one-time Automation Mode passcode comes when they turn Qeno on, not mid-task, and
         // the first look finds it open.
         if status.state == "running" { warmInProcess("the launcher is ready") }
         if status.state == "failed" {
@@ -1024,7 +1024,7 @@ final class AppModel {
         }
         // Events after Turn off (the core's own "stopped") are not for the screen. An approval is
         // the exception: a call that asks one (the on-device chat, the gym probe) waits on the
-        // owner's answer whether or not Poki is on, and dropping it left that call waiting for the
+        // owner's answer whether or not Qeno is on, and dropping it left that call waiting for the
         // whole approval time.
         switch event {
         case .approvalRequested, .approvalEnded: break
@@ -1124,7 +1124,7 @@ final class AppModel {
 
     // MARK: The chat's tools
 
-    /// A tool call from the chat's model loop. Poki turns on first when it is off (the runner then starts
+    /// A tool call from the chat's model loop. Qeno turns on first when it is off (the runner then starts
     /// on this call, like for an agent's first request); when it cannot, the answer says why.
     /// The chat's turn ended: the phone goes back to the app the task began in, and the log says how.
     func finishTask() {
@@ -1135,8 +1135,8 @@ final class AppModel {
         if probeDriven { return await core.callTool(name, arguments: arguments) }
         if !sessionOn { startSession() }
         guard sessionOn else {
-            let why = problem ?? "Poki is off."
-            return PokiCore.ToolAnswer(text: "not_sent: Poki could not turn on: \(why) Nothing was sent. Tell the owner what to fix.", jpeg: nil, isError: true)
+            let why = problem ?? "Qeno is off."
+            return PokiCore.ToolAnswer(text: "not_sent: Qeno could not turn on: \(why) Nothing was sent. Tell the owner what to fix.", jpeg: nil, isError: true)
         }
         lastAgentActivity = Date()
         return await core.callTool(name, arguments: arguments)
@@ -1202,7 +1202,7 @@ final class AppModel {
 
     /// A decision from the Live Activity. The card shows the answer at once (Allowing, Denying).
     /// Allow is tapped on the expanded Dynamic Island, which takes about a second to collapse; input
-    /// sent at once can land on it (iOS then opens Poki). So the Live Activity's decisions reach
+    /// sent at once can land on it (iOS then opens Qeno). So the Live Activity's decisions reach
     /// PokiCore after a short pause, the app's own buttons at once.
     func decide(_ decision: ApprovalDecision) {
         // A tap on an approval that already ended (answered in the app, or timed out) does nothing.
@@ -1229,13 +1229,13 @@ final class AppModel {
     nonisolated static func problemText(_ fix: String) -> String {
         let short: [(String, String)] = [
             ("Turn on the loopback", "Loopback Off"),
-            ("Poki needs the internet", "No Internet"),
+            ("Qeno needs the internet", "No Internet"),
             ("Mounting the developer disk image timed out", "No Internet"),
             ("This iOS version needs a newer", "Disk Image Outdated"),
             ("The developer disk image did not install", "Fetching Disk Image"),
             ("Pair again", "Pairing Refused"),
             ("Turn on Developer Mode", "Developer Mode Off"),
-            ("Install Poki Runner", "Poki Runner Missing"),
+            ("Install Qeno Runner", "Qeno Runner Missing"),
         ]
         return short.first { fix.hasPrefix($0.0) }?.1 ?? firstPart(fix)
     }
@@ -1255,7 +1255,7 @@ final class AppModel {
         try importPairingFile(try Data(contentsOf: url), how: "imported")
     }
 
-    /// A pairing file as bytes: from Files, AirDrop, a `poki://pairing` link or Poki Setup on a computer.
+    /// A pairing file as bytes: from Files, AirDrop, a `qeno://pairing` link or Qeno Setup on a computer.
     func importPairingFile(_ data: Data, how: String) throws {
         // A lockdown pairing plist or an RPPairing file; both are property lists.
         _ = try PropertyListSerialization.propertyList(from: data, format: nil)
@@ -1273,9 +1273,9 @@ final class AppModel {
     /// What the last pairing link or file did, for the pairing page.
     var pairingNote: String?
 
-    /// A link Poki was opened with. `poki://pairing?url=…[&sha256=…]` fetches a pairing file (Poki
-    /// Setup serves it on the local network and shows the link as a code); `poki://pairing?data=…`
-    /// carries one in base64url; `poki://setup?relay=…` sets the relay. A file URL is a pairing file
+    /// A link Qeno was opened with. `qeno://pairing?url=…[&sha256=…]` fetches a pairing file (Qeno
+    /// Setup serves it on the local network and shows the link as a code); `qeno://pairing?data=…`
+    /// carries one in base64url; `qeno://setup?relay=…` sets the relay. A file URL is a pairing file
     /// opened from AirDrop or Files. Returns the setup step to show, or nil when the link was none of these.
     func open(link url: URL) -> SetupStep? {
         if url.isFileURL {
@@ -1309,7 +1309,7 @@ final class AppModel {
             // The Live Activity's link to a setup step (pairing).
             return item("step").flatMap(SetupStep.init(rawValue:))
         case "setup":
-            // Poki Setup hands over the relay it configured (the Cloudflare proxy); the chat shows it.
+            // Qeno Setup hands over the relay it configured (the Cloudflare proxy); the chat shows it.
             if let relay = item("relay") { log.add("relay", setRelay(relay) ? "set by link" : "link carried no relay address") }
             return nil
         default: return nil
@@ -1324,20 +1324,20 @@ final class AppModel {
         pairing = .advertising
         // The code also comes as a banner (PairingNotice): ask for notifications now, while in front.
         ApprovalNotice.requestPermission()
-        // Started now, while Poki is in front: the PIN arrives while the person is in Settings, when
-        // iOS no longer lets Poki start a Live Activity.
+        // Started now, while Qeno is in front: the PIN arrives while the person is in Settings, when
+        // iOS no longer lets Qeno start a Live Activity.
         activity.start(deviceName: deviceName)
         activity.update { $0.phase = .pairing; $0.pin = nil; $0.headline = "Pair in Settings" }
         // The person completes pairing in Settings. Keep the listener and Bonjour publication alive
-        // there, before a regular Poki session can be started. Without it (audio can be busy, as in a
+        // there, before a regular Qeno session can be started. Without it (audio can be busy, as in a
         // call) pairing still starts, as it did before the keep-alive.
-        // Location keeps Poki running in Settings as well (While Using is enough, started here in front).
+        // Location keeps Qeno running in Settings as well (While Using is enough, started here in front).
         background.holdForPairing()
         log.add("pairing", "staying on with location (\(background.allowed ? "allowed" : "not allowed yet")) and silent audio")
         do { try pairingKeepAlive.start() }
         catch { log.add("pairing", "keep-alive did not start (\(error.localizedDescription)); iOS may stop the pairing while Settings is open") }
         do {
-            try pairer.start(hostName: "Poki", saveTo: AppFiles.pairingFile) { [weak self] event in
+            try pairer.start(hostName: "Qeno", saveTo: AppFiles.pairingFile) { [weak self] event in
                 Task { @MainActor in self?.pairingChanged(event) }
             }
         } catch { pairingChanged(.failed("\(error)")) }
@@ -1361,14 +1361,14 @@ final class AppModel {
         }
     }
 
-    /// The person left the pairing step in Poki (another tab, or another step): the pairing stops at
+    /// The person left the pairing step in Qeno (another tab, or another step): the pairing stops at
     /// once, and with it the background keep-alive. Going to Settings is not leaving.
     func leftPairing() {
         guard pairingUnderWay else { return }
-        // Only a move inside Poki counts. iOS can take pages down while Poki is in the background
+        // Only a move inside Qeno counts. iOS can take pages down while Qeno is in the background
         // (the person is in Settings typing the code) or while it comes back; that is not leaving.
         guard inFront, UIApplication.shared.applicationState == .active, Date().timeIntervalSince(cameToFront) > 2 else {
-            log.add("pairing", "pairing page went away while Poki was not in front; the pairing goes on")
+            log.add("pairing", "pairing page went away while Qeno was not in front; the pairing goes on")
             return
         }
         log.add("pairing", "cancelled: the pairing step was left")
@@ -1421,7 +1421,7 @@ final class AppModel {
         let steps = SetupStep.shown
         activity.update {
             $0.phase = .setup
-            $0.headline = "Setting up Poki"
+            $0.headline = "Setting up Qeno"
             $0.guide = .init(number: (steps.firstIndex(of: step) ?? 0) + 1, count: steps.count, title: step.activityTitle)
         }
     }
@@ -1437,10 +1437,10 @@ final class AppModel {
         switch step {
         case .runner: setup.runnerInstalled
         case .developerMode: setup.developerMode
-        // A loopback that answers is the step done, whichever app provides it: one set up before Poki
-        // (or by Poki Setup on a computer) has no row tapped here, and `loopbackChanged` records it.
+        // A loopback that answers is the step done, whichever app provides it: one set up before Qeno
+        // (or by Qeno Setup on a computer) has no row tapped here, and `loopbackChanged` records it.
         case .loopback: loopback.isWorking
-        // The disk image downloads by itself (and is checked again when Poki turns on): it does not hold the step open.
+        // The disk image downloads by itself (and is checked again when Qeno turns on): it does not hold the step open.
         case .pairing: pairingPath != nil && pairingTrouble == nil
         case .account: signer.signedIn
         case .automation: setup.uiAutomation
@@ -1451,7 +1451,7 @@ final class AppModel {
     var setupComplete: Bool { SetupStep.shown.allSatisfy(isDone) }
 
     /// A setup step is still to do. The loopback counts as done once a connection is chosen: whether it
-    /// answers right now is checked live and is off whenever Poki is (the built-in connection), which is
+    /// answers right now is checked live and is off whenever Qeno is (the built-in connection), which is
     /// not a step left for the owner.
     var setupStepsLeft: Bool {
         SetupStep.shown.contains { $0 == .loopback ? setup.loopback == .none : !isDone($0) }
@@ -1462,7 +1462,7 @@ final class AppModel {
 
     // MARK: Relay and connectors
 
-    static let noRelay = "Enter your relay's address first (Settings › Relay). Poki has no default relay."
+    static let noRelay = "Enter your relay's address first (Settings › Relay). Qeno has no default relay."
 
     /// Saves the relay address the person entered; false when it is not one. A running session moves
     /// to the new relay at once.

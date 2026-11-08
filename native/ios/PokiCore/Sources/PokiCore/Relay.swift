@@ -42,7 +42,7 @@ final class URLSessionSocket: WebSocketConnection, @unchecked Sendable {
 }
 
 /// The person's own relay, as they enter it: the origin of the Worker they deployed, such as
-/// `https://poki-relay.you.workers.dev`. Poki has no default relay.
+/// `https://poki-relay.you.workers.dev`. Qeno has no default relay.
 public struct RelayAddress: Sendable, Equatable {
     /// `scheme://host[:port]`, no path.
     public let origin: URL
@@ -116,7 +116,7 @@ final class RelayClient: @unchecked Sendable {
     var stateDescription: String { state.value.describe }
 
     func label() throws -> String {
-        guard let host else { throw RelayFailure("Poki is shutting down") }
+        guard let host else { throw RelayFailure("Qeno is shutting down") }
         return base32(try host.signingKey().publicKey)
     }
 

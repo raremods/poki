@@ -2,8 +2,8 @@ import Foundation
 import PokiCore
 import SwiftUI
 
-/// One conversation in the Sessions list: an in-app chat with Poki, an outside agent's MCP session
-/// (its own look and do calls), or a task an outside agent handed to Poki (`ask_poki`).
+/// One conversation in the Sessions list: an in-app chat with Qeno, an outside agent's MCP session
+/// (its own look and do calls), or a task an outside agent handed to Qeno (`ask_poki`).
 struct SavedSession: Codable, Identifiable, Equatable {
     enum Kind: String, Codable { case poki, agent, handoff, voice }
     enum Outcome: String, Codable { case done, failed, stopped }
@@ -19,7 +19,7 @@ struct SavedSession: Codable, Identifiable, Equatable {
     var outcome: Outcome?
     var entries: [ChatEntry]
     var calls: [CallRecord]
-    /// The owner's own name for it (Rename), and the short name Poki's chat model gave it.
+    /// The owner's own name for it (Rename), and the short name Qeno's chat model gave it.
     var customName: String? = nil
     var autoName: String? = nil
     /// sha256 of the connector secret an outside agent's session came through (the relay says).
@@ -62,13 +62,13 @@ struct SavedSession: Codable, Identifiable, Equatable {
         return ""
     }
 
-    /// "Claude → Poki" for a hand-off, the agent's name for its own session, "Poki" for a chat.
+    /// "Claude → Qeno" for a hand-off, the agent's name for its own session, "Qeno" for a chat.
     var name: String {
         if let customName, !customName.isEmpty { return customName }
         switch kind {
-        case .poki: return autoName ?? (title == String(localized: "New conversation") ? "Poki" : String(title.prefix(40)))
+        case .poki: return autoName ?? (title == String(localized: "New conversation") ? "Qeno" : String(title.prefix(40)))
         case .agent: return client ?? String(localized: "An agent")
-        case .handoff: return autoName.map { "\(client ?? String(localized: "An agent")) · \($0)" } ?? "\(client ?? String(localized: "An agent")) → Poki"
+        case .handoff: return autoName.map { "\(client ?? String(localized: "An agent")) · \($0)" } ?? "\(client ?? String(localized: "An agent")) → Qeno"
         case .voice: return autoName ?? (title.isEmpty ? String(localized: "Voice chat") : String(title.prefix(40)))
         }
     }
@@ -90,7 +90,7 @@ final class SessionStore {
     private var writeTask: Task<Void, Never>?
     /// The outside agent sessions seen since launch: id → client name.
     /// Each MCP session's client name (its clientInfo at initialize), kept across launches: an agent
-    /// keeps its session while Poki restarts or the session is closed for being idle, and its next
+    /// keeps its session while Qeno restarts or the session is closed for being idle, and its next
     /// call (ask_poki among them) still says who it is.
     private var clients: [String: String] = (UserDefaults.standard.dictionary(forKey: "sessions.clients") as? [String: String]) ?? [:] {
         didSet {
@@ -220,14 +220,14 @@ final class SessionStore {
     /// Names given before the session's first save wait here.
     private var pendingNames: [String: String] = [:]
 
-    /// The short name Poki's chat model gave a chat.
+    /// The short name Qeno's chat model gave a chat.
     func setAutoName(_ id: String, _ name: String) {
         guard var session = session(id) else { pendingNames[id] = name; return }
         session.autoName = name
         put(session)
     }
 
-    /// A live voice conversation as chat entries: its start time, your words, Poki's answers, its steps.
+    /// A live voice conversation as chat entries: its start time, your words, Qeno's answers, its steps.
     static func entries(voice lines: [VoiceLine], started: Date) -> [ChatEntry] {
         var entries = [ChatEntry(.time(started))]
         for line in lines {
@@ -253,7 +253,7 @@ final class SessionStore {
         switch event {
         case .session(.started(let id, let client, _, let connector)):
             if client.isEmpty {
-                // A session that began before Poki last started: named from the connector's agent,
+                // A session that began before Qeno last started: named from the connector's agent,
                 // else the last client that said its name.
                 if clients[id] == nil, let name = connector.flatMap({ connectorAgent?($0) }) ?? lastClient { clients[id] = AgentName.pretty(name) }
             } else {
@@ -435,7 +435,7 @@ enum AgentName {
         if name.contains("chatgpt") || name.contains("openai") { return "ChatGPT" }
         if name.contains("cursor") { return "Cursor" }
         if name.contains("gemini") { return "Gemini" }
-        if name.contains("poki") { return "Poki Agent" }
+        if name.contains("poki") || name.contains("qeno") { return "Qeno Agent" }
         let words = raw.replacingOccurrences(of: "-", with: " ").replacingOccurrences(of: "_", with: " ").split(separator: " ")
         return words.isEmpty ? String(localized: "An agent") : words.map { $0.prefix(1).uppercased() + $0.dropFirst() }.joined(separator: " ")
     }

@@ -6,10 +6,10 @@ import WebKit
 
 /// The ChatGPT sign-in: OpenAI's Sign in with ChatGPT for open-source apps
 /// (developers.openai.com/siwc/token-sharing-open-source), through PiSwiftAI's `loginOpenAIChatGPT`.
-/// The first sign-in registers Poki with `dynamic_agent_client` and this installation's id; the page
-/// opens in ASWebAuthenticationSession and redirects to a listener inside Poki on
+/// The first sign-in registers Qeno with `dynamic_agent_client` and this installation's id; the page
+/// opens in ASWebAuthenticationSession and redirects to a listener inside Qeno on
 /// http://127.0.0.1:1455/auth/callback, the only redirect the flow accepts. The chat then runs on the
-/// OpenAI API (Responses, store off) on the owner's ChatGPT plan. Poki does not use Codex's own client.
+/// OpenAI API (Responses, store off) on the owner's ChatGPT plan. Qeno does not use Codex's own client.
 ///
 /// The tokens go into the keychain as one JSON item and are never printed or logged.
 enum ChatGPTAccount {
@@ -35,7 +35,7 @@ enum ChatGPTAccount {
 
 @MainActor
 final class ChatGPTBrowserLogin: NSObject, ASWebAuthenticationPresentationContextProviding {
-    /// In-app: OpenAI's page opens in Poki's own sheet, which hands the last redirect (to Poki's listener
+    /// In-app: OpenAI's page opens in Qeno's own sheet, which hands the last redirect (to Qeno's listener
     /// on 127.0.0.1) straight to the listener, so no browser ever loads that local address (Safari tried
     /// it over https first and showed a certificate warning). Off: the system sign-in sheet.
     var inApp = true
@@ -57,7 +57,7 @@ final class ChatGPTBrowserLogin: NSObject, ASWebAuthenticationPresentationContex
             },
             signal: cancel,
             getDeviceId: { [id = ChatGPTAccount.installationID] in id },
-            agentName: "Poki"
+            agentName: "Qeno"
         )
         defer { finish() }
         return try await loginOpenAIChatGPT(callbacks)
@@ -66,7 +66,7 @@ final class ChatGPTBrowserLogin: NSObject, ASWebAuthenticationPresentationContex
     private func open(_ address: String) {
         guard let url = URL(string: address) else { return }
         if inApp { pageURL = url; onPage?(url); return }
-        let session = ASWebAuthenticationSession(url: url, callback: .customScheme("poki")) { [weak self] _, _ in
+        let session = ASWebAuthenticationSession(url: url, callback: .customScheme("qeno")) { [weak self] _, _ in
             // Closed by the owner (the redirect goes to the listener, not to this callback).
             Task { @MainActor in self?.closed() }
         }
@@ -121,7 +121,7 @@ struct ChatGPTSignIn: View {
                     Button("Continue with ChatGPT") { login.inApp = true; run { try await login.signIn() } }.disabled(working)
                     Button("Continue in Safari") { login.inApp = false; run { try await login.signIn() } }.disabled(working)
                 } footer: {
-                    Text("Poki uses your ChatGPT Plus or Pro plan through OpenAI’s Sign in with ChatGPT. The sign-in stays in this iPhone’s Keychain. An OpenAI API key works too, as a backup: add it under OpenAI.")
+                    Text("Qeno uses your ChatGPT Plus or Pro plan through OpenAI’s Sign in with ChatGPT. The sign-in stays in this iPhone’s Keychain. An OpenAI API key works too, as a backup: add it under OpenAI.")
                 }
                 if let problem { Text(verbatim: problem).foregroundStyle(Color(.systemRed)) }
                 if ChatGPTAccount.signedIn {
@@ -166,7 +166,7 @@ struct ChatGPTSignIn: View {
 
 extension URL: @retroactive Identifiable { public var id: String { absoluteString } }
 
-/// OpenAI's sign-in page in Poki. The redirect to Poki's own listener (127.0.0.1 or localhost, port
+/// OpenAI's sign-in page in Qeno. The redirect to Qeno's own listener (127.0.0.1 or localhost, port
 /// 1455, http or https) is not loaded: it is sent to the listener over plain http from here, which ends
 /// the sign-in and closes this sheet.
 struct SignInPage: UIViewRepresentable {
@@ -185,7 +185,7 @@ struct SignInPage: UIViewRepresentable {
     func updateUIView(_ view: WKWebView, context: UIViewRepresentableContext<SignInPage>) {}
 }
 
-/// Hands the redirect to Poki's own listener instead of loading it.
+/// Hands the redirect to Qeno's own listener instead of loading it.
 final class SignInRedirect: NSObject, WKNavigationDelegate {
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping @MainActor @Sendable (WKNavigationActionPolicy) -> Void) {

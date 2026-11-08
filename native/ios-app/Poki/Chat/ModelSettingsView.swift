@@ -26,7 +26,7 @@ struct ModelSettingsView: View {
             } header: {
                 Text("Accounts")
             } footer: {
-                Text("Keys and sign-ins stay in this iPhone’s Keychain. Poki sends each one only to its own provider.")
+                Text("Keys and sign-ins stay in this iPhone’s Keychain. Qeno sends each one only to its own provider.")
             }
 
             Section {
@@ -132,7 +132,7 @@ private struct AccountDetail: View {
                 Text("Use This Account For")
             } footer: {
                 if !ModelAccounts.canChat(provider) {
-                    Text("Poki keeps this key; chatting with \(provider.name) comes in an update.")
+                    Text("Qeno keeps this key; chatting with \(provider.name) comes in an update.")
                 } else if !ModelAccounts.canTalkLive(provider) {
                     Text("Live voice runs on OpenAI’s Realtime API, which only an OpenAI API key can open. Dictation in the message field works with this account.")
                 }
@@ -326,7 +326,7 @@ private struct KeyEntry: View {
                     Text("\(provider.name) key")
                 } footer: {
                     if !provider.wired {
-                        Text("Poki keeps the key now; chatting with \(provider.name) comes in an update. Until then, choose Anthropic or OpenAI.")
+                        Text("Qeno keeps the key now; chatting with \(provider.name) comes in an update. Until then, choose Anthropic or OpenAI.")
                     } else if ModelKeys.hasKey(provider) {
                         Text("A key is saved. Enter a new one to replace it.")
                     } else {

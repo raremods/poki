@@ -1,12 +1,12 @@
-// PokiRunnerHost: a small library loaded into Poki Runner (Xcode's XCTRunner host) before its own code.
+// PokiRunnerHost: a small library loaded into Qeno Runner (Xcode's XCTRunner host) before its own code.
 //
-// Started by Poki (through testmanagerd, with the XCTest session in the environment), XCTRunner runs
-// as always, and this library draws Poki Runner's in-use screen over XCTRunner's black window as soon
+// Started by Qeno (through testmanagerd, with the XCTest session in the environment), XCTRunner runs
+// as always, and this library draws Qeno Runner's in-use screen over XCTRunner's black window as soon
 // as the scene is up: the person sees what is going on and that the runner must stay open. The WDA
 // test calls PokiRunnerShowInUse too, once it serves.
 //
 // Opened by hand from the home screen, XCTRunner's app delegate is emptied, so it starts no test: no
-// UI Automation, no passcode prompt. It shows a short screen with an Open Poki button.
+// UI Automation, no passcode prompt. It shows a short screen with an Open Qeno button.
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
 
@@ -20,7 +20,7 @@ static BOOL PokiStartedByTestManager(void) {
 static UIColor *PokiBlue(void) { return [UIColor colorWithRed:0x20/255.0 green:0x84/255.0 blue:0xFD/255.0 alpha:1]; }
 
 static void PokiOpenPokiNow(void) {
-  [UIApplication.sharedApplication openURL:[NSURL URLWithString:@"poki://"] options:@{} completionHandler:nil];
+  [UIApplication.sharedApplication openURL:[NSURL URLWithString:@"qeno://"] options:@{} completionHandler:nil];
 }
 
 static UIFont *PokiRounded(CGFloat size, UIFontWeight weight) {
@@ -76,19 +76,19 @@ static UIView *PokiTip(NSString *symbol, NSString *text) {
   bear.layer.shadowOffset = CGSizeMake(0, 10);
 
   NSMutableArray<UIView *> *views = [NSMutableArray arrayWithObject:bear];
-  UILabel *title = PokiLabel(self.inUse ? @"Poki is using\nthis iPhone" : @"Poki Runner", PokiRounded(30, UIFontWeightBold), 1, NSTextAlignmentCenter);
+  UILabel *title = PokiLabel(self.inUse ? @"Qeno is using\nthis iPhone" : @"Qeno Runner", PokiRounded(30, UIFontWeightBold), 1, NSTextAlignmentCenter);
   [views addObject:title];
-  UILabel *body = PokiLabel(self.inUse ? @"An agent is working on this iPhone through Poki. Poki Runner can stay in the background."
-                                       : @"Poki starts this helper when an agent needs your iPhone. There's nothing to do here.",
+  UILabel *body = PokiLabel(self.inUse ? @"An agent is working on this iPhone through Qeno. Qeno Runner can stay in the background."
+                                       : @"Qeno starts this helper when an agent needs your iPhone. There's nothing to do here.",
                             [UIFont preferredFontForTextStyle:UIFontTextStyleBody], 0.88, NSTextAlignmentCenter);
   [views addObject:body];
 
   UIView *card = nil;
   if (self.inUse) {
     UIStackView *tips = [[UIStackView alloc] initWithArrangedSubviews:@[
-      PokiTip(@"rectangle.stack.badge.minus", @"Don't close Poki Runner while the agent works. Closing it stops the agent."),
-      PokiTip(@"stop.circle", @"To stop, tap Stop in Poki or on the Live Activity."),
-      PokiTip(@"moon.zzz", @"When the agent goes quiet, Poki puts the runner to sleep by itself."),
+      PokiTip(@"rectangle.stack.badge.minus", @"Don't close Qeno Runner while the agent works. Closing it stops the agent."),
+      PokiTip(@"stop.circle", @"To stop, tap Stop in Qeno or on the Live Activity."),
+      PokiTip(@"moon.zzz", @"When the agent goes quiet, Qeno puts the runner to sleep by itself."),
     ]];
     tips.axis = UILayoutConstraintAxisVertical;
     tips.spacing = 14;
@@ -118,7 +118,7 @@ static UIView *PokiTip(NSString *symbol, NSString *text) {
     out[NSFontAttributeName] = PokiRounded(17, UIFontWeightSemibold);
     return out;
   };
-  UIButton *open = [UIButton buttonWithConfiguration:style primaryAction:[UIAction actionWithTitle:@"Open Poki" image:nil identifier:nil handler:^(__kindof UIAction *action) {
+  UIButton *open = [UIButton buttonWithConfiguration:style primaryAction:[UIAction actionWithTitle:@"Open Qeno" image:nil identifier:nil handler:^(__kindof UIAction *action) {
     PokiOpenPokiNow();
   }]];
   [views addObject:open];
@@ -154,7 +154,7 @@ static UIView *PokiTip(NSString *symbol, NSString *text) {
 - (UIStatusBarStyle)preferredStatusBarStyle { return UIStatusBarStyleLightContent; }
 @end
 
-// MARK: In use (started by Poki)
+// MARK: In use (started by Qeno)
 
 static UIWindow *PokiInUseWindow;
 
@@ -182,7 +182,7 @@ __attribute__((visibility("default"))) void PokiRunnerShowInUse(void) {
 static BOOL PokiYes(id self, SEL _cmd, ...) { return YES; }
 static id PokiNothing(id self, SEL _cmd, ...) { return nil; }
 
-/// Opened by hand, each scene gets Poki Runner's own screen, kept in XCTRunner's window property.
+/// Opened by hand, each scene gets Qeno Runner's own screen, kept in XCTRunner's window property.
 static void PokiSceneWillConnect(id self, SEL _cmd, UIScene *scene, UISceneSession *session, UISceneConnectionOptions *options) {
   if (![scene isKindOfClass:UIWindowScene.class]) { return; }
   UIWindow *window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
@@ -190,7 +190,7 @@ static void PokiSceneWillConnect(id self, SEL _cmd, UIScene *scene, UISceneSessi
   if ([self respondsToSelector:@selector(setWindow:)]) { [self performSelector:@selector(setWindow:) withObject:window]; }
   objc_setAssociatedObject(self, @selector(setWindow:), window, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
   [window makeKeyAndVisible];
-  NSLog(@"PokiRunnerHost: showing Poki Runner's screen");
+  NSLog(@"PokiRunnerHost: showing Qeno Runner's screen");
 }
 
 /// Runs when the library loads, before XCTRunner's main. (Running a whole app from here instead would

@@ -67,7 +67,7 @@ claude mcp add --scope user poki-mcp -- node "$PWD/src/stdio.mjs"   # Claude Cod
 codex mcp add poki-mcp -- node "$PWD/src/stdio.mjs"                 # Codex
 ```
 
-**Poki Agent。** 想用 Poki 獨立的終端機 agent 或訊息管道的話，讓 `npm start` 繼續執行，在同一個目錄再開一個終端機。安裝 agent，把它的指令加進這個終端機的 PATH，然後登入：
+**Qeno Agent。** 想用 Poki 獨立的終端機 agent 或訊息管道的話，讓 `npm start` 繼續執行，在同一個目錄再開一個終端機。安裝 agent，把它的指令加進這個終端機的 PATH，然後登入：
 
 ```sh
 npm ci --prefix agent
@@ -76,13 +76,13 @@ poki login
 poki status
 ```
 
-Poki Agent 預設使用 GPT-6.1 Terra（`gpt-6.1-terra`），推理強度為 low。建議保留這項設定，它是我們在手機任務中測試過的最快設定。可透過 `POKI_AGENT_MODEL` 更換模型，詳見[執行 Poki Agent](agent/README.md)。
+Qeno Agent 預設使用 GPT-6.1 Terra（`gpt-6.1-terra`），推理強度為 low。建議保留這項設定，它是我們在手機任務中測試過的最快設定。可透過 `POKI_AGENT_MODEL` 更換模型，詳見[執行 Qeno Agent](agent/README.md)。
 
 實體 iPhone 請先透過 USB 和 Mac 配對。詳見[實體 iPhone 設定](docs/physical-iphone.md)。
 
 ## 試跑一個任務
 
-使用 Poki Agent 時，如果只連接一支 iPhone，會自動選取。連接多台裝置時，加上 `--device '<device UUID>'`。
+使用 Qeno Agent 時，如果只連接一支 iPhone，會自動選取。連接多台裝置時，加上 `--device '<device UUID>'`。
 
 ```sh
 node bin/call.mjs list_devices   # 查詢裝置 UUID
@@ -91,9 +91,9 @@ poki "Search esp32 in Chrome and summarize the top result"
 
 > **注意：** Poki 操作的是你真實的 iPhone。如果你要它發訊息或付款，它就會照做。螢幕內容會傳送到你設定的模型服務。
 
-越用越快：Poki Agent 會記住做過的任務，重複執行時速度更快。
+越用越快：Qeno Agent 會記住做過的任務，重複執行時速度更快。
 
-**訊息管道：** 設定好已授權的管道後，用 `poki imessage` 或 `poki telegram` 啟動。設定方式請見 [Poki Agent](agent/README.md)。
+**訊息管道：** 設定好已授權的管道後，用 `poki imessage` 或 `poki telegram` 啟動。設定方式請見 [Qeno Agent](agent/README.md)。
 
 **MCP 用戶端：** Claude Code、Codex，以及任何支援 `mcpServers` JSON 的用戶端。
 
@@ -104,7 +104,7 @@ poki "Search esp32 in Chrome and summarize the top result"
 | 主題 | 閱讀 |
 | --- | --- |
 | 安裝、其他 MCP 用戶端與疑難排解 | [安裝指南](docs/install.md) |
-| Poki Agent、模型、iMessage 與 Telegram | [執行 Poki Agent](agent/README.md) |
+| Qeno Agent、模型、iMessage 與 Telegram | [執行 Qeno Agent](agent/README.md) |
 | MCP 工具參考 | [工具行為](docs/tools.md) |
 | 環境變數與工作階段 | [設定](docs/configuration.md) |
 | USB 配對、開發者模式與 Wi-Fi | [實體 iPhone 設定](docs/physical-iphone.md) |
@@ -115,10 +115,10 @@ poki "Search esp32 in Chrome and summarize the top result"
 ## 路線圖
 
 <p align="center">
-  <img src="docs/images/roadmap.png" width="860" alt="Poki roadmap. Shipped: Poki MCP, Poki Agent, iMessage and Terminal integrations, self-learning routes, remote connections. In Progress: persistent connection performance improvements, Telegram integration, native text input (clipboard-free), simplified tool interface. Planned: Poki App, which runs locally on iPhone and is available while your Mac is powered off. Future: iPhone Duo support, physical device support (no Xcode required), additional model providers.">
+  <img src="docs/images/roadmap.png" width="860" alt="Poki roadmap. Shipped: Poki MCP, Qeno Agent, iMessage and Terminal integrations, self-learning routes, remote connections. In Progress: persistent connection performance improvements, Telegram integration, native text input (clipboard-free), simplified tool interface. Planned: Poki App, which runs locally on iPhone and is available while your Mac is powered off. Future: iPhone Duo support, physical device support (no Xcode required), additional model providers.">
 </p>
 
-- **已發布:** Poki MCP、Poki Agent、iMessage 與終端機整合、自我學習路線、遠端連線
+- **已發布:** Poki MCP、Qeno Agent、iMessage 與終端機整合、自我學習路線、遠端連線
 - **開發中:** **長連線效能最佳化**、Telegram 整合、原生文字輸入（不經剪貼簿）、簡化工具介面
 - **計畫中:** Poki App：在 iPhone 本機執行，Mac 關機時可用
 - **遠期規劃:** 支援 iPhone Duo、實機支援（無需安裝 Xcode）、更多模型供應商

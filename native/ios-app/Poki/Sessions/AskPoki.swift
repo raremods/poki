@@ -1,15 +1,15 @@
 import Foundation
 import PokiCore
 
-/// `ask_poki`: an outside agent (Claude, Codex, any MCP client) hands a whole task to Poki's own agent,
+/// `ask_poki`: an outside agent (Claude, Codex, any MCP client) hands a whole task to Qeno's own agent,
 /// which runs it on this iPhone with the owner's model (their key or ChatGPT sign-in) and answers with
 /// the result. The agent can still call look and do itself; this is the other way of working. It is
 /// listed only once the owner has set up a model, and it waits while the owner's own chat runs a task.
 @MainActor
 enum AskPoki {
-    static let schema = #"{"type":"object","properties":{"task":{"type":"string","description":"What to do on the iPhone, in plain words, as you would ask a person. Include every detail Poki needs (names, text to type); Poki cannot ask you back."},"check":{"type":"boolean","description":"true: no new task; answer with the result of the task you handed over earlier, or say it is still running."}},"additionalProperties":false}"#
+    static let schema = #"{"type":"object","properties":{"task":{"type":"string","description":"What to do on the iPhone, in plain words, as you would ask a person. Include every detail Qeno needs (names, text to type); Qeno cannot ask you back."},"check":{"type":"boolean","description":"true: no new task; answer with the result of the task you handed over earlier, or say it is still running."}},"additionalProperties":false}"#
 
-    static let description = "Hand a REPETITIVE phone task to Poki, the small agent on this iPhone: something the owner does often (the same order, the same message, the same settings), ideally one Poki already has a saved routine for (routines {action: \"list\"} shows them). Poki repeats it by itself with the owner's own model, which is quicker but less capable than you, and answers with the result. For anything new, unusual or tricky, drive the phone yourself with look and do; when that worked and could come again, save it with routines {action: \"save\", name, description} so Poki (and ask_poki) can repeat it next time. One task at a time. A task can take minutes: when it is not done before your call would time out, the answer says it is still working, and you call ask_poki with {\"check\": true} a little later for the result."
+    static let description = "Hand a REPETITIVE phone task to Qeno, the small agent on this iPhone: something the owner does often (the same order, the same message, the same settings), ideally one Qeno already has a saved routine for (routines {action: \"list\"} shows them). Qeno repeats it by itself with the owner's own model, which is quicker but less capable than you, and answers with the result. For anything new, unusual or tricky, drive the phone yourself with look and do; when that worked and could come again, save it with routines {action: \"save\", name, description} so Qeno (and ask_poki) can repeat it next time. One task at a time. A task can take minutes: when it is not done before your call would time out, the answer says it is still working, and you call ask_poki with {\"check\": true} a little later for the result."
 
     private static weak var app: AppModel?
     /// The owner's chat (the Debug probe's `chat` mode sends to it).
@@ -46,23 +46,23 @@ enum AskPoki {
         let key = session ?? "local"
         if args["check"] as? Bool == true {
             guard let job = jobs[key] else {
-                return PokiCore.ToolAnswer(text: "nothing pending: no task was handed to Poki in this session, or its result was already given", jpeg: nil, isError: false)
+                return PokiCore.ToolAnswer(text: "nothing pending: no task was handed to Qeno in this session, or its result was already given", jpeg: nil, isError: false)
             }
             return await answer(job, key: key, within: timeLeft)
         }
         guard let task = (args["task"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines), !task.isEmpty else {
             return PokiCore.ToolAnswer(text: "error: task is empty; nothing was done", jpeg: nil, isError: true)
         }
-        guard let app else { return PokiCore.ToolAnswer(text: "error: Poki is not ready", jpeg: nil, isError: true) }
+        guard let app else { return PokiCore.ToolAnswer(text: "error: Qeno is not ready", jpeg: nil, isError: true) }
         if chat?.running == true || ChatModel.delegatedBusy != nil || !running.isEmpty {
-            return PokiCore.ToolAnswer(text: "busy: Poki's agent is already working on a task on this iPhone; nothing was done. Try again in a minute, or use look and do.", jpeg: nil, isError: true)
+            return PokiCore.ToolAnswer(text: "busy: Qeno's agent is already working on a task on this iPhone; nothing was done. Try again in a minute, or use look and do.", jpeg: nil, isError: true)
         }
         let store = SessionStore.shared
         let requester = store.client(of: session)
         let id = store.handoffID(for: session)
         let handoff = ChatModel(app: app, kind: .handoff, requester: requester, sessionID: id)
         running[id] = handoff
-        AppLog.shared.add("chat", "\(requester) handed a task to Poki (\(task.count) characters)")
+        AppLog.shared.add("chat", "\(requester) handed a task to Qeno (\(task.count) characters)")
         jobs[key] = Task { @MainActor in
             let result = await handoff.runDelegated(task)
             running[id] = nil
@@ -85,7 +85,7 @@ enum AskPoki {
             result = await job.value
         }
         guard let result else {
-            return PokiCore.ToolAnswer(text: "working: Poki is still on the task. Call ask_poki with {\"check\": true} in a minute for the result.", jpeg: nil, isError: false)
+            return PokiCore.ToolAnswer(text: "working: Qeno is still on the task. Call ask_poki with {\"check\": true} in a minute for the result.", jpeg: nil, isError: false)
         }
         jobs[key] = nil
         return PokiCore.ToolAnswer(text: result.text, jpeg: nil, isError: false)

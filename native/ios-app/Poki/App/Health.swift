@@ -61,7 +61,7 @@ struct Issue: Identifiable {
         }
     }
 
-    /// Text from PokiCore and the launcher stays as it came; Poki's own sentences are localized.
+    /// Text from PokiCore and the launcher stays as it came; Qeno's own sentences are localized.
     private static func local(_ text: String) -> String { Bundle.main.localizedString(forKey: text, value: text, table: nil) }
 
     @MainActor static func current(_ model: AppModel) -> [Issue] {
@@ -70,9 +70,9 @@ struct Issue: Identifiable {
             let runner = model.runner
             if runner.state == "failed", model.pairingTrouble == nil {
                 let fix = runner.fix ?? ""
-                let kind: Fix = fix.contains("Install Poki Runner") || fix.contains("Pair again") || fix.contains("setup") ? .setup : fix.contains("Developer Mode") ? .settings : .retry
+                let kind: Fix = fix.contains("Install Qeno Runner") || fix.contains("Pair again") || fix.contains("setup") ? .setup : fix.contains("Developer Mode") ? .settings : .retry
                 out.append(Issue(id: "runner", title: String(localized: "The runner stopped"),
-                                 text: fix.isEmpty ? (runner.detail.map { "\($0.prefix(1).uppercased())\($0.dropFirst())." } ?? String(localized: "Poki starts it again on the next agent request.")) : local(fix), fix: kind))
+                                 text: fix.isEmpty ? (runner.detail.map { "\($0.prefix(1).uppercased())\($0.dropFirst())." } ?? String(localized: "Qeno starts it again on the next agent request.")) : local(fix), fix: kind))
             } else if runner.state == "waiting_network", let fix = runner.fix, fix.contains("internet") {
                 out.append(Issue(id: "network", title: String(localized: "Waiting for the internet"), text: local(fix), fix: .none))
             } else if model.loopback.cellularRefused {
@@ -82,15 +82,15 @@ struct Issue: Identifiable {
                 }
             } else if runner.state == "waiting_network" || !model.loopback.isWorking && model.loopback.state != .checking {
                 out.append(Issue(id: "loopback", title: String(localized: "Loopback is off"),
-                                 text: String(localized: "Turn on your proxy app with the Poki module, or connect LocalDevVPN."), fix: .setup))
+                                 text: String(localized: "Turn on your proxy app with the Qeno module, or connect LocalDevVPN."), fix: .setup))
             }
             if let trouble = model.pairingTrouble {
                 out.append(Issue(id: "pairing", title: String(localized: "Pair this iPhone again"),
-                                 text: String(localized: "The phone no longer accepts Poki’s pairing (\(trouble)). Pair again in Setup; it takes a minute."), fix: .setup))
+                                 text: String(localized: "The phone no longer accepts Qeno’s pairing (\(trouble)). Pair again in Setup; it takes a minute."), fix: .setup))
             }
             if model.passcodeHint {
                 out.append(Issue(id: "passcode", title: String(localized: "Enter the passcode if the iPhone asks"),
-                                 text: String(localized: "iOS asks for the passcode before UI Automation after Poki Runner was force-closed or the iPhone restarted. Enter it once; Poki carries on by itself."), fix: .none))
+                                 text: String(localized: "iOS asks for the passcode before UI Automation after Qeno Runner was force-closed or the iPhone restarted. Enter it once; Qeno carries on by itself."), fix: .none))
             }
             if let text = model.handoffText {
                 out.append(Issue(id: "handoff", title: String(localized: "Your turn"),
@@ -98,14 +98,14 @@ struct Issue: Identifiable {
             }
             if case .offline = model.relayStatus {
                 out.append(Issue(id: "relay", title: String(localized: "Agents can’t reach this iPhone"),
-                                 text: String(localized: "Poki is offline. Check that the phone has internet; Poki reconnects by itself."), fix: .none))
+                                 text: String(localized: "Qeno is offline. Check that the phone has internet; Qeno reconnects by itself."), fix: .none))
             }
             if model.background.denied {
-                out.append(Issue(id: "location", title: String(localized: "Poki can’t stay on in the background"),
-                                 text: String(localized: "Allow location access for Poki (Settings › Poki › Location › Always). Poki uses it only to keep running; it never records where you are."), fix: .settings))
+                out.append(Issue(id: "location", title: String(localized: "Qeno can’t stay on in the background"),
+                                 text: String(localized: "Allow location access for Qeno (Settings › Qeno › Location › Always). Qeno uses it only to keep running; it never records where you are."), fix: .settings))
             }
         }
-        // With Poki off, the old Home said this in its subtitle: a start from cellular alone is refused.
+        // With Qeno off, the old Home said this in its subtitle: a start from cellular alone is refused.
         if !model.sessionOn, model.loopback.cellularRefused {
             out.append(Issue(id: "cellular", title: String(localized: "Connect to Wi-Fi first"), text: LoopbackMonitor.cellularHint, fix: .none))
         }

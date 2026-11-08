@@ -7,7 +7,7 @@ import WebRTC
 /// secret; it never sees an API key. Callbacks arrive on the main actor.
 final class VoiceLink: NSObject, RTCPeerConnectionDelegate, RTCDataChannelDelegate, @unchecked Sendable {
     private static let factory: RTCPeerConnectionFactory = {
-        // Voice chat: echo cancellation on, so Poki's own voice from the speaker doesn't interrupt it.
+        // Voice chat: echo cancellation on, so Qeno's own voice from the speaker doesn't interrupt it.
         let audio = RTCAudioSessionConfiguration.webRTC()
         audio.category = AVAudioSession.Category.playAndRecord.rawValue
         audio.mode = AVAudioSession.Mode.voiceChat.rawValue
@@ -69,7 +69,7 @@ final class VoiceLink: NSObject, RTCPeerConnectionDelegate, RTCDataChannelDelega
         guard let peer = factory.peerConnection(with: config, constraints: constraints, delegate: self) else { throw VoiceError.realtime(0, "WebRTC could not start") }
         self.peer = peer
         if microphone {
-            // Poki's background keep-alive may have left the shared session in .playback, which cannot
+            // Qeno's background keep-alive may have left the shared session in .playback, which cannot
             // record; set voice chat explicitly before the microphone track starts.
             let session = RTCAudioSession.sharedInstance()
             session.lockForConfiguration()
@@ -171,7 +171,7 @@ final class VoiceLink: NSObject, RTCPeerConnectionDelegate, RTCDataChannelDelega
         return channel.sendData(RTCDataBuffer(data: data, isBinary: false))
     }
 
-    /// 0 mutes Poki's voice (silent test runs); 1 is normal.
+    /// 0 mutes Qeno's voice (silent test runs); 1 is normal.
     func setRemoteVolume(_ value: Double) {
         lock.withLock {
             volume = value

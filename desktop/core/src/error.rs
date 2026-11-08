@@ -74,10 +74,10 @@ impl From<idevice::IdeviceError> for Error {
 #[cfg(feature = "device")]
 fn usbmuxd_missing() -> String {
     if cfg!(target_os = "windows") {
-        "Poki Setup cannot reach the iPhone service. Install Apple Devices from the Microsoft Store (or iTunes from apple.com), then plug the iPhone in again.".into()
+        "Qeno Setup cannot reach the iPhone service. Install Apple Devices from the Microsoft Store (or iTunes from apple.com), then plug the iPhone in again.".into()
     } else if cfg!(target_os = "macos") {
-        "Poki Setup cannot reach usbmuxd, which macOS starts when an iPhone is plugged in. Plug the iPhone in with a data cable and unlock it.".into()
+        "Qeno Setup cannot reach usbmuxd, which macOS starts when an iPhone is plugged in. Plug the iPhone in with a data cable and unlock it.".into()
     } else {
-        "Poki Setup cannot reach usbmuxd. Install and start usbmuxd, then plug the iPhone in.".into()
+        "Qeno Setup cannot reach usbmuxd. Install and start usbmuxd, then plug the iPhone in.".into()
     }
 }

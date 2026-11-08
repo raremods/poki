@@ -45,7 +45,7 @@ struct AccountView: View {
                 }
                 if let t = model.teams.first(where: { $0.teamId == (a.teamId ?? model.teams.first?.teamId) }) {
                     LabeledContent("Kind") {
-                        Text(t.isFree ? "Free Personal Team: apps last 7 days, Poki Setup renews them" : "Apple Developer Program: apps last a year")
+                        Text(t.isFree ? "Free Personal Team: apps last 7 days, Qeno Setup renews them" : "Apple Developer Program: apps last a year")
                             .foregroundStyle(.secondary).multilineTextAlignment(.trailing)
                     }
                 }
@@ -57,14 +57,14 @@ struct AccountView: View {
                 .confirmationDialog("Sign out of \(a.appleId ?? "this Apple Account")?", isPresented: $confirmSignOut) {
                     Button("Sign Out", role: .destructive) { Task { await model.signOut() } }
                 } message: {
-                    Text("Poki stays on your iPhones, but Poki Setup can't renew it until you sign in again.")
+                    Text("Qeno stays on your iPhones, but Qeno Setup can't renew it until you sign in again.")
                 }
         }
     }
 
     @ViewBuilder private var signInForm: some View {
         HeroSection {
-            PageHero(symbol: "person.crop.circle", title: "Sign in with your Apple Account", subtitle: "Poki Setup uses it the way Xcode does: to sign Poki for your iPhone. A free Apple Account works. Your password goes to Apple only.")
+            PageHero(symbol: "person.crop.circle", title: "Sign in with your Apple Account", subtitle: "Qeno Setup uses it the way Xcode does: to sign Qeno for your iPhone. A free Apple Account works. Your password goes to Apple only.")
         }
         Section {
             TextField("Email or Phone Number", text: $appleID, prompt: Text("name@example.com"))
@@ -72,9 +72,9 @@ struct AccountView: View {
             SecureField("Password", text: $password, prompt: Text("Required"))
                 .textContentType(.password)
                 .onSubmit { Task { await signIn() } }
-            Toggle("Keep me signed in to renew Poki automatically", isOn: $keep)
+            Toggle("Keep me signed in to renew Qeno automatically", isOn: $keep)
         } footer: {
-            Text("With a free account, apps stop opening after 7 days. Poki Setup renews Poki before then while this Mac is on, using the password kept in your keychain.")
+            Text("With a free account, apps stop opening after 7 days. Qeno Setup renews Qeno before then while this Mac is on, using the password kept in your keychain.")
                 .font(.footnote).foregroundStyle(.secondary)
         }
         Section {

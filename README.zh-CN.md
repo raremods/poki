@@ -67,7 +67,7 @@ claude mcp add --scope user poki-mcp -- node "$PWD/src/stdio.mjs"   # Claude Cod
 codex mcp add poki-mcp -- node "$PWD/src/stdio.mjs"                 # Codex
 ```
 
-**Poki Agent。** 如果要使用 Poki 独立终端智能体或消息渠道，保持 `npm start` 运行，在同一目录下打开另一个终端。安装智能体，将命令加入当前终端的路径，再登录模型账号：
+**Qeno Agent。** 如果要使用 Poki 独立终端智能体或消息渠道，保持 `npm start` 运行，在同一目录下打开另一个终端。安装智能体，将命令加入当前终端的路径，再登录模型账号：
 
 ```sh
 npm ci --prefix agent
@@ -76,13 +76,13 @@ poki login
 poki status
 ```
 
-Poki Agent 默认使用 GPT-6.1 Terra（`gpt-6.1-terra`），推理强度为 low。建议保留这一配置，它是我们在手机任务中测试过的最快配置。可通过 `POKI_AGENT_MODEL` 更换模型，详见[运行 Poki Agent](agent/README.md)。
+Qeno Agent 默认使用 GPT-6.1 Terra（`gpt-6.1-terra`），推理强度为 low。建议保留这一配置，它是我们在手机任务中测试过的最快配置。可通过 `POKI_AGENT_MODEL` 更换模型，详见[运行 Qeno Agent](agent/README.md)。
 
 如果连接 iPhone 真机，请先通过 USB 与 Mac 配对。详见[真机配置指南](docs/physical-iphone.md)。
 
 ## 试跑一个任务
 
-Poki Agent 会自动选择唯一连接的 iPhone。连接多台设备时，加上 `--device '<device UUID>'` 指定设备。
+Qeno Agent 会自动选择唯一连接的 iPhone。连接多台设备时，加上 `--device '<device UUID>'` 指定设备。
 
 ```sh
 node bin/call.mjs list_devices   # 查设备 UUID
@@ -91,9 +91,9 @@ poki "Search esp32 in Chrome and summarize the top result"
 
 > **注意：** Poki 操作的是真实手机，如果你让它发消息或付款，它会直接执行；屏幕内容也会发送给你配置的模型服务。
 
-越用越快：Poki Agent 会记住跑过的任务，再次执行同款任务时速度更快。
+越用越快：Qeno Agent 会记住跑过的任务，再次执行同款任务时速度更快。
 
-**消息渠道：** 配置获授权的渠道后，运行 `poki imessage` 或 `poki telegram`。详见[运行 Poki Agent](agent/README.md)。
+**消息渠道：** 配置获授权的渠道后，运行 `poki imessage` 或 `poki telegram`。详见[运行 Qeno Agent](agent/README.md)。
 
 **MCP 客户端：** Claude Code、Codex，以及任何支持 `mcpServers` JSON 配置的客户端。
 
@@ -104,7 +104,7 @@ poki "Search esp32 in Chrome and summarize the top result"
 | 主题 | 文档 |
 | --- | --- |
 | 安装、其他 MCP 客户端与故障排查 | [安装指南](docs/install.md) |
-| Poki Agent、模型、iMessage 与 Telegram | [运行 Poki Agent](agent/README.md) |
+| Qeno Agent、模型、iMessage 与 Telegram | [运行 Qeno Agent](agent/README.md) |
 | MCP 工具说明 | [工具说明](docs/tools.md) |
 | 环境变量与会话管理 | [配置说明](docs/configuration.md) |
 | USB 配对、开发者模式与 Wi-Fi 连接 | [真机配置指南](docs/physical-iphone.md) |
@@ -115,7 +115,7 @@ poki "Search esp32 in Chrome and summarize the top result"
 ## 路线图
 
 <p align="center">
-  <img src="docs/images/roadmap.zh-CN.png" width="860" alt="Poki 路线图。已发布：Poki MCP、Poki Agent、iMessage 与终端集成、自学习路线、远程连接。开发中：长连接性能优化、Telegram 集成、原生文本输入（不经剪贴板）、简化工具接口。计划中：Poki App，在 iPhone 本地运行，Mac 关机时可用。远期规划：iPhone Duo 支持、真机支持（无需安装 Xcode）、更多模型提供商。">
+  <img src="docs/images/roadmap.zh-CN.png" width="860" alt="Poki 路线图。已发布：Poki MCP、Qeno Agent、iMessage 与终端集成、自学习路线、远程连接。开发中：长连接性能优化、Telegram 集成、原生文本输入（不经剪贴板）、简化工具接口。计划中：Poki App，在 iPhone 本地运行，Mac 关机时可用。远期规划：iPhone Duo 支持、真机支持（无需安装 Xcode）、更多模型提供商。">
 </p>
 
 ## Star History

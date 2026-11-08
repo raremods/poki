@@ -14,7 +14,7 @@ typedef struct PokiLauncher PokiLauncher;
 typedef struct PokiPairing PokiPairing;
 typedef void (*poki_event_cb)(void *context, const char *event_json);
 
-// config_json: {"device_address": "10.7.0.1", "pairing_file": "...", "host_name": "Poki",
+// config_json: {"device_address": "10.7.0.1", "pairing_file": "...", "host_name": "Qeno",
 //   "ddi_dir": "...", "runner_bundle": null, "wda_host": "127.0.0.1", "wda_port": 8100}
 // Events: {"state": "idle|connecting|pairing|mounting_ddi|launching|running|waiting_network|failed",
 //   "attempt": n, "since_ms": n, "pairing": "remote|lockdown", "ios": "...", "runner": "...",
@@ -27,14 +27,14 @@ char *poki_launcher_status(PokiLauncher *launcher);
 void poki_launcher_free(PokiLauncher *launcher);
 void poki_string_free(char *text);
 
-// config_json: {"host_name": "Poki", "out_path": "...", "identity_path": "..."}
+// config_json: {"host_name": "Qeno", "out_path": "...", "identity_path": "..."}
 // Events: {"event": "advertise", "service_type": "_remotepairing-pairable-host._tcp", "instance": "...",
 //   "port": n, "txt": {...}} (publish it with Bonjour), {"event": "pin", "pin": "123456"},
 //   {"event": "paired", "path": "..."}, {"event": "failed", "detail": "..."}
 PokiPairing *poki_pair_start(const char *config_json, poki_event_cb cb, void *context);
 void poki_pair_cancel(PokiPairing *pairing);
 
-// Poki keeps its own signing (native/launcher/src/signer.rs, Poki Setup's core). The vault is the
+// Qeno keeps its own signing (native/launcher/src/signer.rs, Qeno Setup's core). The vault is the
 // app's Keychain: get returns a malloc'd base64 string (freed by the library) or NULL; set and
 // delete return 0 on success. Install it once at launch, before the first call.
 typedef char *(*poki_vault_get_cb)(void *context, const char *name);

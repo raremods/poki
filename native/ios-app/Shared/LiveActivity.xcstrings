@@ -606,35 +606,35 @@
         }
       }
     },
-    "Poki Runner" : {
+    "Qeno Runner" : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki Runner"
+            "value" : "Qeno Runner"
           }
         }
       }
     },
-    "Poki Runner Missing" : {
+    "Qeno Runner Missing" : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "缺少 Poki Runner"
+            "value" : "缺少 Qeno Runner"
           }
         }
       }
     },
-    "Poki needs attention" : {
+    "Qeno needs attention" : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 需要你处理"
+            "value" : "Qeno 需要你处理"
           }
         }
       }
@@ -1024,13 +1024,13 @@
         }
       }
     },
-    "This iPhone is ready for Poki" : {
+    "This iPhone is ready for Qeno" : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "这台 iPhone 可以用 Poki 了"
+            "value" : "这台 iPhone 可以用 Qeno 了"
           }
         }
       }
@@ -1068,7 +1068,7 @@
         }
       }
     },
-    "Type it on the Pair with Poki screen in Settings" : {
+    "Type it on the Pair with Qeno screen in Settings" : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {

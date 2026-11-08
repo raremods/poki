@@ -108,7 +108,7 @@ Clients must send `X-Poki-MCP-Session`; the daemon answers `400` without it.
 ```json
 {
   "mcpServers": {
-    "poki": {
+    "qeno": {
       "type": "http",
       "url": "http://ROUTER-LAN-IP:47825/mcp",
       "headers": {

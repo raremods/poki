@@ -9,13 +9,13 @@ struct ChatEntry: Identifiable, Equatable, Codable {
         case time(Date)
         case you(String, delivered: Bool)
         case poki(String)
-        /// The steps of a task, in one Poki bubble.
+        /// The steps of a task, in one Qeno bubble.
         case plan([PlanStep])
         /// One grey line, centred: waiting for, or the result of, an approval.
         case note(ChatNote)
         /// An outside agent's own look or do, as one grey line (`ok` nil while it runs).
         case step(String, ok: Bool?)
-        /// An outside agent's request to Poki (`ask_poki`), on the requester's side.
+        /// An outside agent's request to Qeno (`ask_poki`), on the requester's side.
         case request(String, from: String)
     }
     let id: UUID
@@ -46,8 +46,8 @@ enum ChatNote: Equatable, Codable {
     case modelDeclined(String)
 }
 
-/// The chat: the owner's messages, Poki's answers and the steps it takes, and the model loop that runs
-/// on this iPhone with the owner's own key (ESP-174). Its prompt and tools are the Mac Poki Agent's
+/// The chat: the owner's messages, Qeno's answers and the steps it takes, and the model loop that runs
+/// on this iPhone with the owner's own key (ESP-174). Its prompt and tools are the Mac Qeno Agent's
 /// (`Harness`): PokiCore's `look` and `do`, with the same approval rules as an agent on a computer, and
 /// the agent's `report_plan` and `finish_task`, which drive the plan bubble.
 @MainActor
@@ -60,7 +60,7 @@ final class ChatModel {
     private(set) var awaitingModel = false
     /// This conversation in the Sessions list.
     private(set) var sessionID = UUID().uuidString.lowercased()
-    /// An in-app chat, or a task an outside agent handed to Poki (`ask_poki`).
+    /// An in-app chat, or a task an outside agent handed to Qeno (`ask_poki`).
     let kind: SavedSession.Kind
     /// The agent that handed the task over, for `.handoff`.
     let requester: String?
@@ -112,7 +112,7 @@ final class ChatModel {
 
     private var greeting: [ChatEntry] {
         [ChatEntry(.time(Date())),
-         ChatEntry(.poki(String(localized: "Hi, I’m Poki. Tell me what to do on this iPhone."))),
+         ChatEntry(.poki(String(localized: "Hi, I’m Qeno. Tell me what to do on this iPhone."))),
          ChatEntry(.poki(String(localized: "I’ll ask before anything you can’t undo.")))]
     }
 
@@ -201,7 +201,7 @@ final class ChatModel {
         // Another conversation (an outside agent's hand-off) is working the phone: one task at a time.
         if kind == .poki, let busy = ChatModel.delegatedBusy {
             entries.append(ChatEntry(.you(text, delivered: false)))
-            add(.note(.problem(String(localized: "Poki is working on a task for \(busy). Try again when it’s done."))))
+            add(.note(.problem(String(localized: "Qeno is working on a task for \(busy). Try again when it’s done."))))
             return
         }
         // A pause of half an hour or more gets its own time line, as in Messages.
@@ -301,7 +301,7 @@ final class ChatModel {
     private var lastOutcome: PiLoop.Outcome?
     private var finishSummary: String?
 
-    /// Runs a task an outside agent handed over (`ask_poki`) and answers with Poki's last words, how the
+    /// Runs a task an outside agent handed over (`ask_poki`) and answers with Qeno's last words, how the
     /// task ended, and finish_task's summary.
     func runDelegated(_ task: String) async -> (text: String, success: Bool?) {
         ChatModel.delegatedBusy = requester ?? String(localized: "an agent")
@@ -312,10 +312,10 @@ final class ChatModel {
         let replies = entries.compactMap { entry -> String? in if case .poki(let text) = entry.kind { return text }; return nil }
         var lines: [String] = []
         if let finishSummary { lines.append("result: \(finished == true ? "done" : "not done"): \(finishSummary)") }
-        if let last = replies.last { lines.append("Poki said: \(last)") }
+        if let last = replies.last { lines.append("Qeno said: \(last)") }
         if case .failed(let why)? = lastOutcome { lines.append("error: \(why)") }
         if lastOutcome == nil, let tail = entries.last, case .note(.problem(let why)) = tail.kind { lines.append("error: \(why)") }
-        if lines.isEmpty { lines.append("Poki ended without an answer.") }
+        if lines.isEmpty { lines.append("Qeno ended without an answer.") }
         return (lines.joined(separator: "\n"), finished)
     }
 
@@ -324,7 +324,7 @@ final class ChatModel {
 
     private func ended(_ outcome: PiLoop.Outcome, delivered youID: UUID) {
         finishPlan()
-        // The turn is over: the phone goes back to the app the task began in (Poki's chat, where the
+        // The turn is over: the phone goes back to the app the task began in (Qeno's chat, where the
         // reply is), as a client's finish does (ESP-176). Nothing moves when it is in front already.
         app.finishTask()
         switch outcome {
@@ -544,7 +544,7 @@ final class ChatModel {
         let you = String(localized: "Text Mom “On my way”")
         if scene == "working" {
             entries = [ChatEntry(.time(start)),
-                       ChatEntry(.poki(String(localized: "Hi, I’m Poki. Tell me what to do on this iPhone."))),
+                       ChatEntry(.poki(String(localized: "Hi, I’m Qeno. Tell me what to do on this iPhone."))),
                        ChatEntry(.you(you, delivered: true)),
                        ChatEntry(.poki(String(localized: "On it. Opening Messages."))),
                        ChatEntry(.plan([PlanStep(String(localized: "Open Messages"), state: .done),

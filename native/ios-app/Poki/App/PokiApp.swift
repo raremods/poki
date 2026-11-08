@@ -10,7 +10,7 @@ struct PokiApp: App {
         // PokiLauncher (Rust) and the relay write to sockets the other side may have closed. In an app,
         // unlike a Rust executable, nothing ignores SIGPIPE, and it would end the whole app.
         signal(SIGPIPE, SIG_IGN)
-        // iOS 26: the background task that keeps Poki up is registered before launch ends, as iOS asks.
+        // iOS 26: the background task that keeps Qeno up is registered before launch ends, as iOS asks.
         if #available(iOS 26.0, *) { ContinuedRun.registerAtLaunch() }
         // Settings an update, a reinstall or a re-sign lost come back from the Keychain, before anything
         // reads them; from here on every change is mirrored there.
@@ -26,7 +26,7 @@ struct PokiApp: App {
         #if DEBUG && targetEnvironment(simulator)
         TestCredential.importIfGiven()
         #endif
-        // A memory backup Poki Setup put back (Documents/AgentBackup) is merged in before any agent asks.
+        // A memory backup Qeno Setup put back (Documents/AgentBackup) is merged in before any agent asks.
         _ = RoutineStore.shared.importRestoredBackup()
         let model = AppModel()
         _model = State(initialValue: model)
@@ -42,8 +42,8 @@ struct PokiApp: App {
     }
 }
 
-/// Two tabs, as a native iPhone app has them: Chats (the Sessions list, Poki's chat and an agent's session
-/// over it, like Messages) and Status (Poki's run status, model, history and settings). Voice lives inside
+/// Two tabs, as a native iPhone app has them: Chats (the Sessions list, Qeno's chat and an agent's session
+/// over it, like Messages) and Status (Qeno's run status, model, history and settings). Voice lives inside
 /// the chat: a live conversation button and dictation into the message field.
 struct RootView: View {
     @Environment(AppModel.self) private var model
@@ -55,14 +55,14 @@ struct RootView: View {
     @State private var agents = NavigationPath()
     @State private var setup = NavigationPath()
 
-    /// Sessions is the first page; Poki's chat and an agent's session open over it, like a conversation
+    /// Sessions is the first page; Qeno's chat and an agent's session open over it, like a conversation
     /// in Messages; setup's checklist and its items are pushed there too.
     enum HomeRoute: Hashable { case chat, session(String), setup }
     enum RootTab: Hashable { case chats, agents, setup, newChat }
 
     @Environment(\.horizontalSizeClass) private var width
     /// In a wide window (iPad, the inner display of iPhone Duo, a large Split View or Stage Manager
-    /// window) the Poki tab is split: sessions and controls on the left, the chat on the right.
+    /// window) the Qeno tab is split: sessions and controls on the left, the chat on the right.
     @State private var wide: HomeRoute = .chat
     /// The tab bar leaves while a conversation is open on iPhone. It is set here, on the stack, and
     /// changed inside an animation, so it eases out on the way in and eases back in on the way out
@@ -127,7 +127,7 @@ struct RootView: View {
 
     var body: some View {
         TabView(selection: $tab) {
-            Tab(String(localized: "Poki"), systemImage: "bubble.left.and.bubble.right.fill", value: RootTab.chats) { pokiTab }
+            Tab(String(localized: "Qeno"), systemImage: "bubble.left.and.bubble.right.fill", value: RootTab.chats) { pokiTab }
 
             Tab("Agents", systemImage: "point.3.connected.trianglepath.dotted", value: RootTab.agents) {
                 AgentsView(path: $agents, openSession: openRun)
@@ -140,13 +140,13 @@ struct RootView: View {
                 .badge(model.setupComplete || SetupStep.shown.allSatisfy(model.isDone) ? nil : Text(verbatim: " "))
 
             // iOS 26: New Chat is the round button at the bottom right, on the tab bar's line (the
-            // place iOS gives a search tab). Choosing it starts a chat and goes back to the Poki tab.
+            // place iOS gives a search tab). Choosing it starts a chat and goes back to the Qeno tab.
             if #available(iOS 26.0, *) {
                 Tab(String(localized: "New Chat"), systemImage: "square.and.pencil", value: RootTab.newChat, role: .search) { Color.clear }
             }
         }
         .onChange(of: tab) { old, new in
-            // Leaving the Poki tab from a conversation (to Accounts, Setup, a connector): the Poki
+            // Leaving the Qeno tab from a conversation (to Accounts, Setup, a connector): the Qeno
             // tab is back at Sessions, with its tab bar, when you come back. Done without animation
             // while the other tab is in front, so nothing flashes and the tab bar is laid out afresh.
             if old == .chats, new != .chats, new != .newChat, width != .regular, !home.isEmpty {
@@ -165,26 +165,26 @@ struct RootView: View {
             Button("Don’t Allow", role: .cancel) { model.answerConnection(false) }
             Button("Allow") { model.answerConnection(true) }
         } message: { ask in
-            Text("\(ask.client) is signing in through \(ask.connector) and returns to \(ask.callback), which isn’t on Poki’s list of known agents. Allow it only if you are connecting it yourself right now. It could then see your screen and act on this iPhone.")
+            Text("\(ask.client) is signing in through \(ask.connector) and returns to \(ask.callback), which isn’t on Qeno’s list of known agents. Allow it only if you are connecting it yourself right now. It could then see your screen and act on this iPhone.")
         }
         // Before the first automation after a restart: iOS's passcode screen is next, and expected.
         .alert("Enter Your Passcode Next", isPresented: Binding(get: { model.passcodeHeadsUp }, set: { if !$0 { model.passcodeHeadsUp = false } })) {
             Button("Cancel", role: .cancel) { model.passcodeHeadsUp = false }
             Button("Continue") { model.continueAfterPasscodeHeadsUp() }
         } message: {
-            Text("This is the first time Poki starts automation since your iPhone restarted, so iOS will ask for your passcode on the next screen. That screen belongs to iOS: Poki can’t see or read what you enter, and it asks only once until the next restart.")
+            Text("This is the first time Qeno starts automation since your iPhone restarted, so iOS will ask for your passcode on the next screen. That screen belongs to iOS: Qeno can’t see or read what you enter, and it asks only once until the next restart.")
         }
         .onChange(of: scenePhase, initial: true) { _, phase in
             if phase == .active { model.becameActive(); AskPoki.refresh(); model.startSigner(); model.signer.maintain(); Task { await model.verifyPairing() } } else if phase == .background { model.wentToBackground() }
         }
         // A tap on the Live Activity opens the screen its state is about (ActivityFace.link): the chat,
-        // the setup step, or the Activity Log for a problem; `poki://voice` opens the chat too (it
+        // the setup step, or the Activity Log for a problem; `qeno://voice` opens the chat too (it
         // never turns on the microphone).
         .onOpenURL { url in
-            AppLog.shared.add("app", "opened by link poki://\(url.host() ?? "")")
+            AppLog.shared.add("app", "opened by link qeno://\(url.host() ?? "")")
             // Pairing is not interrupted: it stays on the pairing step, where the PIN is.
             guard !model.pairingUnderWay else { return }
-            // A pairing file or a setup link (from Poki Setup on a computer, AirDrop or Files) opens
+            // A pairing file or a setup link (from Qeno Setup on a computer, AirDrop or Files) opens
             // setup at that step, where the result is shown.
             if let step = model.open(link: url) {
                 tab = .setup
@@ -203,8 +203,8 @@ struct RootView: View {
         .onAppear(perform: openLaunchScreen)
         .task {
             #if DEBUG
-            // Development builds: `-pokiVoiceLink "poki://voice?…"` at launch starts a silent test run.
-            if let link = UserDefaults.standard.string(forKey: "pokiVoiceLink"), let url = URL(string: link), url.host() == "voice" {
+            // Development builds: `-qenoVoiceLink "qeno://voice?…"` at launch starts a silent test run.
+            if let link = UserDefaults.standard.string(forKey: "qenoVoiceLink"), let url = URL(string: link), url.host() == "voice" {
                 tab = .chats; show(HomeRoute.chat)
                 model.voice.openAtLaunch(url)
             }
@@ -225,7 +225,7 @@ struct RootView: View {
         agents = NavigationPath([route])
     }
 
-    /// The live voice conversation runs inside Poki's chat: the chat opens and the conversation starts.
+    /// The live voice conversation runs inside Qeno's chat: the chat opens and the conversation starts.
     private func openLiveVoice() {
         tab = .chats
         show(HomeRoute.chat)
@@ -242,7 +242,7 @@ struct RootView: View {
         show(HomeRoute.setup)
     }
 
-    /// A run from the Activity Log: Poki's own chat or an outside agent's session, in Chats.
+    /// A run from the Activity Log: Qeno's own chat or an outside agent's session, in Chats.
     private func openRun(_ id: String) {
         tab = .chats
         if let session = SessionStore.shared.session(id), session.kind == .poki {

@@ -1,4 +1,4 @@
-# Poki iPhone app: changes per round
+# Qeno iPhone app: changes per round
 
 What changed in each round, and what still needs the phone. Newest first.
 
@@ -8,7 +8,7 @@ Changed:
 - In-process path: the automation session is closed after the idle time, from Stop and when Poki is turned off, so iOS's "Automation Running" banner shows only while an agent works, as on the runner path. The next agent request opens a new session (new generation; an action meant for the old one is refused). A restart PokiCore asks for closes and reopens the session instead of being ignored. `scripts/inprocess-sim/check.sh --cycle` checks close, refusal while closed, reopen, read, tap and type on a simulator, and CI runs all three check modes.
 - The idle stop applies to the in-process path too (Settings > Stop When Idle For).
 - Setup, loopback page: the chosen app's tag is live (Working while 10.7.0.1 answers, Not Answering while it does not, with a line saying what to do); Stash, Quantumult X and Clash Mi added as users report them (marked "as reported", with the lines to add); Egern left out for want of a documented setting.
-- Setup, pairing page: on iOS 26 and earlier, where the phone cannot pair with itself, the page shows pairing from a computer (Poki Setup) and the ways to send the file; Start Pairing and Pair Again appear only on iOS 27 and later. A pairing file opened from AirDrop or Files, or sent by `poki://pairing?url=…&sha256=…` from Poki Setup, lands in Poki; `poki://setup?relay=…` sets the relay.
+- Setup, pairing page: on iOS 26 and earlier, where the phone cannot pair with itself, the page shows pairing from a computer (Qeno Setup) and the ways to send the file; Start Pairing and Pair Again appear only on iOS 27 and later. A pairing file opened from AirDrop or Files, or sent by `qeno://pairing?url=…&sha256=…` from Qeno Setup, lands in Poki; `qeno://setup?relay=…` sets the relay.
 - The pairing file and the setup state are kept in the Keychain as well, so a reinstall or a re-sign by a sideloading tool does not send the owner through setup again.
 - iPad is in the device family with every orientation, and CI screenshots home, setup and connect on an iPad Pro 11 simulator. Beside another app (the iPhone Duo's side-by-side apps, iPad windows) Poki's own process is never the front app; the driven app's part of the screen is the agent's screen: the tree's frames and the screenshot are relative to it and touches are moved back onto the screen (`PKInProcess.viewport`).
 

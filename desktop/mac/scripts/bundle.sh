@@ -1,5 +1,5 @@
 #!/bin/bash
-# Builds Poki Setup.app and its DMG on a Mac: the SwiftUI shell plus the Rust bridge.
+# Builds Qeno Setup.app and its DMG on a Mac: the SwiftUI shell plus the Rust bridge.
 #   desktop/mac/scripts/bundle.sh [universal|native] [out-dir]
 # Needs Xcode (swift) and Rust. Signs ad hoc unless MAC_SIGN_IDENTITY is set.
 set -euo pipefail
@@ -28,7 +28,7 @@ echo "== SwiftUI app"
 (cd "$HERE" && swift build -c release ${SWIFT_ARCHS[@]+"${SWIFT_ARCHS[@]}"})
 BIN="$(cd "$HERE" && swift build -c release ${SWIFT_ARCHS[@]+"${SWIFT_ARCHS[@]}"} --show-bin-path)/PokiSetup"
 
-APP="$OUT/Poki Setup.app"
+APP="$OUT/Qeno Setup.app"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/PokiSetup"
@@ -53,7 +53,7 @@ STAGE="$(mktemp -d)"
 cp -R "$APP" "$STAGE/"
 ln -s /Applications "$STAGE/Applications"
 rm -f "$DMG"
-hdiutil create -volname "Poki Setup" -srcfolder "$STAGE" -ov -format UDZO "$DMG" >/dev/null
+hdiutil create -volname "Qeno Setup" -srcfolder "$STAGE" -ov -format UDZO "$DMG" >/dev/null
 if [ "$IDENTITY" != "-" ]; then
   codesign --force --timestamp ${KC[@]+"${KC[@]}"} -s "$IDENTITY" "$DMG"
 fi

@@ -1,12 +1,12 @@
 import AVFoundation
 import SwiftUI
 
-/// Talk to Poki: say what to do, Poki does it on this iPhone and answers out loud.
+/// Talk to Qeno: say what to do, Qeno does it on this iPhone and answers out loud.
 struct VoiceView: View {
     @Environment(AppModel.self) private var app
     /// Set when Voice is a sheet over Home: the Done button closes it.
     var close: (() -> Void)?
-    /// Pushed in the Poki tab: no navigation stack or Done of its own.
+    /// Pushed in the Qeno tab: no navigation stack or Done of its own.
     var embedded = false
     @State private var bridgeText = ""
     @State private var editingBridge = false
@@ -30,13 +30,13 @@ struct VoiceView: View {
                             .foregroundStyle(voice.canTalkLive ? Color.secondary : Color.orange)
                     }
                     LabeledContent("Dictation", value: String(localized: "On this iPhone"))
-                    Toggle("Mute Poki’s Voice", isOn: $voice.muted)
+                    Toggle("Mute Qeno’s Voice", isOn: $voice.muted)
                 } footer: {
-                    if micDenied { Text("Poki can't use the microphone. Allow it in Settings, Privacy, Microphone.").foregroundStyle(.orange) }
+                    if micDenied { Text("Qeno can't use the microphone. Allow it in Settings, Privacy, Microphone.").foregroundStyle(.orange) }
                     else if voice.canTalkLive {
-                        Text("In the chat, the waveform button starts a live conversation: Poki listens, acts and answers out loud until you tap End. The microphone in the message field only dictates.")
+                        Text("In the chat, the waveform button starts a live conversation: Qeno listens, acts and answers out loud until you tap End. The microphone in the message field only dictates.")
                     } else {
-                        Text("A live conversation uses OpenAI’s Realtime voice, which needs an OpenAI API key in Poki › Model. Dictation in the message field works with every model.")
+                        Text("A live conversation uses OpenAI’s Realtime voice, which needs an OpenAI API key in Qeno › Model. Dictation in the message field works with every model.")
                     }
                 }
                 if voice.lastTurnMS != nil || voice.bridge != nil || VoiceDirect.apiKey == nil {

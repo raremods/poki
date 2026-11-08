@@ -1,8 +1,8 @@
 import BackgroundTasks
 import Foundation
 
-/// iOS 26's continued processing task: work the person started keeps running after Poki leaves the
-/// screen, shown by iOS with its own progress UI, with no silent audio and no location. Poki holds one
+/// iOS 26's continued processing task: work the person started keeps running after Qeno leaves the
+/// screen, shown by iOS with its own progress UI, with no silent audio and no location. Qeno holds one
 /// while it is on and ends it when it turns off. iOS may end it early (under load, or when the person
 /// stops it from that UI); then BackgroundKeeper falls back to silent audio.
 @available(iOS 26.0, *)
@@ -35,11 +35,11 @@ final class ContinuedRun {
     private var ticker: Task<Void, Never>?
     private var registered: Set<String> = []
     private var attempted = false
-    /// iOS ended the task before Poki turned off.
+    /// iOS ended the task before Qeno turned off.
     var onExpired: (() -> Void)?
     private(set) var isRunning = false
 
-    /// Asks iOS for the task; must be called while Poki is in front. False when iOS refuses.
+    /// Asks iOS for the task; must be called while Qeno is in front. False when iOS refuses.
     func begin(subtitle: String) -> Bool {
         guard !isRunning else { return true }
         guard let wildcard = Self.permitted else {
@@ -48,7 +48,7 @@ final class ContinuedRun {
         register()
         guard registered.contains(wildcard) else { return false }
         let id = String(wildcard.dropLast()) + UUID().uuidString.prefix(8).lowercased()
-        let request = BGContinuedProcessingTaskRequest(identifier: id, title: String(localized: "Poki is on"), subtitle: subtitle)
+        let request = BGContinuedProcessingTaskRequest(identifier: id, title: String(localized: "Qeno is on"), subtitle: subtitle)
         request.strategy = .fail
         do {
             try BGTaskScheduler.shared.submit(request)
@@ -82,11 +82,11 @@ final class ContinuedRun {
                 try? await Task.sleep(for: .seconds(5))
             }
         }
-        AppLog.shared.add("background", "continued run started: Poki keeps running without silent audio")
+        AppLog.shared.add("background", "continued run started: Qeno keeps running without silent audio")
     }
 
     func update(subtitle: String) {
-        task?.updateTitle(String(localized: "Poki is on"), subtitle: subtitle)
+        task?.updateTitle(String(localized: "Qeno is on"), subtitle: subtitle)
     }
 
     func end() { finish(success: true) }

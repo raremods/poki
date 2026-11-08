@@ -78,11 +78,11 @@ protocol RunnerLauncher: AnyObject {
 struct LauncherConfig: Encodable {
     var device_address = "10.7.0.1"
     var pairing_file: String
-    var host_name = "Poki"
+    var host_name = "Qeno"
     var ddi_dir: String
     var runner_bundle: String? = nil
     var wda_port = 8100
-    /// Mount the disk image only: Poki automates the phone itself (AutomationPath.inProcess).
+    /// Mount the disk image only: Qeno automates the phone itself (AutomationPath.inProcess).
     var in_process = false
 }
 

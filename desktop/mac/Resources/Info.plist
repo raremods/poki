@@ -5,17 +5,17 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Poki Setup</string>
+	<string>Qeno Setup</string>
 	<key>CFBundleExecutable</key>
 	<string>PokiSetup</string>
 	<key>CFBundleIconFile</key>
 	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
-	<string>nz.zheha.poki.setup</string>
+	<string>com.owaiken.qeno.setup</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Poki Setup</string>
+	<string>Qeno Setup</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -29,9 +29,9 @@
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
-	<string>Poki Setup is free software under the AGPL-3.0.</string>
+	<string>Qeno Setup is free software under the AGPL-3.0.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Poki Setup sends the pairing file to your iPhone over your Wi-Fi when you scan its QR code.</string>
+	<string>Qeno Setup sends the pairing file to your iPhone over your Wi-Fi when you scan its QR code.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>

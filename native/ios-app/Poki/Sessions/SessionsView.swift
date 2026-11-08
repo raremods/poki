@@ -1,9 +1,9 @@
 import SwiftUI
 import UIKit
 
-/// Poki's home: every conversation, like the Messages list. The owner's chats with Poki, the sessions of
-/// outside agents (Claude, Codex, any MCP client) and the tasks they handed to Poki, live first. On top,
-/// a strip with one half for each way of using Poki: the address agents connect to, and Poki's own model.
+/// Qeno's home: every conversation, like the Messages list. The owner's chats with Qeno, the sessions of
+/// outside agents (Claude, Codex, any MCP client) and the tasks they handed to Qeno, live first. On top,
+/// a strip with one half for each way of using Qeno: the address agents connect to, and Qeno's own model.
 struct SessionsView: View {
     @Environment(AppModel.self) private var model
     @Environment(ChatModel.self) private var chat
@@ -23,14 +23,14 @@ struct SessionsView: View {
 
     var body: some View {
         List {
-            // What matters before any conversation: whether Poki is on, whether agents can reach it,
+            // What matters before any conversation: whether Qeno is on, whether agents can reach it,
             // and what setup still needs.
-            // One warning while Poki can't work fully, naming where to fix it (the tab bar dots match).
+            // One warning while Qeno can't work fully, naming where to fix it (the tab bar dots match).
             if setupLeft > 0 || agentsIssue != nil {
                 Section {
                     Label {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Poki can’t work fully yet").font(Prominent.font(.headline, .semibold))
+                            Text("Qeno can’t work fully yet").font(Prominent.font(.headline, .semibold))
                             Text("Fix the items below. Each one has a dot on its tab.")
                                 .font(.subheadline).foregroundStyle(Color(.secondaryLabel))
                         }
@@ -65,7 +65,7 @@ struct SessionsView: View {
                     ContentUnavailableView {
                         Label("No Sessions Yet", systemImage: "bubble.left.and.bubble.right")
                     } description: {
-                        Text("Start a chat with Poki, or connect an agent such as Claude or Codex in Agents. Every session shows up here.")
+                        Text("Start a chat with Qeno, or connect an agent such as Claude or Codex in Agents. Every session shows up here.")
                     }
                     .listRowBackground(Color.clear)
                 }
@@ -94,7 +94,7 @@ struct SessionsView: View {
             }
         }
         .listStyle(.insetGrouped)
-        // Home's own header: a soft translucent blue that fades into the list, the bear and "Poki" in
+        // Home's own header: a soft translucent blue that fades into the list, the bear and "Qeno" in
         // Geist at the top left. The other pages keep the system's plain bars.
         .scrollContentBackground(.hidden)
         .background {
@@ -108,9 +108,9 @@ struct SessionsView: View {
         }
         .toolbarBackground(.hidden, for: .navigationBar)
         .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: Text("Search Sessions"))
-        .navigationTitle(Text(verbatim: "Poki"))
+        .navigationTitle(Text(verbatim: "Qeno"))
         .navigationBarTitleDisplayMode(.inline)
-        // The system title gives way to HomeBrand; "Poki" stays the back button's title.
+        // The system title gives way to HomeBrand; "Qeno" stays the back button's title.
         .toolbar(removing: .title)
         .toolbar {
             HomeBrand()
@@ -127,7 +127,7 @@ struct SessionsView: View {
                 renaming = nil
             }
         }
-        // A new chat with Poki's own agent, at the bottom right. On iOS 26 it is the round button on
+        // A new chat with Qeno's own agent, at the bottom right. On iOS 26 it is the round button on
         // the tab bar's line instead (RootView's New Chat tab).
         .safeAreaInset(edge: .bottom, alignment: .trailing, spacing: 0) {
             if #unavailable(iOS 26.0) { newChatButton }
@@ -144,7 +144,7 @@ struct SessionsView: View {
             .fixedSize()
             .disabled(chat.running)
             .padding(.trailing, 16).padding(.bottom, 8)
-            .accessibilityLabel(Text("New Chat with Poki"))
+            .accessibilityLabel(Text("New Chat with Qeno"))
     }
 
     /// "Working in Messages", "Ready", "Off".
@@ -222,7 +222,7 @@ private extension View {
     }
 }
 
-/// The home page's title: the bear and "Poki" in Geist, at the top left in place of the system title,
+/// The home page's title: the bear and "Qeno" in Geist, at the top left in place of the system title,
 /// without the toolbar's glass behind it on iOS 26.
 struct HomeBrand: ToolbarContent {
     var body: some ToolbarContent {
@@ -240,18 +240,18 @@ struct HomeBrand: ToolbarContent {
                 .frame(width: 34, height: 34)
                 .clipShape(.rect(cornerRadius: 9, style: .continuous))
                 .shadow(color: .blue.opacity(0.35), radius: 6, y: 2)
-            Text(verbatim: "Poki")
+            Text(verbatim: "Qeno")
                 .font(Prominent.font(.title, .bold))
                 .foregroundStyle(.primary)
         }
         .fixedSize()
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(verbatim: "Poki"))
+        .accessibilityLabel(Text(verbatim: "Qeno"))
         .accessibilityAddTraits(.isHeader)
     }
 }
 
-/// Poki's state as a fixed-width pill at the top right: Ready (blue, on; a tap turns it off), Stopped
+/// Qeno's state as a fixed-width pill at the top right: Ready (blue, on; a tap turns it off), Stopped
 /// (red, off; a tap turns it on), Paused (orange, a setup item is open; a tap opens Setup). Words as
 /// well as colours, so the state reads without colour. A haptic for each turn.
 struct PowerButton: View {
@@ -291,9 +291,9 @@ struct PowerButton: View {
         }
         .powerStyle(tint: tint)
         .animation(.snappy, value: state)
-        .accessibilityLabel(Text("Poki"))
+        .accessibilityLabel(Text("Qeno"))
         .accessibilityValue(Text(word))
-        .accessibilityHint(Text(state == .ready ? "Turns Poki off" : state == .stopped ? "Turns Poki on" : "Opens Setup"))
+        .accessibilityHint(Text(state == .ready ? "Turns Qeno off" : state == .stopped ? "Turns Qeno on" : "Opens Setup"))
     }
 
     private var word: LocalizedStringKey {
@@ -369,7 +369,7 @@ struct SessionRow: View {
     }
 }
 
-/// Poki's bear for its own chats; the agent's initial on its colour for an outside agent; both for a
+/// Qeno's bear for its own chats; the agent's initial on its colour for an outside agent; both for a
 /// hand-off.
 struct SessionAvatar: View {
     var session: SavedSession
@@ -404,7 +404,7 @@ struct AgentBadge: View {
 }
 
 /// An outside agent's session or hand-off as a conversation: the agent's own steps as grey lines, its
-/// request and Poki's answer as bubbles. Live while the session runs.
+/// request and Qeno's answer as bubbles. Live while the session runs.
 struct SessionView: View {
     @Environment(AppModel.self) private var model
     var id: String
@@ -424,7 +424,7 @@ struct SessionView: View {
         // their scroll-edge behaviour (as in the chat).
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if AskPoki.live(id) != nil {
-                Button("Stop Poki") { AskPoki.live(id)?.stop() }.buttonStyle(.bordered).tint(Color(.systemRed)).padding(.vertical, 10)
+                Button("Stop Qeno") { AskPoki.live(id)?.stop() }.buttonStyle(.bordered).tint(Color(.systemRed)).padding(.vertical, 10)
             }
         }
         .background(Color(.systemBackground))
@@ -446,7 +446,7 @@ struct SessionView: View {
         guard let session else { return "" }
         switch session.kind {
         case .agent: return String(localized: "Over MCP · \(ChatTime.row(session.started))")
-        case .handoff: return String(localized: "Handed to Poki · \(ChatTime.row(session.started))")
+        case .handoff: return String(localized: "Handed to Qeno · \(ChatTime.row(session.started))")
         case .voice: return String(localized: "Voice · \(ChatTime.row(session.started))")
         case .poki: return ""
         }

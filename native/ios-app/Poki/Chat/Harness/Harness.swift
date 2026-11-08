@@ -1,4 +1,4 @@
-// The chat's prompt and tools are the Mac Poki Agent's, copied from this repository at main 729c77e:
+// The chat's prompt and tools are the Mac Qeno Agent's, copied from this repository at main 729c77e:
 // - agent-system.md is agent/prompts/system.md byte for byte (the same text as agent/prompts/pi-app.md,
 //   which agent/task-runner.mjs loads);
 // - the instructions put PokiCore's own MCP instructions first, as task-runner.mjs puts the MCP server's
@@ -31,7 +31,7 @@ enum Harness {
     @MainActor static func instructions(for task: String) -> String {
         let brief = ChatModel.beforeTask?(task) ?? ""
         var parts = [instructions]
-        // Poki learns the owner's repeated tasks: a saved routine runs them in one call next time.
+        // Qeno learns the owner's repeated tasks: a saved routine runs them in one call next time.
         parts.append("Before starting, check whether a saved routine covers this task (routines {action: \"list\"}) and run it with do {run: name} if so. When a task worked and was not a routine yet, save it with routines {action: \"save\", name, description} before finish_task, with a short name the owner would use, so it can be repeated next time.")
         // Testing: a model decides approvals from what the owner said. A refused step goes through
         // once the owner says yes to it, so the agent asks in words and tries again.

@@ -7,7 +7,7 @@ struct PokiSetupApp: App {
     @StateObject private var model = AppModel()
 
     var body: some Scene {
-        Window("Poki Setup", id: "main") {
+        Window("Qeno Setup", id: "main") {
             ContentView()
                 .environmentObject(model)
                 .frame(minWidth: 760, idealWidth: 900, minHeight: 540, idealHeight: 640)
@@ -18,7 +18,7 @@ struct PokiSetupApp: App {
         .defaultSize(width: 900, height: 640)
         .commands {
             CommandGroup(replacing: .newItem) {}
-            CommandMenu("Poki") {
+            CommandMenu("Qeno") {
                 Button("Set Up an iPhone") { model.page = .setup }.keyboardShortcut("1")
                 Button("iPhones") { model.page = .phones }.keyboardShortcut("2")
                 Button("Apple Account") { model.page = .account }.keyboardShortcut("3")
@@ -42,7 +42,7 @@ struct PokiSetupApp: App {
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    /// Closing the window keeps the app in the menu bar, so it can keep Poki signed.
+    /// Closing the window keeps the app in the menu bar, so it can keep Qeno signed.
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -65,18 +65,18 @@ struct MenuBarContent: View {
             }
         }
         Divider()
-        Button("Open Poki Setup") {
+        Button("Open Qeno Setup") {
             openWindow(id: "main")
             NSApp.activate(ignoringOtherApps: true)
         }
         Button("Renew Now") { Task { await model.renewDue() } }
             .disabled(model.records.isEmpty)
         Divider()
-        Button("Quit Poki Setup") { NSApp.terminate(nil) }.keyboardShortcut("q")
+        Button("Quit Qeno Setup") { NSApp.terminate(nil) }.keyboardShortcut("q")
     }
 }
 
 extension Color {
-    /// Poki's blue, as on poki.app and in the iPhone app.
+    /// Qeno's blue, as on poki.app and in the iPhone app.
     static let pokiBlue = Color(red: 0 / 255, green: 119 / 255, blue: 253 / 255)
 }

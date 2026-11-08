@@ -7,7 +7,7 @@ import { Capsule, Card, ErrorBox, useInterval } from "../ui";
 export default function Debug() {
   const [rows, setRows] = useState<PhoneRow[]>([]);
   const [udid, setUdid] = useState("");
-  const [filter, setFilter] = useState("Poki");
+  const [filter, setFilter] = useState("Qeno");
   const [running, setRunning] = useState(false);
   const [lines, setLines] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);

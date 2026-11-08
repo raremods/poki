@@ -4,7 +4,7 @@
 # .github/workflows/ios-gym.yml for the simulator; the ios-core simulator job installs it.
 name: PokiGym
 options:
-  bundleIdPrefix: nz.zheha.poki
+  bundleIdPrefix: com.owaiken.qeno
   deploymentTarget:
     iOS: "17.0"
 settings:
@@ -21,15 +21,15 @@ targets:
     sources: [Gym]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: nz.zheha.poki.gym
+        PRODUCT_BUNDLE_IDENTIFIER: com.owaiken.qeno.gym
     info:
       path: Gym/Info.plist
       properties:
-        CFBundleDisplayName: Poki Gym
+        CFBundleDisplayName: Qeno Gym
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         CFBundleURLTypes:
-          - CFBundleURLName: nz.zheha.poki.gym
+          - CFBundleURLName: com.owaiken.qeno.gym
             CFBundleURLSchemes: [pokigym]

@@ -27,7 +27,7 @@ struct PokiActivityAttributes: ActivityAttributes {
         var label: String?
         /// The app in front.
         var app: String?
-        /// The outside agent driving the phone ("Claude Code"), nil for Poki's own chat.
+        /// The outside agent driving the phone ("Claude Code"), nil for Qeno's own chat.
         var caller: String?
         /// Bumped whenever a new thumbnail is written to the App Group container.
         var thumbnailVersion: Int
@@ -106,7 +106,7 @@ struct PendingApproval: Codable, Hashable {
 }
 
 enum SharedContainer {
-    static let appGroup = Bundle.main.object(forInfoDictionaryKey: "PokiAppGroup") as? String ?? "group.nz.zheha.poki"
+    static let appGroup = Bundle.main.object(forInfoDictionaryKey: "PokiAppGroup") as? String ?? "group.com.owaiken.qeno"
     static var url: URL? { FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroup) }
     static var thumbnailURL: URL? { url?.appendingPathComponent("activity-thumbnail.jpg") }
     static var defaults: UserDefaults { UserDefaults(suiteName: appGroup) ?? .standard }

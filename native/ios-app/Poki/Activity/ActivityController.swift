@@ -10,7 +10,7 @@ import ImageIO
 import UniformTypeIdentifiers
 
 /// Runs the one Live Activity: started when a session starts, updated from PokiCore's events, ended
-/// when the session stops or Poki closes.
+/// when the session stops or Qeno closes.
 ///
 /// AppModel only describes the state (`update`, `record`); this class decides what deserves a pop-up.
 /// It compares each new state with the last one and, for the moments that matter, sends the update with
@@ -21,7 +21,7 @@ import UniformTypeIdentifiers
 ///
 /// Never while the runner may be sending input: an alert expands the Dynamic Island over the top
 /// of the screen, and on the owner's phone the agent's next tap (Back, a list's first row) landed
-/// on the expanded island and opened Poki. So steps, the start of a run and app switches only
+/// on the expanded island and opened Qeno. So steps, the start of a run and app switches only
 /// change the compact island and the Lock Screen (the event tag); they never expand it.
 ///
 /// Sending: a state that needs the person (an approval, its answer, a problem, a pairing code, the
@@ -62,9 +62,9 @@ final class ActivityController {
 
     var isRunning: Bool { activity != nil }
 
-    /// Ends every Live Activity of Poki's: at launch, the ones a crashed or closed earlier run left
+    /// Ends every Live Activity of Qeno's: at launch, the ones a crashed or closed earlier run left
     /// behind (only this process updates its activity, so one it did not start is out of date); when
-    /// Poki closes, its own, since nothing would update it after that. Detached, because Poki holds
+    /// Qeno closes, its own, since nothing would update it after that. Detached, because Qeno holds
     /// the main thread while it closes.
     nonisolated static func endAll() {
         let activities = Activity<PokiActivityAttributes>.activities
@@ -72,12 +72,12 @@ final class ActivityController {
         Task.detached { for old in activities { await old.end(nil, dismissalPolicy: .immediate) } }
     }
 
-    /// Starts the Live Activity if it is not running. iOS only allows this while Poki is in front, so
+    /// Starts the Live Activity if it is not running. iOS only allows this while Qeno is in front, so
     /// it is called when the person taps something (Start, Start pairing, a setup step), never later
     /// from the background.
     func start(deviceName: String) {
         guard activity == nil else { return }
-        guard enabled else { lastError = "Live Activities are off for Poki (Settings > Poki > Live Activities)."; return }
+        guard enabled else { lastError = "Live Activities are off for Qeno (Settings > Qeno > Live Activities)."; return }
         // A Live Activity left from an earlier run of the app is replaced.
         for old in Activity<PokiActivityAttributes>.activities { Task { await old.end(nil, dismissalPolicy: .immediate) } }
         do {
@@ -199,16 +199,16 @@ final class ActivityController {
         }
         if state.phase == .problem, old.phase != .problem {
             setEvent(.problem, state.label ?? "Problem")
-            alert = critical(String(activity: "Poki needs attention"), ActivityWords.local(state.headline))
-            attention = (String(activity: "Poki needs attention"), ActivityWords.local(state.headline))
+            alert = critical(String(activity: "Qeno needs attention"), ActivityWords.local(state.headline))
+            attention = (String(activity: "Qeno needs attention"), ActivityWords.local(state.headline))
         }
         if let pin = state.pin, pin != old.pin {
             setEvent(.code, "Code ready")
-            alert = critical(String(activity: "Pairing code \(pin)"), String(activity: "Type it on the Pair with Poki screen in Settings"))
+            alert = critical(String(activity: "Pairing code \(pin)"), String(activity: "Type it on the Pair with Qeno screen in Settings"))
         }
         if old.phase == .pairing, state.phase == .idle, state.headline == "Paired" {
             setEvent(.paired, "Paired")
-            alert = critical(String(activity: "Paired"), String(activity: "This iPhone is ready for Poki"))
+            alert = critical(String(activity: "Paired"), String(activity: "This iPhone is ready for Qeno"))
         }
 
         // A step began (AppModel sets the headline to the step's words): shown, never popped up.
@@ -345,7 +345,7 @@ final class ActivityController {
         trimToFit()
         // Approvals are urgent; everything else is not. An approval goes stale when it expires.
         // An approval goes stale when it expires. A run goes stale when no update has come for ten
-        // minutes (Poki was closed or suspended), and then says it is not updating.
+        // minutes (Qeno was closed or suspended), and then says it is not updating.
         let stale = state.approval?.expires ?? (state.phase == .working ? Date.now.addingTimeInterval(600) : nil)
         return ActivityContent(state: state, staleDate: stale, relevanceScore: state.approval == nil && state.handoff == nil ? 50 : 100)
     }

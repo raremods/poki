@@ -228,8 +228,8 @@ function ignoreInvalidRoute(path, reason = 'invalid') {
   if (warnedRouteFiles.has(path)) return;
   warnedRouteFiles.add(path);
   console.error(reason === 'incompatible'
-    ? 'Poki Agent: a cached learned route could not be reused for this task; the cache file was preserved.'
-    : 'Poki Agent: an invalid learned-route cache entry was skipped; the cache file was preserved.');
+    ? 'Qeno Agent: a cached learned route could not be reused for this task; the cache file was preserved.'
+    : 'Qeno Agent: an invalid learned-route cache entry was skipped; the cache file was preserved.');
 }
 
 function validStoredRoute(route) {

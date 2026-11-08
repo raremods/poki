@@ -21,7 +21,7 @@ targets:
     info:
       path: PokiTunnel/Info.plist
       properties:
-        CFBundleDisplayName: Poki Local Connection
+        CFBundleDisplayName: Qeno Local Connection
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSExtension:

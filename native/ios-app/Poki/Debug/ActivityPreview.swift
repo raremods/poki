@@ -118,7 +118,7 @@ struct ActivityPreview: View {
         idle.runnerPaused = true
         ready.runnerPaused = false
 
-        let title = AppModel.problemText("Turn on the loopback in your proxy app: the Poki module in Surge or Loon.")
+        let title = AppModel.problemText("Turn on the loopback in your proxy app: the Qeno module in Surge or Loon.")
         var problem = PokiState(phase: .problem, headline: title, thumbnailVersion: 0)
         problem.label = "Runner Stopped"
         problem.stepCount = 6
@@ -127,7 +127,7 @@ struct ActivityPreview: View {
         var pairCode = PokiState(phase: .pairing, headline: "Pairing code", thumbnailVersion: 0)
         pairCode.pin = "482913"
 
-        var setup = PokiState(phase: .setup, headline: "Setting up Poki", thumbnailVersion: 0)
+        var setup = PokiState(phase: .setup, headline: "Setting up Qeno", thumbnailVersion: 0)
         setup.guide = .init(number: 2, count: 6, title: SetupStep.developerMode.activityTitle)
 
         return [("start", start), ("working", working), ("step", step), ("approval", approval), ("deciding", deciding), ("yourturn", yourTurn), ("passcode", passcode), ("done", done),
@@ -247,19 +247,19 @@ enum DemoActivity {
         if var approval = state.approval {
             approval.expires = now.addingTimeInterval(120); state.approval = approval
         }
-        // Poki keeps running in the background while it is on; the demo asks for time to send its alert.
+        // Qeno keeps running in the background while it is on; the demo asks for time to send its alert.
         let task = UIApplication.shared.beginBackgroundTask(withName: "activity demo")
         defer { UIApplication.shared.endBackgroundTask(task) }
         guard let activity = try? Activity.request(attributes: PokiActivityAttributes(deviceName: "iPhone"), content: .init(state: state, staleDate: nil), pushType: nil) else {
             AppLog.shared.add("activity", "demo did not start")
             return
         }
-        // Each `notifyutil -p nz.zheha.poki.demo-alert` from the build sends an alert, so the
+        // Each `notifyutil -p com.owaiken.qeno.demo-alert` from the build sends an alert, so the
         // screenshot is taken right after it (simulator screenshots take seconds; fixed delays miss it).
         let center = CFNotificationCenterGetDarwinNotifyCenter()
         CFNotificationCenterAddObserver(center, UnsafeRawPointer(bitPattern: 0x5051), { _, _, _, _, _ in
             Task { @MainActor in await DemoActivity.alert() }
-        }, "nz.zheha.poki.demo-alert" as CFString, nil, .deliverImmediately)
+        }, "com.owaiken.qeno.demo-alert" as CFString, nil, .deliverImmediately)
         current = (activity, state)
         try? await Task.sleep(for: .seconds(28))
     }
@@ -269,7 +269,7 @@ enum DemoActivity {
     static func alert() async {
         guard let (activity, state) = current else { return }
         await activity.update(.init(state: state, staleDate: nil, relevanceScore: 100),
-                              alertConfiguration: AlertConfiguration(title: "Poki", body: "\(state.headline)", sound: .default))
+                              alertConfiguration: AlertConfiguration(title: "Qeno", body: "\(state.headline)", sound: .default))
         AppLog.shared.add("activity", "demo alert sent")
     }
 }

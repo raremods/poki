@@ -88,7 +88,7 @@ struct ActivityPalette {
     var track: Color
     /// The step line of a finished run.
     var finished: Color
-    /// The one main button (Allow, Open Poki): a white capsule with blue text.
+    /// The one main button (Allow, Open Qeno): a white capsule with blue text.
     var primaryFill = Color.blue
     var primaryText = Color.white
 
@@ -105,7 +105,7 @@ struct ActivityPalette {
 }
 
 /// Every colour, font and size the Live Activity draws with. Restrained: the system's label colours
-/// and one colour per kind of state (blue when Poki needs you or is busy, green when done, red for a
+/// and one colour per kind of state (blue when Qeno needs you or is busy, green when done, red for a
 /// problem), the same on the Lock Screen and in the island. The Lock Screen uses the system's own
 /// background, light or dark; the island is always dark, so the same semantic colours read on both.
 struct ActivityTheme {

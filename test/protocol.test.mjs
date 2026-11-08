@@ -152,7 +152,7 @@ test('an all-profile HTTP service still lets each stdio client choose its own li
   assert.equal(value(await defaultClient.callTool({ name: 'wait', arguments: { seconds: 0 } })).waited, 0);
 });
 
-test('Poki Agent opens its own MCP with the complete catalog even when the parent uses the default profile', { timeout: 20000 }, async t => {
+test('Qeno Agent opens its own MCP with the complete catalog even when the parent uses the default profile', { timeout: 20000 }, async t => {
   const f = await fixture(t);
   const entry = new URL('../agent/poki-client.mjs', import.meta.url).href;
   const { stdout } = await promisify(execFile)(process.execPath, ['--input-type=module', '-e', `

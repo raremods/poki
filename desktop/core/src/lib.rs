@@ -1,9 +1,9 @@
-//! Poki Setup's core: everything the desktop app and the `poki-setup` command do, with no UI in it.
+//! Qeno Setup's core: everything the desktop app and the `poki-setup` command do, with no UI in it.
 //!
 //! - [`device`]: the iPhone over USB (usbmuxd) or Wi-Fi (the pairing record): pairing, facts,
 //!   Developer Mode, installing, the app container, the developer disk image, logs.
 //! - [`pairshare`]: hands the pairing file to Poki on the phone over the local network, as the
-//!   `poki://pairing?url=…&sha256=…` link Poki opens from a QR code.
+//!   `qeno://pairing?url=…&sha256=…` link Poki opens from a QR code.
 //! - [`apple`]: the Apple account (GSA login with SRP and 2FA, anisette) and the developer portal
 //!   (teams, devices, certificates, App IDs, app groups, profiles).
 //! - [`sign`]: takes Poki's release IPA and signs it for a team: bundle ids, app groups,
@@ -52,6 +52,6 @@ pub fn full_version() -> String {
     }
 }
 /// Poki's bundle id as released; a free team gets `<id>.<team>`.
-pub const POKI_BUNDLE_ID: &str = "nz.zheha.poki";
+pub const POKI_BUNDLE_ID: &str = "com.owaiken.qeno";
 /// Poki's app group as released.
-pub const POKI_APP_GROUP: &str = "group.nz.zheha.poki";
+pub const POKI_APP_GROUP: &str = "group.com.owaiken.qeno";

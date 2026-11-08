@@ -50,7 +50,7 @@ final class Bridge {
     private func ensureRunning() throws {
         if let p = process, p.isRunning { return }
         guard let url = helperURL() else {
-            throw CoreError(kind: "bridge", message: "Poki Setup is missing its helper (poki-setup-bridge). Reinstall the app.")
+            throw CoreError(kind: "bridge", message: "Qeno Setup is missing its helper (poki-setup-bridge). Reinstall the app.")
         }
         let p = Process()
         p.executableURL = url
@@ -84,7 +84,7 @@ final class Bridge {
         let pending = waiting
         waiting = [:]
         for (_, c) in pending {
-            c.resume(throwing: CoreError(kind: "bridge", message: "Poki Setup's helper stopped (status \(status)). Try again."))
+            c.resume(throwing: CoreError(kind: "bridge", message: "Qeno Setup's helper stopped (status \(status)). Try again."))
         }
         helperLog.append("[helper ended with status \(status)]")
     }
@@ -157,13 +157,13 @@ final class Bridge {
                 try input?.write(contentsOf: line)
             } catch {
                 waiting.removeValue(forKey: id)
-                c.resume(throwing: CoreError(kind: "bridge", message: "Could not reach Poki Setup's helper: \(error.localizedDescription)"))
+                c.resume(throwing: CoreError(kind: "bridge", message: "Could not reach Qeno Setup's helper: \(error.localizedDescription)"))
             }
         }
         do {
             return try decoder.decode(Wrapped<T>.self, from: raw).v
         } catch {
-            throw CoreError(kind: "bridge", message: "Poki Setup could not read the helper's answer to \(cmd): \(error)")
+            throw CoreError(kind: "bridge", message: "Qeno Setup could not read the helper's answer to \(cmd): \(error)")
         }
     }
 

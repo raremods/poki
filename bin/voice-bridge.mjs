@@ -16,7 +16,7 @@
 //                target}, the element it would tap and the app in front. The phone checks that with Poki's
 //                approval rules (PokiCore), asks the owner when they say so, and sends the same call again
 //                with checked: {app, text}; only then is the element tapped, matched exactly, in that app.
-// With --test-dir <dir> (test runs of a development build, launched with -pokiVoiceLink "poki://voice?test=1-20"):
+// With --test-dir <dir> (test runs of a development build, launched with -qenoVoiceLink "qeno://voice?test=1-20"):
 //   GET  utterance?n=01  recorded speech <dir>/u01.24k.pcm (24 kHz mono PCM16)
 //   POST report          one finished test turn, appended to voice-test-report.jsonl in the state directory
 import http from 'node:http';
@@ -123,7 +123,7 @@ class Mcp {
 }
 
 // The approval card is in Poki: a voice tap never lands there (the phone refuses it too).
-const isPoki = id => typeof id === 'string' && (id === 'nz.zheha.poki' || id.startsWith('nz.zheha.poki.'));
+const isPoki = id => typeof id === 'string' && (id === 'com.owaiken.qeno' || id.startsWith('com.owaiken.qeno.'));
 const ownAppRefusal = "only the phone's owner can approve, by tapping it on the phone themselves; Poki takes no taps inside the Poki app. Nothing was tapped.";
 
 // Every name tap_text matches on (src/interaction.mjs), so the phone checks what the tap would match.

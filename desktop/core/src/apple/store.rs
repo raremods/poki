@@ -8,7 +8,7 @@ use crate::{Error, Result, paths};
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "os-keychain")]
-const SERVICE: &str = "nz.zheha.poki.setup";
+const SERVICE: &str = "com.owaiken.qeno.setup";
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Account {
@@ -32,7 +32,7 @@ impl Account {
 /// The host's vault (Poki on the iPhone) holds the account under this name.
 const VAULT_NAME: &str = "apple-account";
 
-/// A secret of Poki Setup's own: the host's vault when one is installed, else the system keychain
+/// A secret of Qeno Setup's own: the host's vault when one is installed, else the system keychain
 /// (macOS Keychain, Windows Credential Manager), or a 0600 file in file mode.
 pub fn secret_get(name: &str) -> Option<String> {
     if let Some(v) = crate::vault::installed() {

@@ -3,8 +3,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// Settings › Memory: the routines agents saved on this iPhone (each repeats a task in one call) and
-/// the owner's notes, both shared by Poki's own chat and every connected agent. Export and Import move
-/// them between iPhones as one file; Poki Setup on the computer keeps the same file as a backup.
+/// the owner's notes, both shared by Qeno's own chat and every connected agent. Export and Import move
+/// them between iPhones as one file; Qeno Setup on the computer keeps the same file as a backup.
 /// The maintainers' log bundle sits under Advanced, at the bottom.
 struct MemoryView: View {
     var back: () -> Void
@@ -54,7 +54,7 @@ struct MemoryView: View {
             } header: {
                 Text("Move or Back Up")
             } footer: {
-                Text(message ?? String(localized: "One file with every routine and note. Importing merges it in; the newer copy of a routine wins. Poki Setup on your computer can back it up and put it back."))
+                Text(message ?? String(localized: "One file with every routine and note. Importing merges it in; the newer copy of a routine wins. Qeno Setup on your computer can back it up and put it back."))
             }
 
             Section {
@@ -63,7 +63,7 @@ struct MemoryView: View {
                     Button("Clear Memory", role: .destructive) { confirmClear = true }
                 }
             } footer: {
-                if advanced { Text("The run log lists each routine run, where it stopped and how long it took, with no typed text. It helps the Poki maintainers make routines more reliable.") }
+                if advanced { Text("The run log lists each routine run, where it stopped and how long it took, with no typed text. It helps the Qeno maintainers make routines more reliable.") }
             }
         }
         .navigationTitle("Memory")

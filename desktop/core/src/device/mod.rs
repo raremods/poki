@@ -20,7 +20,7 @@ use idevice::{
 use serde::{Deserialize, Serialize};
 use std::net::IpAddr;
 
-pub const LABEL: &str = "poki-setup";
+pub const LABEL: &str = "qeno-setup";
 
 /// How the phone is reached right now.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

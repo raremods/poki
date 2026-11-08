@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Every action Poki ran on this iPhone, for the owner's own record: append-only, kept on this device,
-/// with no way to delete it from the app. Each entry names the session it came from (Poki's chat or an
+/// Every action Qeno ran on this iPhone, for the owner's own record: append-only, kept on this device,
+/// with no way to delete it from the app. Each entry names the session it came from (Qeno's chat or an
 /// outside agent's), so a tap opens that run.
 @MainActor
 @Observable
@@ -15,7 +15,7 @@ final class ActionLog {
         var app: String?
         var ok: Bool
         var session: String?
-        /// The outside agent that asked for it; nil for Poki's own chat.
+        /// The outside agent that asked for it; nil for Qeno's own chat.
         var caller: String? = nil
     }
 
@@ -52,7 +52,7 @@ final class ActionLog {
     }
 }
 
-/// Poki › Activity Log: every action, newest first, grouped by day. A tap opens the run it came from.
+/// Qeno › Activity Log: every action, newest first, grouped by day. A tap opens the run it came from.
 struct ActionLogView: View {
     var openSession: (String) -> Void
     private var log: ActionLog { ActionLog.shared }
@@ -62,7 +62,7 @@ struct ActionLogView: View {
         List {
             if log.entries.isEmpty {
                 ContentUnavailableView("No Actions Yet", systemImage: "list.bullet.rectangle",
-                                       description: Text("Every tap, swipe and keystroke Poki makes on this iPhone is listed here, whoever asked for it."))
+                                       description: Text("Every tap, swipe and keystroke Qeno makes on this iPhone is listed here, whoever asked for it."))
                     .listRowBackground(Color.clear)
             }
             ForEach(days, id: \.key) { day, entries in
@@ -87,7 +87,7 @@ struct ActionLogView: View {
 
     private func row(_ entry: ActionLog.Entry) -> some View {
         HStack(alignment: .center, spacing: 10) {
-            // Who asked for it: the agent's badge, or Poki's own.
+            // Who asked for it: the agent's badge, or Qeno's own.
             Group {
                 if let caller = entry.caller { CallerBadge(name: caller, size: 28) } else { PokiAvatar(size: 28) }
             }

@@ -1,4 +1,4 @@
-// Poki MCP CoreSimulator transport. Interoperability sources: ../THIRD_PARTY_NOTICES.md.
+// Qeno MCP CoreSimulator transport. Interoperability sources: ../THIRD_PARTY_NOTICES.md.
 // XPC and AX wire contracts follow Meta idb (MIT): https://github.com/facebook/idb.
 #import <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>

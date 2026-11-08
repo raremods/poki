@@ -1,6 +1,6 @@
 [package]
 name = "poki-setup-core"
-description = "Everything Poki Setup does: the phone over USB or Wi-Fi, the Apple account, signing, keeping Poki alive, relay and MCP links, logs."
+description = "Everything Qeno Setup does: the phone over USB or Wi-Fi, the Apple account, signing, keeping Poki alive, relay and MCP links, logs."
 version.workspace = true
 edition.workspace = true
 license.workspace = true

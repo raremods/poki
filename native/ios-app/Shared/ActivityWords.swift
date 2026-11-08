@@ -7,7 +7,7 @@ import Foundation
 ///
 /// How much it says (ESP-162): a status word, one or two words (two to four Chinese characters), and
 /// one content line, at most four words (eight Chinese characters). How to do something is never
-/// here; tapping the activity opens Poki, which explains it.
+/// here; tapping the activity opens Qeno, which explains it.
 ///
 /// The app keeps the state's words in English ("Runner Stopped", "Waiting for agent", PokiCore's
 /// "Tap “Send”"), and the face words them in the system's language when it draws them, so the

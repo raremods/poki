@@ -60,7 +60,7 @@ final class FaultTests: XCTestCase {
         let field = Field()
         field.install(wda)
         _ = await core.call("look", [:])
-        let text = "你好 Poki 2026，テスト 한글 ok"
+        let text = "你好 Qeno 2026，テスト 한글 ok"
         let result = await core.call("do", ["actions": [["type": .string(text)]]])
         XCTAssertFalse(result.isError, result.text)
         XCTAssertEqual(field.value.value, text)
@@ -729,7 +729,7 @@ final class FaultTests: XCTestCase {
 /// The owner's Mail test on the phone (Nov 6 2026, 10:34 pm ET): a launch sent while the runner was
 /// starting had its action time used up before it went; a batch of three plain actions had 6 s for
 /// all of them; "Contact photo for Best Buy" was taken for a payment; taps near the top of the screen
-/// landed on Poki's Live Activity in the Dynamic Island and opened Poki, where the next taps went.
+/// landed on Qeno's Live Activity in the Dynamic Island and opened Qeno, where the next taps went.
 final class MailTestTests: XCTestCase {
     func testTheRunnersStartIsNotTheActionsTime() async {
         let host = FakeHost()
@@ -774,14 +774,14 @@ final class MailTestTests: XCTestCase {
         let (core, wda, _) = makeCore()
         wda.tree([
             Node("Other", "Working", [150, 12, 90, 36]),
-            Node("Other", "Poki", [120, 8, 150, 44]),
+            Node("Other", "Qeno", [120, 8, 150, 44]),
             Node("StaticText", "9:41", [30, 20, 50, 20]),
             Node("NavigationBar", "Mailboxes", [0, 62, 390, 44], [Node("Button", "Back", [8, 66, 60, 36]), Node("Button", "Edit", [330, 66, 50, 36])]),
             Node("Cell", "All Inboxes, 257 unread messages", [0, 110, 390, 44]),
         ], app: "Mail")
         let result = await core.call("look", [:])
         XCTAssertFalse(result.text.contains("Working"), result.text)
-        XCTAssertFalse(result.text.contains("\"Poki\""), result.text)
+        XCTAssertFalse(result.text.contains("\"Qeno\""), result.text)
         XCTAssertTrue(result.text.contains("Button \"Back\""), result.text)
         XCTAssertTrue(result.text.contains("All Inboxes"), result.text)
         XCTAssertTrue(result.text.contains("9:41"), "the status bar at the sides stays")
@@ -792,9 +792,9 @@ final class MailTestTests: XCTestCase {
         wda.tree([Node("NavigationBar", "Mailboxes", [0, 62, 390, 44], [Node("Button", "Back", [8, 66, 60, 36])]), Node("Cell", "All Inboxes", [0, 110, 390, 44])], app: "Mail")
         wda.set("GET /wda/activeAppInfo") { _ in (200, ["value": ["bundleId": "com.apple.mobilemail", "name": "Mail"]]) }
         _ = await core.call("look", [:])
-        // The tap lands on the Live Activity: Poki comes to the front.
+        // The tap lands on the Live Activity: Qeno comes to the front.
         wda.set("POST /wda/tap") { [wda] _ in
-            wda.set("GET /wda/activeAppInfo") { _ in (200, ["value": ["bundleId": "nz.zheha.poki", "name": "Poki"]]) }
+            wda.set("GET /wda/activeAppInfo") { _ in (200, ["value": ["bundleId": "com.owaiken.qeno", "name": "Qeno"]]) }
             return (200, ["value": .null])
         }
         wda.set("POST /wda/apps/activate") { [wda] _ in
@@ -803,11 +803,11 @@ final class MailTestTests: XCTestCase {
         }
         let result = await core.call("do", ["actions": [["tap": 1]]])
         XCTAssertTrue(result.text.hasPrefix("app: Mail"), result.text)
-        XCTAssertTrue(result.text.contains("note: Poki was in front after the actions"), result.text)
+        XCTAssertTrue(result.text.contains("note: Qeno was in front after the actions"), result.text)
         XCTAssertTrue(result.text.contains("Mail was brought back"), result.text)
         XCTAssertEqual(wda.bodies("POST /wda/apps/activate").first?["bundleId"]?.string, "com.apple.mobilemail")
-        // Working in Poki on purpose is left alone.
-        wda.set("GET /wda/activeAppInfo") { _ in (200, ["value": ["bundleId": "nz.zheha.poki", "name": "Poki"]]) }
+        // Working in Qeno on purpose is left alone.
+        wda.set("GET /wda/activeAppInfo") { _ in (200, ["value": ["bundleId": "com.owaiken.qeno", "name": "Qeno"]]) }
         _ = await core.call("look", [:])
         let inPoki = await core.call("do", ["actions": [["tap": [100, 300]]]])
         XCTAssertFalse(inPoki.text.contains("brought back"), inPoki.text)

@@ -45,7 +45,7 @@ pub fn key_for(team: &str) -> Result<(Vec<u8>, bool)> {
     Ok((key.to_pkcs8_der().map_err(|e| Error::msg(e.to_string()))?.as_bytes().to_vec(), true))
 }
 
-/// Takes a team key another app made (Poki Setup hands its key to Poki on the iPhone), so both
+/// Takes a team key another app made (Qeno Setup hands its key to Poki on the iPhone), so both
 /// sign with the one development certificate a free team allows. Replaces any key kept for the team.
 pub fn import_key(team: &str, key_pkcs8_pem: &str) -> Result<()> {
     let key = RsaPrivateKey::from_pkcs8_pem(key_pkcs8_pem.trim()).map_err(|e| Error::msg(format!("the signing key is not a PKCS#8 RSA key: {e}")))?;
@@ -73,9 +73,9 @@ pub fn self_signed(team: &str) -> Result<Identity> {
     let kp = rcgen_key(&der)?;
     let mut params = rcgen::CertificateParams::new(Vec::<String>::new()).map_err(|e| Error::msg(e.to_string()))?;
     let mut dn = rcgen::DistinguishedName::new();
-    dn.push(rcgen::DnType::CommonName, format!("Apple Development: Poki Setup Self-Test ({team})"));
+    dn.push(rcgen::DnType::CommonName, format!("Apple Development: Qeno Setup Self-Test ({team})"));
     dn.push(rcgen::DnType::OrganizationalUnitName, team);
-    dn.push(rcgen::DnType::OrganizationName, "Poki Setup Self-Test");
+    dn.push(rcgen::DnType::OrganizationName, "Qeno Setup Self-Test");
     dn.push(rcgen::DnType::CountryName, "US");
     params.distinguished_name = dn;
     params.extended_key_usages = vec![rcgen::ExtendedKeyUsagePurpose::CodeSigning];
@@ -85,7 +85,7 @@ pub fn self_signed(team: &str) -> Result<Identity> {
     let cert = params.self_signed(&kp).map_err(|e| Error::msg(e.to_string()))?;
     Ok(Identity {
         team_id: team.to_string(),
-        certificate: crate::apple::portal::Certificate { certificate_id: "selftest".into(), serial_number: "01".into(), name: "Poki Setup Self-Test".into(), machine_name: "selftest".into(), der: cert.der().to_vec() },
+        certificate: crate::apple::portal::Certificate { certificate_id: "selftest".into(), serial_number: "01".into(), name: "Qeno Setup Self-Test".into(), machine_name: "selftest".into(), der: cert.der().to_vec() },
         key_pkcs8: der,
     })
 }
@@ -174,7 +174,7 @@ pub fn csr_pem(key_pkcs8: &[u8], common_name: &str) -> Result<String> {
 }
 
 /// A certificate on the team that matches this computer's key, or a new one. Revokes a stale
-/// Poki Setup certificate first when Apple's limit is in the way (free teams allow one).
+/// Qeno Setup certificate first when Apple's limit is in the way (free teams allow one).
 pub async fn ensure(portal: &mut Portal<'_>, team: &str, reporter: &crate::Reporter) -> Result<Identity> {
     let (key, fresh) = key_for(team)?;
     let certs = portal.certificates(team).await?;
@@ -185,14 +185,14 @@ pub async fn ensure(portal: &mut Portal<'_>, team: &str, reporter: &crate::Repor
     }
     reporter.note("identity", "Asking Apple for a signing certificate for this computer");
     let machine_id = machine_id()?;
-    let machine_name = if crate::vault::installed().is_some() { format!("Poki on {}", hostname()) } else { format!("Poki Setup on {}", hostname()) };
-    let csr = csr_pem(&key, "Poki Setup")?;
+    let machine_name = if crate::vault::installed().is_some() { format!("Poki on {}", hostname()) } else { format!("Qeno Setup on {}", hostname()) };
+    let csr = csr_pem(&key, "Qeno Setup")?;
     let submitted = match portal.submit_csr(team, &csr, &machine_id, &machine_name).await {
         Ok(c) => c,
         Err(Error::Apple { code, .. }) if code == 3250 || code == 7250 || code == 9100 => {
-            // Free teams get one development certificate: retire the old Poki Setup one.
-            if let Some(old) = certs.iter().find(|c| c.machine_name.starts_with("Poki Setup") || c.name.contains("Poki")) {
-                reporter.note("identity", "Replacing this team's previous Poki Setup certificate");
+            // Free teams get one development certificate: retire the old Qeno Setup one.
+            if let Some(old) = certs.iter().find(|c| c.machine_name.starts_with("Qeno Setup") || c.name.contains("Poki")) {
+                reporter.note("identity", "Replacing this team's previous Qeno Setup certificate");
                 portal.revoke_certificate(team, &old.serial_number).await?;
                 portal.submit_csr(team, &csr, &machine_id, &machine_name).await?
             } else {
@@ -279,7 +279,7 @@ mod tests {
         let (again, fresh2) = key_for("TESTTEAM").unwrap();
         assert!(!fresh2);
         assert_eq!(key, again);
-        let pem = csr_pem(&key, "Poki Setup").unwrap();
+        let pem = csr_pem(&key, "Qeno Setup").unwrap();
         assert!(pem.contains("BEGIN CERTIFICATE REQUEST"));
         // A self-signed cert from the same key matches; another key's does not.
         let kp = rcgen_key(&key).unwrap();

@@ -2,7 +2,7 @@ import Foundation
 import PokiCore
 
 /// OpenAI's Responses API over plain HTTPS with the owner's key: GPT-6.1 Terra by default, with low
-/// reasoning as the Mac Poki Agent's pi loop runs it (ESP-62), and no service tier. Nothing is stored at OpenAI
+/// reasoning as the Mac Qeno Agent's pi loop runs it (ESP-62), and no service tier. Nothing is stored at OpenAI
 /// (`store: false`); every output item, encrypted reasoning included, goes back in the next request.
 @MainActor
 final class OpenAIClient: ModelClient {
@@ -50,7 +50,7 @@ final class OpenAIClient: ModelClient {
             let text = apiErrorText(json, data, key: key)
             let code = (json?["error"] as? [String: Any])?["code"] as? String
             let words: String = switch status {
-            case 401: String(localized: "OpenAI did not accept the key. Check it in Poki › Model.")
+            case 401: String(localized: "OpenAI did not accept the key. Check it in Qeno › Model.")
             case 403, 404: String(localized: "This OpenAI key can’t use \(ModelKeys.selectedModelName).")
             case 429 where code == "insufficient_quota": String(localized: "This OpenAI key has no credit left. Check billing at platform.openai.com.")
             case 429: String(localized: "OpenAI says the key has hit its rate limit. Try again in a minute.")

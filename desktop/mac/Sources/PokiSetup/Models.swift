@@ -125,7 +125,7 @@ struct Deployed: Decodable, Equatable {
     var workerSource: String? = nil
 }
 
-/// Which relay Poki Setup deploys now, and whether yours is older (`relay_worker`).
+/// Which relay Qeno Setup deploys now, and whether yours is older (`relay_worker`).
 struct WorkerStatus: Decodable {
     var source: String
     var downloadUrl: String

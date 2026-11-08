@@ -94,7 +94,7 @@ impl Signer {
                         self.account.session = Some(s);
                         t
                     }
-                    SignInOutcome::NeedsCode(_) => return Err(Error::NeedsPerson("Apple wants a new verification code. Open Poki Setup and sign in again.".into())),
+                    SignInOutcome::NeedsCode(_) => return Err(Error::NeedsPerson("Apple wants a new verification code. Open Qeno Setup and sign in again.".into())),
                 }
             }
             Err(e) => return Err(e),
@@ -153,7 +153,7 @@ pub struct SignedBuild {
     pub identity: identity::Identity,
 }
 
-/// Where Poki looks for the signing identity Poki Setup hands over (inside its container).
+/// Where Poki looks for the signing identity Qeno Setup hands over (inside its container).
 pub const SIGNING_IDENTITY_PATH: &str = "Documents/PokiSetup/signing-identity.json";
 
 /// `poki.signing-identity/1`: what Poki needs to renew its own signature on the phone.
@@ -321,7 +321,7 @@ pub async fn run(signer: &mut Signer, opts: Options, reporter: &Reporter) -> Res
     reporter.step("release", "Getting Poki");
     let (ipa, signing_zip, tag) = match &opts.ipa {
         Some(p) => {
-            let beside = p.with_file_name("Poki-signing.zip");
+            let beside = p.with_file_name("Qeno-signing.zip");
             let zipp = opts.signing_zip.clone().or_else(|| beside.is_file().then_some(beside));
             (p.clone(), zipp, format!("local:{}", p.file_name().unwrap_or_default().to_string_lossy()))
         }

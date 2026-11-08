@@ -1,7 +1,7 @@
 import AVFoundation
 import SwiftUI
 
-/// The chat page (ESP-171 boards "M Chat empty", "M Chat working", "M Chat approved"): Poki's picture and
+/// The chat page (ESP-171 boards "M Chat empty", "M Chat working", "M Chat approved"): Qeno's picture and
 /// name on top, the bubbles, and the message field. Approvals happen in the Dynamic Island; the chat only
 /// keeps one grey line about them.
 struct ChatView: View {
@@ -34,9 +34,9 @@ struct ChatView: View {
                               newConversation: chat.newConversation)
         }
         .background(Color(.systemBackground))
-        // The conversation's name (the one Poki gave it, or the owner's) is the title, and its title
+        // The conversation's name (the one Qeno gave it, or the owner's) is the title, and its title
         // menu renames it; the chat model is the subtitle on iOS 26.
-        .navigationTitle(Text(verbatim: SessionStore.shared.session(chat.sessionID)?.name ?? "Poki"))
+        .navigationTitle(Text(verbatim: SessionStore.shared.session(chat.sessionID)?.name ?? "Qeno"))
         .navigationBarTitleDisplayMode(.inline)
         .sessionSubtitle(ModelKeys.selectedModelName)
         .toolbarTitleMenu {
@@ -252,7 +252,7 @@ struct TypingBubble: View {
             .background(ChatColor.incoming, in: UnevenRoundedRectangle(topLeadingRadius: .cornerRadius, bottomLeadingRadius: .tailRadius,
                                                                        bottomTrailingRadius: .cornerRadius, topTrailingRadius: .cornerRadius, style: .continuous))
         }
-        .accessibilityLabel(Text("Poki is typing"))
+        .accessibilityLabel(Text("Qeno is typing"))
     }
 }
 
@@ -296,7 +296,7 @@ struct PokiAvatar: View {
 
 // MARK: Plan
 
-/// The steps of a task in one Poki bubble: done steps ticked, the step under way typing its words.
+/// The steps of a task in one Qeno bubble: done steps ticked, the step under way typing its words.
 struct PlanBubble: View {
     var steps: [PlanStep]
     var tail: Bool
@@ -366,9 +366,9 @@ private struct NoteLine: View {
                 Text("Approved in the Dynamic Island, \(at.formatted(date: .omitted, time: .shortened))")
             case .declined:
                 Text(verbatim: "✕").fontWeight(.semibold).foregroundStyle(Color(.systemRed))
-                Text("Not approved, so Poki skipped that step")
+                Text("Not approved, so Qeno skipped that step")
             case .expired:
-                Text("The approval ran out, so Poki skipped that step")
+                Text("The approval ran out, so Qeno skipped that step")
             case .problem(let text):
                 Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(Color(.systemOrange))
                 Text(text)
@@ -391,7 +391,7 @@ private struct NoteLine: View {
     }
 }
 
-/// Before setup, or with a step left: Poki says so, and the bubble opens setup.
+/// Before setup, or with a step left: Qeno says so, and the bubble opens setup.
 private struct SetupBubble: View {
     var paired: Bool
     var openSetup: () -> Void
@@ -459,7 +459,7 @@ struct ComposerInputView: View {
             }
             HStack(alignment: .bottom, spacing: 8) {
                 HStack(alignment: .bottom, spacing: 4) {
-                    TextField(text: $input, prompt: Text(dictation.on ? "Listening…" : "Message Poki").foregroundStyle(ChatColor.placeholder), axis: .vertical) { Text("Message Poki") }
+                    TextField(text: $input, prompt: Text(dictation.on ? "Listening…" : "Message Qeno").foregroundStyle(ChatColor.placeholder), axis: .vertical) { Text("Message Qeno") }
                         .font(.system(size: 17))
                         .focused($focused)
                         .multilineTextAlignment(.leading)
@@ -504,7 +504,7 @@ struct ComposerInputView: View {
                     }
                     .accessibilityLabel(Text("Send"))
                 } else {
-                    // The live voice conversation: Poki listens and answers out loud until you end it.
+                    // The live voice conversation: Qeno listens and answers out loud until you end it.
                     Button {
                         if voice.isOn { voice.stop() }
                         else if !voice.canTalkLive {
@@ -551,7 +551,7 @@ final class FieldDictation {
         text = ""
         Task {
             guard await Dictation.allowed() else {
-                problem = String(localized: "Poki needs the microphone and speech recognition: allow them in Settings › Poki.")
+                problem = String(localized: "Qeno needs the microphone and speech recognition: allow them in Settings › Qeno.")
                 return
             }
             let engine = Dictation()
@@ -582,7 +582,7 @@ final class FieldDictation {
 
 // MARK: Live voice
 
-/// Under the header while a live conversation is on: whether Poki is listening, hearing you, working or
+/// Under the header while a live conversation is on: whether Qeno is listening, hearing you, working or
 /// speaking, and the buttons to quiet it or end it.
 struct LiveVoiceBar: View {
     var voice: VoiceModel
@@ -632,7 +632,7 @@ struct LiveVoiceBar: View {
     private var detail: String {
         switch voice.phase {
         case .connecting: String(localized: "Connecting…")
-        case .listening: voice.isLive ? String(localized: "Listening. Just talk; Poki answers when you pause.") : String(localized: "Ready")
+        case .listening: voice.isLive ? String(localized: "Listening. Just talk; Qeno answers when you pause.") : String(localized: "Ready")
         case .hearing: String(localized: "Hearing you…")
         case .thinking: String(localized: "Working on it…")
         case .speaking: String(localized: "Speaking")
@@ -642,8 +642,8 @@ struct LiveVoiceBar: View {
     }
 }
 
-/// What was said in the live conversation, as bubbles under the chat: your words (grey while Poki is
-/// still hearing them), Poki's answers, and its steps as grey lines.
+/// What was said in the live conversation, as bubbles under the chat: your words (grey while Qeno is
+/// still hearing them), Qeno's answers, and its steps as grey lines.
 struct LiveVoiceTranscript: View {
     var voice: VoiceModel
 

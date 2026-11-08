@@ -36,7 +36,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                     guard self.packetFlow.writePackets(reflected, withProtocols: Array(repeating: NSNumber(value: AF_INET), count: reflected.count)) else {
                         self.running = false
                         self.cancelTunnelWithError(NSError(domain: "PokiLoopback", code: 1,
-                            userInfo: [NSLocalizedDescriptionKey: "The local connection stopped accepting packets. Reconnect in Poki's Setup."]))
+                            userInfo: [NSLocalizedDescriptionKey: "The local connection stopped accepting packets. Reconnect in Qeno's Setup."]))
                         return
                     }
                 }

@@ -2,7 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// Setup, one step per page (ESP-139 board 03). Steps the phone can check by itself (the loopback,
-/// pairing, location and Live Activities) move on when they pass; steps it can't (Poki Runner,
+/// pairing, location and Live Activities) move on when they pass; steps it can't (Qeno Runner,
 /// Developer Mode, UI Automation) keep a switch the person turns on, and Continue lights up after it.
 /// Steps that send the person to Settings put the step and what to tap in the Live Activity.
 struct SetupView: View {
@@ -52,13 +52,13 @@ struct SetupView: View {
             if !was, now, step != .loopback { advanceSoon() }
         }
         // The loopback moves on when it comes on while this page is open, and when the first check after
-        // opening finds it already on (a proxy app set up before Poki: the page opened on `checking`).
+        // opening finds it already on (a proxy app set up before Qeno: the page opened on `checking`).
         .onChange(of: model.loopback.state) { was, now in
             if step == .loopback, !was.isWorking, model.loopback.isWorking { advanceSoon() }
         }
         .onAppear { model.loopback.resume(); reconnectBuiltIn() }
         .onChange(of: step) { _, now in if now == .loopback { reconnectBuiltIn() } }
-        // Leaving the pairing step in Poki (another step, or closing setup) stops the pairing and its
+        // Leaving the pairing step in Qeno (another step, or closing setup) stops the pairing and its
         // background keep-alive. Going to Settings is not leaving.
         .onChange(of: index) { old, _ in if steps[old] == .pairing { model.leftPairing() } }
         .onDisappear { model.leftPairing() }
@@ -89,15 +89,15 @@ struct SetupView: View {
         switch step {
         case .runner:
             InstructionsCard(lines: [
-                "Install **Poki Runner** (poki-runner-unsigned.ipa) with the same tool and Apple ID you used for Poki.",
+                "Install **Qeno Runner** (poki-runner-unsigned.ipa) with the same tool and Apple ID you used for Qeno.",
                 "Open **Settings › General › VPN & Device Management**, tap your Apple ID, then tap **Trust**.",
-                "Don’t open Poki Runner yourself. Poki starts it when an agent needs this iPhone.",
+                "Don’t open Qeno Runner yourself. Qeno starts it when an agent needs this iPhone.",
             ])
-            SetupFootnote(text: "With a free Apple ID, self-signed apps expire after 7 days and are limited to 3 at a time; Poki and Poki Runner use 2. For free Apple ID signing, install the external-connection build and use LocalDevVPN or a compatible VPN app.")
-            ConfirmCard(step: .runner, title: "Poki Runner is installed and trusted", isOn: binding(\.runnerInstalled))
+            SetupFootnote(text: "With a free Apple ID, self-signed apps expire after 7 days and are limited to 3 at a time; Qeno and Qeno Runner use 2. For free Apple ID signing, install the external-connection build and use LocalDevVPN or a compatible VPN app.")
+            ConfirmCard(step: .runner, title: "Qeno Runner is installed and trusted", isOn: binding(\.runnerInstalled))
         case .developerMode:
             InstructionsCard(lines: [
-                SetupStep.inProcess ? "Open **Settings › Privacy & Security › Developer Mode**." : "Open **Settings › Privacy & Security › Developer Mode**. It appears once Poki Runner is installed.",
+                SetupStep.inProcess ? "Open **Settings › Privacy & Security › Developer Mode**." : "Open **Settings › Privacy & Security › Developer Mode**. It appears once Qeno Runner is installed.",
                 "Turn on Developer Mode, then tap **Restart**.",
                 "After restarting, unlock this iPhone and tap **Turn On**.",
             ])
@@ -129,7 +129,7 @@ struct SetupView: View {
         }
     }
 
-    /// The built-in connection was chosen and set up before, but it goes down whenever Poki is off, so
+    /// The built-in connection was chosen and set up before, but it goes down whenever Qeno is off, so
     /// the step opened on "Not on yet" with nothing to tap in view: it is dialled again here, and the
     /// check that follows moves the page on.
     private func reconnectBuiltIn() {
@@ -153,25 +153,25 @@ extension SetupStep {
     /// The page's title (board 03: title case).
     var pageTitle: LocalizedStringKey {
         switch self {
-        case .runner: "Install Poki Runner"
+        case .runner: "Install Qeno Runner"
         case .developerMode: "Turn On Developer Mode"
         case .loopback: "Turn On Loopback"
         case .pairing: "Pair This iPhone"
         case .account: "Sign In to Apple Account"
         case .automation: "Allow UI Automation"
-        case .background: "Keep Poki Running"
+        case .background: "Keep Qeno Running"
         }
     }
 
     var pageSummary: LocalizedStringKey {
         switch self {
-        case .runner: "The helper app that taps and types for your agent. Poki starts it; you never open it."
-        case .developerMode: SetupStep.inProcess ? "Allows Poki to use this iPhone’s developer services." : "Allows this iPhone to run Poki Runner."
-        case .loopback: "Allows Poki to reach this iPhone’s developer services through your proxy app."
-        case .pairing: "Gives Poki its own key to this iPhone. The key stays on this device."
-        case .account: "Lets Poki sign itself again every week and install updates, with no computer. A free Apple Account works."
-        case .automation: SetupStep.inProcess ? "Allows Poki to control other apps." : "Allows Poki Runner to control other apps."
-        case .background: "Keeps Poki connected in the background and shows its activity on the Lock Screen."
+        case .runner: "The helper app that taps and types for your agent. Qeno starts it; you never open it."
+        case .developerMode: SetupStep.inProcess ? "Allows Qeno to use this iPhone’s developer services." : "Allows this iPhone to run Qeno Runner."
+        case .loopback: "Allows Qeno to reach this iPhone’s developer services through your proxy app."
+        case .pairing: "Gives Qeno its own key to this iPhone. The key stays on this device."
+        case .account: "Lets Qeno sign itself again every week and install updates, with no computer. A free Apple Account works."
+        case .automation: SetupStep.inProcess ? "Allows Qeno to control other apps." : "Allows Qeno Runner to control other apps."
+        case .background: "Keeps Qeno connected in the background and shows its activity on the Lock Screen."
         }
     }
 }
@@ -342,7 +342,7 @@ private struct LoopbackPage: View {
             } header: {
                 Text("Other Ways")
             } footer: {
-                Text(model.connectionInUse ? "Stop Poki and finish pairing before changing the local connection." : "No extra app needed. Poki connects only to this iPhone; your normal traffic and DNS stay on their usual routes. iOS shows it as a VPN, so it may disconnect another VPN app.")
+                Text(model.connectionInUse ? "Stop Qeno and finish pairing before changing the local connection." : "No extra app needed. Qeno connects only to this iPhone; your normal traffic and DNS stay on their usual routes. iOS shows it as a VPN, so it may disconnect another VPN app.")
             }
         }
     }
@@ -406,7 +406,7 @@ private struct ProxyAppPage: View {
             Section {
                 switch app.install {
                 case .url(let url):
-                    Button(app.id == "surge" ? "Install Poki Module" : "Install Poki Plugin") { choose(); UIApplication.shared.open(url) }
+                    Button(app.id == "surge" ? "Install Qeno Module" : "Install Qeno Plugin") { choose(); UIApplication.shared.open(url) }
                 case .toggle:
                     Button("Open \(app.name)") { choose(); openApp() }
                 case .snippet(let line):
@@ -438,7 +438,7 @@ private struct LocalDevVPNPage: View {
         Form {
             Section("How To") {
                 Label("No proxy app? Install LocalDevVPN, a free loopback app built for this.", systemImage: "1.circle")
-                Label("Open it and tap Connect, then return to Poki. It may disconnect another VPN app.", systemImage: "2.circle")
+                Label("Open it and tap Connect, then return to Qeno. It may disconnect another VPN app.", systemImage: "2.circle")
             }
             Section {
                 Button("Get LocalDevVPN on the App Store") {
@@ -514,10 +514,10 @@ private struct PairingPage: View {
             Section { Button("Cancel Pairing", role: .destructive) { model.cancelPairing() } }
         case .advertising?:
             Section {
-                Label("Waiting for Settings. Tap Pair with Poki there.", systemImage: "dot.radiowaves.left.and.right")
+                Label("Waiting for Settings. Tap Pair with Qeno there.", systemImage: "dot.radiowaves.left.and.right")
                     .symbolEffect(.pulse, options: .repeating)
                 Label("Open **Settings › Privacy & Security › Developer Mode**.", systemImage: "1.circle")
-                Label("Tap **Pair with Poki** and enter the code shown here and on the Lock Screen.", systemImage: "2.circle")
+                Label("Tap **Pair with Qeno** and enter the code shown here and on the Lock Screen.", systemImage: "2.circle")
             }
             Section {
                 Button("Open Settings", systemImage: "gear") { openSettings(model, for: .pairing) }
@@ -530,7 +530,7 @@ private struct PairingPage: View {
                 Section {
                     Label(String(localized: "The phone no longer accepts this pairing: \(trouble)"), systemImage: "exclamationmark.triangle")
                 } footer: {
-                    Text(SetupStep.onDevicePairing ? "This happens after a restore, a reset of Location & Privacy, or when the phone forgot Poki. Pair again; the old key is replaced." : "This happens after a restore, a reset of Location & Privacy, or when the phone forgot Poki. Pair again from Poki Setup on your computer and send the new file here; the old key is replaced.")
+                    Text(SetupStep.onDevicePairing ? "This happens after a restore, a reset of Location & Privacy, or when the phone forgot Qeno. Pair again; the old key is replaced." : "This happens after a restore, a reset of Location & Privacy, or when the phone forgot Qeno. Pair again from Qeno Setup on your computer and send the new file here; the old key is replaced.")
                 }
             } else if model.pairingPath != nil {
                 Section {
@@ -540,18 +540,18 @@ private struct PairingPage: View {
             } else if SetupStep.onDevicePairing {
                 Section("How To") {
                     Label("Connect to Wi‑Fi and tap **Start Pairing**. Allow local network access when prompted.", systemImage: "1.circle")
-                    Label("Poki will open Settings. Go to **Privacy & Security › Developer Mode** and tap **Pair with Poki**.", systemImage: "2.circle")
+                    Label("Qeno will open Settings. Go to **Privacy & Security › Developer Mode** and tap **Pair with Qeno**.", systemImage: "2.circle")
                     Label("Enter the code shown here and on the Lock Screen.", systemImage: "3.circle")
                 }
             } else {
                 Section {
                     Label("Pairing on the phone itself needs iOS 27; this iPhone runs iOS \(UIDevice.current.systemVersion). Pair it from a computer instead.", systemImage: "1.circle")
-                    Label("Open **Poki Setup** on your Mac or PC, connect this iPhone by cable, and tap **Pair**. Tap **Trust** on the iPhone when asked.", systemImage: "2.circle")
-                    Label("Send the pairing file here: tap **Scan Pairing Code** below (or scan Poki Setup's code with the Camera), AirDrop the file to this iPhone and open it with Poki, or tap **Import Pairing File** below.", systemImage: "3.circle")
+                    Label("Open **Qeno Setup** on your Mac or PC, connect this iPhone by cable, and tap **Pair**. Tap **Trust** on the iPhone when asked.", systemImage: "2.circle")
+                    Label("Send the pairing file here: tap **Scan Pairing Code** below (or scan Qeno Setup's code with the Camera), AirDrop the file to this iPhone and open it with Qeno, or tap **Import Pairing File** below.", systemImage: "3.circle")
                 } header: {
                     Text("How To")
                 } footer: {
-                    Text("No Poki Setup yet? Any lockdown pairing file works: pymobiledevice3, jitterbugpair or StikPair make one.")
+                    Text("No Qeno Setup yet? Any lockdown pairing file works: pymobiledevice3, jitterbugpair or StikPair make one.")
                 }
             }
         }
@@ -580,7 +580,7 @@ private struct PairingPage: View {
             if let importError { Text(importError).foregroundStyle(.red) }
         }
         .sheet(isPresented: $scanning) { PairingScannerSheet() }
-        // Poki Setup on a computer may be writing the file into Poki right now.
+        // Qeno Setup on a computer may be writing the file into Qeno right now.
         .task { while !Task.isCancelled { model.lookForHandedPairing(); try? await Task.sleep(for: .seconds(3)) } }
         .fileImporter(isPresented: $importing, allowedContentTypes: [.propertyList, .xml, .data]) { result in
             do { try model.importPairingFile(from: result.get()); importError = nil }
@@ -624,10 +624,10 @@ private struct BackgroundPage: View {
                 Button("Open Settings", systemImage: "gear") { openSettings(model, for: .background) }
             }
         } footer: {
-            Text(model.background.always ? "Poki stays active in the background without the location indicator, and never records your location."
-                 : model.background.allowed ? "Poki keeps itself running with silent audio. Always Allow makes that sturdier, and iOS shows no location indicator for it. Poki never records your location."
-                 : model.background.denied ? "Location Services is off for Poki. It keeps itself running with silent audio, which iOS may stop during calls or other audio."
-                 : "iOS needs a background mode to keep apps running. Poki uses lowest-accuracy location with Always Allow, which shows no location indicator, and never records your location.")
+            Text(model.background.always ? "Qeno stays active in the background without the location indicator, and never records your location."
+                 : model.background.allowed ? "Qeno keeps itself running with silent audio. Always Allow makes that sturdier, and iOS shows no location indicator for it. Qeno never records your location."
+                 : model.background.denied ? "Location Services is off for Qeno. It keeps itself running with silent audio, which iOS may stop during calls or other audio."
+                 : "iOS needs a background mode to keep apps running. Qeno uses lowest-accuracy location with Always Allow, which shows no location indicator, and never records your location.")
         }
         Section {
             LabeledContent {
@@ -640,18 +640,18 @@ private struct BackgroundPage: View {
                 Button("Open Settings", systemImage: "gear") { openSettings(model, for: .background) }
             }
         } footer: {
-            Text(model.activitiesEnabled ? "Poki shows steps, pairing codes and approvals on the Lock Screen." : "Turn them on to see the agent’s steps and approve sensitive actions.")
+            Text(model.activitiesEnabled ? "Qeno shows steps, pairing codes and approvals on the Lock Screen." : "Turn them on to see the agent’s steps and approve sensitive actions.")
         }
         Section { EmptyView() } footer: {
-            Text(SetupStep.inProcess ? "The first time Poki turns on after a restart, iOS asks for your passcode to allow automation. Enter it once; Poki never sees it." : "The first time Poki Runner starts after a restart, iOS asks for your passcode to allow automation. Enter it once; Poki never sees it.")
+            Text(SetupStep.inProcess ? "The first time Qeno turns on after a restart, iOS asks for your passcode to allow automation. Enter it once; Qeno never sees it." : "The first time Qeno Runner starts after a restart, iOS asks for your passcode to allow automation. Enter it once; Qeno never sees it.")
         }
     }
 }
 
 // MARK: Checklist
 
-/// Setup as one checklist: everything Poki needs to run on this iPhone, each with a tick or what is
-/// wrong, and a tap opens its fix. It is on the Chats page (the steps still open) and in the Poki tab.
+/// Setup as one checklist: everything Qeno needs to run on this iPhone, each with a tick or what is
+/// wrong, and a tap opens its fix. It is on the Chats page (the steps still open) and in the Qeno tab.
 struct SetupChecklist: View {
     @Environment(AppModel.self) private var model
     @State private var guiding = false
@@ -664,7 +664,7 @@ struct SetupChecklist: View {
                     NavigationLink(value: step) { SetupStepRow(step: step) }
                 }
             } footer: {
-                Text(model.setupComplete ? "Everything Poki needs is in place." : "Poki needs every item ticked before an agent or the chat can use this iPhone. Items tick themselves when the phone can check them.")
+                Text(model.setupComplete ? "Everything Qeno needs is in place." : "Qeno needs every item ticked before an agent or the chat can use this iPhone. Items tick themselves when the phone can check them.")
             }
             SigningSection()
             Section {
@@ -745,7 +745,7 @@ struct SetupStepPage: View {
                 Button("Open Settings", systemImage: "gear") { openSettings(model, for: step) }
                 Toggle(confirmTitle, isOn: confirmBinding)
             } footer: {
-                Text("iOS doesn’t let Poki check this one, so turn the switch on once it’s done.")
+                Text("iOS doesn’t let Qeno check this one, so turn the switch on once it’s done.")
             }
         }
         .navigationTitle(Text(step.pageTitle))
@@ -756,12 +756,12 @@ struct SetupStepPage: View {
     private var lines: [String] {
         switch step {
         case .runner: [
-            "Install **Poki Runner** (poki-runner-unsigned.ipa) with the same tool and Apple ID you used for Poki.",
+            "Install **Qeno Runner** (poki-runner-unsigned.ipa) with the same tool and Apple ID you used for Qeno.",
             "Open **Settings › General › VPN & Device Management**, tap your Apple ID, then tap **Trust**.",
-            "Don’t open Poki Runner yourself. Poki starts it when an agent needs this iPhone.",
+            "Don’t open Qeno Runner yourself. Qeno starts it when an agent needs this iPhone.",
         ]
         case .developerMode: [
-            SetupStep.inProcess ? "Open **Settings › Privacy & Security › Developer Mode**." : "Open **Settings › Privacy & Security › Developer Mode**. It appears once Poki Runner is installed.",
+            SetupStep.inProcess ? "Open **Settings › Privacy & Security › Developer Mode**." : "Open **Settings › Privacy & Security › Developer Mode**. It appears once Qeno Runner is installed.",
             "Turn on Developer Mode, then tap **Restart**.",
             "After restarting, unlock this iPhone and tap **Turn On**.",
         ]
@@ -774,7 +774,7 @@ struct SetupStepPage: View {
 
     private var confirmTitle: LocalizedStringKey {
         switch step {
-        case .runner: "Poki Runner Is Installed and Trusted"
+        case .runner: "Qeno Runner Is Installed and Trusted"
         case .developerMode: "Developer Mode Is On"
         default: "UI Automation Is On"
         }
@@ -821,14 +821,14 @@ struct SetupStepPage: View {
         switch step {
         case .runner:
             InstructionsCard(lines: [
-                "Install **Poki Runner** (poki-runner-unsigned.ipa) with the same tool and Apple ID you used for Poki.",
+                "Install **Qeno Runner** (poki-runner-unsigned.ipa) with the same tool and Apple ID you used for Qeno.",
                 "Open **Settings › General › VPN & Device Management**, tap your Apple ID, then tap **Trust**.",
-                "Don’t open Poki Runner yourself. Poki starts it when an agent needs this iPhone.",
+                "Don’t open Qeno Runner yourself. Qeno starts it when an agent needs this iPhone.",
             ])
-            ConfirmCard(step: .runner, title: "Poki Runner is installed and trusted", isOn: binding(\.runnerInstalled))
+            ConfirmCard(step: .runner, title: "Qeno Runner is installed and trusted", isOn: binding(\.runnerInstalled))
         case .developerMode:
             InstructionsCard(lines: [
-                SetupStep.inProcess ? "Open **Settings › Privacy & Security › Developer Mode**." : "Open **Settings › Privacy & Security › Developer Mode**. It appears once Poki Runner is installed.",
+                SetupStep.inProcess ? "Open **Settings › Privacy & Security › Developer Mode**." : "Open **Settings › Privacy & Security › Developer Mode**. It appears once Qeno Runner is installed.",
                 "Turn on Developer Mode, then tap **Restart**.",
                 "After restarting, unlock this iPhone and tap **Turn On**.",
             ])

@@ -14,7 +14,7 @@ final class DiskImageStore {
         if let build = try? DeveloperDiskImage.verify(AppFiles.ddiDirectory) { state = .ready(build) }
     }
 
-    /// Files that appeared since (Poki Setup puts them in the container): counted without downloading.
+    /// Files that appeared since (Qeno Setup puts them in the container): counted without downloading.
     func notice() {
         guard !isReady, let build = try? DeveloperDiskImage.verify(AppFiles.ddiDirectory) else { return }
         state = .ready(build)

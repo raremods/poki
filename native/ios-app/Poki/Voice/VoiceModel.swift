@@ -5,7 +5,7 @@ import UIKit
 
 /// The voice bridge on the person's Mac (`bin/voice-bridge.mjs`): it hands out short-lived OpenAI
 /// Realtime credentials, so the phone never holds an API key, and runs the voice tools that move the
-/// phone through the Mac's Poki MCP. Entered once, like the relay address.
+/// phone through the Mac's Qeno MCP. Entered once, like the relay address.
 struct VoiceBridge: Equatable {
     /// http://<Mac>:47830/voice/<secret>
     let base: URL
@@ -109,7 +109,7 @@ enum VoiceError: LocalizedError {
         case .bridge(404, _): "The voice bridge doesn't know this address. Copy it again from the Mac."
         case .bridge(let code, let reason): "The voice bridge answered \(code): \(reason)"
         case .realtime(let code, let reason): "OpenAI answered \(code): \(reason)"
-        case .noBridge: "Set up Poki's model first (an OpenAI key talks fastest), or enter a voice bridge address from your Mac."
+        case .noBridge: "Set up Qeno's model first (an OpenAI key talks fastest), or enter a voice bridge address from your Mac."
         case .timeout(let what): "\(what) took too long."
         case .noPath: "The voice connection could not reach OpenAI over this network. Check Wi-Fi or cellular, or a VPN or proxy app that blocks calls, then try again."
         }
@@ -188,7 +188,7 @@ enum VoicePhase: Equatable {
     }
 }
 
-/// Talking to Poki: one Realtime session at a time over WebRTC, the calls it asked for, and what was
+/// Talking to Qeno: one Realtime session at a time over WebRTC, the calls it asked for, and what was
 /// said. The model hears the microphone and speaks through the speaker; `get_ios_version` is answered
 /// here, the other tools by the voice bridge.
 @MainActor
@@ -215,7 +215,7 @@ final class VoiceModel {
     private var wantsResponse = false
     private var localTools: Set<String> = []
     private let log = AppLog.shared
-    /// Poki's approval for a tap (PokiCore's rules and approval card): text, app bundle id, app name.
+    /// Qeno's approval for a tap (PokiCore's rules and approval card): text, app bundle id, app name.
     private let clearTap: @MainActor (String, String?, String?) async -> TapClearance
 
     /// How long a tap waits for the owner's OK on the phone: about as long as the card says it lasts.
@@ -224,8 +224,8 @@ final class VoiceModel {
     /// look and do, run by PokiCore on this phone (the relay's tools): name, JSON arguments → text, failed.
     private let phoneTool: @MainActor (String, String) async -> (String, Bool)
 
-    /// true while a conversation with the microphone is on: Poki's silent keep-alive audio steps aside
-    /// (its .playback session cannot record), and the voice-chat session keeps Poki running instead.
+    /// true while a conversation with the microphone is on: Qeno's silent keep-alive audio steps aside
+    /// (its .playback session cannot record), and the voice-chat session keeps Qeno running instead.
     private let holdMicrophone: @MainActor (Bool) -> Void
 
     init(clearTap: @escaping @MainActor (String, String?, String?) async -> TapClearance,
@@ -246,7 +246,7 @@ final class VoiceModel {
     private var isConnecting: Bool { if case .connecting = phase { return true }; return false }
 
     /// Voice can start: the OpenAI key on this iPhone (Realtime, no bridge), the Mac's voice bridge, or
-    /// dictation into the chat with whichever model Poki uses.
+    /// dictation into the chat with whichever model Qeno uses.
     var canTalk: Bool { VoiceDirect.apiKey != nil || bridge != nil || VoiceDirect.canDictate }
 
     /// A live (Realtime) conversation can start: the OpenAI key on this iPhone or the voice bridge.
@@ -260,7 +260,7 @@ final class VoiceModel {
     var route: String {
         if VoiceDirect.apiKey != nil { return String(localized: "Your OpenAI key, straight from this iPhone") }
         if let bridge { return String(localized: "Voice bridge at \(bridge.display)") }
-        if VoiceDirect.canDictate { return String(localized: "Dictation to \(ModelKeys.selectedModelName); Poki reads the answer aloud") }
+        if VoiceDirect.canDictate { return String(localized: "Dictation to \(ModelKeys.selectedModelName); Qeno reads the answer aloud") }
         return String(localized: "Not set up")
     }
 
@@ -273,16 +273,16 @@ final class VoiceModel {
         return true
     }
 
-    /// `poki://voice` can come from any web page, message or app, so it only shows the Voice tab. A link
+    /// `qeno://voice` can come from any web page, message or app, so it only shows the Voice tab. A link
     /// never changes the voice bridge and never turns on the microphone: the person enters the address
-    /// and taps Talk to Poki in the app.
+    /// and taps Talk to Qeno in the app.
     func open(_ url: URL) {
         let asked = (URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []).map(\.name)
         if !asked.isEmpty { log.add("voice", "a link asked for \(asked.joined(separator: ", ")); links only open the Voice tab") }
     }
 
     #if DEBUG
-    /// Development builds only: the `-pokiVoiceLink "poki://voice?bridge=<address>&test=1-20&muted=1"`
+    /// Development builds only: the `-qenoVoiceLink "qeno://voice?bridge=<address>&test=1-20&muted=1"`
     /// launch argument, which only the Mac that installs and launches the build can pass. It may set the
     /// bridge and run silent test turns, which use no microphone.
     func openAtLaunch(_ url: URL) {
@@ -319,7 +319,7 @@ final class VoiceModel {
             do {
                 try await link.connect(secret: token.value, microphone: microphone)
             } catch VoiceError.noPath(let ice) {
-                // No path opened (ICE \(ice)): once more, off VPN interfaces (Poki's loopback, a proxy
+                // No path opened (ICE \(ice)): once more, off VPN interfaces (Qeno's loopback, a proxy
                 // app) and with a fresh key, before telling the owner.
                 guard number == session else { return }
                 log.add("voice", "no network path opened (ICE \(ice)); trying again off VPN interfaces")
@@ -353,7 +353,7 @@ final class VoiceModel {
         SessionStore.shared.save(voice: transcript.id, started: transcript.started, lines: Array(lines[transcript.from...]), live: link != nil)
     }
 
-    /// The chat the conversation was held in (Poki's chat): when it ends, what was said and done goes
+    /// The chat the conversation was held in (Qeno's chat): when it ends, what was said and done goes
     /// into that chat's history, where it stays, instead of a separate row that the next conversation
     /// or a relaunch would take off the screen.
     var onConversationEnded: (@MainActor (_ lines: [VoiceLine], _ started: Date) -> Void)?
@@ -365,7 +365,7 @@ final class VoiceModel {
         let said = lines.count >= ended.from ? Array(lines[ended.from...]) : []
         guard let onConversationEnded, !said.isEmpty else { return }
         onConversationEnded(said, ended.started)
-        // Now in the chat's own session: the voice row (kept while it ran, in case Poki closed) goes.
+        // Now in the chat's own session: the voice row (kept while it ran, in case Qeno closed) goes.
         SessionStore.shared.delete(ended.id)
         lines.removeAll()
     }
@@ -411,7 +411,7 @@ final class VoiceModel {
             guard !text.isEmpty else { phase = .listening; return }
             if lines.last?.text != text { lines.append(VoiceLine(role: .you, text: text)) }
             guard let chat = AskPoki.chat else { phase = .lost(VoiceError.noBridge.localizedDescription); return }
-            if chat.running { lines.append(VoiceLine(role: .note, text: String(localized: "Poki is still on the last task."))); phase = .listening; return }
+            if chat.running { lines.append(VoiceLine(role: .note, text: String(localized: "Qeno is still on the last task."))); phase = .listening; return }
             let before = chat.entries.count
             chat.send(text)
             while chat.running { try? await Task.sleep(for: .milliseconds(200)) }
@@ -425,7 +425,7 @@ final class VoiceModel {
     }
 
     private func startDictation() async {
-        guard await Dictation.allowed() else { phase = .lost(String(localized: "Poki needs the microphone and speech recognition: allow them in Settings › Poki.")); return }
+        guard await Dictation.allowed() else { phase = .lost(String(localized: "Qeno needs the microphone and speech recognition: allow them in Settings › Qeno.")); return }
         let dictation = Dictation()
         dictation.onHeard = { [weak self] text in
             guard let self, self.phase == .hearing else { return }
@@ -446,7 +446,7 @@ final class VoiceModel {
         }
     }
 
-    /// Stops Poki's voice reply. Anything running on the phone keeps running.
+    /// Stops Qeno's voice reply. Anything running on the phone keeps running.
     func stopTalking() {
         if let dictation { dictation.stopSpeaking(); if phase == .speaking { phase = .listening }; return }
         guard let link else { return }
@@ -568,7 +568,7 @@ final class VoiceModel {
                     var result = try await bridge.run(callID: call.id, name: call.name, arguments: call.arguments)
                     var note = ""
                     if result.state == "check", let target = result.target {
-                        // A tap: Poki's approval rules first, and the owner's OK on the phone when they ask for it.
+                        // A tap: Qeno's approval rules first, and the owner's OK on the phone when they ask for it.
                         let app = result.app
                         let clearance = await clearTap(target.says, app?.bundle_id, app?.name)
                         if clearance.mayTap {
@@ -640,14 +640,14 @@ final class VoiceModel {
     // MARK: Test runs (development builds only)
 
     #if DEBUG
-    /// `-pokiVoiceLink "poki://voice?test=1-20"`: each turn opens a fresh session, plays recorded utterance n from the bridge
-    /// over the data channel (no microphone, Poki's voice muted), waits for the spoken result and reports
+    /// `-qenoVoiceLink "qeno://voice?test=1-20"`: each turn opens a fresh session, plays recorded utterance n from the bridge
+    /// over the data channel (no microphone, Qeno's voice muted), waits for the spoken result and reports
     /// the turn to the bridge.
     func runTest(_ numbers: ClosedRange<Int>) async {
         guard let bridge else { phase = .lost(VoiceError.noBridge.localizedDescription); return }
         muted = true
-        // Test runs have no microphone, so no voice-chat audio session keeps Poki running while a step
-        // brings another app to the front; a silent one does, as for a Poki session.
+        // Test runs have no microphone, so no voice-chat audio session keeps Qeno running while a step
+        // brings another app to the front; a silent one does, as for a Qeno session.
         let awake = KeepAlive()
         try? awake.start()
         defer { awake.stop() }

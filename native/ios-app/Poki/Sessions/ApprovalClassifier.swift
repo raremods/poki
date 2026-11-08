@@ -10,7 +10,7 @@ import PiSwiftAI
 enum ApprovalClassifier {
     nonisolated static let onKey = "approvals.classifier"
     nonisolated static let levelKey = "approvals.classifier.level"
-    /// Read once: PokiCore's rules are set up from it when Poki starts.
+    /// Read once: PokiCore's rules are set up from it when Qeno starts.
     nonisolated static let isOn = UserDefaults.standard.bool(forKey: onKey)
     static let deadline: Double = 12
 
@@ -60,7 +60,7 @@ enum ApprovalClassifier {
             default: break
             }
         }
-        let conversation = said.isEmpty ? "(the owner has said nothing in Poki; the request came from an outside agent)" : said.suffix(20).joined(separator: "\n")
+        let conversation = said.isEmpty ? "(the owner has said nothing in Qeno; the request came from an outside agent)" : said.suffix(20).joined(separator: "\n")
         let instructions = """
         You decide, fast, whether an AI agent driving the owner's iPhone may do one sensitive step. \
         \(level.rule) A yes from the owner to a question about this step counts as asking for it. \

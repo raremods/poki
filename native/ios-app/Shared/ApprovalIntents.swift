@@ -1,7 +1,7 @@
 // Allow and Deny on the Live Activity. The bridge and the two LiveActivityIntents are ported from
 // AgentApprovalIntents.swift in Clarklevis1995/dsh-mobile (commit ebe19764,
 // DeepSeekHarnessMobile/LiveActivity/AgentApprovalIntents.swift), MIT License, Copyright (c) 2026
-// Chaofan Li. Poki keys a decision by its approval id alone and keeps an App Group mailbox for an
+// Chaofan Li. Qeno keys a decision by its approval id alone and keeps an App Group mailbox for an
 // intent that runs outside the app. See THIRD_PARTY_NOTICES.md.
 import AppIntents
 import Foundation
@@ -31,7 +31,7 @@ enum ApprovalIntentBridge {
 
 /// PokiCore sends no input at all while an approval is pending, so the automation cannot press this
 /// button itself. Allow asks for Face ID or the passcode first. None of the three intents opens
-/// Poki (`openAppWhenRun` is false): the owner stays in the app the agent is working in, and the
+/// Qeno (`openAppWhenRun` is false): the owner stays in the app the agent is working in, and the
 /// next step lands there.
 struct ApproveActionIntent: LiveActivityIntent {
     static let title: LocalizedStringResource = "Allow action"
@@ -105,7 +105,7 @@ struct HandoffDoneIntent: LiveActivityIntent {
 
 /// Swallows a tap on the Live Activity's plain areas. iOS opens the activity's app on any tap that no
 /// control takes; this intent, laid under every surface (see TapShield), takes it instead and does
-/// nothing, so the agent's run is never interrupted by Poki coming to the front. Poki's own buttons
+/// nothing, so the agent's run is never interrupted by Qeno coming to the front. Qeno's own buttons
 /// sit above it and still work.
 struct NoTapIntent: LiveActivityIntent {
     static let title: LocalizedStringResource = "Nothing"

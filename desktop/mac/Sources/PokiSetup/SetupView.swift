@@ -18,7 +18,7 @@ struct SetupView: View {
     var body: some View {
         Form {
             HeroSection {
-                PageHero(symbol: nil, title: "Set Up Poki", subtitle: "Poki Setup signs Poki with your Apple Account, installs it on your iPhone and keeps it signed.")
+                PageHero(symbol: nil, title: "Set Up Qeno", subtitle: "Qeno Setup signs Qeno with your Apple Account, installs it on your iPhone and keeps it signed.")
             }
             phoneSection
             accountSection
@@ -38,10 +38,10 @@ struct SetupView: View {
                 Button {
                     Task { await install() }
                 } label: {
-                    Label("Install Poki", systemImage: "arrow.down.app")
+                    Label("Install Qeno", systemImage: "arrow.down.app")
                 }
                 .disabled(!canInstall)
-                .help("Sign Poki with your Apple Account and install it on the iPhone")
+                .help("Sign Qeno with your Apple Account and install it on the iPhone")
             }
         }
     }
@@ -53,7 +53,7 @@ struct SetupView: View {
             if let err = model.phonesError {
                 Label {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Poki Setup can't see iPhones right now")
+                        Text("Qeno Setup can't see iPhones right now")
                         Text(err.message).font(.callout).foregroundStyle(.secondary)
                     }
                 } icon: {
@@ -124,7 +124,7 @@ struct SetupView: View {
             if let s = model.steps["devmode"], !s.isEmpty, model.busyJobs.contains("devmode") { StepsView(steps: s) }
             if let s = model.steps["pair"], !s.isEmpty, model.busyJobs.contains("pair") { StepsView(steps: s) }
             if let r = row.record {
-                LabeledContent("Poki") {
+                LabeledContent("Qeno") {
                     statusText("\(r.version) · \(relativeDays(r))", r.daysLeft <= 2 ? .orange : .green)
                 }
             }
@@ -154,7 +154,7 @@ struct SetupView: View {
                     LabeledContent("Team") { Text(t.isFree ? "\(t.name), free (7-day apps)" : t.name).foregroundStyle(.secondary) }
                 }
             } else {
-                LabeledContent("Sign in with the Apple Account Poki is signed for") {
+                LabeledContent("Sign in with the Apple Account Qeno is signed for") {
                     Button("Sign In…") { model.page = .account }
                 }
             }
@@ -178,13 +178,13 @@ struct SetupView: View {
         )
     }
 
-    /// Downloads the newer Poki Setup and opens its disk image; drag it over this one.
+    /// Downloads the newer Qeno Setup and opens its disk image; drag it over this one.
     private func installUpdate() async {
         installingUpdate = true
         defer { installingUpdate = false }
         do {
             let _: String = try await model.bridge.call("install_update")
-            model.banner = "Poki Setup's update is open in Finder. Quit Poki Setup, then drag the new one into Applications."
+            model.banner = "Qeno Setup's update is open in Finder. Quit Qeno Setup, then drag the new one into Applications."
         } catch { channelError = error.localizedDescription }
     }
 
@@ -207,11 +207,11 @@ struct SetupView: View {
             Picker(selection: channelChoice) {
                 ForEach(model.channels) { c in Text(c.title).tag(c.id) }
             } label: {
-                Text("Poki")
+                Text("Qeno")
                 Text(installLine)
             }
             .disabled(ipa != nil)
-            // Poki Setup itself.
+            // Qeno Setup itself.
             LabeledContent {
                 if let u = update, u.newer {
                     Button(installingUpdate ? "Downloading…" : "Update to \(u.latest ?? "")") { Task { await installUpdate() } }
@@ -221,7 +221,7 @@ struct SetupView: View {
                         .disabled(checking)
                 }
             } label: {
-                Text("Poki Setup")
+                Text("Qeno Setup")
                 Text(setupLine)
             }
             HStack {
@@ -241,7 +241,7 @@ struct SetupView: View {
                 Button {
                     Task { await install() }
                 } label: {
-                    Text(installing ? "Installing…" : "Install Poki").frame(minWidth: 140)
+                    Text(installing ? "Installing…" : "Install Qeno").frame(minWidth: 140)
                 }
                 .pokiProminentButton()
                 .controlSize(.large)
@@ -252,20 +252,20 @@ struct SetupView: View {
                 Text(message).font(.callout).foregroundStyle(.red).textSelection(.enabled)
             }
         } header: {
-            Text("Poki")
+            Text("Qeno")
         } footer: {
             if let f = footer { Text(f).font(.footnote).foregroundStyle(.secondary) }
         }
     }
 
-    /// The line under "Poki": what Install will put on the iPhone.
+    /// The line under "Qeno": what Install will put on the iPhone.
     private var installLine: String {
         if let ipa { return "From \(ipa.lastPathComponent)" }
         if let latest = model.latest { return buildLine(latest) }
         return "No release published yet"
     }
 
-    /// The line under "Poki Setup": its version, or what the last check found.
+    /// The line under "Qeno Setup": its version, or what the last check found.
     private var setupLine: String {
         let version = model.info?.version ?? ""
         guard let update else { return version }
@@ -285,7 +285,7 @@ struct SetupView: View {
     /// Why Install is not available yet, if it is not.
     private var footer: String? {
         if model.account?.signedIn != true { return "Sign in first. Your Apple Account password goes to Apple only." }
-        if ipa == nil && model.latest == nil { return "No Poki release is published yet. Use ⋯ to install from the Poki IPA you downloaded (the “external” one)." }
+        if ipa == nil && model.latest == nil { return "No Qeno release is published yet. Use ⋯ to install from the Qeno IPA you downloaded (the “external” one)." }
         return nil
     }
 
@@ -295,19 +295,19 @@ struct SetupView: View {
 
     @ViewBuilder private func resultSection(_ r: InstallAnswer) -> some View {
         Section("Done") {
-            Label("Poki \(r.record.version) is on \(r.record.phoneName). It stays signed until \(r.record.expires.formatted(date: .abbreviated, time: .shortened)).", systemImage: "checkmark.seal.fill")
+            Label("Qeno \(r.record.version) is on \(r.record.phoneName). It stays signed until \(r.record.expires.formatted(date: .abbreviated, time: .shortened)).", systemImage: "checkmark.seal.fill")
                 .foregroundStyle(.primary)
             ForEach(Array(r.notes.enumerated()), id: \.offset) { _, n in
                 Text(n).font(.callout).foregroundStyle(.secondary)
             }
-            Text("On the iPhone: open Settings › General › VPN & Device Management, trust your Apple Account, then open Poki.")
+            Text("On the iPhone: open Settings › General › VPN & Device Management, trust your Apple Account, then open Qeno.")
                 .font(.callout)
             if let h = r.handoff {
                 HStack(alignment: .top, spacing: 16) {
                     QRCode(text: h.link, size: 150)
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Scan with the iPhone's Camera").font(.headline)
-                        Text("Keep the iPhone on the same Wi-Fi as this Mac. Poki opens and saves its pairing file.")
+                        Text("Keep the iPhone on the same Wi-Fi as this Mac. Qeno opens and saves its pairing file.")
                             .font(.callout).foregroundStyle(.secondary)
                         Button("Copy Link") { copyToPasteboard(h.link) }
                     }

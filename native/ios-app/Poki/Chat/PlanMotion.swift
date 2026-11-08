@@ -11,7 +11,7 @@
 // - motion://examples/react/typewriter-change-content: the step under way types its new text, first
 //   backspacing to the part both texts share, one character at a time at 0.2 of the typing interval,
 //   with the cursor blinking every 0.5 s after it finishes.
-// The typing pace is Poki's own: 75 ms a character, and 250 ms more after a comma or a full stop.
+// The typing pace is Qeno's own: 75 ms a character, and 250 ms more after a comma or a full stop.
 // Motion+ is Motion's paid library (motion.dev/plus); these are its examples' parameters in SwiftUI, not its code.
 import SwiftUI
 

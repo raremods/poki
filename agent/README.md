@@ -1,6 +1,6 @@
-# Run Poki Agent
+# Run Qeno Agent
 
-Poki Agent accepts tasks from the terminal, one configured iMessage sender, or allowlisted Telegram users. It uses pi and the MCP server in this repository. Poki App is not required.
+Qeno Agent accepts tasks from the terminal, one configured iMessage sender, or allowlisted Telegram users. It uses pi and the MCP server in this repository. Poki App is not required.
 
 ## Install
 
@@ -20,7 +20,7 @@ export POKI_MCP_STATE_DIR="$PWD/agent/.runtime/mcp"
 node src/daemon.mjs --port 0
 ```
 
-Set the same `POKI_MCP_STATE_DIR` in the terminal that starts Poki Agent. The poki task command selects a single connected physical phone automatically. Use --device when multiple phones are connected or when targeting a simulator.
+Set the same `POKI_MCP_STATE_DIR` in the terminal that starts Qeno Agent. The poki task command selects a single connected physical phone automatically. Use --device when multiple phones are connected or when targeting a simulator.
 
 ## Configure OpenAI access
 
@@ -69,9 +69,9 @@ Each step has a 60-second deadline including model and tool time. Set `POKI_AGEN
 
 ### Optional iPhone unlock
 
-Ask after installing Poki Agent: **"Do you want Poki Agent to unlock this iPhone when it is locked?"** Stop for the answer. Ask even if phone pairing or device operations are skipped; asking does not operate the phone. Skip the question only after an explicit refusal. Default to no configuration. Declining leaves other features available. The user alone sets `POKI_IPHONE_PASSCODE` in a private local launcher environment. An installing agent must not read or write the passcode for the user. Keep it on this Mac, outside chat, model inputs, logs, shell history, and source control. Without configuration, the user unlocks the phone manually. Anyone or any program with access to this Mac may be able to read the passcode. Never ask the user to send it in chat.
+Ask after installing Qeno Agent: **"Do you want Qeno Agent to unlock this iPhone when it is locked?"** Stop for the answer. Ask even if phone pairing or device operations are skipped; asking does not operate the phone. Skip the question only after an explicit refusal. Default to no configuration. Declining leaves other features available. The user alone sets `POKI_IPHONE_PASSCODE` in a private local launcher environment. An installing agent must not read or write the passcode for the user. Keep it on this Mac, outside chat, model inputs, logs, shell history, and source control. Without configuration, the user unlocks the phone manually. Anyone or any program with access to this Mac may be able to read the passcode. Never ask the user to send it in chat.
 
-If the user agrees, give them these commands to run themselves in a zsh terminal, from the repository root. Input is hidden. The exported value lasts for that shell and its child processes. Start Poki Agent from that same terminal. This adds no password storage.
+If the user agrees, give them these commands to run themselves in a zsh terminal, from the repository root. Input is hidden. The exported value lasts for that shell and its child processes. Start Qeno Agent from that same terminal. This adds no password storage.
 
 ```sh
 export PATH="$PWD/bin:$PATH"
@@ -84,7 +84,7 @@ unset POKI_IPHONE_PASSCODE
 
 The installing agent provides these commands but does not run them or inspect the variable. If the daemon uses a custom `POKI_MCP_STATE_DIR`, the user must set that same path in this terminal.
 
-When configured, Poki Agent can use its host-integrated `unlock_device` tool on a locked phone. The host passes the passcode to the helper over stdin, outside model context and tool arguments. The verified hardware case is only iPhone17,1 in portrait orientation with a six-digit passcode and a 402-by-874-point keypad. Other layouts are not verified. Inspect the resulting screen before claiming that the phone is unlocked.
+When configured, Qeno Agent can use its host-integrated `unlock_device` tool on a locked phone. The host passes the passcode to the helper over stdin, outside model context and tool arguments. The verified hardware case is only iPhone17,1 in portrait orientation with a six-digit passcode and a 402-by-874-point keypad. Other layouts are not verified. Inspect the resulting screen before claiming that the phone is unlocked.
 
 `./bin/setup` and `npm run build:native` build the helper. Check it from the repository root:
 
@@ -102,7 +102,7 @@ Use `--context 'Read only. Do not sign in or register.'` to supply initial restr
 
 ## Configure iMessage through BlueBubbles
 
-Install and start [BlueBubbles Server](https://docs.bluebubbles.app/server/). In its settings, enable the local HTTP server and set a server password. On the same Mac, its default URL is `http://127.0.0.1:1234`. BlueBubbles owns Messages permissions. Poki Agent does not read the Messages database or run a native message helper.
+Install and start [BlueBubbles Server](https://docs.bluebubbles.app/server/). In its settings, enable the local HTTP server and set a server password. On the same Mac, its default URL is `http://127.0.0.1:1234`. BlueBubbles owns Messages permissions. Qeno Agent does not read the Messages database or run a native message helper.
 
 Set the server URL and password in the worker's environment. Use HTTPS when the server is on another machine. Keep credentials out of configuration files, shell history, and source control. For example, read the password without displaying it in zsh:
 
@@ -139,7 +139,7 @@ To avoid duplicate bubbles, sign in to Messages on the Mac with a different Appl
 
 Replies are plain text, with no visible prefix or invisible marker. Before each send, the worker records the exact text in a private reply ledger scoped to the server and direct chat. Each entry suppresses one matching received copy and expires after 24 hours if unused. A consumed entry stays tied to its received message ID until the cursor acknowledges it, so restarting before acknowledgement cannot turn that copy into a task. After consumption, a user can send identical text as a new task. The former bridge's `🤖 Codex：` replies are still ignored.
 
-The ledger survives restart and uses file mode 600. Keep it with the channel cursor. A definite HTTP client rejection removes the entry; an uncertain send keeps it until consumption or expiry. If identical user text arrives before the synchronized reply, content-only matching treats the first copy as the reply. Set `context` in the private configuration to pass initial task context to every task. Stop the former bridge before starting Poki Agent so only one backend handles the chat.
+The ledger survives restart and uses file mode 600. Keep it with the channel cursor. A definite HTTP client rejection removes the entry; an uncertain send keeps it until consumption or expiry. If identical user text arrives before the synchronized reply, content-only matching treats the first copy as the reply. Set `context` in the private configuration to pass initial task context to every task. Stop the former bridge before starting Qeno Agent so only one backend handles the chat.
 
 Each iMessage task immediately sends a local confirmation based on the user's own words, before constructing the phone task or making a model request. Model text is not sent as a second opening. The confirmation goes through the same persistent reply ledger as every reply. The worker stays running and polls iMessage every 200 ms plus request time; Telegram keeps its existing polling and progress editing. The `opening-sent` log records receive-to-send duration without message contents. Task records separately measure model setup, MCP setup/status and model request timing.
 
@@ -219,4 +219,4 @@ Each phone tool call has a 130-second default deadline, above the daemon's 120-s
 
 ## License
 
-Poki Agent is part of Poki and uses the [AGPL-3.0-only license](../LICENSE). Dependencies retain their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
+Qeno Agent is part of Poki and uses the [AGPL-3.0-only license](../LICENSE). Dependencies retain their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).

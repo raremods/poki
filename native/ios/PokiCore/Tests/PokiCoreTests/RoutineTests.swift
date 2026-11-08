@@ -178,7 +178,7 @@ final class RoutineTests: XCTestCase {
         let backup = dir.appendingPathComponent("AgentBackup/poki-agent-backup.json")
         XCTAssertTrue(FileManager.default.fileExists(atPath: backup.path))
         XCTAssertNil(store.importRestoredBackup(), "our own copy is not imported again")
-        // Poki Setup puts another phone's backup there.
+        // Qeno Setup puts another phone's backup there.
         let other = RoutineStore(url: nil)
         other.remember("Mom is the contact Mama", by: "owner")
         try other.exportData().write(to: backup)

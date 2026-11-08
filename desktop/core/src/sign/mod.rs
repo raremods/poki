@@ -1,7 +1,7 @@
 //! Re-signing Poki's IPA for a team.
 //!
-//! 1. unpack the IPA; 2. give every bundle the team's ids (`nz.zheha.poki.<TEAM>`, extensions
-//! under it, the app group `group.nz.zheha.poki.<TEAM>`); 3. drop extensions whose entitlements
+//! 1. unpack the IPA; 2. give every bundle the team's ids (`com.owaiken.qeno.<TEAM>`, extensions
+//! under it, the app group `group.com.owaiken.qeno.<TEAM>`); 3. drop extensions whose entitlements
 //! a team profile cannot carry (the packet tunnel); 4. embed each bundle's profile and merge its
 //! entitlements by AltSign's rule; 5. sign everything with apple-codesign; 6. zip it back.
 pub mod entitlements;
@@ -55,7 +55,7 @@ pub fn team_bundle_id(released: &str, team: &str) -> String {
 pub fn team_app_group(team: &str) -> String { format!("{}.{}", crate::POKI_APP_GROUP, team) }
 
 /// Unpacks and rewrites ids. `requested` maps a bundle name (Poki, PokiWidgets) to its built
-/// entitlements when Poki-signing.zip is at hand.
+/// entitlements when Qeno-signing.zip is at hand.
 pub fn unpack(ipa: &Path, team: &str, requested: &std::collections::HashMap<String, plist::Dictionary>, reporter: &Reporter) -> Result<Unpacked> {
     let work = tempfile::Builder::new().prefix("poki-sign-").tempdir()?;
     reporter.part("sign", 0.05, Some("Unpacking".into()));
@@ -249,7 +249,7 @@ pub fn unzip(archive: &Path, into: &Path) -> Result<()> {
     Ok(())
 }
 
-/// Reads the entitlements the app was built with from Poki-signing.zip (`<edition>/<Name>.entitlements`).
+/// Reads the entitlements the app was built with from Qeno-signing.zip (`<edition>/<Name>.entitlements`).
 pub fn requested_from_signing_zip(zip_path: &Path, edition: &str) -> Result<std::collections::HashMap<String, plist::Dictionary>> {
     let file = std::fs::File::open(zip_path)?;
     let mut zip = zip::ZipArchive::new(file).map_err(|e| Error::Sign(format!("signing zip: {e}")))?;
@@ -276,12 +276,12 @@ mod tests {
     use super::*;
     #[test]
     fn ids() {
-        assert_eq!(team_bundle_id("nz.zheha.poki", "ABC123"), "nz.zheha.poki.ABC123");
-        assert_eq!(team_bundle_id("nz.zheha.poki.widgets", "ABC123"), "nz.zheha.poki.ABC123.widgets");
-        assert_eq!(team_app_group("ABC123"), "group.nz.zheha.poki.ABC123");
+        assert_eq!(team_bundle_id("com.owaiken.qeno", "ABC123"), "com.owaiken.qeno.ABC123");
+        assert_eq!(team_bundle_id("com.owaiken.qeno.widgets", "ABC123"), "com.owaiken.qeno.ABC123.widgets");
+        assert_eq!(team_app_group("ABC123"), "group.com.owaiken.qeno.ABC123");
         // Re-signing an installed copy keeps its ids.
-        assert_eq!(team_bundle_id("nz.zheha.poki.ABC123", "ABC123"), "nz.zheha.poki.ABC123");
-        assert_eq!(team_bundle_id("nz.zheha.poki.ABC123.widgets", "ABC123"), "nz.zheha.poki.ABC123.widgets");
+        assert_eq!(team_bundle_id("com.owaiken.qeno.ABC123", "ABC123"), "com.owaiken.qeno.ABC123");
+        assert_eq!(team_bundle_id("com.owaiken.qeno.ABC123.widgets", "ABC123"), "com.owaiken.qeno.ABC123.widgets");
     }
 
     /// An installed .app packs into an IPA that unpacks with the same ids for the same team.
@@ -291,20 +291,20 @@ mod tests {
         let app = dir.path().join("Poki.app");
         std::fs::create_dir_all(app.join("PlugIns/PokiWidgets.appex")).unwrap();
         let mut info = plist::Dictionary::new();
-        info.insert("CFBundleIdentifier".into(), "nz.zheha.poki.ABC123".into());
-        info.insert("PokiAppGroup".into(), "group.nz.zheha.poki.ABC123".into());
+        info.insert("CFBundleIdentifier".into(), "com.owaiken.qeno.ABC123".into());
+        info.insert("PokiAppGroup".into(), "group.com.owaiken.qeno.ABC123".into());
         info.insert("CFBundleShortVersionString".into(), "0.2.8".into());
         info.insert("CFBundleVersion".into(), "110".into());
         plist::to_file_binary(app.join("Info.plist"), &info).unwrap();
         std::fs::write(app.join("embedded.mobileprovision"), b"old").unwrap();
         let mut w = plist::Dictionary::new();
-        w.insert("CFBundleIdentifier".into(), "nz.zheha.poki.ABC123.widgets".into());
+        w.insert("CFBundleIdentifier".into(), "com.owaiken.qeno.ABC123.widgets".into());
         plist::to_file_xml(app.join("PlugIns/PokiWidgets.appex/Info.plist"), &w).unwrap();
         let ipa = dir.path().join("Poki.ipa");
         package_app(&app, &ipa).unwrap();
         let u = unpack(&ipa, "ABC123", &Default::default(), &crate::Reporter::silent()).unwrap();
         let ids: Vec<_> = u.bundles.iter().map(|b| b.new_id.as_str()).collect();
-        assert_eq!(ids, ["nz.zheha.poki.ABC123", "nz.zheha.poki.ABC123.widgets"]);
+        assert_eq!(ids, ["com.owaiken.qeno.ABC123", "com.owaiken.qeno.ABC123.widgets"]);
         assert_eq!(u.build, "110");
         assert!(!u.app_dir.join("embedded.mobileprovision").exists());
     }
@@ -318,22 +318,22 @@ mod tests {
         std::fs::create_dir_all(app.join("PlugIns/PokiWidgets.appex")).unwrap();
         std::fs::create_dir_all(app.join("PlugIns/PokiTunnel.appex")).unwrap();
         let mut info = plist::Dictionary::new();
-        info.insert("CFBundleIdentifier".into(), "nz.zheha.poki".into());
-        info.insert("PokiAppGroup".into(), "group.nz.zheha.poki".into());
+        info.insert("CFBundleIdentifier".into(), "com.owaiken.qeno".into());
+        info.insert("PokiAppGroup".into(), "group.com.owaiken.qeno".into());
         info.insert("CFBundleShortVersionString".into(), "0.2.7".into());
         info.insert("CFBundleVersion".into(), "70".into());
-        info.insert("BGTaskSchedulerPermittedIdentifiers".into(), plist::Value::Array(vec!["nz.zheha.poki.run.*".into(), "nz.zheha.pokiother".into()]));
+        info.insert("BGTaskSchedulerPermittedIdentifiers".into(), plist::Value::Array(vec!["com.owaiken.qeno.run.*".into(), "com.owaiken.qenoother".into()]));
         plist::to_file_binary(app.join("Info.plist"), &info).unwrap();
         std::fs::write(app.join("Poki"), b"binary").unwrap();
         let mut w = plist::Dictionary::new();
-        w.insert("CFBundleIdentifier".into(), "nz.zheha.poki.widgets".into());
-        w.insert("PokiAppGroup".into(), "group.nz.zheha.poki".into());
+        w.insert("CFBundleIdentifier".into(), "com.owaiken.qeno.widgets".into());
+        w.insert("PokiAppGroup".into(), "group.com.owaiken.qeno".into());
         let mut ext = plist::Dictionary::new();
         ext.insert("NSExtensionPointIdentifier".into(), "com.apple.widgetkit-extension".into());
         w.insert("NSExtension".into(), plist::Value::Dictionary(ext.clone()));
         plist::to_file_xml(app.join("PlugIns/PokiWidgets.appex/Info.plist"), &w).unwrap();
         let mut t = w.clone();
-        t.insert("CFBundleIdentifier".into(), "nz.zheha.poki.tunnel".into());
+        t.insert("CFBundleIdentifier".into(), "com.owaiken.qeno.tunnel".into());
         ext.insert("NSExtensionPointIdentifier".into(), "com.apple.networkextension.packet-tunnel".into());
         t.insert("NSExtension".into(), plist::Value::Dictionary(ext));
         plist::to_file_xml(app.join("PlugIns/PokiTunnel.appex/Info.plist"), &t).unwrap();
@@ -355,15 +355,15 @@ mod tests {
         let u = unpack(&ipa, "TEAM1", &Default::default(), &Reporter::silent()).unwrap();
         assert_eq!(u.dropped_extensions, vec!["PokiTunnel.appex"]);
         assert_eq!(u.bundles.len(), 2);
-        assert_eq!(u.bundles[0].new_id, "nz.zheha.poki.TEAM1");
-        assert_eq!(u.bundles[1].new_id, "nz.zheha.poki.TEAM1.widgets");
+        assert_eq!(u.bundles[0].new_id, "com.owaiken.qeno.TEAM1");
+        assert_eq!(u.bundles[1].new_id, "com.owaiken.qeno.TEAM1.widgets");
         assert_eq!(u.bundles[1].rel, "PlugIns/PokiWidgets.appex");
         assert_eq!(u.version, "0.2.7");
         let info = read_info(&u.app_dir).unwrap();
-        assert_eq!(info.get("PokiAppGroup").unwrap().as_string(), Some("group.nz.zheha.poki.TEAM1"));
+        assert_eq!(info.get("PokiAppGroup").unwrap().as_string(), Some("group.com.owaiken.qeno.TEAM1"));
         let ids: Vec<_> = info.get("BGTaskSchedulerPermittedIdentifiers").unwrap().as_array().unwrap().iter().filter_map(|v| v.as_string()).collect();
-        assert_eq!(ids, vec!["nz.zheha.poki.TEAM1.run.*", "nz.zheha.pokiother"]);
-        assert_eq!(u.bundles[0].requested.get("com.apple.security.application-groups").unwrap().as_array().unwrap()[0].as_string(), Some("group.nz.zheha.poki.TEAM1"));
+        assert_eq!(ids, vec!["com.owaiken.qeno.TEAM1.run.*", "com.owaiken.qenoother"]);
+        assert_eq!(u.bundles[0].requested.get("com.apple.security.application-groups").unwrap().as_array().unwrap()[0].as_string(), Some("group.com.owaiken.qeno.TEAM1"));
         let out = dir.path().join("out.ipa");
         pack(&u, &out).unwrap();
         let z = zip::ZipArchive::new(std::fs::File::open(&out).unwrap()).unwrap();
@@ -393,7 +393,7 @@ pub fn selftest(ipa: &Path, signing_zip: Option<&Path>, out: &Path, team: &str) 
         ents.insert("com.apple.security.application-groups".into(), plist::Value::Array(vec![unpacked.app_group.clone().into()]));
         profiles.push((
             b.new_id.clone(),
-            profile::Profile { uuid: "00000000-0000-0000-0000-000000000000".into(), name: "Poki Setup Self-Test".into(), team_id: team.into(), app_id: format!("{team}.{}", b.new_id), entitlements: ents, expires_at: 0, raw: b"selftest-profile".to_vec() },
+            profile::Profile { uuid: "00000000-0000-0000-0000-000000000000".into(), name: "Qeno Setup Self-Test".into(), team_id: team.into(), app_id: format!("{team}.{}", b.new_id), entitlements: ents, expires_at: 0, raw: b"selftest-profile".to_vec() },
         ));
     }
     let mut notes = sign(&unpacked, &identity, &profiles, &reporter)?;

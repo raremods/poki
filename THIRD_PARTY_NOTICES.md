@@ -116,7 +116,7 @@ The prebuilt macOS package includes the native bridge, OCR and simulator helpers
 
 [bin/thanks-wall.mjs](bin/thanks-wall.mjs) adapts the list layout and marker injection (`chunk`, `formatLine`, `generateContributorsList`, `injectListBetweenTags`, the avatar block template, and `formatAvatarUrl`) from [all-contributors/cli](https://github.com/all-contributors/cli/tree/ea23f04fd76498dd7c21717d715119d337e54012/src/generate), copyright 2016 Kent C. Dodds, 2019 Jake Bolam, 2020 Maximilian Berkmann, under the [MIT license](third_party/LICENSE.all-contributors-cli). Poki reads issue and pull request authors through the GitHub CLI instead of a `.all-contributorsrc` file, drops contribution badges and the table footer, and fails when a README is missing its markers.
 
-## Poki Setup (desktop/)
+## Qeno Setup (desktop/)
 
 The desktop app and its core crate ([desktop/](desktop/), AGPL-3.0-only) are written in Rust and TypeScript against these works:
 

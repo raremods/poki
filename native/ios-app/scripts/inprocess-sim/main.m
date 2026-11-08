@@ -8,9 +8,9 @@ static void Write(NSString *name, id object) {
     [data writeToURL:[dir URLByAppendingPathComponent:name] atomically:YES];
 }
 
-/// Reads the front app with Poki's in-process code. "read" writes its tree; "field" also finds the first
+/// Reads the front app with Qeno's in-process code. "read" writes its tree; "field" also finds the first
 /// text field in it, taps it, types, and reads the tree and the keyboard focus again. "cycle" is "field"
-/// after the session was closed (as Poki does when idle) and opened again: a touch in between must be
+/// after the session was closed (as Qeno does when idle) and opened again: a touch in between must be
 /// refused, and the new session must have a new generation.
 static NSDictionary *Run(NSString *mode, NSString *tag, NSString *text) {
     NSMutableDictionary *out = [NSMutableDictionary dictionary];
@@ -69,7 +69,7 @@ static NSDictionary *Run(NSString *mode, NSString *tag, NSString *text) {
     return out;
 }
 
-/// Opens, switches and ends apps with Poki's in-process code: launch the fixture, launch Settings,
+/// Opens, switches and ends apps with Qeno's in-process code: launch the fixture, launch Settings,
 /// activate the fixture (the same process comes back), launch it again (a new process), terminate it.
 static NSDictionary *Apps(NSString *fixture) {
     NSMutableArray *steps = [NSMutableArray array];

@@ -2,9 +2,9 @@ import SwiftUI
 
 // The details screen opens from the header like iMessage's contact info (GetStream/swiftui-iMessage-clone,
 // commit df114b4, iMessageClone/MessageList/View/Header/MessageListHeaderModifier.swift: a sheet from the
-// header button). Its content is the ESP-171 board "M Poki details".
+// header button). Its content is the ESP-171 board "M Qeno details".
 
-/// Poki's picture, name and what it does; Pause, Voice and History; the model; the status (the Poki
+/// Qeno's picture, name and what it does; Pause, Voice and History; the model; the status (the Qeno
 /// switch, relay, runner, last run and anything in the way); and voice, notifications and all settings.
 struct PokiDetailsView: View {
     @Environment(AppModel.self) private var model
@@ -14,7 +14,7 @@ struct PokiDetailsView: View {
     var openSetup: () -> Void
     /// Opens a run in Chats (from the Activity Log).
     var openSession: (String) -> Void = { _ in }
-    /// The Poki tab's pages: Accounts, History, Voice, Agents and the rest are pushed here, never shown
+    /// The Qeno tab's pages: Accounts, History, Voice, Agents and the rest are pushed here, never shown
     /// as overlays; Chats opens them by setting this path.
     @Binding var path: NavigationPath
     var inTab = true
@@ -24,8 +24,8 @@ struct PokiDetailsView: View {
             List {
                 Section {
                     let issues = Issue.current(model)
-                    Toggle("Poki", isOn: Binding(get: { model.sessionOn }, set: { $0 ? model.startSession() : model.stopSession() }))
-                    // The in-process path has no Poki Runner (ESP-152): its row is hidden, the code kept.
+                    Toggle("Qeno", isOn: Binding(get: { model.sessionOn }, set: { $0 ? model.startSession() : model.stopSession() }))
+                    // The in-process path has no Qeno Runner (ESP-152): its row is hidden, the code kept.
                     HealthRow(title: "Relay", health: Health.relay(model))
                     if model.automationPath == .runner { HealthRow(title: "Runner", health: Health.runner(model)) }
                     if model.recentSteps.last != nil {
@@ -72,7 +72,7 @@ struct PokiDetailsView: View {
                 }
             }
             .listStyle(.insetGrouped)
-            .navigationTitle(Text(verbatim: "Poki"))
+            .navigationTitle(Text(verbatim: "Qeno"))
             .navigationBarTitleDisplayMode(.large)
             .navigationDestination(for: DetailsRoute.self) { route in
                 switch route {

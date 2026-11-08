@@ -153,7 +153,7 @@ public final class Runner: @unchecked Sendable {
     /// Settings for every session. WDA waits after each gesture until the app has been still for up
     /// to `animationCoolOffTimeout` (2 s) and before each event until it is idle for up to
     /// `waitForIdleTimeout` (10 s); an app that never stops animating (a feed with videos) used all of
-    /// both on every drag. Poki pauses briefly itself and the model reads the screen after.
+    /// both on every drag. Qeno pauses briefly itself and the model reads the screen after.
     ///
     /// `accessibilityDeadline` (WDA #1210, off by default): before reading an app's tree WDA checks
     /// that the app's event loop answers within this time, and fails the read if not. Without it a

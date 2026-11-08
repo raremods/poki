@@ -16,7 +16,7 @@ tokio = { version = "1.43", features = ["rt-multi-thread", "net", "time", "sync"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 plist = "1.7"
-# Poki Setup's core without its desktop-only parts: Apple sign-in, portal, re-signing, releases.
+# Qeno Setup's core without its desktop-only parts: Apple sign-in, portal, re-signing, releases.
 poki-setup-core = { path = "../../desktop/core", default-features = false }
 base64 = "0.22"
 # Pinned as the process default before anything else makes TLS: idevice talks to the phone with aws-lc,

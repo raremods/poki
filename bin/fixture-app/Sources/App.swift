@@ -29,7 +29,7 @@ final class FixtureController: UIViewController, UIScrollViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Poki MCP Test"
+        title = "Qeno MCP Test"
         view.backgroundColor = .systemBackground
         let scroll = UIScrollView()
         let stack = UIStackView()
@@ -105,7 +105,7 @@ final class FixtureController: UIViewController, UIScrollViewDelegate {
         navigationController?.pushViewController(detail, animated: true)
     }
     @objc private func fieldList() { navigationController?.pushViewController(FieldListController(), animated: true) }
-    @objc private func crash() { fatalError("Poki MCP intentional fixture crash") }
+    @objc private func crash() { fatalError("Qeno MCP intentional fixture crash") }
     @objc private func save() {
         let file = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("fixture-state.json")
         let data = try? JSONSerialization.data(withJSONObject: ["count": count, "text": field.text ?? ""])

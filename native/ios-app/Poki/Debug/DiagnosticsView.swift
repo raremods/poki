@@ -20,7 +20,7 @@ struct DiagnosticsView: View {
                     copied = true
                     Task { try? await Task.sleep(for: .seconds(2)); copied = false }
                 }
-                ShareLink(item: log.text, subject: Text("Poki log")) { Label("Share Log", systemImage: "square.and.arrow.up") }
+                ShareLink(item: log.text, subject: Text("Qeno log")) { Label("Share Log", systemImage: "square.and.arrow.up") }
                 Button { path.append(.log) } label: {
                     LabeledContent("Log") { Text("\(log.lines.count) lines") }
                 }
@@ -112,7 +112,7 @@ struct DiagnosticsView: View {
     }
 }
 
-/// Poki's log, newest first, with Clear.
+/// Qeno's log, newest first, with Clear.
 struct LogView: View {
     @State private var log = AppLog.shared
     var back: () -> Void
@@ -151,7 +151,7 @@ private struct ApprovalTestingSection: View {
         } header: {
             Text("Testing")
         } footer: {
-            Text("All off in this alpha. ask_poki lets outside agents hand a repetitive task to Poki's own agent. Approvals: agents pay, delete, send messages, call and type passwords without asking. Only connect agents you trust. The auto-classifier asks your chat model, out of sight, whether what you said asks for the step; it allows or refuses, and a yes from you in the chat or a live call lets it through next time. It never asks you to tap anything. Changes take effect the next time Poki opens.")
+            Text("All off in this alpha. ask_poki lets outside agents hand a repetitive task to Qeno's own agent. Approvals: agents pay, delete, send messages, call and type passwords without asking. Only connect agents you trust. The auto-classifier asks your chat model, out of sight, whether what you said asks for the step; it allows or refuses, and a yes from you in the chat or a live call lets it through next time. It never asks you to tap anything. Changes take effect the next time Qeno opens.")
         }
     }
 }

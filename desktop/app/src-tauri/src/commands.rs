@@ -345,11 +345,11 @@ pub async fn support_bundle(udid: Option<String>, out_dir: String) -> R<String> 
     Ok(b.path.display().to_string())
 }
 
-/// Poki Setup's own update on the chosen channel.
+/// Qeno Setup's own update on the chosen channel.
 #[tauri::command]
 pub async fn check_update() -> R<release::UpdateInfo> { Ok(release::desktop_update().await?) }
 
-/// Downloads the newer Poki Setup and starts its installer.
+/// Downloads the newer Qeno Setup and starts its installer.
 #[tauri::command]
 pub async fn install_update(app: AppHandle) -> R<String> {
     let path = release::install_desktop_update(&reporter(&app, "update")).await?;

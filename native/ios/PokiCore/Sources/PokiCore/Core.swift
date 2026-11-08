@@ -26,10 +26,10 @@ public struct CoreConfig: Sendable {
     /// WDA's `accessibilityDeadline`: how long the app's main loop may take to answer before a tree
     /// read is refused (0 turns the check off). 2 s on the phone; the gym compares both.
     public var accessibilityDeadline: Double
-    /// Poki's own bundle ids (and the ids under them, like a development build's). The approval card is
-    /// in Poki, so `do` and a voice tap refuse to tap there when they can tell Poki is in front. A tap
-    /// that lands on its Live Activity (the Dynamic Island) brings Poki to the front; `do` brings the app
-    /// it was working in back and says so, rather than act inside Poki.
+    /// Qeno's own bundle ids (and the ids under them, like a development build's). The approval card is
+    /// in Qeno, so `do` and a voice tap refuse to tap there when they can tell Qeno is in front. A tap
+    /// that lands on its Live Activity (the Dynamic Island) brings Qeno to the front; `do` brings the app
+    /// it was working in back and says so, rather than act inside Qeno.
     public var ownApps: [String]
     /// How long without a look or do ends a task that was never finished, so the next call starts
     /// a new one. Well beyond an agent's thinking; the app's idle stop usually ends the task first.
@@ -41,7 +41,7 @@ public struct CoreConfig: Sendable {
     /// The agent's memory (routines and notes); nil uses `RoutineStore.shared`, the app's file.
     public var memory: RoutineStore?
 
-    public init(runnerURL: URL = URL(string: "http://127.0.0.1:8100")!, sensitive: SensitivityRules = SensitivityRules(), approvalWait: Double = 115, toolDeadline: Double = 25, actionCap: Double = 6, readTimeout: Double = 4, busyWait: Double = 2, runnerWait: Double = 15, treeFormat: String = "xml", ownApps: [String] = ["nz.zheha.poki"], accessibilityDeadline: Double = 2, taskGap: Double = 300, humanize: Bool? = nil) {
+    public init(runnerURL: URL = URL(string: "http://127.0.0.1:8100")!, sensitive: SensitivityRules = SensitivityRules(), approvalWait: Double = 115, toolDeadline: Double = 25, actionCap: Double = 6, readTimeout: Double = 4, busyWait: Double = 2, runnerWait: Double = 15, treeFormat: String = "xml", ownApps: [String] = ["com.owaiken.qeno"], accessibilityDeadline: Double = 2, taskGap: Double = 300, humanize: Bool? = nil) {
         self.accessibilityDeadline = accessibilityDeadline
         self.humanize = humanize
         self.runnerURL = runnerURL
@@ -57,18 +57,18 @@ public struct CoreConfig: Sendable {
         self.taskGap = taskGap
     }
 
-    /// Whether `app` is Poki itself: one of `ownApps`, or its Live Activity widget or tunnel
-    /// extension. Not every app under Poki's id prefix: the gym (nz.zheha.poki.gym) is an app
+    /// Whether `app` is Qeno itself: one of `ownApps`, or its Live Activity widget or tunnel
+    /// extension. Not every app under Qeno's id prefix: the gym (com.owaiken.qeno.gym) is an app
     /// under test, and a prefix rule refused every tap in it. An app known only by name counts
-    /// when it is named Poki.
+    /// when it is named Qeno.
     func isPoki(_ app: Foreground?) -> Bool {
         guard let app else { return false }
-        guard let bundle = app.bundleID, !bundle.isEmpty else { return app.name?.caseInsensitiveCompare("Poki") == .orderedSame }
+        guard let bundle = app.bundleID, !bundle.isEmpty else { return app.name?.caseInsensitiveCompare("Qeno") == .orderedSame }
         return ownApps.contains { bundle == $0 || bundle == $0 + ".widgets" || bundle == $0 + ".tunnel" }
     }
 
-    /// What `do` and a voice tap answer when the tap would land in Poki.
-    static let ownAppRefusal = "only the phone's owner can approve, by tapping it on the phone themselves; Poki takes no taps or typing inside the Poki app"
+    /// What `do` and a voice tap answer when the tap would land in Qeno.
+    static let ownAppRefusal = "only the phone's owner can approve, by tapping it on the phone themselves; Qeno takes no taps or typing inside the Qeno app"
 }
 
 /// The launcher's view of the runner, as the app shell reports it (from PokiLauncher's events).
@@ -89,7 +89,7 @@ public enum RunnerState: Sendable, Equatable {
 
 /// How the phone reaches its own developer services at 10.7.0.1.
 public enum LocalConnection: Sendable, Equatable {
-    /// Poki's own packet tunnel, in the local-VPN build. It does not reconnect by itself.
+    /// Qeno's own packet tunnel, in the local-VPN build. It does not reconnect by itself.
     case builtIn
     /// The owner's proxy app (or a loopback app) reflects 10.7.0.1.
     case external
@@ -104,8 +104,8 @@ extension RunnerState {
         let why: String, fix: String
         switch connection {
         case .builtIn:
-            why = tunnelWithoutAnswer ? "Poki's local connection is on, but this iPhone's developer services do not answer at 10.7.0.1" : "Poki's local connection is off, or another VPN app replaced it"
-            fix = "The owner opens Poki and taps Enable local connection in Setup, or turns Poki's VPN back on in iOS Settings > VPN"
+            why = tunnelWithoutAnswer ? "Qeno's local connection is on, but this iPhone's developer services do not answer at 10.7.0.1" : "Qeno's local connection is off, or another VPN app replaced it"
+            fix = "The owner opens Qeno and taps Enable local connection in Setup, or turns Qeno's VPN back on in iOS Settings > VPN"
         case .external:
             why = tunnelWithoutAnswer ? "the proxy app's tunnel is on but does not reflect 10.7.0.1" : "the loopback at 10.7.0.1 is not answering"
             fix = "The owner turns the proxy app's tunnel (Surge, Loon, Shadowrocket or sing-box) back on"
@@ -265,7 +265,7 @@ public struct RelayResponse: Sendable, Equatable {
     public var body: String
 }
 
-/// Poki on the phone: the MCP server behind the relay.
+/// Qeno on the phone: the MCP server behind the relay.
 public final class PokiCore: @unchecked Sendable {
     public let config: CoreConfig
     weak var host: CoreHost?
@@ -351,14 +351,14 @@ public final class PokiCore: @unchecked Sendable {
 
     public var pendingApproval: Approval? { approvals.pending }
 
-    /// A tap another part of the app sends without `do` (the Voice tab taps through the Mac's Poki MCP),
+    /// A tap another part of the app sends without `do` (the Voice tab taps through the Mac's Qeno MCP),
     /// on the element that reads `text` in the app in front. It is checked with the rules `do` uses and,
     /// when they say so, waits for the owner's OK on the phone, with the same approval (card, Live
-    /// Activity, notification). A request still open after `seconds` is withdrawn. A tap in Poki itself
+    /// Activity, notification). A request still open after `seconds` is withdrawn. A tap in Qeno itself
     /// is refused.
     public func clearTap(on text: String, inApp bundleID: String?, named name: String?, waiting seconds: Double) async -> TapClearance {
         let app = Foreground(bundleID: bundleID, name: name)
-        // The approval card is in Poki: a tap there is refused, and the request waiting stays for the owner.
+        // The approval card is in Qeno: a tap there is refused, and the request waiting stays for the owner.
         if config.isPoki(app) { return .refused(CoreConfig.ownAppRefusal) }
         // Like `do`: a tap withdraws the request still waiting, so two taps never wait side by side.
         if let pending = approvals.pending { approvals.withdraw(id: pending.id) }
@@ -467,7 +467,7 @@ public final class PokiCore: @unchecked Sendable {
             return (result([
                 "protocolVersion": .string(version),
                 "capabilities": ["tools": ["listChanged": false]],
-                "serverInfo": ["name": "poki", "version": "1.0"],
+                "serverInfo": ["name": "qeno", "version": "1.0"],
                 "instructions": .string(Self.instructions),
             ]), newSession)
         case "notifications/initialized", "notifications/cancelled": return (nil, nil)
@@ -476,7 +476,7 @@ public final class PokiCore: @unchecked Sendable {
         case "tools/call":
             let name = message["params"]?["name"]?.string ?? ""
             let args = message["params"]?["arguments"] ?? .object([:])
-            // A session Poki never saw begin (it began before Poki last started): the app is told,
+            // A session Qeno never saw begin (it began before Qeno last started): the app is told,
             // so it can name the client from what it kept (the connector's agent, the last client).
             if let session, clientNames.value[session] == nil {
                 clientNames.update { $0[session] = "" }
@@ -494,7 +494,7 @@ public final class PokiCore: @unchecked Sendable {
 
     // MARK: Tools
 
-    static let instructions = "look reads the iPhone's screen; do runs actions and then reads it. Both return the app in front, numbered elements and a screenshot whose pixels are screen points. Use the numbers from the latest answer; an element that stays on screen keeps its number, and do lists only what changed. Decide what happened from the elements, the screen_changed line and the picture. To reach something further down a list, use scroll_to with its text before trying swipes. Some actions (payments, deleting, sending messages, calls, passwords) need the owner's approval on the phone; do says so instead of sending them. Only the owner approves, by hand: do takes no input inside the Poki app. When the tree is late the elements come from the picture and a tap on a point of the picture always works: there is always a way on. A step that is the owner's to do (a password, a verification, a checkout you will not make) is handed to them with {handoff: {kind, text}}; keep polling look while they do it, then go on. When the owner's task is done, put finish: true on the last do (its actions may be empty): the phone then goes back to the app the owner asked from, where they read your reply. Saved routines repeat a whole path in one call: do {run: \"name\"} (routines {action: \"list\"} names them, and the first look of a task names those for the app in front); after a task that worked, routines {action: \"save\"} keeps its steps for next time, and remember keeps a fact about the owner."
+    static let instructions = "look reads the iPhone's screen; do runs actions and then reads it. Both return the app in front, numbered elements and a screenshot whose pixels are screen points. Use the numbers from the latest answer; an element that stays on screen keeps its number, and do lists only what changed. Decide what happened from the elements, the screen_changed line and the picture. To reach something further down a list, use scroll_to with its text before trying swipes. Some actions (payments, deleting, sending messages, calls, passwords) need the owner's approval on the phone; do says so instead of sending them. Only the owner approves, by hand: do takes no input inside the Qeno app. When the tree is late the elements come from the picture and a tap on a point of the picture always works: there is always a way on. A step that is the owner's to do (a password, a verification, a checkout you will not make) is handed to them with {handoff: {kind, text}}; keep polling look while they do it, then go on. When the owner's task is done, put finish: true on the last do (its actions may be empty): the phone then goes back to the app the owner asked from, where they read your reply. Saved routines repeat a whole path in one call: do {run: \"name\"} (routines {action: \"list\"} names them, and the first look of a task names those for the app in front); after a task that worked, routines {action: \"save\"} keeps its steps for next time, and remember keeps a fact about the owner."
 
     static let tools: [JSON] = [
         ["name": "look", "description": "Read the screen now: the app in front, the numbered elements (role, \"label = value\", [x,y,w,h] in screen points; + marks elements new since the last read, ~ moved ones) and a screenshot that is one pixel per screen point, so a point on the picture is a point to tap. Repeated text, scroll bars and empty containers are left out and long labels are cut; full=true lists every element as the tree has it and adds the text read from the picture inside [collapsed] elements (an app showed a whole cell, buttons and all, as one element). Numbers stay the same while an element stays on screen.",
@@ -503,7 +503,7 @@ public final class PokiCore: @unchecked Sendable {
         ["name": "do", "description": "Run actions in order, then read the screen once. The answer says what each action did, screen_changed (true or false: whether the elements or the picture differ from the read before), and only the elements that are new (+) or moved (~); the others keep their numbers (full=true lists all). Actions: {run: \"routine name\"} or {run: {name, with: {text_1: \"…\"}}} (replays a saved routine in this one call: each step waits for its target and acts only on a single match, the end check is read, and it stops at the first screen that differs with the reason and the screen, from where you go on by hand; steps that need the owner's approval are handed back to you); {tap: n} or {tap: [x, y]} (a numbered element is tapped at its centre, or at the nearest free point when the tree puts something over its centre, and the answer says so; only an element with no part on the screen is refused as not_hittable); {type: \"text\", ref?: n, clear?: true, via?: \"paste\"} (taps n first, then types the text as key presses and says what the field holds afterwards; via paste is the backup when typing comes out wrong: it pastes through the field's menu and puts the owner's clipboard back); {key: \"return\"|\"delete\"|\"tab\"|\"space\"|\"escape\"}; {scroll_to: \"text\"} or {scroll_to: {text or ref, in?: n, direction?: \"down\", max_swipes?: 12}} (the best way to bring something into view: it scrolls until the text is fully on screen and says where, up to 12 s; when it stops short it says so and a second call goes on from there); {swipe: \"up\"|\"down\"|\"left\"|\"right\"} or {swipe: {direction, in?: n, distance?: \"short\"|\"long\"}} (a quick flick inside the biggest list on screen, or inside n, clear of bars; direction is where the finger moves, so up shows what is further down); {drag: {from: n or [x, y], to: n or [x, y], ms?: 400, hold_ms?: 0}} or {drag: [x1, y1, x2, y2]} (the content follows the finger and stops where it stops; hold_ms first to pick something up); {long_press: n or [x, y] or {ref, ms?}}; {pinch: {ref or x, y, scale}}; {button: \"home\"|\"lock\"|\"volume_up\"|\"volume_down\"}; {launch: \"bundle id\"} or {launch: {bundle, fresh: true}}; {wait_until: \"text\"} or {wait_until: {text, gone?: true, ms?: 3000}} or {wait_until: {settled: true, ms?}} (reads the screen until the text appears or goes, or the screen holds still; use it instead of fixed waits); {wait: ms}; {back: true} (the top-left back button if one is listed, else an edge swipe from the left); {handoff: {kind: \"passcode\"|\"password\"|\"verification\"|\"payment\"|\"other\", text: \"what the owner must do\"}} (when a step is the owner's to do, by your own judgement: it is shown on the phone with a Done button, no input is sent until they tap Done or you send {handoff: false}, and you keep polling with look or {wait_until: {handoff_done: true, ms?: 10000}} rather than ending your work). Points are screen points, like the frames and the screenshot's pixels. A locked phone takes nothing but buttons and says screen: locked. Each action is reported as sent, not_sent or unknown; it stops at the first action that fails. A type that fails or times out is checked against the focused field first: the text already there counts as typed, an empty field (its placeholder counts as empty) gets one more try, and a field holding anything else, half the text or other text, is not typed into again unless clear is set; no other action that may have been delivered is ever re-sent. Payments, deleting, sending messages and passwords need the owner's approval on the phone: the plain actions before the first such action are sent, the rest are not. do holds for the owner's answer (up to about two minutes, less behind a relay that gives up sooner) and goes on in the same call once they approve; when that time runs out the answer says approval_required and which actions to send again, on their own, after they approve. A runner still finishing an earlier request answers not_sent and busy; call look again then. finish: true on the do that completes the owner's task (actions may be empty): after the actions and the read, the phone goes back to the app the task began in, where the owner asked, so they see your reply there; leave it off while more steps follow.",
          "inputSchema": ["type": "object", "properties": ["actions": ["type": "array", "items": ["type": "object"], "minItems": 0, "maxItems": 20], "full": ["type": "boolean"], "finish": ["type": "boolean"]], "required": ["actions"], "additionalProperties": false]],
         routinesTool,
-        ["name": "status", "description": "Poki's state without touching the phone: the runner, the relay, and any approval waiting on the phone.",
+        ["name": "status", "description": "Qeno's state without touching the phone: the runner, the relay, and any approval waiting on the phone.",
          "inputSchema": ["type": "object", "properties": .object([:]), "additionalProperties": false],
          "annotations": ["readOnlyHint": true]],
     ]

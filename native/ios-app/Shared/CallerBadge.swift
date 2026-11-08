@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Who is calling Poki: an outside agent's provider logo (Poki/ProviderIcons, in both asset catalogs)
+/// Who is calling Qeno: an outside agent's provider logo (Poki/ProviderIcons, in both asset catalogs)
 /// on the provider's colour, or its initials on grey. One look for the sessions list, the Activity Log,
 /// the connectors and the Live Activity.
 enum Caller {

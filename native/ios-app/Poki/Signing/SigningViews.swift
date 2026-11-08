@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Setup's Apple Account step: sign in once, so Poki can keep its own signing. Sections of the
+/// Setup's Apple Account step: sign in once, so Qeno can keep its own signing. Sections of the
 /// step's Form, like the other steps.
 struct AccountPage: View {
     @Environment(AppModel.self) private var model
@@ -27,8 +27,8 @@ struct AccountPage: View {
                 }
             } footer: {
                 Text(signer.status?.keeps_password == true
-                     ? "Poki keeps the password in this iPhone’s Keychain to sign itself again every week."
-                     : "Poki signs in again when its signing is due, and asks you for the password then.")
+                     ? "Qeno keeps the password in this iPhone’s Keychain to sign itself again every week."
+                     : "Qeno signs in again when its signing is due, and asks you for the password then.")
             }
             .task { if signer.teams.isEmpty { await signer.loadTeams() } }
             Section { Button("Sign Out", role: .destructive) { Task { await signer.signOut() } } }
@@ -53,7 +53,7 @@ struct AccountPage: View {
                     .textContentType(.password)
                 Toggle("Keep Me Signed In", isOn: $keepPassword)
             } footer: {
-                Text("A free Apple Account works: Poki signs itself for 7 days at a time and gets ready to sign again before then. Your Apple ID and password go only to Apple. The anisette server Poki asks for its device headers never sees them.")
+                Text("A free Apple Account works: Qeno signs itself for 7 days at a time and gets ready to sign again before then. Your Apple ID and password go only to Apple. The anisette server Qeno asks for its device headers never sees them.")
             }
             Section {
                 Button("Sign In") { Task { await signer.signIn(appleID: appleID, password: password, keepPassword: keepPassword); password = "" } }
@@ -79,14 +79,14 @@ struct SignerActivityRows: View {
     }
 }
 
-/// The Setup page's signing section: when Poki stops opening, the build that is ready, and Install.
+/// The Setup page's signing section: when Qeno stops opening, the build that is ready, and Install.
 struct SigningSection: View {
     @Environment(AppModel.self) private var model
     private var signer: SelfSigner { model.signer }
 
     var body: some View {
         Section {
-            // The Apple Account Poki signs itself with: Setup's account step, opened from here.
+            // The Apple Account Qeno signs itself with: Setup's account step, opened from here.
             NavigationLink(value: SetupStep.account) {
                 LabeledContent {
                     if signer.signedIn { Text(verbatim: signer.status?.apple_id ?? "") }
@@ -140,13 +140,13 @@ struct SigningSection: View {
     }
 
     private var footer: String {
-        if !signer.signedIn { return String(localized: "Sign in to your Apple Account in Setup so Poki can sign itself again before it expires.") }
+        if !signer.signedIn { return String(localized: "Sign in to your Apple Account in Setup so Qeno can sign itself again before it expires.") }
         if signer.next != nil {
             return model.signingIdle
-                ? String(localized: "Installing closes Poki for a moment. Your chats and setup stay.")
-                : (model.signingBusyReason ?? "") + " " + String(localized: "Install is available when Poki isn’t running a task.")
+                ? String(localized: "Installing closes Qeno for a moment. Your chats and setup stay.")
+                : (model.signingBusyReason ?? "") + " " + String(localized: "Install is available when Qeno isn’t running a task.")
         }
-        return String(localized: "Poki gets the next build ready by itself, \(Int(SelfSigner.refreshWithDaysLeft)) days before it expires or when your channel has an update. It installs only when you tap Install.")
+        return String(localized: "Qeno gets the next build ready by itself, \(Int(SelfSigner.refreshWithDaysLeft)) days before it expires or when your channel has an update. It installs only when you tap Install.")
     }
 }
 
@@ -173,7 +173,7 @@ struct SigningOptionsPage: View {
             } header: {
                 Text("Release Channel")
             } footer: {
-                Text("Poki downloads and signs updates from this channel ahead of time, the same way Poki Setup does. Stable gets full releases only; Beta, Alpha and Pre-alpha get earlier builds.")
+                Text("Qeno downloads and signs updates from this channel ahead of time, the same way Qeno Setup does. Stable gets full releases only; Beta, Alpha and Pre-alpha get earlier builds.")
             }
             Section {
                 TextField("https://new.ani.sidestore.io", text: $anisette)
@@ -185,7 +185,7 @@ struct SigningOptionsPage: View {
             } header: {
                 Text("Anisette Server")
             } footer: {
-                Text("Apple’s sign-in needs device headers that only Apple hardware makes. Poki gets them from this anisette server. It never sees your Apple ID or password.")
+                Text("Apple’s sign-in needs device headers that only Apple hardware makes. Qeno gets them from this anisette server. It never sees your Apple ID or password.")
             }
             SignerActivityRows(signer: signer)
         }

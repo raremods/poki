@@ -2,9 +2,9 @@ import Foundation
 import PokiCore
 import UIKit
 
-/// What Poki did and why, for the Debug tab's Copy log: runner starts, stops and restarts (with the
+/// What Qeno did and why, for the Debug tab's Copy log: runner starts, stops and restarts (with the
 /// reason), agent steps, approvals, relay and Live Activity changes. Kept in memory (the last 600
-/// lines) and in a file in Caches so a log survives Poki being closed. Never holds typed text or
+/// lines) and in a file in Caches so a log survives Qeno being closed. Never holds typed text or
 /// keys: each line passes through PokiCore's `StepLabels.withoutTypedText` before it is kept.
 @MainActor
 @Observable
@@ -25,7 +25,7 @@ final class AppLog {
         if let file, let text = try? String(contentsOf: file, encoding: .utf8) {
             lines = Array(text.split(separator: "\n").map(String.init).suffix(limit))
         }
-        add("app", "Poki started (\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?") build \(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"))")
+        add("app", "Qeno started (\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?") build \(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"))")
     }
 
     func add(_ area: String, _ message: String) {
@@ -44,8 +44,8 @@ final class AppLog {
     var text: String {
         let info = Bundle.main.infoDictionary ?? [:]
         let header = [
-            "Poki log, \(ISO8601DateFormatter().string(from: Date()))",
-            "Poki \(info["CFBundleShortVersionString"] as? String ?? "?") (\(info["CFBundleVersion"] as? String ?? "?")), \(UIDevice.current.model), iOS \(UIDevice.current.systemVersion)",
+            "Qeno log, \(ISO8601DateFormatter().string(from: Date()))",
+            "Qeno \(info["CFBundleShortVersionString"] as? String ?? "?") (\(info["CFBundleVersion"] as? String ?? "?")), \(UIDevice.current.model), iOS \(UIDevice.current.systemVersion)",
             "Relay \(RelayAddress.saved?.origin.host() ?? "not set")",
         ].joined(separator: "\n")
         return ([header] + lines).joined(separator: "\n")

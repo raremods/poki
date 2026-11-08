@@ -1,4 +1,4 @@
-// The Poki Gym scorecard on the runner path: GymScorecard (one file with the in-process path in the
+// The Qeno Gym scorecard on the runner path: GymScorecard (one file with the in-process path in the
 // app) driven through PokiCore's MCP handler, as the agent calls it, against a real WebDriverAgent
 // on the iOS Simulator. Built in CI as an executable target of the PokiCore package (the gym
 // workflow copies check/*.swift in).

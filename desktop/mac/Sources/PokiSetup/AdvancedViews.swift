@@ -36,8 +36,8 @@ struct RelayView: View {
                     HStack(alignment: .top, spacing: 16) {
                         QRCode(text: d.phoneLink, size: 130)
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("Give the address to Poki").font(.headline)
-                            Text("Scan this with the iPhone's Camera. Poki opens and starts using this relay.")
+                            Text("Give the address to Qeno").font(.headline)
+                            Text("Scan this with the iPhone's Camera. Qeno opens and starts using this relay.")
                                 .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                             Button("Copy Link") { copyToPasteboard(d.phoneLink) }
                         }
@@ -48,10 +48,10 @@ struct RelayView: View {
             if let w = worker {
                 Section {
                     LabeledContent("Relay Code") {
-                        Text(w.source == "built in" ? "Built into Poki Setup" : "From release \(w.source)").foregroundStyle(.secondary)
+                        Text(w.source == "built in" ? "Built into Qeno Setup" : "From release \(w.source)").foregroundStyle(.secondary)
                     }
                     if w.updateAvailable {
-                        Label("Relay update available. Update Relay below to match your Poki.", systemImage: "arrow.triangle.2.circlepath")
+                        Label("Relay update available. Update Relay below to match your Qeno.", systemImage: "arrow.triangle.2.circlepath")
                             .foregroundStyle(Color.pokiBlue)
                     }
                     HStack {
@@ -60,7 +60,7 @@ struct RelayView: View {
                         if let u = URL(string: w.guideUrl) { Link("Deploy It Yourself…", destination: u) }
                     }
                 } footer: {
-                    Text("Poki Setup deploys the relay from the same release as the Poki on your iPhone, checked against that release's SHA256SUMS.")
+                    Text("Qeno Setup deploys the relay from the same release as the Qeno on your iPhone, checked against that release's SHA256SUMS.")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
             }
@@ -97,7 +97,7 @@ struct RelayView: View {
             } header: {
                 Text(model.relay == nil ? "Deploy" : "Redeploy")
             } footer: {
-                Text("Use the “Edit Cloudflare Workers” template. Poki Setup keeps the token in your Keychain, so you can update the relay later without pasting it again.")
+                Text("Use the “Edit Cloudflare Workers” template. Qeno Setup keeps the token in your Keychain, so you can update the relay later without pasting it again.")
                     .font(.footnote).foregroundStyle(.secondary)
             }
         }
@@ -164,7 +164,7 @@ struct DiagnosticsView: View {
             Form {
                 Section("iPhone Log") {
                     HStack {
-                        TextField("Filter", text: $filter, prompt: Text("Poki"))
+                        TextField("Filter", text: $filter, prompt: Text("Qeno"))
                             .frame(maxWidth: 220)
                         Spacer()
                         Button(streaming ? "Stop" : "Start") { Task { await toggle() } }

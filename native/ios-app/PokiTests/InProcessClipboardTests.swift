@@ -1,9 +1,9 @@
 import UIKit
 import XCTest
-@testable import Poki
+@testable import Qeno
 
 /// PokiCore's paste backup saves the owner's clipboard first and puts it back afterwards; it pastes
-/// nothing when the clipboard cannot be read. In-process the clipboard is Poki's own to read, and an
+/// nothing when the clipboard cannot be read. In-process the clipboard is Qeno's own to read, and an
 /// unreadable one answered as empty would be "put back" as empty: the owner's clipboard is gone.
 final class InProcessClipboardTests: XCTestCase {
     private let wda = InProcessWDA(screen: CGSize(width: 402, height: 874))

@@ -66,8 +66,8 @@ enum SetupVault {
         } catch { return false }
     }
 
-    /// A pairing file put in the container from outside (Poki Setup on a computer writes it there
-    /// over house_arrest) is mirrored too, so it survives a reinstall like one Poki took itself.
+    /// A pairing file put in the container from outside (Qeno Setup on a computer writes it there
+    /// over house_arrest) is mirrored too, so it survives a reinstall like one Qeno took itself.
     static func mirrorPairingFromContainer() {
         guard let data = try? Data(contentsOf: AppFiles.pairingFile), !data.isEmpty else { return }
         if (try? Keychain.read(pairingAccount)) != data { storePairing(data) }
@@ -78,14 +78,14 @@ enum SetupVault {
 
 enum AppFiles {
     static var support: URL {
-        let url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Poki", isDirectory: true)
+        let url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Qeno", isDirectory: true)
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
     }
     /// The pairing file lives in the app's container with complete-until-first-unlock protection, so
     /// the launcher can read it in the background after the first unlock.
     static var pairingFile: URL { support.appendingPathComponent("pairing.plist") }
-    /// A copy of the pairing made on this iPhone (RPPairing). Poki Setup's hand-off writes its own
+    /// A copy of the pairing made on this iPhone (RPPairing). Qeno Setup's hand-off writes its own
     /// lockdown record over pairing.plist, and on iOS 27 that record does not open the loopback; this
     /// copy is used first.
     static var phonePairingFile: URL { support.appendingPathComponent("pairing-phone.plist") }
@@ -101,14 +101,14 @@ enum SetupStep: String, CaseIterable, Identifiable {
     case runner, developerMode, loopback, pairing, account, automation, background
     var id: String { rawValue }
 
-    /// The steps this launch shows: the in-process path has no Poki Runner to install.
-    /// Poki automates the phone itself (ESP-152): step text names Poki, not Poki Runner.
+    /// The steps this launch shows: the in-process path has no Qeno Runner to install.
+    /// Qeno automates the phone itself (ESP-152): step text names Qeno, not Qeno Runner.
     static var inProcess: Bool { AutomationPath.current == .inProcess }
 
     static var shown: [SetupStep] { AutomationPath.current == .inProcess ? allCases.filter { $0 != .runner } : Array(allCases) }
 
     /// Pairing on the phone itself (Settings > Privacy & Security > Developer Mode > Pair) exists from
-    /// iOS 27. Earlier versions get their pairing file from a computer (Poki Setup), by AirDrop, a
+    /// iOS 27. Earlier versions get their pairing file from a computer (Qeno Setup), by AirDrop, a
     /// link or Files; the pairing step shows only what this iPhone can do.
     static var onDevicePairing: Bool {
         ProcessInfo.processInfo.isOperatingSystemAtLeast(OperatingSystemVersion(majorVersion: 27, minorVersion: 0, patchVersion: 0))
@@ -116,13 +116,13 @@ enum SetupStep: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .runner: "Install Poki Runner"
+        case .runner: "Install Qeno Runner"
         case .developerMode: "Turn on Developer Mode"
         case .loopback: "Connect to this iPhone"
         case .pairing: "Pair this iPhone"
         case .account: "Sign in to your Apple Account"
         case .automation: "Allow UI Automation"
-        case .background: "Let Poki stay on"
+        case .background: "Let Qeno stay on"
         }
     }
 
@@ -140,24 +140,24 @@ enum SetupStep: String, CaseIterable, Identifiable {
 
     var summary: String {
         switch self {
-        case .runner: "The helper app that taps and types for your agent. Poki starts it; you never open it."
-        case .developerMode: Self.inProcess ? "Lets Poki use this iPhone’s developer services." : "Lets this iPhone run Poki Runner."
-        case .loopback: "Use Poki's local connection, or a compatible VPN app you already have."
-        case .pairing: Self.onDevicePairing ? "Gives Poki its own key to this iPhone. Made and kept on the phone, no computer needed." : "Gives Poki its own key to this iPhone. On this iOS version the key is made on a computer with Poki Setup, then sent here."
-        case .account: "Lets Poki sign itself again before it expires, and install updates. A free Apple Account works."
-        case .automation: Self.inProcess ? "Lets Poki use other apps." : "Lets Poki Runner use other apps."
-        case .background: "Keeps Poki connected while it is in the background, and shows what it does on the Lock Screen."
+        case .runner: "The helper app that taps and types for your agent. Qeno starts it; you never open it."
+        case .developerMode: Self.inProcess ? "Lets Qeno use this iPhone’s developer services." : "Lets this iPhone run Qeno Runner."
+        case .loopback: "Use Qeno's local connection, or a compatible VPN app you already have."
+        case .pairing: Self.onDevicePairing ? "Gives Qeno its own key to this iPhone. Made and kept on the phone, no computer needed." : "Gives Qeno its own key to this iPhone. On this iOS version the key is made on a computer with Qeno Setup, then sent here."
+        case .account: "Lets Qeno sign itself again before it expires, and install updates. A free Apple Account works."
+        case .automation: Self.inProcess ? "Lets Qeno use other apps." : "Lets Qeno Runner use other apps."
+        case .background: "Keeps Qeno connected while it is in the background, and shows what it does on the Lock Screen."
         }
     }
 
     /// One line for the Live Activity while the person is in Settings.
     var hint: String {
         switch self {
-        case .runner: "Install Poki Runner, then trust it: Settings > General > VPN & Device Management."
+        case .runner: "Install Qeno Runner, then trust it: Settings > General > VPN & Device Management."
         case .developerMode: "Settings > Privacy & Security > Developer Mode. Turn it on, restart, then tap Turn On."
-        case .loopback: "In Poki's Setup, enable the local connection or choose an external connection."
-        case .pairing: Self.onDevicePairing ? "Settings > Privacy & Security > Developer Mode > Pair with Poki, then type the code shown here." : "Pair from Poki Setup on your computer, then send the pairing file to this iPhone."
-        case .account: "Sign in to your Apple Account in Poki's Setup."
+        case .loopback: "In Qeno's Setup, enable the local connection or choose an external connection."
+        case .pairing: Self.onDevicePairing ? "Settings > Privacy & Security > Developer Mode > Pair with Qeno, then type the code shown here." : "Pair from Qeno Setup on your computer, then send the pairing file to this iPhone."
+        case .account: "Sign in to your Apple Account in Qeno's Setup."
         case .automation: "Settings > Developer > Enable UI Automation."
         case .background: "Allow location While Using the App, and keep Live Activities on."
         }
@@ -169,7 +169,7 @@ extension SetupStep {
     /// language): a name, not what to do, which the setup screen says.
     var activityTitle: String {
         switch self {
-        case .runner: "Poki Runner"
+        case .runner: "Qeno Runner"
         case .developerMode: "Developer Mode"
         case .loopback: "Loopback"
         case .pairing: "Pairing"

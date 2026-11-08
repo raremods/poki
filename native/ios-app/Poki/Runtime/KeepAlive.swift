@@ -2,7 +2,7 @@ import AVFoundation
 
 /// Keeps the app running in the background while a session is on, so the launcher's connections
 /// (and with them the runner) stay up: a silent audio session mixed with whatever else is playing.
-/// The Live Activity shows that Poki is running. Background hold measurements in Debug decide whether
+/// The Live Activity shows that Qeno is running. Background hold measurements in Debug decide whether
 /// this is enough.
 @MainActor
 final class KeepAlive {

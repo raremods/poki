@@ -31,12 +31,12 @@
         }
       }
     },
-    "%@ in %@. Open Poki to allow or deny." : {
+    "%@ in %@. Open Qeno to allow or deny." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在“%2$@”中%1$@。打开 Poki 允许或拒绝。"
+            "value" : "在“%2$@”中%1$@。打开 Qeno 允许或拒绝。"
           }
         }
       }
@@ -352,12 +352,12 @@
         }
       }
     },
-    "Add this URL as a remote MCP server in your client. Anyone with this link can control this iPhone while Poki is running. Keep it private, and revoke it here if compromised." : {
+    "Add this URL as a remote MCP server in your client. Anyone with this link can control this iPhone while Qeno is running. Keep it private, and revoke it here if compromised." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在客户端中将此地址添加为远程 MCP 服务器。Poki 运行期间，任何持有此地址的人都能控制此 iPhone。请妥善保管，如有泄露请在此处撤销。"
+            "value" : "在客户端中将此地址添加为远程 MCP 服务器。Qeno 运行期间，任何持有此地址的人都能控制此 iPhone。请妥善保管，如有泄露请在此处撤销。"
           }
         }
       }
@@ -382,12 +382,12 @@
         }
       }
     },
-    "Add your key to chat with Poki" : {
+    "Add your key to chat with Qeno" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "添加密钥以开始与 Poki 对话"
+            "value" : "添加密钥以开始与 Qeno 对话"
           }
         }
       }
@@ -433,12 +433,12 @@
         }
       }
     },
-    "Agents can reach this iPhone, but Poki can’t tap until Loopback is on." : {
+    "Agents can reach this iPhone, but Qeno can’t tap until Loopback is on." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "智能体已可连接此 iPhone，但开启回环后 Poki 才能执行轻点。"
+            "value" : "智能体已可连接此 iPhone，但开启回环后 Qeno 才能执行轻点。"
           }
         }
       }
@@ -513,12 +513,12 @@
         }
       }
     },
-    "Allow location access for Poki (Settings › Poki › Location › Always). Poki uses it only to keep running; it never records where you are." : {
+    "Allow location access for Qeno (Settings › Qeno › Location › Always). Qeno uses it only to keep running; it never records where you are." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "请允许 Poki 访问位置信息（设置 › Poki › 位置 › 始终）。Poki 仅用它保持运行，绝不记录你的位置。"
+            "value" : "请允许 Qeno 访问位置信息（设置 › Qeno › 位置 › 始终）。Qeno 仅用它保持运行，绝不记录你的位置。"
           }
         }
       }
@@ -543,42 +543,42 @@
         }
       }
     },
-    "Allows Poki Runner to control other apps." : {
+    "Allows Qeno Runner to control other apps." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "允许 Poki Runner 操作其他 App。"
+            "value" : "允许 Qeno Runner 操作其他 App。"
           }
         }
       }
     },
-    "Allows Poki to reach this iPhone’s developer services through your proxy app." : {
+    "Allows Qeno to reach this iPhone’s developer services through your proxy app." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "允许 Poki 通过你常用的代理 App 连接此 iPhone 的开发者服务。"
+            "value" : "允许 Qeno 通过你常用的代理 App 连接此 iPhone 的开发者服务。"
           }
         }
       }
     },
-    "Allows Poki to reach this iPhone’s developer services, with its built-in connection or your proxy app." : {
+    "Allows Qeno to reach this iPhone’s developer services, with its built-in connection or your proxy app." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "允许 Poki 通过内置连接或你常用的代理 App 连接此 iPhone 的开发者服务。"
+            "value" : "允许 Qeno 通过内置连接或你常用的代理 App 连接此 iPhone 的开发者服务。"
           }
         }
       }
     },
-    "Allows this iPhone to run Poki Runner." : {
+    "Allows this iPhone to run Qeno Runner." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "允许此 iPhone 运行 Poki Runner。"
+            "value" : "允许此 iPhone 运行 Qeno Runner。"
           }
         }
       }
@@ -603,12 +603,12 @@
         }
       }
     },
-    "Anthropic did not accept the key. Check it in Poki › Model." : {
+    "Anthropic did not accept the key. Check it in Qeno › Model." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Anthropic 密钥无效。请前往“Poki”›“模型”检查。"
+            "value" : "Anthropic 密钥无效。请前往“Qeno”›“模型”检查。"
           }
         }
       }
@@ -763,12 +763,12 @@
         }
       }
     },
-    "Cannot read Poki's VPN configuration. Try again, or choose an external connection." : {
+    "Cannot read Qeno's VPN configuration. Try again, or choose an external connection." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "无法读取 Poki 的 VPN 配置。请重试，或选择外部连接。"
+            "value" : "无法读取 Qeno 的 VPN 配置。请重试，或选择外部连接。"
           }
         }
       }
@@ -864,12 +864,12 @@
         }
       }
     },
-    "Connect to Wi-Fi and open Poki first. Once it is on, you can switch to cellular and keep using it." : {
+    "Connect to Wi-Fi and open Qeno first. Once it is on, you can switch to cellular and keep using it." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "请先连 Wi-Fi 打开 Poki，打开后可以切到蜂窝继续用"
+            "value" : "请先连 Wi-Fi 打开 Qeno，打开后可以切到蜂窝继续用"
           }
         }
       }
@@ -1187,13 +1187,13 @@
         }
       }
     },
-    "Don’t open Poki Runner yourself. Poki starts it when an agent needs this iPhone." : {
+    "Don’t open Qeno Runner yourself. Qeno starts it when an agent needs this iPhone." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "请勿手动打开 Poki Runner。智能体需要使用此 iPhone 时，Poki 会自动启动它。"
+            "value" : "请勿手动打开 Qeno Runner。智能体需要使用此 iPhone 时，Qeno 会自动启动它。"
           }
         }
       }
@@ -1289,13 +1289,13 @@
         }
       }
     },
-    "Enter your relay's address first (Settings › Relay). Poki has no default relay." : {
+    "Enter your relay's address first (Settings › Relay). Qeno has no default relay." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "请先在“设置 › 中转”中输入你的中转地址。Poki 没有默认中转。"
+            "value" : "请先在“设置 › 中转”中输入你的中转地址。Qeno 没有默认中转。"
           }
         }
       }
@@ -1420,12 +1420,12 @@
         }
       }
     },
-    "Gives Poki its own key to this iPhone. The key stays on this device." : {
+    "Gives Qeno its own key to this iPhone. The key stays on this device." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "为 Poki 生成访问此 iPhone 的专属密钥。密钥仅保留在本机上。"
+            "value" : "为 Qeno 生成访问此 iPhone 的专属密钥。密钥仅保留在本机上。"
           }
         }
       }
@@ -1441,12 +1441,12 @@
         }
       }
     },
-    "Hi, I’m Poki. Tell me what to do on this iPhone." : {
+    "Hi, I’m Qeno. Tell me what to do on this iPhone." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你好，我是 Poki。请告诉我需要在这台 iPhone 上执行什么操作。"
+            "value" : "你好，我是 Qeno。请告诉我需要在这台 iPhone 上执行什么操作。"
           }
         }
       }
@@ -1551,12 +1551,12 @@
         }
       }
     },
-    "In Poki's Setup, enable the local connection or choose an external connection." : {
+    "In Qeno's Setup, enable the local connection or choose an external connection." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在 Poki 的设置引导中开启本机连接，或选择外部连接。"
+            "value" : "在 Qeno 的设置引导中开启本机连接，或选择外部连接。"
           }
         }
       }
@@ -1571,54 +1571,54 @@
         }
       }
     },
-    "Install **Poki Runner** (poki-runner-unsigned.ipa) with the same tool and Apple ID you used for Poki." : {
+    "Install **Qeno Runner** (poki-runner-unsigned.ipa) with the same tool and Apple ID you used for Qeno." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "使用与安装 Poki 相同的工具和 Apple ID 安装 **Poki Runner** (poki-runner-unsigned.ipa)。"
+            "value" : "使用与安装 Qeno 相同的工具和 Apple ID 安装 **Qeno Runner** (poki-runner-unsigned.ipa)。"
           }
         }
       }
     },
-    "Install Poki Module" : {
+    "Install Qeno Module" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "安装 Poki 模块"
+            "value" : "安装 Qeno 模块"
           }
         }
       }
     },
-    "Install Poki Plugin" : {
+    "Install Qeno Plugin" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "安装 Poki 插件"
+            "value" : "安装 Qeno 插件"
           }
         }
       }
     },
-    "Install Poki Runner" : {
+    "Install Qeno Runner" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "安装 Poki Runner"
+            "value" : "安装 Qeno Runner"
           }
         }
       }
     },
-    "Install Poki Runner (poki-runner-unsigned.ipa) with the same signing tool and Apple ID as Poki, then trust its developer in Settings → General → VPN & Device Management." : {
+    "Install Qeno Runner (poki-runner-unsigned.ipa) with the same signing tool and Apple ID as Qeno, then trust its developer in Settings → General → VPN & Device Management." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "用与 Poki 相同的签名工具和 Apple ID 安装 Poki Runner（poki-runner-unsigned.ipa），然后在“设置 › 通用 › VPN 与设备管理”中信任它的开发者。"
+            "value" : "用与 Qeno 相同的签名工具和 Apple ID 安装 Qeno Runner（poki-runner-unsigned.ipa），然后在“设置 › 通用 › VPN 与设备管理”中信任它的开发者。"
           }
         }
       }
@@ -1664,12 +1664,12 @@
         }
       }
     },
-    "Keep Poki Running" : {
+    "Keep Qeno Running" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "保持 Poki 后台运行"
+            "value" : "保持 Qeno 后台运行"
           }
         }
       }
@@ -1685,22 +1685,22 @@
         }
       }
     },
-    "Keep your existing VPN connected. Poki uses its loopback and leaves its own VPN off." : {
+    "Keep your existing VPN connected. Qeno uses its loopback and leaves its own VPN off." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "保持现有 VPN 连接。Poki 使用它的回环，不开启自己的 VPN。"
+            "value" : "保持现有 VPN 连接。Qeno 使用它的回环，不开启自己的 VPN。"
           }
         }
       }
     },
-    "Keeps Poki connected in the background and shows its activity on the Lock Screen." : {
+    "Keeps Qeno connected in the background and shows its activity on the Lock Screen." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "让 Poki 在后台保持连接，并在锁定屏幕上显示实时活动。"
+            "value" : "让 Qeno 在后台保持连接，并在锁定屏幕上显示实时活动。"
           }
         }
       }
@@ -1715,7 +1715,7 @@
         }
       }
     },
-    "Keys stay in this iPhone’s Keychain. Poki sends each key only to its own provider." : {
+    "Keys stay in this iPhone’s Keychain. Qeno sends each key only to its own provider." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -1805,23 +1805,23 @@
         }
       }
     },
-    "Live Activities are off for Poki (Settings > Poki > Live Activities)." : {
+    "Live Activities are off for Qeno (Settings > Qeno > Live Activities)." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 的实时活动已关闭（设置 › Poki › 实时活动）。"
+            "value" : "Qeno 的实时活动已关闭（设置 › Qeno › 实时活动）。"
           }
         }
       }
     },
-    "Live Activities are off for Poki. Turn them on to view agent steps and approve sensitive actions." : {
+    "Live Activities are off for Qeno. Turn them on to view agent steps and approve sensitive actions." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 的“实时活动”已关闭。开启后即可查看智能体操作并批准敏感操作。"
+            "value" : "Qeno 的“实时活动”已关闭。开启后即可查看智能体操作并批准敏感操作。"
           }
         }
       }
@@ -1886,22 +1886,22 @@
         }
       }
     },
-    "Location Services is off for Poki, so iOS will suspend it shortly after you leave the app." : {
+    "Location Services is off for Qeno, so iOS will suspend it shortly after you leave the app." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 的定位服务已关闭，离开 App 后 iOS 会很快将其挂起。"
+            "value" : "Qeno 的定位服务已关闭，离开 App 后 iOS 会很快将其挂起。"
           }
         }
       }
     },
-    "Location allowed. Poki stays active in the background and never records your location." : {
+    "Location allowed. Qeno stays active in the background and never records your location." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已允许访问位置信息。Poki 会在后台保持运行，且绝不记录你的位置。"
+            "value" : "已允许访问位置信息。Qeno 会在后台保持运行，且绝不记录你的位置。"
           }
         }
       }
@@ -1977,12 +1977,12 @@
         }
       }
     },
-    "Message Poki" : {
+    "Message Qeno" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "给 Poki 发消息"
+            "value" : "给 Qeno 发消息"
           }
         }
       }
@@ -2017,18 +2017,18 @@
         }
       }
     },
-    "Mounting the developer disk image timed out. Poki needs the internet once after each restart to get Apple's signature; check Wi-Fi or cellular. Poki tries again by itself." : {
+    "Mounting the developer disk image timed out. Qeno needs the internet once after each restart to get Apple's signature; check Wi-Fi or cellular. Qeno tries again by itself." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "装载开发者磁盘映像超时。每次重启后 Poki 需要联网一次以获取 Apple 的签名，请检查无线局域网或蜂窝网络。Poki 会自动重试。"
+            "value" : "装载开发者磁盘映像超时。每次重启后 Qeno 需要联网一次以获取 Apple 的签名，请检查无线局域网或蜂窝网络。Qeno 会自动重试。"
           }
         }
       }
     },
-    "Mute Poki's voice" : {
+    "Mute Qeno's voice" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -2160,12 +2160,12 @@
         }
       }
     },
-    "No extra app needed. Poki connects only to this iPhone; your normal internet traffic and DNS stay on their usual routes." : {
+    "No extra app needed. Qeno connects only to this iPhone; your normal internet traffic and DNS stay on their usual routes." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "无需额外 App。Poki 只连接此 iPhone，你平常的网络流量和 DNS 仍走原来的路线。"
+            "value" : "无需额外 App。Qeno 只连接此 iPhone，你平常的网络流量和 DNS 仍走原来的路线。"
           }
         }
       }
@@ -2212,7 +2212,7 @@
         }
       }
     },
-    "Not approved, so Poki skipped that step" : {
+    "Not approved, so Qeno skipped that step" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -2243,12 +2243,12 @@
         }
       }
     },
-    "Nothing answers at 10.7.0.1. Turn on your proxy app (with the Poki module) or LocalDevVPN." : {
+    "Nothing answers at 10.7.0.1. Turn on your proxy app (with the Qeno module) or LocalDevVPN." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "10.7.0.1 没有应答。请开启代理 App（含 Poki 模块）或 LocalDevVPN。"
+            "value" : "10.7.0.1 没有应答。请开启代理 App（含 Qeno 模块）或 LocalDevVPN。"
           }
         }
       }
@@ -2376,13 +2376,13 @@
         }
       }
     },
-    "Open **Settings › Privacy & Security › Developer Mode**. It appears once Poki Runner is installed." : {
+    "Open **Settings › Privacy & Security › Developer Mode**. It appears once Qeno Runner is installed." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "打开“**设置 › 隐私与安全性 › 开发者模式**”。安装 Poki Runner 后会显示此选项。"
+            "value" : "打开“**设置 › 隐私与安全性 › 开发者模式**”。安装 Qeno Runner 后会显示此选项。"
           }
         }
       }
@@ -2397,24 +2397,24 @@
         }
       }
     },
-    "Open Poki and download the developer disk image again." : {
+    "Open Qeno and download the developer disk image again." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "打开 Poki，重新下载开发者磁盘映像。"
+            "value" : "打开 Qeno，重新下载开发者磁盘映像。"
           }
         }
       }
     },
-    "Open Poki and let it download the developer disk image (about 20 MB), once." : {
+    "Open Qeno and let it download the developer disk image (about 20 MB), once." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "打开 Poki，让它下载一次开发者磁盘映像（约 20 MB）。"
+            "value" : "打开 Qeno，让它下载一次开发者磁盘映像（约 20 MB）。"
           }
         }
       }
@@ -2450,12 +2450,12 @@
         }
       }
     },
-    "Open it and tap Connect, then return to Poki. It may disconnect another VPN app." : {
+    "Open it and tap Connect, then return to Qeno. It may disconnect another VPN app." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "打开并轻点“连接”，然后回到 Poki。它可能会断开其他 VPN App。"
+            "value" : "打开并轻点“连接”，然后回到 Qeno。它可能会断开其他 VPN App。"
           }
         }
       }
@@ -2501,12 +2501,12 @@
         }
       }
     },
-    "OpenAI did not accept the key. Check it in Poki › Model." : {
+    "OpenAI did not accept the key. Check it in Qeno › Model." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "OpenAI 密钥无效。请前往“Poki”›“模型”检查。"
+            "value" : "OpenAI 密钥无效。请前往“Qeno”›“模型”检查。"
           }
         }
       }
@@ -2612,13 +2612,13 @@
         }
       }
     },
-    "Pair again in Poki's setup." : {
+    "Pair again in Qeno's setup." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "请在 Poki 的设置引导中重新配对。"
+            "value" : "请在 Qeno 的设置引导中重新配对。"
           }
         }
       }
@@ -2734,78 +2734,78 @@
         }
       }
     },
-    "Poki" : {
+    "Qeno" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki"
+            "value" : "Qeno"
           }
         }
       }
     },
-    "Poki Is Off" : {
+    "Qeno Is Off" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 已关闭"
+            "value" : "Qeno 已关闭"
           }
         }
       }
     },
-    "Poki Runner is installed and trusted" : {
+    "Qeno Runner is installed and trusted" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已安装并信任 Poki Runner"
+            "value" : "已安装并信任 Qeno Runner"
           }
         }
       }
     },
-    "Poki Runner is still running after Stop. Swipe it away in the app switcher; the banner goes with it." : {
+    "Qeno Runner is still running after Stop. Swipe it away in the app switcher; the banner goes with it." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "停止后 Poki Runner 仍在运行。请在 App 切换器中将它划掉，自动化横幅会随之消失。"
+            "value" : "停止后 Qeno Runner 仍在运行。请在 App 切换器中将它划掉，自动化横幅会随之消失。"
           }
         }
       }
     },
-    "Poki can't use the microphone. Allow it in Settings, Privacy, Microphone." : {
+    "Qeno can't use the microphone. Allow it in Settings, Privacy, Microphone." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 无法访问麦克风。请在“设置”›“隐私与安全性”›“麦克风”中开启权限。"
+            "value" : "Qeno 无法访问麦克风。请在“设置”›“隐私与安全性”›“麦克风”中开启权限。"
           }
         }
       }
     },
-    "Poki cannot access the keychain and has no relay key yet. Reinstall Poki with your signing tool, then reopen Settings." : {
+    "Qeno cannot access the keychain and has no relay key yet. Reinstall Qeno with your signing tool, then reopen Settings." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 无法访问钥匙串，因此尚无中转密钥。请使用签名工具重新安装 Poki，然后重新打开设置。"
+            "value" : "Qeno 无法访问钥匙串，因此尚无中转密钥。请使用签名工具重新安装 Qeno，然后重新打开设置。"
           }
         }
       }
     },
-    "Poki can’t stay on in the background" : {
+    "Qeno can’t stay on in the background" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 无法在后台保持运行"
+            "value" : "Qeno 无法在后台保持运行"
           }
         }
       }
     },
-    "Poki could not reach %@: %@" : {
+    "Qeno could not reach %@: %@" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -2815,37 +2815,37 @@
         }
       }
     },
-    "Poki couldn’t read its relay key from the keychain (%@)." : {
+    "Qeno couldn’t read its relay key from the keychain (%@)." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 无法从钥匙串读取中转密钥（%@）。"
+            "value" : "Qeno 无法从钥匙串读取中转密钥（%@）。"
           }
         }
       }
     },
-    "Poki has no default relay. Deploy your own to your Cloudflare account with deploy/cf-relay/deploy.sh from the Poki repository, then enter the address it prints. Screenshots and taps pass only through that relay." : {
+    "Qeno has no default relay. Deploy your own to your Cloudflare account with deploy/cf-relay/deploy.sh from the Qeno repository, then enter the address it prints. Screenshots and taps pass only through that relay." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 没有默认中转。请用 Poki 仓库中的 deploy/cf-relay/deploy.sh 把中转部署到你自己的 Cloudflare 账户，再输入它输出的地址。截图和轻点只经过这个中转。"
+            "value" : "Qeno 没有默认中转。请用 Qeno 仓库中的 deploy/cf-relay/deploy.sh 把中转部署到你自己的 Cloudflare 账户，再输入它输出的地址。截图和轻点只经过这个中转。"
           }
         }
       }
     },
-    "Poki is offline. Check that the phone has internet; Poki reconnects by itself." : {
+    "Qeno is offline. Check that the phone has internet; Qeno reconnects by itself." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 已离线。请检查此 iPhone 的网络连接，Poki 会自动重新连接。"
+            "value" : "Qeno 已离线。请检查此 iPhone 的网络连接，Qeno 会自动重新连接。"
           }
         }
       }
     },
-    "Poki keeps the key now; chatting with %@ comes in an update. Until then, choose Anthropic or OpenAI." : {
+    "Qeno keeps the key now; chatting with %@ comes in an update. Until then, choose Anthropic or OpenAI." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -2855,94 +2855,94 @@
         }
       }
     },
-    "Poki log" : {
+    "Qeno log" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 日志"
+            "value" : "Qeno 日志"
           }
         }
       }
     },
-    "Poki needs attention" : {
+    "Qeno needs attention" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 需要你处理"
+            "value" : "Qeno 需要你处理"
           }
         }
       }
     },
-    "Poki needs the internet once after each restart of the phone to get Apple's signature for the developer disk image. Check Wi-Fi or cellular; Poki tries again by itself." : {
+    "Qeno needs the internet once after each restart of the phone to get Apple's signature for the developer disk image. Check Wi-Fi or cellular; Qeno tries again by itself." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "手机每次重启后，Poki 需要联网一次，为开发者磁盘映像获取 Apple 的签名。请检查无线局域网或蜂窝网络，Poki 会自动重试。"
+            "value" : "手机每次重启后，Qeno 需要联网一次，为开发者磁盘映像获取 Apple 的签名。请检查无线局域网或蜂窝网络，Qeno 会自动重试。"
           }
         }
       }
     },
-    "Poki needs your OK" : {
+    "Qeno needs your OK" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 需要你批准"
+            "value" : "Qeno 需要你批准"
           }
         }
       }
     },
-    "Poki shows steps, pairing codes, and approvals on the Lock Screen." : {
+    "Qeno shows steps, pairing codes, and approvals on the Lock Screen." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 会在锁定屏幕上显示操作步骤、配对码和批准请求。"
+            "value" : "Qeno 会在锁定屏幕上显示操作步骤、配对码和批准请求。"
           }
         }
       }
     },
-    "Poki starts it again on the next agent request." : {
+    "Qeno starts it again on the next agent request." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "智能体下次发出请求时，Poki 会重新启动它。"
+            "value" : "智能体下次发出请求时，Qeno 会重新启动它。"
           }
         }
       }
     },
-    "Poki uses your ChatGPT plan, the way Codex does. The sign-in stays in this iPhone’s Keychain." : {
+    "Qeno uses your ChatGPT plan, the way Codex does. The sign-in stays in this iPhone’s Keychain." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 与 Codex 一样，共享你的 ChatGPT 订阅额度。登录信息仅保存在此 iPhone 的钥匙串中。"
+            "value" : "Qeno 与 Codex 一样，共享你的 ChatGPT 订阅额度。登录信息仅保存在此 iPhone 的钥匙串中。"
           }
         }
       }
     },
-    "Poki will open Settings. Go to **Privacy & Security › Developer Mode** and tap **Pair with Poki**." : {
+    "Qeno will open Settings. Go to **Privacy & Security › Developer Mode** and tap **Pair with Qeno**." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 将打开“设置”。前往“**隐私与安全性 › 开发者模式**”并轻点“**与 Poki 配对**”。"
+            "value" : "Qeno 将打开“设置”。前往“**隐私与安全性 › 开发者模式**”并轻点“**与 Qeno 配对**”。"
           }
         }
       }
     },
-    "Poki, details" : {
+    "Qeno, details" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki 详情"
+            "value" : "Qeno 详情"
           }
         }
       }
@@ -3122,13 +3122,13 @@
         }
       }
     },
-    "Restart the phone, then open Poki again." : {
+    "Restart the phone, then open Qeno again." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "重启手机，然后重新打开 Poki。"
+            "value" : "重启手机，然后重新打开 Qeno。"
           }
         }
       }
@@ -3274,12 +3274,12 @@
         }
       }
     },
-    "Set Up Poki" : {
+    "Set Up Qeno" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "设置 Poki"
+            "value" : "设置 Qeno"
           }
         }
       }
@@ -3294,12 +3294,12 @@
         }
       }
     },
-    "Set the voice bridge first: tap here, or Poki › Voice and Speech." : {
+    "Set the voice bridge first: tap here, or Qeno › Voice and Speech." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "请先配置语音桥接：轻点此处，或前往“Poki”›“语音与朗读”。"
+            "value" : "请先配置语音桥接：轻点此处，或前往“Qeno”›“语音与朗读”。"
           }
         }
       }
@@ -3547,12 +3547,12 @@
         }
       }
     },
-    "Stop Poki and finish pairing before changing the local connection." : {
+    "Stop Qeno and finish pairing before changing the local connection." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "更改本机连接前，请先关闭 Poki 并完成配对。"
+            "value" : "更改本机连接前，请先关闭 Qeno 并完成配对。"
           }
         }
       }
@@ -3597,7 +3597,7 @@
         }
       }
     },
-    "Stop talking ends Poki's reply; a step already running on the phone still finishes and Poki tells you how it went." : {
+    "Stop talking ends Qeno's reply; a step already running on the phone still finishes and Qeno tells you how it went." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -3637,23 +3637,23 @@
         }
       }
     },
-    "Talk to Poki" : {
+    "Talk to Qeno" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "与 Poki 语音对话"
+            "value" : "与 Qeno 语音对话"
           }
         }
       }
     },
-    "Tap **Pair with Poki** and enter the code shown here and on the Lock Screen." : {
+    "Tap **Pair with Qeno** and enter the code shown here and on the Lock Screen." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "轻点“**与 Poki 配对**”，并输入此处或锁定屏幕上显示的配对码。"
+            "value" : "轻点“**与 Qeno 配对**”，并输入此处或锁定屏幕上显示的配对码。"
           }
         }
       }
@@ -3790,7 +3790,7 @@
         }
       }
     },
-    "The approval ran out, so Poki skipped that step" : {
+    "The approval ran out, so Qeno skipped that step" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -3820,13 +3820,13 @@
         }
       }
     },
-    "The developer disk image did not install. Poki downloads it again by itself." : {
+    "The developer disk image did not install. Qeno downloads it again by itself." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "开发者磁盘映像未能安装，Poki 会自动重新下载。"
+            "value" : "开发者磁盘映像未能安装，Qeno 会自动重新下载。"
           }
         }
       }
@@ -3842,22 +3842,22 @@
         }
       }
     },
-    "The first time Poki Runner starts after a restart, iOS asks for your passcode to allow automation. Enter it once; Poki never sees it." : {
+    "The first time Qeno Runner starts after a restart, iOS asks for your passcode to allow automation. Enter it once; Qeno never sees it." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "iPhone 重新启动后首次启动 Poki Runner 时，iOS 会要求输入锁屏密码以允许自动化操作。只需输入一次，Poki 无法读取该密码。"
+            "value" : "iPhone 重新启动后首次启动 Qeno Runner 时，iOS 会要求输入锁屏密码以允许自动化操作。只需输入一次，Qeno 无法读取该密码。"
           }
         }
       }
     },
-    "The helper app that taps and types for your agent. Poki starts it; you never open it." : {
+    "The helper app that taps and types for your agent. Qeno starts it; you never open it." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "替智能体执行轻点和输入的辅助 App。由 Poki 自动启动，无需手动打开。"
+            "value" : "替智能体执行轻点和输入的辅助 App。由 Qeno 自动启动，无需手动打开。"
           }
         }
       }
@@ -3912,12 +3912,12 @@
         }
       }
     },
-    "The local connection is off. Turn Poki on to reconnect, or choose an external connection in Setup." : {
+    "The local connection is off. Turn Qeno on to reconnect, or choose an external connection in Setup." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "本机连接已关闭。开启 Poki 即可重新连接，或在设置引导中选择外部连接。"
+            "value" : "本机连接已关闭。开启 Qeno 即可重新连接，或在设置引导中选择外部连接。"
           }
         }
       }
@@ -3952,12 +3952,12 @@
         }
       }
     },
-    "The phone no longer accepts Poki’s pairing (%@). Pair again in Setup; it takes a minute." : {
+    "The phone no longer accepts Qeno’s pairing (%@). Pair again in Setup; it takes a minute." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "此 iPhone 不再接受 Poki 的配对（%@）。请在设置引导中重新配对，只需一分钟。"
+            "value" : "此 iPhone 不再接受 Qeno 的配对（%@）。请在设置引导中重新配对，只需一分钟。"
           }
         }
       }
@@ -3983,12 +3983,12 @@
         }
       }
     },
-    "The relay forwards requests to this iPhone while Poki is open or in the background. It stores nothing; when offline, clients receive an error." : {
+    "The relay forwards requests to this iPhone while Qeno is open or in the background. It stores nothing; when offline, clients receive an error." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "当 Poki 打开或在后台运行时，中转服务器会将请求转发至此 iPhone。服务器不存储任何数据；设备离线时，客户端会收到明确的错误提示。"
+            "value" : "当 Qeno 打开或在后台运行时，中转服务器会将请求转发至此 iPhone。服务器不存储任何数据；设备离线时，客户端会收到明确的错误提示。"
           }
         }
       }
@@ -4073,23 +4073,23 @@
         }
       }
     },
-    "This happens after a restore, a reset of Location & Privacy, or when the phone forgot Poki. Pair again; the old key is replaced." : {
+    "This happens after a restore, a reset of Location & Privacy, or when the phone forgot Qeno. Pair again; the old key is replaced." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "恢复 iPhone、还原“位置与隐私”或 iPhone 忘记 Poki 后会出现这种情况。重新配对即可，旧密钥会被替换。"
+            "value" : "恢复 iPhone、还原“位置与隐私”或 iPhone 忘记 Qeno 后会出现这种情况。重新配对即可，旧密钥会被替换。"
           }
         }
       }
     },
-    "This iOS version needs a newer developer disk image. Open Poki's setup to download the latest image, or update Poki." : {
+    "This iOS version needs a newer developer disk image. Open Qeno's setup to download the latest image, or update Qeno." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "此 iOS 版本需要更新的开发者磁盘映像。请打开 Poki 的设置引导下载最新映像，或更新 Poki。"
+            "value" : "此 iOS 版本需要更新的开发者磁盘映像。请打开 Qeno 的设置引导下载最新映像，或更新 Qeno。"
           }
         }
       }
@@ -4114,22 +4114,22 @@
         }
       }
     },
-    "This iPhone does not answer yet. Enable Poki's local connection, or choose an external connection in Setup." : {
+    "This iPhone does not answer yet. Enable Qeno's local connection, or choose an external connection in Setup." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "此 iPhone 还没有应答。请开启 Poki 的本机连接，或在设置引导中选择外部连接。"
+            "value" : "此 iPhone 还没有应答。请开启 Qeno 的本机连接，或在设置引导中选择外部连接。"
           }
         }
       }
     },
-    "This iPhone is ready for Poki" : {
+    "This iPhone is ready for Qeno" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "此 iPhone 已可供 Poki 使用"
+            "value" : "此 iPhone 已可供 Qeno 使用"
           }
         }
       }
@@ -4238,13 +4238,13 @@
         }
       }
     },
-    "Turn on Developer Mode: Settings → Privacy & Security → Developer Mode, then restart the phone. If it is on: in Settings → General → VPN & Device Management, trust the developer of Poki Runner." : {
+    "Turn on Developer Mode: Settings → Privacy & Security → Developer Mode, then restart the phone. If it is on: in Settings → General → VPN & Device Management, trust the developer of Qeno Runner." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "开启开发者模式：设置 › 隐私与安全性 › 开发者模式，然后重启手机。如果已开启：在“设置 › 通用 › VPN 与设备管理”中信任 Poki Runner 的开发者。"
+            "value" : "开启开发者模式：设置 › 隐私与安全性 › 开发者模式，然后重启手机。如果已开启：在“设置 › 通用 › VPN 与设备管理”中信任 Qeno Runner 的开发者。"
           }
         }
       }
@@ -4270,44 +4270,44 @@
         }
       }
     },
-    "Turn on the Poki Device Loopback module." : {
+    "Turn on the Qeno Device Loopback module." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "开启 Poki Device Loopback 模块。"
+            "value" : "开启 Qeno Device Loopback 模块。"
           }
         }
       }
     },
-    "Turn on the loopback in your proxy app: the Poki module in Surge or Loon, loopback_address in sing-box, or Shadowrocket's Settings → Other → \"Include route 10.7.0.1/32\". Then connect to Wi-Fi." : {
+    "Turn on the loopback in your proxy app: the Qeno module in Surge or Loon, loopback_address in sing-box, or Shadowrocket's Settings → Other → \"Include route 10.7.0.1/32\". Then connect to Wi-Fi." : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在代理 App 中开启回环：Surge 或 Loon 的 Poki 模块，sing-box 的 loopback_address，或 Shadowrocket 的“设置 › 其他 › 包含路由 10.7.0.1/32”。然后连接无线局域网。"
+            "value" : "在代理 App 中开启回环：Surge 或 Loon 的 Qeno 模块，sing-box 的 loopback_address，或 Shadowrocket 的“设置 › 其他 › 包含路由 10.7.0.1/32”。然后连接无线局域网。"
           }
         }
       }
     },
-    "Turn on your proxy app with the Poki module, or connect LocalDevVPN." : {
+    "Turn on your proxy app with the Qeno module, or connect LocalDevVPN." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在代理 App 中启用 Poki 模块，或连接 LocalDevVPN。"
+            "value" : "在代理 App 中启用 Qeno 模块，或连接 LocalDevVPN。"
           }
         }
       }
     },
-    "Type it on the Pair with Poki screen in Settings" : {
+    "Type it on the Pair with Qeno screen in Settings" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在“设置”的“与 Poki 配对”页面输入"
+            "value" : "在“设置”的“与 Qeno 配对”页面输入"
           }
         }
       }
@@ -4352,12 +4352,12 @@
         }
       }
     },
-    "Use Poki's local connection, or a compatible VPN app you already have." : {
+    "Use Qeno's local connection, or a compatible VPN app you already have." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "使用 Poki 的本机连接，或你已有的兼容 VPN App。"
+            "value" : "使用 Qeno 的本机连接，或你已有的兼容 VPN App。"
           }
         }
       }
@@ -4453,12 +4453,12 @@
         }
       }
     },
-    "Waiting for Settings. Tap Pair with Poki there." : {
+    "Waiting for Settings. Tap Pair with Qeno there." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "正在等待“设置”。请在“设置”中轻点“与 Poki 配对”。"
+            "value" : "正在等待“设置”。请在“设置”中轻点“与 Qeno 配对”。"
           }
         }
       }
@@ -4493,22 +4493,22 @@
         }
       }
     },
-    "With a free Apple ID, self-signed apps expire after 7 days and are limited to 3 at a time; Poki and Poki Runner use 2. For free Apple ID signing, install the external-connection build and use LocalDevVPN or a compatible VPN app." : {
+    "With a free Apple ID, self-signed apps expire after 7 days and are limited to 3 at a time; Qeno and Qeno Runner use 2. For free Apple ID signing, install the external-connection build and use LocalDevVPN or a compatible VPN app." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "使用免费 Apple ID 自签名的 App 会在 7 天后过期，且最多同时安装 3 个（Poki 和 Poki Runner 占 2 个）。用免费 Apple ID 签名时，请安装外部连接版，并使用 LocalDevVPN 或兼容的 VPN App。"
+            "value" : "使用免费 Apple ID 自签名的 App 会在 7 天后过期，且最多同时安装 3 个（Qeno 和 Qeno Runner 占 2 个）。用免费 Apple ID 签名时，请安装外部连接版，并使用 LocalDevVPN 或兼容的 VPN App。"
           }
         }
       }
     },
-    "With a free Apple ID, self-signed apps expire after 7 days and are limited to 3 at a time; Poki and Poki Runner use 2. Free accounts also can’t sign a VPN, so Loopback requires your proxy app or LocalDevVPN." : {
+    "With a free Apple ID, self-signed apps expire after 7 days and are limited to 3 at a time; Qeno and Qeno Runner use 2. Free accounts also can’t sign a VPN, so Loopback requires your proxy app or LocalDevVPN." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "使用免费 Apple ID 自签名的 App 会在 7 天后过期，且最多同时安装 3 个（Poki 和 Poki Runner 占 2 个）。免费账户也无法签名 VPN，因此需要通过代理 App 或 LocalDevVPN 提供回环。"
+            "value" : "使用免费 Apple ID 自签名的 App 会在 7 天后过期，且最多同时安装 3 个（Qeno 和 Qeno Runner 占 2 个）。免费账户也无法签名 VPN，因此需要通过代理 App 或 LocalDevVPN 提供回环。"
           }
         }
       }
@@ -4553,12 +4553,12 @@
         }
       }
     },
-    "Your computer does the thinking. Poki only taps and types." : {
+    "Your computer does the thinking. Qeno only taps and types." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "由电脑端负责推理，Poki 仅执行点击与输入操作。"
+            "value" : "由电脑端负责推理，Qeno 仅执行点击与输入操作。"
           }
         }
       }
@@ -4573,12 +4573,12 @@
         }
       }
     },
-    "Your proxy app's tunnel is on, but 10.7.0.1 is not reflected. Turn on the Poki module or route, then reconnect the proxy." : {
+    "Your proxy app's tunnel is on, but 10.7.0.1 is not reflected. Turn on the Qeno module or route, then reconnect the proxy." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "代理 App 的隧道已开启，但 10.7.0.1 没有被反射。请开启 Poki 模块或路由，然后重新连接代理。"
+            "value" : "代理 App 的隧道已开启，但 10.7.0.1 没有被反射。请开启 Qeno 模块或路由，然后重新连接代理。"
           }
         }
       }
@@ -4614,42 +4614,42 @@
         }
       }
     },
-    "iOS asks for the passcode before UI Automation after Poki Runner was force-closed or the iPhone restarted. Enter it once; Poki carries on by itself." : {
+    "iOS asks for the passcode before UI Automation after Qeno Runner was force-closed or the iPhone restarted. Enter it once; Qeno carries on by itself." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poki Runner 被强制退出或 iPhone 重新启动后，iOS 会先要求输入锁屏密码，再允许 UI 自动化。只需输入一次，Poki 会自动继续。"
+            "value" : "Qeno Runner 被强制退出或 iPhone 重新启动后，iOS 会先要求输入锁屏密码，再允许 UI 自动化。只需输入一次，Qeno 会自动继续。"
           }
         }
       }
     },
-    "iOS requires a background mode to keep apps running. Poki uses lowest-accuracy location and shows the location indicator while active." : {
+    "iOS requires a background mode to keep apps running. Qeno uses lowest-accuracy location and shows the location indicator while active." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "iOS 要求 App 声明特定用途才能在后台持续运行。Poki 会以最低精度使用定位服务，并在运行期间显示定位指示器。"
+            "value" : "iOS 要求 App 声明特定用途才能在后台持续运行。Qeno 会以最低精度使用定位服务，并在运行期间显示定位指示器。"
           }
         }
       }
     },
-    "iOS shows the automation banner only while Poki’s automation session is open. Poki opens it when an agent asks and closes it when idle." : {
+    "iOS shows the automation banner only while Qeno’s automation session is open. Qeno opens it when an agent asks and closes it when idle." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "仅当 Poki 的自动化会话打开时，iOS 才会显示自动化横幅。Poki 会在智能体请求时打开它，并在闲置时关闭。"
+            "value" : "仅当 Qeno 的自动化会话打开时，iOS 才会显示自动化横幅。Qeno 会在智能体请求时打开它，并在闲置时关闭。"
           }
         }
       }
     },
-    "iOS shows the automation banner only while the runner is active. Poki starts it when needed and stops it when idle. Don’t close Poki Runner while an agent is working." : {
+    "iOS shows the automation banner only while the runner is active. Qeno starts it when needed and stops it when idle. Don’t close Qeno Runner while an agent is working." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "仅当 Runner 运行时，iOS 才会显示自动化横幅。Poki 会在智能体请求时启动它，并在闲置时停止。智能体工作期间请勿关闭 Poki Runner。"
+            "value" : "仅当 Runner 运行时，iOS 才会显示自动化横幅。Qeno 会在智能体请求时启动它，并在闲置时停止。智能体工作期间请勿关闭 Qeno Runner。"
           }
         }
       }

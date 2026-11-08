@@ -3,7 +3,7 @@ import PiSwiftAI
 import PokiCore
 
 /// Names a chat after its first message with the chat's own model: two to four words, like a Notes or
-/// ChatGPT title, so the Sessions list does not read "Poki" on every row. No tools, one short turn;
+/// ChatGPT title, so the Sessions list does not read "Qeno" on every row. No tools, one short turn;
 /// nothing is named if the model fails.
 @MainActor
 enum SessionNamer {

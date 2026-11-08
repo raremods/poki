@@ -77,7 +77,7 @@ struct SettingsHome: View {
                 }
                 .padding(.vertical, 4)
             } footer: {
-                Text("The relay forwards requests to this iPhone while Poki is open or in the background. It stores nothing; when offline, clients receive an error.")
+                Text("The relay forwards requests to this iPhone while Qeno is open or in the background. It stores nothing; when offline, clients receive an error.")
             }
 
             Section {
@@ -108,10 +108,10 @@ struct SettingsHome: View {
                 } header: {
                     Text("Automation")
                 } footer: {
-                    Text("Ends the automation session, and iOS’s banner with it, when the agent stops. Being tested: if the agent can’t see the screen after this, turn it off and open Poki again.")
+                    Text("Ends the automation session, and iOS’s banner with it, when the agent stops. Being tested: if the agent can’t see the screen after this, turn it off and open Qeno again.")
                 }
             }
-            // The in-process path has no Poki Runner to start or stop (ESP-152).
+            // The in-process path has no Qeno Runner to start or stop (ESP-152).
             if model.automationPath == .runner {
                 Section {
                     LabeledContent("Runner", value: Health.runner(model).word)
@@ -126,7 +126,7 @@ struct SettingsHome: View {
                 } header: {
                     Text("Runner")
                 } footer: {
-                    Text("iOS shows the automation banner only while the runner is active. Poki starts it when needed and stops it when idle. Don’t close Poki Runner while an agent is working.")
+                    Text("iOS shows the automation banner only while the runner is active. Qeno starts it when needed and stops it when idle. Don’t close Qeno Runner while an agent is working.")
                 }
             }
 
@@ -149,7 +149,7 @@ struct SettingsHome: View {
                 Text("This iPhone")
             } footer: {
                 Text(model.automationPath == .inProcess
-                     ? "iOS shows the automation banner only while Poki’s automation session is open. Poki opens it when an agent asks and closes it when idle. Memory holds the routines and notes every agent shares."
+                     ? "iOS shows the automation banner only while Qeno’s automation session is open. Qeno opens it when an agent asks and closes it when idle. Memory holds the routines and notes every agent shares."
                      : "Memory holds the routines and notes every agent shares. Diagnostics: logs, checks, background hold, addresses, and Live Activity preview.")
             }
         }
@@ -173,13 +173,13 @@ struct SettingsHome: View {
     /// or wrongly signed build); everything else shows its code.
     static func friendly(_ error: String) -> String {
         if error.contains("-34018") {
-            return String(localized: "Poki cannot access the keychain and has no relay key yet. Reinstall Poki with your signing tool, then reopen Settings.")
+            return String(localized: "Qeno cannot access the keychain and has no relay key yet. Reinstall Qeno with your signing tool, then reopen Settings.")
         }
-        return String(localized: "Poki couldn’t read its relay key from the keychain (\(error)).")
+        return String(localized: "Qeno couldn’t read its relay key from the keychain (\(error)).")
     }
 }
 
-/// The person's own relay. There is no default: until it is set, Poki sends nothing anywhere. The
+/// The person's own relay. There is no default: until it is set, Qeno sends nothing anywhere. The
 /// board does not draw this page; it is Settings' white card and footnote style.
 struct RelayView: View {
     @Environment(AppModel.self) private var model
@@ -202,7 +202,7 @@ struct RelayView: View {
                 if rejected {
                     Text("That is not a relay address. Enter the address deploy.sh printed, such as https://poki-relay.you.workers.dev.").foregroundStyle(.red)
                 } else {
-                    Text("Poki has no default relay. Deploy your own to your Cloudflare account with deploy/cf-relay/deploy.sh from the Poki repository, then enter the address it prints. Screenshots and taps pass only through that relay.")
+                    Text("Qeno has no default relay. Deploy your own to your Cloudflare account with deploy/cf-relay/deploy.sh from the Qeno repository, then enter the address it prints. Screenshots and taps pass only through that relay.")
                 }
             }
             Section("Status") { LabeledContent("Relay", value: statusText) }
@@ -268,7 +268,7 @@ struct ConnectorDetail: View {
                     copied = true
                 }
             } footer: {
-                Text("Add this URL as a remote MCP server in your client. Anyone with this link can control this iPhone while Poki is running. Keep it private, and revoke it here if compromised.")
+                Text("Add this URL as a remote MCP server in your client. Anyone with this link can control this iPhone while Qeno is running. Keep it private, and revoke it here if compromised.")
             }
             }
             Section {

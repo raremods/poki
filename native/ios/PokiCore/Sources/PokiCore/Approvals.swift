@@ -65,7 +65,7 @@ public enum TapClearance: Sendable, Equatable {
     case declined(String)
     /// Nobody answered in time, or another request replaced it.
     case unanswered(String)
-    /// The tap would land in Poki, where the approval card is; the text says so for the model.
+    /// The tap would land in Qeno, where the approval card is; the text says so for the model.
     case refused(String)
 
     public var mayTap: Bool {
@@ -86,7 +86,7 @@ public struct Approval: Sendable, Equatable {
 
 /// Pending and granted approvals. At most one is pending; it is granted or declined only from the app
 /// (the Live Activity). Every `do` and every voice tap (`PokiCore.clearTap`) withdraws it first, so a
-/// press the automation lands afterwards finds nothing to grant. Both also refuse to tap in Poki when
+/// press the automation lands afterwards finds nothing to grant. Both also refuse to tap in Qeno when
 /// they can tell it is in front.
 final class Approvals: @unchecked Sendable {
     enum Decision: Sendable { case approved, declined, expired }

@@ -1,8 +1,8 @@
 # Release channels
 
-Poki's iPhone builds are published as GitHub Releases on this repository. Poki Setup (the desktop
+Poki's iPhone builds are published as GitHub Releases on this repository. Qeno Setup (the desktop
 installer) reads them and lets each person pick a channel in Settings. A channel decides which
-releases Poki Setup installs and renews with.
+releases Qeno Setup installs and renews with.
 
 | Channel | Tags | GitHub release | Who it is for |
 | --- | --- | --- | --- |
@@ -12,7 +12,7 @@ releases Poki Setup installs and renews with.
 | Pre-alpha | `ios-prealpha-X.Y.Z-N` | prerelease | developers who want every snapshot |
 
 A channel includes the channels above it: Beta installs the newest Stable or Beta release, Alpha
-the newest Stable, Beta or Alpha, and Pre-alpha the newest release of any kind. Poki Setup's own
+the newest Stable, Beta or Alpha, and Pre-alpha the newest release of any kind. Qeno Setup's own
 updates (`desktop-v*`, `desktop-alpha-*` and `desktop-prealpha-*` tags) follow the same channel.
 
 ## Cutting a release
@@ -24,9 +24,9 @@ updates (`desktop-v*`, `desktop-alpha-*` and `desktop-prealpha-*` tags) follow t
   `ios-alpha-<VERSION>-<commit count>` or `ios-prealpha-<VERSION>-<commit count>` and pushes the tag;
   `.github/workflows/channel-release.yml` builds the app and puts it into the channel's one rolling
   prerelease, `ios-alpha-latest` or `ios-prealpha-latest` (replacing the previous build's files, title
-  and notes, so the Releases page never fills up with test builds), with the same files as a Beta: `Poki-external-*.ipa`, `Poki-*.ipa`, `Poki-signing.zip`, `poki-relay-worker.js` (the relay Worker Poki Setup deploys) and `SHA256SUMS`. The build
+  and notes, so the Releases page never fills up with test builds), with the same files as a Beta: `Poki-external-*.ipa`, `Poki-*.ipa`, `Qeno-signing.zip`, `poki-relay-worker.js` (the relay Worker Qeno Setup deploys) and `SHA256SUMS`. The build
   number is the commit count, so a later commit always has a bigger one. The versioned tag stays as
-  the record of each build; Poki Setup reads the version from the IPA's name. Poki Setup's own
+  the record of each build; Qeno Setup reads the version from the IPA's name. Qeno Setup's own
   installers (`PokiSetup-<version>-<build>-macos.dmg` / `-windows-x64-setup.exe` with
   `SHA256SUMS-desktop.txt`) are added to the same rolling release and replaced the same way. Only a
   Stable release is ever marked Latest. The same commit can be both a

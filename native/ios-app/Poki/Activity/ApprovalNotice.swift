@@ -11,7 +11,7 @@ enum ApprovalNotice {
     static let deny = "approval.deny"
 
     /// Allow and Don't Allow on the notification itself (touch and hold it, or pull it down), so an
-    /// approval can be answered without opening Poki. Allow asks for Face ID or the passcode first.
+    /// approval can be answered without opening Qeno. Allow asks for Face ID or the passcode first.
     @MainActor static func registerActions() {
         let allowAction = UNNotificationAction(identifier: allow, title: String(localized: "Allow"),
                                                options: [.authenticationRequired], icon: UNNotificationActionIcon(systemImageName: "checkmark"))
@@ -33,7 +33,7 @@ enum ApprovalNotice {
 
     static func post(_ approval: PendingApproval, caller: String? = nil) {
         let content = UNMutableNotificationContent()
-        content.title = caller.map { String(localized: "\($0) needs your OK") } ?? String(localized: "Poki needs your OK")
+        content.title = caller.map { String(localized: "\($0) needs your OK") } ?? String(localized: "Qeno needs your OK")
         content.body = String(localized: "\(approval.summary) in \(approval.app). Touch and hold to allow or deny.")
         content.categoryIdentifier = category
         content.userInfo = ["approval": approval.id]
@@ -62,19 +62,19 @@ final class ApprovalNoticeDelegate: NSObject, UNUserNotificationCenterDelegate, 
         await MainActor.run { ApprovalIntentBridge.submit(ApprovalDecision(approvalID: id, approved: action == ApprovalNotice.allow)) }
     }
 
-    /// While Poki is open the banner still shows, so the buttons are there too.
+    /// While Qeno is open the banner still shows, so the buttons are there too.
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
         [.banner, .sound, .list]
     }
 }
 
-/// The notification for a sign-in from a client outside the relay's known list. A tap opens Poki,
+/// The notification for a sign-in from a client outside the relay's known list. A tap opens Qeno,
 /// where the owner answers (Allow asks for Face ID or the passcode on the alert's own button).
 enum ConnectionNotice {
     @MainActor static func post(_ ask: AppModel.ConnectionAsk) {
         let content = UNMutableNotificationContent()
         content.title = String(localized: "Allow \(ask.client) to connect?")
-        content.body = String(localized: "A client Poki doesn’t know (\(ask.callback)) is signing in with \(ask.connector). Open Poki to allow or deny it.")
+        content.body = String(localized: "A client Qeno doesn’t know (\(ask.callback)) is signing in with \(ask.connector). Open Qeno to allow or deny it.")
         content.sound = .default
         content.interruptionLevel = .timeSensitive
         content.threadIdentifier = "connections"
@@ -86,14 +86,14 @@ enum ConnectionNotice {
     }
 }
 
-/// The pairing code as a time-sensitive banner, so it shows over Settings' Pair with Poki screen.
+/// The pairing code as a time-sensitive banner, so it shows over Settings' Pair with Qeno screen.
 enum PairingNotice {
     static let id = "pairing-code"
     @MainActor static func post(pin: String) {
         let content = UNMutableNotificationContent()
         let shown = pin.count == 6 ? "\(pin.prefix(3)) \(pin.suffix(3))" : pin
         content.title = String(localized: "Pairing code \(shown)")
-        content.body = String(localized: "Type it on the Pair with Poki screen in Settings.")
+        content.body = String(localized: "Type it on the Pair with Qeno screen in Settings.")
         content.sound = .default
         content.interruptionLevel = .timeSensitive
         UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [id])
@@ -105,7 +105,7 @@ enum PairingNotice {
 }
 
 /// What the Live Activity would pop up for (the agent's hand-off, a problem) when there is no Live
-/// Activity to pop up: dismissed, off in Settings, or Poki turned on from the background, where iOS does
+/// Activity to pop up: dismissed, off in Settings, or Qeno turned on from the background, where iOS does
 /// not let an app start one. A time-sensitive banner instead.
 enum AttentionNotice {
     static let id = "poki-attention"

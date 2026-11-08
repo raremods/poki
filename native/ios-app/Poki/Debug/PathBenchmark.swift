@@ -2,11 +2,11 @@ import Foundation
 import PokiCore
 import UIKit
 
-/// The same requests through Poki Runner and through Poki's own process, interleaved round by round:
+/// The same requests through Qeno Runner and through Qeno's own process, interleaved round by round:
 /// tap the probe field, type the sample, swipe, read (tree and screenshot). Each is timed from the
 /// request to its answer, with PokiCore's `Runner` as the client on both sides, and checked: the tap
 /// by the field taking the focus, the text by reading the field, the read by the field being in the
-/// tree and a picture coming back. The swipe is only timed. Results go to Poki's log, the system log
+/// tree and a picture coming back. The swipe is only timed. Results go to Qeno's log, the system log
 /// and Documents/path-benchmark.json.
 extension InProcessProbe {
     struct Sample {
@@ -32,7 +32,7 @@ extension InProcessProbe {
                 note("runner: not running after 60 s (\(model.runner.title)); only the in-process path is measured", ["step": "runner_missing"])
             }
         } else {
-            note("Poki started with the in-process path, so the runner is not measured", ["step": "runner_skipped"])
+            note("Qeno started with the in-process path, so the runner is not measured", ["step": "runner_skipped"])
         }
         var samples: [Sample] = []
         for round in 1...rounds {
@@ -56,7 +56,7 @@ extension InProcessProbe {
         }
     }
 
-    /// The front app's tree read once by Poki Runner and once by Poki's own process, a moment apart and
+    /// The front app's tree read once by Qeno Runner and once by Qeno's own process, a moment apart and
     /// with the same request, kept as Documents/inprocess-source.xml and Documents/runner-source.xml; a second
 /// in-process read after the runner's shows whether the screen changed in between.
     func sourceBothPaths(model: AppModel) async {
@@ -64,7 +64,7 @@ extension InProcessProbe {
         defer { end() }
         guard await prepare() else { return }
         guard model.automationPath == .runner else {
-            note("Poki started with the in-process path; start it with -automationPath runner to read through the runner too", ["step": "runner_skipped"])
+            note("Qeno started with the in-process path; start it with -automationPath runner to read through the runner too", ["step": "runner_skipped"])
             return
         }
         if !model.runner.isRunning { model.wakeRunner() }
@@ -84,7 +84,7 @@ extension InProcessProbe {
         let own = Runner(url: url, transport: InProcessWDA(screen: UIScreen.main.bounds.size))
         for (name, runner) in [("inprocess", own), ("runner", Runner(url: url)), ("inprocess-after", own)] {
             let front = await withCheckedContinuation { (c: CheckedContinuation<[String: Any], Never>) in queue.async { c.resume(returning: PKInProcess.shared().frontApp()) } }
-            note("before \(name): front \(front["bundleId"] as? String ?? "?"), Poki \(UIApplication.shared.applicationState == .active ? "in front" : "in the background")",
+            note("before \(name): front \(front["bundleId"] as? String ?? "?"), Qeno \(UIApplication.shared.applicationState == .active ? "in front" : "in the background")",
                  ["step": "front", "path": name, "bundle": front["bundleId"] as? String ?? "", "active": UIApplication.shared.applicationState == .active])
             var xml = ""
             let (ms, error) = await timed {

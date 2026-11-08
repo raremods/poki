@@ -1,5 +1,5 @@
 //! Poki's releases on GitHub: `ios-v*` (Stable, Beta) and `ios-alpha-*` (Alpha), `ios-prealpha-*` (Pre-alpha) tags with `Poki-external-<v>-<b>.ipa`, `Poki-<v>-<b>.ipa`,
-//! `Poki-signing.zip` and `SHA256SUMS`. Poki Setup installs the external edition: its loopback
+//! `Qeno-signing.zip` and `SHA256SUMS`. Qeno Setup installs the external edition: its loopback
 //! comes from the person's proxy app, which a team profile can sign; the built-in tunnel cannot.
 use crate::{Error, Result, Reporter, paths};
 use serde::{Deserialize, Serialize};
@@ -43,7 +43,7 @@ struct GhAsset {
 
 pub fn repo() -> String { std::env::var("POKI_RELEASE_REPO").unwrap_or_else(|_| DEFAULT_REPO.into()) }
 
-/// Which releases Poki Setup installs, renews with and offers as its own updates. Each channel
+/// Which releases Qeno Setup installs, renews with and offers as its own updates. Each channel
 /// includes the ones above it: Beta takes the newest Stable or Beta, Alpha adds alpha builds, Pre-alpha the newest of all.
 /// See docs/release-channels.md upstream.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -191,7 +191,7 @@ fn installable(r: &GhRelease) -> Option<(Channel, Release)> {
             channel,
             ipa_url: ipa.browser_download_url.clone(),
             ipa_name: ipa.name.clone(),
-            signing_url: r.assets.iter().find(|a| a.name == "Poki-signing.zip").map(|a| a.browser_download_url.clone()),
+            signing_url: r.assets.iter().find(|a| a.name == "Qeno-signing.zip").map(|a| a.browser_download_url.clone()),
             sums_url: r.assets.iter().find(|a| a.name == "SHA256SUMS").map(|a| a.browser_download_url.clone()),
             notes: r.body.clone().unwrap_or_default(),
         },
@@ -237,7 +237,7 @@ pub async fn channels() -> Result<Vec<ChannelInfo>> {
         .collect())
 }
 
-/// Poki Setup's own update on the chosen channel. Any release on the channel can carry it (an
+/// Qeno Setup's own update on the chosen channel. Any release on the channel can carry it (an
 /// `ios-*` release with the desktop apps attached, or a `desktop-*` one): the asset for this
 /// platform, `PokiSetup-<version>-<build>-macos.dmg` or `PokiSetup-<version>-<build>-windows-x64-setup.exe`.
 #[derive(Debug, Clone, Serialize)]
@@ -258,7 +258,7 @@ fn platform_suffix() -> &'static str {
     if cfg!(target_os = "macos") { "-macos.dmg" } else { "-windows-x64-setup.exe" }
 }
 
-/// The version in a Poki Setup installer's name, for this platform.
+/// The version in a Qeno Setup installer's name, for this platform.
 fn desktop_asset_version(name: &str, suffix: &str) -> Option<String> {
     let v = name.strip_prefix("PokiSetup-")?.strip_suffix(suffix)?;
     (!v.is_empty() && v.chars().next()?.is_ascii_digit()).then(|| v.to_string())
@@ -268,7 +268,7 @@ fn release_channel(r: &GhRelease) -> Option<Channel> {
     Channel::of_tag("desktop", &r.tag_name, r.prerelease).or_else(|| Channel::of_tag("ios", &r.tag_name, r.prerelease))
 }
 
-/// The newest Poki Setup installer a channel offers (stepping down like Poki's own releases).
+/// The newest Qeno Setup installer a channel offers (stepping down like Poki's own releases).
 fn pick_desktop<'a>(list: &'a [GhRelease], channel: Channel, suffix: &str) -> Option<(&'a GhRelease, &'a GhAsset, String)> {
     channel.fallbacks().find_map(|want| {
         list.iter()
@@ -289,12 +289,12 @@ pub async fn desktop_update() -> Result<UpdateInfo> {
     })
 }
 
-/// Downloads the newer Poki Setup and opens it: the disk image on a Mac (drag it over the old
+/// Downloads the newer Qeno Setup and opens it: the disk image on a Mac (drag it over the old
 /// one), the installer on Windows. Returns where it was saved.
 pub async fn install_desktop_update(reporter: &Reporter) -> Result<PathBuf> {
     let info = desktop_update().await?;
     let (Some(url), Some(name), true) = (info.asset_url, info.asset_name, info.newer) else {
-        return Err(Error::msg("Poki Setup is up to date."));
+        return Err(Error::msg("Qeno Setup is up to date."));
     };
     let dir = paths::cache_dir()?.join("updates");
     std::fs::create_dir_all(&dir)?;
@@ -343,7 +343,7 @@ pub async fn fetch(release: &Release, reporter: &Reporter) -> Result<(PathBuf, O
     }
     let signing = match &release.signing_url {
         Some(u) => {
-            let p = dir.join("Poki-signing.zip");
+            let p = dir.join("Qeno-signing.zip");
             if !p.is_file() {
                 download(u, &p, reporter, "release").await?;
             }

@@ -25,7 +25,7 @@ final class Host: CoreHost, @unchecked Sendable {
     }
     func runnerState() -> RunnerState { .running }
     func restartRunner() {}
-    /// The simulator's own screenshot, apart from WDA (what the Poki app does with the phone's
+    /// The simulator's own screenshot, apart from WDA (what the Qeno app does with the phone's
     /// screenshot service): `simctl io booted screenshot`, a few hundred ms, over 2 s on a loaded runner.
     func screenshotWithoutRunner() async -> Data? {
         let path = FileManager.default.temporaryDirectory.appendingPathComponent("poki-sim-check-\(UUID().uuidString).png")

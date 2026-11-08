@@ -362,7 +362,7 @@ final class TextRecognitionTests: XCTestCase {
         context.setFillColor(CGColor(red: 1, green: 1, blue: 1, alpha: 1))
         context.fill(CGRect(x: 0, y: 0, width: width, height: height))
         let font = CTFontCreateWithName("Helvetica" as CFString, 64, nil)
-        let text = NSAttributedString(string: "Poki 13", attributes: [NSAttributedString.Key(kCTFontAttributeName as String): font, NSAttributedString.Key(kCTForegroundColorAttributeName as String): CGColor(red: 0, green: 0, blue: 0, alpha: 1)])
+        let text = NSAttributedString(string: "Qeno 13", attributes: [NSAttributedString.Key(kCTFontAttributeName as String): font, NSAttributedString.Key(kCTForegroundColorAttributeName as String): CGColor(red: 0, green: 0, blue: 0, alpha: 1)])
         context.textPosition = CGPoint(x: 40, y: 200) // near the top: CoreGraphics counts from the bottom
         CTLineDraw(CTLineCreateWithAttributedString(text), context)
         let image = context.makeImage()!

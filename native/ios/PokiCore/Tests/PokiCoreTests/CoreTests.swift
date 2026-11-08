@@ -38,10 +38,10 @@ final class LoopbackWaitTests: XCTestCase {
     func testTheBuiltInConnectionSendsTheOwnerBackToPokiNotToAProxyApp() {
         XCTAssertEqual(
             RunnerState.waitingForLoopback(since: "14:02:11", tunnelWithoutAnswer: false, connection: .builtIn),
-            .starting("waiting for the loopback since 14:02:11: Poki's local connection is off, or another VPN app replaced it. The owner opens Poki and taps Enable local connection in Setup, or turns Poki's VPN back on in iOS Settings > VPN; the runner starts again by itself within seconds of that. Nothing on the phone changes meanwhile"))
+            .starting("waiting for the loopback since 14:02:11: Qeno's local connection is off, or another VPN app replaced it. The owner opens Qeno and taps Enable local connection in Setup, or turns Qeno's VPN back on in iOS Settings > VPN; the runner starts again by itself within seconds of that. Nothing on the phone changes meanwhile"))
         XCTAssertEqual(
             RunnerState.waitingForLoopback(since: nil, tunnelWithoutAnswer: true, connection: .builtIn),
-            .starting("waiting for the loopback: Poki's local connection is on, but this iPhone's developer services do not answer at 10.7.0.1. The owner opens Poki and taps Enable local connection in Setup, or turns Poki's VPN back on in iOS Settings > VPN; the runner starts again by itself within seconds of that. Nothing on the phone changes meanwhile"))
+            .starting("waiting for the loopback: Qeno's local connection is on, but this iPhone's developer services do not answer at 10.7.0.1. The owner opens Qeno and taps Enable local connection in Setup, or turns Qeno's VPN back on in iOS Settings > VPN; the runner starts again by itself within seconds of that. Nothing on the phone changes meanwhile"))
     }
 
     func testAProxyAppKeepsItsOwnInstructions() {
@@ -85,11 +85,11 @@ final class ToolTests: XCTestCase {
         XCTAssertLessThan(Date().timeIntervalSince(started), 3)
         XCTAssertGreaterThanOrEqual(host.restarts.value, 1)
         // A failed runner is answered at once, with its fix, and nothing is sent.
-        host.state.value = .failed("Poki Runner is not installed", fix: "Install it")
+        host.state.value = .failed("Qeno Runner is not installed", fix: "Install it")
         let count = wda.sent.count
         let quick = Date()
         let next = await core.call("do", ["actions": [["tap": [10, 10]]]])
-        XCTAssertTrue(next.text.contains("runner: failed: Poki Runner is not installed. Fix on the phone: Install it"), next.text)
+        XCTAssertTrue(next.text.contains("runner: failed: Qeno Runner is not installed. Fix on the phone: Install it"), next.text)
         XCTAssertLessThan(Date().timeIntervalSince(quick), 0.5)
         XCTAssertEqual(wda.sent.count, count)
     }
@@ -379,7 +379,7 @@ final class ApprovalTests: XCTestCase {
         XCTAssertEqual(settings, .clear)
     }
 
-    /// The approval card is in Poki: a voice "tap Allow" with Poki in front taps nothing, and the request
+    /// The approval card is in Qeno: a voice "tap Allow" with Qeno in front taps nothing, and the request
     /// it would have granted stays for the owner.
     func testAVoiceTapInPokiCannotApproveThePendingRequest() async throws {
         let (core, _, _) = makeCore()
@@ -388,7 +388,7 @@ final class ApprovalTests: XCTestCase {
         XCTAssertTrue(asked, "the Send tap asks the owner")
         let pending = try XCTUnwrap(core.pendingApproval)
 
-        let allow = await core.clearTap(on: "Allow", inApp: "nz.zheha.poki", named: "Poki", waiting: 1)
+        let allow = await core.clearTap(on: "Allow", inApp: "com.owaiken.qeno", named: "Qeno", waiting: 1)
         XCTAssertFalse(allow.mayTap, "\(allow)")
         XCTAssertEqual(core.pendingApproval?.id, pending.id, "the owner still decides the Send tap")
 
@@ -438,11 +438,11 @@ final class ApprovalTests: XCTestCase {
         XCTAssertTrue(wda.bodies("POST /wda/tap").isEmpty)
     }
 
-    /// The relay agent's `do` never taps in Poki either.
+    /// The relay agent's `do` never taps in Qeno either.
     func testDoTapsNothingInPoki() async {
         let wda = FakeWDA()
-        wda.source([("Button", "Allow"), ("Button", "Deny")], app: "Poki")
-        wda.set("GET /wda/activeAppInfo") { _ in (200, ["value": ["bundleId": "nz.zheha.poki", "name": "Poki"]]) }
+        wda.source([("Button", "Allow"), ("Button", "Deny")], app: "Qeno")
+        wda.set("GET /wda/activeAppInfo") { _ in (200, ["value": ["bundleId": "com.owaiken.qeno", "name": "Qeno"]]) }
         let (core, _, _) = makeCore(wda)
         _ = await core.call("look", [:])
         let result = await core.call("do", ["actions": [["tap": 1]]])
@@ -498,7 +498,7 @@ final class MCPTests: XCTestCase {
         let signals = LockedBox<[SessionSignal]>([])
         core.onSession { signal in signals.update { $0.append(signal) } }
         let seen = LockedBox<String?>(nil)
-        core.setHostTools([HostTool(name: "ask_poki", description: "Hand a task to Poki.", schemaJSON: #"{"type":"object","properties":{"task":{"type":"string"}},"required":["task"]}"#) { [core] arguments, session, _ in
+        core.setHostTools([HostTool(name: "ask_poki", description: "Hand a task to Qeno.", schemaJSON: #"{"type":"object","properties":{"task":{"type":"string"}},"required":["task"]}"#) { [core] arguments, session, _ in
             seen.value = session
             let inner = await core.callTool("look", arguments: "{}")
             return PokiCore.ToolAnswer(text: "done: \(arguments) · inner \(inner.isError ? "failed" : "ok")", jpeg: nil, isError: false)
@@ -711,7 +711,7 @@ final class DDITests: XCTestCase {
     }
 }
 
-/// ESP-176: the owner asks in one app (Grok Bot, or Poki's own chat), Poki works in others, and when
+/// ESP-176: the owner asks in one app (Grok Bot, or Qeno's own chat), Qeno works in others, and when
 /// the task ends the phone is back where the owner asked, showing the reply.
 final class ReturnToOriginTests: XCTestCase {
     /// The app in front as WDA reports it, moved by launch, activate and Home like on the phone.
@@ -726,7 +726,7 @@ final class ReturnToOriginTests: XCTestCase {
     }
 
     func testFinishGoesBackToTheAppTheTaskBeganIn() async {
-        for (origin, startsWithLook) in [("ai.x.grok", true), ("ai.x.grok", false), ("nz.zheha.poki", true), ("com.apple.springboard", true)] {
+        for (origin, startsWithLook) in [("ai.x.grok", true), ("ai.x.grok", false), ("com.owaiken.qeno", true), ("com.apple.springboard", true)] {
             let (core, wda, _) = makeCore()
             let front = phone(wda, front: origin)
             if startsWithLook { _ = await core.call("look", [:]) }

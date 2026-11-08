@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "What the Poki Setup window may do.",
+  "description": "What the Qeno Setup window may do.",
   "windows": ["main"],
   "permissions": [
     "core:default",

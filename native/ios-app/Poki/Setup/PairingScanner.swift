@@ -1,7 +1,7 @@
 import SwiftUI
 import VisionKit
 
-/// Scans the pairing code Poki Setup shows on the computer (a `poki://pairing?…` QR code) with the
+/// Scans the pairing code Qeno Setup shows on the computer (a `qeno://pairing?…` QR code) with the
 /// system's data scanner, so the pairing file arrives without the Camera app or AirDrop.
 struct PairingScanner: UIViewControllerRepresentable {
     var found: (URL) -> Void
@@ -30,7 +30,7 @@ struct PairingScanner: UIViewControllerRepresentable {
 
         func dataScanner(_ scanner: DataScannerViewController, didAdd items: [RecognizedItem], allItems: [RecognizedItem]) {
             for case .barcode(let code) in items {
-                guard !done, let text = code.payloadStringValue, let url = URL(string: text), url.scheme == "poki", url.host() == "pairing" else { continue }
+                guard !done, let text = code.payloadStringValue, let url = URL(string: text), url.scheme == "qeno", url.host() == "pairing" else { continue }
                 done = true
                 scanner.stopScanning()
                 found(url)
@@ -56,7 +56,7 @@ struct PairingScannerSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
             .safeAreaInset(edge: .bottom) {
-                Text("Point the camera at the code Poki Setup shows on your computer.")
+                Text("Point the camera at the code Qeno Setup shows on your computer.")
                     .font(.footnote).foregroundStyle(Color(.secondaryLabel))
                     .multilineTextAlignment(.center).padding()
                     .frame(maxWidth: .infinity).background(.bar)

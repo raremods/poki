@@ -2,11 +2,11 @@ import Foundation
 import UIKit
 import UserNotifications
 
-/// Poki keeps its own signing, the way Poki Setup does on a computer (PokiLauncher's signer, which is
-/// Poki Setup's Rust core): the Apple Account is signed in here, with anisette from a remote server,
+/// Qeno keeps its own signing, the way Qeno Setup does on a computer (PokiLauncher's signer, which is
+/// Qeno Setup's Rust core): the Apple Account is signed in here, with anisette from a remote server,
 /// the next build is signed ahead of time (the installed copy for a refresh, the chosen channel's
 /// release for an update), and it is installed over the loopback only when the person taps Install
-/// and no task is running, because iOS ends Poki when the new copy lands.
+/// and no task is running, because iOS ends Qeno when the new copy lands.
 ///
 /// Secrets (the Apple session, the kept password, the team key, the anisette identity) live only in
 /// the Keychain, after first unlock, on this device.
@@ -50,7 +50,7 @@ final class SelfSigner {
         let profile_expires_at: Int64
         let prepared_at: Int64
         var expires: Date { Date(timeIntervalSince1970: TimeInterval(profile_expires_at)) }
-        var title: String { kind == "update" ? "Poki \(version) (\(build))" : "Refreshed Poki \(version) (\(build))" }
+        var title: String { kind == "update" ? "Qeno \(version) (\(build))" : "Refreshed Qeno \(version) (\(build))" }
     }
 
     struct Release: Decodable, Equatable {
@@ -72,18 +72,18 @@ final class SelfSigner {
     private(set) var fraction: Double?
     private(set) var lastError: String?
     private(set) var lastCheck: Date?
-    /// When the installed Poki stops opening: its own profile's expiry. Nil when it has none (simulator).
+    /// When the installed Qeno stops opening: its own profile's expiry. Nil when it has none (simulator).
     let expiry: Date? = SelfSigner.installedProfileExpiry()
     let installedVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
     let installedBuild = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
 
     /// The phone's own services (10.7.0.1 and the pairing file), when the loopback answers.
     var phone: () -> [String: Any]? = { nil }
-    /// No task is running, so Poki may be ended by an install.
+    /// No task is running, so Qeno may be ended by an install.
     var isIdle: () -> Bool = { false }
     /// Why an install waits, for the message under the button.
     var busyReason: () -> String? = { nil }
-    /// Before an install the owner asked for: Poki winds down (automation session, Live Activity)
+    /// Before an install the owner asked for: Qeno winds down (automation session, Live Activity)
     /// so it exits cleanly when iOS replaces it, and comes back on after.
     var beforeInstall: () -> Void = {}
 
@@ -104,7 +104,7 @@ final class SelfSigner {
         return url
     }
 
-    /// Where Poki Setup leaves its team key for Poki (see the desktop core's signing-identity.json).
+    /// Where Qeno Setup leaves its team key for Qeno (see the desktop core's signing-identity.json).
     static var handedIdentity: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("PokiSetup/signing-identity.json")
     }
@@ -118,7 +118,7 @@ final class SelfSigner {
                 _ = try await SignerBridge.call(["op": "configure", "home": Self.home.path, "device_name": UIDevice.current.name])
                 if let imported = try? await SignerBridge.decode([String: AnyDecodable].self, ["op": "import_identity", "path": Self.handedIdentity.path]),
                    imported["imported"]?.value as? Bool == true {
-                    log.add("signing", "took Poki Setup's signing key into the Keychain")
+                    log.add("signing", "took Qeno Setup's signing key into the Keychain")
                 }
                 await reload()
                 loadReady()
@@ -128,7 +128,7 @@ final class SelfSigner {
                 log.add("signing", "signer did not start: \(error.localizedDescription)")
             }
         }
-        // Poki stays up in the background while it is on; a check every three hours is plenty for
+        // Qeno stays up in the background while it is on; a check every three hours is plenty for
         // a 7-day profile.
         timer = Timer.scheduledTimer(withTimeInterval: 3 * 3600, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.maintain() }
@@ -199,7 +199,7 @@ final class SelfSigner {
         ready = found
     }
 
-    /// Prepares what is due, by itself: an update when the channel has a newer Poki, a refresh when
+    /// Prepares what is due, by itself: an update when the channel has a newer Qeno, a refresh when
     /// the installed profile is close to expiring. Never installs.
     func maintain() {
         guard signedIn, working == nil, phone() != nil else { return }
@@ -230,7 +230,7 @@ final class SelfSigner {
 
     func prepare(kind: String) async {
         guard var request = phone() else {
-            lastError = String(localized: "Poki can't reach this iPhone. Turn on the loopback, then try again.")
+            lastError = String(localized: "Qeno can't reach this iPhone. Turn on the loopback, then try again.")
             return
         }
         request["op"] = "prepare"
@@ -243,38 +243,38 @@ final class SelfSigner {
             }
             self.ready[kind] = p
             self.log.add("signing", "prepared \(kind): \(p.version) (\(p.build)), profile until \(p.expires)")
-            self.notify(title: kind == "update" ? String(localized: "Poki Update Ready") : String(localized: "Poki Refresh Ready"),
-                        body: String(localized: "Open Setup and tap Install when Poki isn't running a task."))
+            self.notify(title: kind == "update" ? String(localized: "Qeno Update Ready") : String(localized: "Qeno Refresh Ready"),
+                        body: String(localized: "Open Setup and tap Install when Qeno isn't running a task."))
         }
     }
 
-    /// Installs the prepared build. iOS ends Poki when it lands; a notification brings it back.
+    /// Installs the prepared build. iOS ends Qeno when it lands; a notification brings it back.
     func install() async {
         guard let p = next else { log.add("signing", "install tapped, but no build is ready"); return }
         log.add("signing", "install tapped: \(p.kind) \(p.version) (\(p.build))")
         guard isIdle() else {
             let why = busyReason() ?? ""
-            lastError = String(localized: "Poki is running a task. Install when it has finished.") + (why.isEmpty ? "" : " " + why)
+            lastError = String(localized: "Qeno is running a task. Install when it has finished.") + (why.isEmpty ? "" : " " + why)
             log.add("signing", "install waits: \(why)")
             return
         }
         guard var request = phone() else {
-            lastError = String(localized: "Poki can't reach this iPhone. Turn on the loopback, then try again.")
+            lastError = String(localized: "Qeno can't reach this iPhone. Turn on the loopback, then try again.")
             log.add("signing", "install: no loopback or pairing file")
             return
         }
         request["op"] = "install"
         request["manifest"] = Self.home.appendingPathComponent("ready/\(p.kind)/manifest.json").path
-        let reopen = "nz.zheha.poki.signing.reopen"
+        let reopen = "com.owaiken.qeno.signing.reopen"
         scheduleReopenNotice(id: reopen)
         beforeInstall()
         steppedAside = false
         installFraction = nil
-        // iOS holds the last part of an upgrade until the app it replaces leaves the screen: Poki
+        // iOS holds the last part of an upgrade until the app it replaces leaves the screen: Qeno
         // steps aside to the Home Screen by itself once the new copy is almost in (or has stalled
-        // there), keeping a background task so the request can finish; iOS then ends Poki, and the
+        // there), keeping a background task so the request can finish; iOS then ends Qeno, and the
         // notice above reopens it.
-        let background = UIApplication.shared.beginBackgroundTask(withName: "Poki update")
+        let background = UIApplication.shared.beginBackgroundTask(withName: "Qeno update")
         let watch = Task { @MainActor [weak self] in
             var last: (fraction: Double, since: Date)?
             while !Task.isCancelled, let self, self.working != nil {
@@ -291,7 +291,7 @@ final class SelfSigner {
         }
         watch.cancel()
         UIApplication.shared.endBackgroundTask(background)
-        // Still here: iOS did not end Poki (or the install failed).
+        // Still here: iOS did not end Qeno (or the install failed).
         if lastError != nil { UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [reopen]) }
     }
 
@@ -312,12 +312,12 @@ final class SelfSigner {
     private var installFraction: Double?
     private var steppedAside = false
 
-    /// Poki to the Home Screen, as the person swiping up would: iOS finishes the upgrade only once the
+    /// Qeno to the Home Screen, as the person swiping up would: iOS finishes the upgrade only once the
     /// app it replaces is no longer in front. Once per install.
     private func stepAside() {
         guard !steppedAside, UIApplication.shared.applicationState == .active else { return }
         steppedAside = true
-        working = String(localized: "Finishing the update: Poki closes and the notice reopens it")
+        working = String(localized: "Finishing the update: Qeno closes and the notice reopens it")
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             UIApplication.shared.perform(NSSelectorFromString("suspend"))
         }
@@ -339,13 +339,13 @@ final class SelfSigner {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
-        content.userInfo = ["poki_link": "poki://setup"]
+        content.userInfo = ["poki_link": "qeno://setup"]
         let trigger = seconds.map { UNTimeIntervalNotificationTrigger(timeInterval: $0, repeats: false) }
         UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: id, content: content, trigger: trigger))
     }
 
     private func scheduleReopenNotice(id: String) {
-        notify(title: String(localized: "Poki Was Updated"), body: String(localized: "Tap to open Poki again."), id: id, after: 20)
+        notify(title: String(localized: "Qeno Was Updated"), body: String(localized: "Tap to open Qeno again."), id: id, after: 20)
     }
 
     /// Once a day in the last two days: the build is ready (or can't be made) and nothing installed it.
@@ -355,11 +355,11 @@ final class SelfSigner {
         if let last = UserDefaults.standard.object(forKey: key) as? Date, Date().timeIntervalSince(last) < 20 * 3600 { return }
         UserDefaults.standard.set(Date(), forKey: key)
         let when = expiry.map { $0.formatted(date: .abbreviated, time: .shortened) } ?? ""
-        notify(title: String(localized: "Poki Expires Soon"),
-               body: next != nil ? String(localized: "A refreshed Poki is ready. Open Setup and tap Install before \(when).") : String(localized: "Open Setup to refresh Poki before \(when)."))
+        notify(title: String(localized: "Qeno Expires Soon"),
+               body: next != nil ? String(localized: "A refreshed Qeno is ready. Open Setup and tap Install before \(when).") : String(localized: "Open Setup to refresh Qeno before \(when)."))
     }
 
-    /// The ExpirationDate of Poki's own embedded.mobileprovision (a CMS envelope around a plist).
+    /// The ExpirationDate of Qeno's own embedded.mobileprovision (a CMS envelope around a plist).
     nonisolated static func installedProfileExpiry() -> Date? {
         guard let url = Bundle.main.url(forResource: "embedded", withExtension: "mobileprovision"),
               let data = try? Data(contentsOf: url),

@@ -1,7 +1,7 @@
 # Handoff: the `standalone` branch and the first pre-alpha
 
 Written Nov 8 2026, 4:20 am ET (Philadelphia time), for Joseph and the agents working for him. It covers
-what `standalone` is, how it was put together, how releases and channels work now, what Poki Setup
+what `standalone` is, how it was put together, how releases and channels work now, what Qeno Setup
 does, what was checked and what was not, and what is still open. Read `HANDOFF.md` (the
 `poki/ios-integration` handoff) and `docs/NOTE-FOR-JOSEPHS-AGENT.md` (the earlier
 `dev/ios-standalone` note) for the history before this.
@@ -11,9 +11,9 @@ does, what was checked and what was not, and what is still open. Read `HANDOFF.m
 `standalone` is the full state of Zhehan's standalone iPhone work as of the first pre-alpha. It has
 full history and no squashes. It is the native SwiftUI revamp of the iPhone app (`native/ios-app`),
 plus on-device self-signing (Poki re-signs and updates itself, free Apple accounts included), plus
-Poki Setup for Mac and Windows (`desktop/`), plus a release-channel system (Stable, Beta, Alpha,
+Qeno Setup for Mac and Windows (`desktop/`), plus a release-channel system (Stable, Beta, Alpha,
 Pre-alpha) on this repository's GitHub Releases. The first pre-alpha is tag `ios-prealpha-0.2.8-499`
-on this file's commit (the head of `standalone` when it was cut): Poki 0.2.8 (499) with Poki Setup 0.2.1 (307). Nothing on `main` was touched and no
+on this file's commit (the head of `standalone` when it was cut): Poki 0.2.8 (499) with Qeno Setup 0.2.1 (307). Nothing on `main` was touched and no
 PR is open.
 
 ## Ground rules (unchanged, please keep them)
@@ -38,10 +38,10 @@ The first-parent history of `standalone` is a series of merges. From oldest to n
 | `03c5a83`, `012e5e3` | Release channels: `channel-release.yml`, `cut-release.sh`, `docs/release-channels.md` (first Pre-alpha, then Alpha). |
 | `b4a67d2` | The iOS IPA workflow can be called by `channel-release.yml` (inputs `version`, `build`, `editions`). |
 | `53ff4aa`, `a4e09bb` | Releases attach the relay Worker (`poki-relay-worker.js`, listed in `SHA256SUMS`) and the release notes link it. |
-| `ea68952`, `9ebaf1e`, `8905942` | Merges of fork `dev/desktop-setup` (Poki Setup 0.2.1 builds 297 to 299). `8905942` resolved conflicts in `desktop/core/src/relay.rs` and `desktop/core/src/apple/store.rs`; see "Rust core features" below. |
+| `ea68952`, `9ebaf1e`, `8905942` | Merges of fork `dev/desktop-setup` (Qeno Setup 0.2.1 builds 297 to 299). `8905942` resolved conflicts in `desktop/core/src/relay.rs` and `desktop/core/src/apple/store.rs`; see "Rust core features" below. |
 | `1a0e05c` | CI split: `ios-app.yml` is the full workflow again (tests, simulator, screenshots, restored from before `dc2cb40`), and `ios-ipa.yml` is the fast unsigned IPA build that `channel-release.yml` calls. |
 | `3ad8e56`, `c48e15f`, `bff458e` | Merges of `dev/ios-native-revamp` up to `b8c243a`: pairing fixes (`422788e`, `7ca2b55`), aws-lc pinned as the TLS provider (`f5fb69c`), the voice restart fix, the separate on-device pairing file, and chat scrolling. |
-| `5c42d82`, `297ba04`, `71e16b7`, `13656d7`, then the `c465a5a` merge | Merges of `dev/desktop-setup` up to `c465a5a` (Poki Setup 0.2.1 build 307: the signer renames `BGTaskSchedulerPermittedIdentifiers` to the signed bundle id, and the Mac sidebar fix). Before that `a121d41` (build 304). |
+| `5c42d82`, `297ba04`, `71e16b7`, `13656d7`, then the `c465a5a` merge | Merges of `dev/desktop-setup` up to `c465a5a` (Qeno Setup 0.2.1 build 307: the signer renames `BGTaskSchedulerPermittedIdentifiers` to the signed bundle id, and the Mac sidebar fix). Before that `a121d41` (build 304). |
 | `02fd595`, `2afe565`, the `8519c32` merge, then the `41509e8` merge | Merges of `dev/ios-native-revamp` up to `41509e8` (one in-process automation session per launch, so turning Poki back on after Off relaunches it from a notice; stand-by drops the banner but keeps the session; ask_poki off by default under Settings › Diagnostics › Testing). Before that `8519c32` (approval switches with the auto-classifier, background keep-alive, ask_poki for repetitive tasks); before that `2b9ec5b` (approvals off by default for this alpha; Settings › Approvals › Ask Before Sensitive Steps turns them back on). Before that, `d7e91b2`: Install button fix, Stop ignored right after Allow, the session stays open while idle, screen reader recovery after a reopen, Hide Banner When Idle. |
 
 Fork sources, all on ZhehanZhang/poki-remote: `dev/ios-native-revamp` at `41509e8` and
@@ -78,10 +78,10 @@ merged. Nobody has done that merge yet.
 
 ### Self-signing (`native/ios-app/Poki/Signing`, `native/launcher/src/signer.rs`)
 
-- Poki Setup writes the signing identity into Poki's container as
+- Qeno Setup writes the signing identity into Poki's container as
   `Documents/PokiSetup/signing-identity.json` (schema `poki.signing-identity/1`) on install and on
   renewal. Poki moves it into its own Keychain.
-- The Rust signer is Poki Setup's core (`desktop/core`), linked into `native/launcher` as a static
+- The Rust signer is Qeno Setup's core (`desktop/core`), linked into `native/launcher` as a static
   library. It installs through installation_proxy and misagent over the 10.7.0.1 loopback.
   Anisette comes from remote v3 servers (`new.ani.sidestore.io`, then fallbacks).
 - Zhehan's rules for it: refresh status and a countdown on the Setup page; updates are
@@ -96,7 +96,7 @@ merged. Nobody has done that merge yet.
   iOS asks. A failure at that step looks like "no pairing code ever appears". Check the passcode
   step before you debug the code path.
 
-## Poki Setup (`desktop/`)
+## Qeno Setup (`desktop/`)
 
 - `desktop/core`: everything, no UI (Rust). `desktop/cli`: `poki-setup`. `desktop/bridge`:
   JSON lines over stdio for the Mac app. `desktop/mac`: native SwiftUI Mac app (SwiftPM, macOS 14+,
@@ -120,8 +120,8 @@ merged. Nobody has done that merge yet.
 - Sign-in: Apple GSA (SRP-6a, 2FA by trusted device or SMS). Anisette is remote by default
   everywhere (macOS 27's AOSKit gives no X-Apple-MD). `ani.sidestore.io` serves Android data under
   Mac client info and causes ec -80045; use `new.ani.sidestore.io` and rotate on -80045/-80046.
-- Any Apple ID works. Each team gets `nz.zheha.poki.<TEAM>`, `.widgets` and
-  `group.nz.zheha.poki.<TEAM>`. The packet-tunnel extension is always left out (a team profile
+- Any Apple ID works. Each team gets `com.owaiken.qeno.<TEAM>`, `.widgets` and
+  `group.com.owaiken.qeno.<TEAM>`. The packet-tunnel extension is always left out (a team profile
   can't carry it), so tester-signed builds need a proxy app for the loopback (Karing, Stash,
   Quantumult X, Clash Mi, plus the modules in `deploy/proxy-modules`).
 - Builds 300 and 301 had a pairing QR "data too long" bug. 302 fixes it, makes a Remote Pairing
@@ -152,9 +152,9 @@ Auto-Classifier (Permissiveness Strict, Balanced or Permissive; the chat model d
 sight from what the owner said, shows "Approved by model" or "Not approved by model", and a refused step goes
 through after the owner says yes in the chat). The release notes warn about all of this in every language.
 
-Also from `8519c32`: on iOS 26 and later Poki keeps running with a BGContinuedProcessingTask instead of silent audio
+Also from `8519c32`: on iOS 26 and later Qeno keeps running with a BGContinuedProcessingTask instead of silent audio
 and location. `desktop/core` `sign/mod.rs` now rewrites `BGTaskSchedulerPermittedIdentifiers` to the signed bundle
-id. Poki Setup 307 has that change; with an older Setup (304) iOS refuses the task and Poki falls back to silent audio
+id. Qeno Setup 307 has that change; with an older Setup (304) iOS refuses the task and Poki falls back to silent audio
 (safe).
 
 ## Tag ruleset
@@ -177,13 +177,13 @@ This repository's "Protect tags" ruleset (rules/26676466) blocks tag creation fo
 - `channel-release.yml` checks that the tag is exactly `ios-<channel>-<VERSION>-<count>`, calls
   `ios-ipa.yml` with `editions: local external` (a failed local edition only warns; a failed external
   edition fails the release), and publishes `Poki-external-<V>-<B>.ipa`, `Poki-<V>-<B>.ipa` when it
-  built, `Poki-signing.zip`, `poki-relay-worker.js` and `SHA256SUMS`. The release is a prerelease
+  built, `Qeno-signing.zip`, `poki-relay-worker.js` and `SHA256SUMS`. The release is a prerelease
   with `--latest=false`, so the Mac server's update check (`releases/latest`) never sees it.
 - To cut one: `native/ios-app/scripts/cut-release.sh pre-alpha <ref>` (or `alpha`). `DRY_RUN=1`
   prints the tag. **Always pass the ref.** The default is `origin/poki/ios-integration`, which lacks
   `channel-release.yml` today. The script refuses a commit that isn't on the remote or that lacks
   `channel-release.yml`.
-- Then attach the Poki Setup installers (exact names) and `SHA256SUMS-desktop.txt` by hand, and
+- Then attach the Qeno Setup installers (exact names) and `SHA256SUMS-desktop.txt` by hand, and
   replace the generated notes with the final text (`gh release edit --notes-file`).
 - The `desktop-*.yml` workflows run on `desktop-v*` tags, on `dev/desktop-*` pushes, or by hand. No
   workflow publishes `desktop-prealpha-*` releases yet. Self-update works anyway because it reads
@@ -193,16 +193,16 @@ This repository's "Protect tags" ruleset (rules/26676466) blocks tag creation fo
 
 | Tag that would have been | Commit | Why it was dropped |
 | --- | --- | --- |
-| `ios-prealpha-0.2.8-450` | `9ebaf1e` | Poki Setup 298; superseded by the token-in-keychain build |
+| `ios-prealpha-0.2.8-450` | `9ebaf1e` | Qeno Setup 298; superseded by the token-in-keychain build |
 | `ios-prealpha-0.2.8-453` | `1a0e05c` | iOS `4b2f26f`: pairing reported broken (it was the passcode step) |
-| `ios-prealpha-0.2.8-458` | `5c42d82` | Poki Setup 300: pairing QR "data too long" |
-| `ios-prealpha-0.2.8-467` | `bff458e` | Poki Setup 301: same QR bug |
-| `ios-prealpha-0.2.8-469` | `71e16b7` | Poki Setup 302: Windows installers failed in CI; 304 is the same code |
+| `ios-prealpha-0.2.8-458` | `5c42d82` | Qeno Setup 300: pairing QR "data too long" |
+| `ios-prealpha-0.2.8-467` | `bff458e` | Qeno Setup 301: same QR bug |
+| `ios-prealpha-0.2.8-469` | `71e16b7` | Qeno Setup 302: Windows installers failed in CI; 304 is the same code |
 | `ios-prealpha-0.2.8-472` | `13656d7` | iOS `b8c243a`; replaced by iOS `d7e91b2` |
 | `ios-prealpha-0.2.8-478` | `02fd595` | iOS `d7e91b2`; replaced by `2b9ec5b` (approvals off by default) |
 | `ios-prealpha-0.2.8-482` | `ecd655d` | iOS `2b9ec5b`; replaced by `8519c32` (Approvals (Testing), auto-classifier, keep-alive) |
-| `ios-prealpha-0.2.8-490` | `6c73cff` | iOS `8519c32` and Poki Setup 304; replaced by `41509e8` and Setup 307 |
-| **`ios-prealpha-0.2.8-499`** | **this file's commit** | **The release.** iOS `41509e8` and Poki Setup 307 (`c465a5a`) |
+| `ios-prealpha-0.2.8-490` | `6c73cff` | iOS `8519c32` and Qeno Setup 304; replaced by `41509e8` and Setup 307 |
+| **`ios-prealpha-0.2.8-499`** | **this file's commit** | **The release.** iOS `41509e8` and Qeno Setup 307 (`c465a5a`) |
 
 `6e46a8e` (the 478 candidate plus this file) was pushed to `standalone` before the approvals change, so the
 release is a fast-forward on top of it: the merges `2afe565` (`2b9ec5b`), `8519c32`, `41509e8` and desktop `c465a5a`, with this file's updates; the last one carries the tag.
@@ -216,7 +216,7 @@ release is a fast-forward on top of it: the merges `2afe565` (`2b9ec5b`), `8519c
   loopback and agent app schemes register, and a callback outside `KNOWN_HOSTS` needs the owner's
   OK on the phone (consent frames, 90 s). That fixed upstream issue #43 (Poke, Meta AI). Rollback:
   version `1d0fc696-2b45-4d58-bccf-caf2aa33acef`.
-- Testers update their own relay with Poki Setup's Update Relay, or paste `poki-relay-worker.js`
+- Testers update their own relay with Qeno Setup's Update Relay, or paste `poki-relay-worker.js`
   into the Worker's Edit code. Address and secret stay the same.
 
 ## What was checked
@@ -234,7 +234,7 @@ release is a fast-forward on top of it: the merges `2afe565` (`2b9ec5b`), `8519c
   Watch it: the version job, the `ios-ipa.yml` call and the publish step.
 - Installs with anyone else's Apple ID, a free account, another paid team, or on Windows. Free
   accounts allow one development certificate, so an AltStore, SideStore or Xcode certificate on the
-  same Apple ID blocks Poki Setup. They also allow 3 apps at a time and 10 App IDs a week (Poki uses
+  same Apple ID blocks Qeno Setup. They also allow 3 apps at a time and 10 App IDs a week (Poki uses
   2). Apple's raw error comes through for the App ID limit.
 - The full test list for pre-alpha testers is in the release notes: first install and pairing,
   self-renewal, relay deploy plus an external agent, chat and live voice, and Lock Screen approvals.
@@ -243,11 +243,11 @@ release is a fast-forward on top of it: the merges `2afe565` (`2b9ec5b`), `8519c
 
 1. Merge `poki/ios-integration` (`db0e8ea`, PRs #48 to #54) with `standalone`, and resolve voice
    and in-process session conflicts.
-2. A `desktop-prealpha-*` or `desktop-v*` release path for Poki Setup in CI, with the notarization
+2. A `desktop-prealpha-*` or `desktop-v*` release path for Qeno Setup in CI, with the notarization
    secrets, so installers no longer come from Zhehan's Mac.
 3. A friendly message for Apple's App ID limit on free accounts, and for the one-certificate
    conflict with other sideloading tools.
-4. Five stray "Poki Setup on this computer" certificates on team Q64ZL36CJN from early testing
+4. Five stray "Qeno Setup on this computer" certificates on team Q64ZL36CJN from early testing
    should be revoked.
 5. Poki Runner is still built and documented. Decide whether it stays an option or goes.
 6. Known limitations in 499, listed in the release notes as fixes pending: the iOS automation banner stays on
@@ -258,6 +258,6 @@ release is a fast-forward on top of it: the merges `2afe565` (`2b9ec5b`), `8519c
 
 - Release notes for this pre-alpha: the GitHub release `ios-prealpha-0.2.8-499`. Testers are told to switch to Alpha after installing; Zhehan tests on Pre-alpha and proven fixes ship as Alpha versions.
 - Fork with all `dev/` branches: https://github.com/ZhehanZhang/poki-remote
-- Release channels: `docs/release-channels.md`. Poki Setup: `desktop/README.md`,
+- Release channels: `docs/release-channels.md`. Qeno Setup: `desktop/README.md`,
   `desktop/mac/README.md`. App: `native/ios-app/README.md`. Relay: `deploy/cf-relay/DEPLOY.md`,
   `OPS.md`, `PRIVACY.md`.

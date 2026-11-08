@@ -36,7 +36,7 @@ export default function App() {
     <div className="app">
       <div className="drag" />
       <aside className={`sidebar ${win ? "win" : ""}`}>
-        <div className="brand"><img src="/icon.png" alt="" /><div><b>Poki Setup</b><small>{t("for iPhone")}</small></div></div>
+        <div className="brand"><img src="/icon.png" alt="" /><div><b>Qeno Setup</b><small>{t("for iPhone")}</small></div></div>
         <nav className="nav">
           {pages.map((p) => (
             <div key={p.id}>

@@ -1,10 +1,10 @@
-// Poki Gym scorecard: drives PokiCore's look/do (its MCP handler, as the agent calls it) through
-// every Poki Gym scenario, the system apps and a few faults, and scores each against the owner's
+// Qeno Gym scorecard: drives PokiCore's look/do (its MCP handler, as the agent calls it) through
+// every Qeno Gym scenario, the system apps and a few faults, and scores each against the owner's
 // rules: every call answers in time with a picture, the tree is read under animation, an action
 // moves the screen, a busy or dead runner never hangs the agent.
 //
-// One file for both paths: the macOS executable (check/main.swift) runs it against Poki Runner
-// (WebDriverAgent) on a simulator; Poki itself runs it on the in-process path (InProcessProbe's
+// One file for both paths: the macOS executable (check/main.swift) runs it against Qeno Runner
+// (WebDriverAgent) on a simulator; Qeno itself runs it on the in-process path (InProcessProbe's
 // `gym` mode). Everything that depends on the host (the tool call, simctl, pictures) comes in
 // through `GymEnvironment`.
 import Foundation
@@ -17,7 +17,7 @@ public struct GymEnvironment {
     public var log: (String) -> Void
     /// Where each call's picture goes, or nil.
     public var pictures: URL?
-    public var gymBundle = "nz.zheha.poki.gym"
+    public var gymBundle = "com.owaiken.qeno.gym"
     /// A shell for simctl (the macOS host), or nil: the faults that need one are skipped.
     public var shell: ((_ args: [String]) async -> String)?
     public var udid = "booted"
@@ -132,7 +132,7 @@ public final class GymScorecard {
             line.contains("\"") && line.contains(text) && (type.map { line.contains(" \($0) ") } ?? true)
         }
         // An element whose whole label is the text comes before one that only contains it (a tap on
-        // "Open" must not land on the alert "Open in Poki Gym?").
+        // "Open" must not land on the alert "Open in Qeno Gym?").
         let exact = candidates.filter { $0.contains(" \"\(text)\" ") || $0.contains(" \"\(text) = ") }
         // Only element lines count: a "did: wait_until: "text" appeared" line also quotes the text.
         func number(_ line: Substring) -> Int? {
@@ -184,7 +184,7 @@ public final class GymScorecard {
 
     /// Opens a Gym scenario the way an agent would: back to the menu (the Menu button, or a fresh
     /// launch), tap the scenario's row, and read; the title "Gym: <name>" must be on screen. (simctl
-    /// openurl is not used: from outside the app it raises an "Open in Poki Gym?" system alert.)
+    /// openurl is not used: from outside the app it raises an "Open in Qeno Gym?" system alert.)
     func open(_ name: String) async -> String {
         scenario = name
         var answer = await awaitRunner(await call("look", "look"))
@@ -193,7 +193,7 @@ public final class GymScorecard {
             if let menu = ref(in: answer, "\"Menu\"", type: "Button") {
                 answer = await call("tap Menu", "do", ["actions": [["tap": .number(Double(menu))]]])
             } else {
-                answer = await call("launch Poki Gym fresh", "do", ["actions": [["launch": ["bundle": .string(gymBundle), "fresh": true]]]])
+                answer = await call("launch Qeno Gym fresh", "do", ["actions": [["launch": ["bundle": .string(gymBundle), "fresh": true]]]])
             }
         }
         if ref(in: answer, "\"\(name)", type: "Button") == nil { answer = await awaitRunner(await call("look at the menu", "look")) }
@@ -277,9 +277,9 @@ public final class GymScorecard {
     /// Runs every scenario; the rows and failures are on the object afterwards.
     public func run() async {
         await call("look (cold)", "look")
-        let launched = await call("launch Poki Gym fresh", "do", ["actions": [["launch": ["bundle": .string(gymBundle), "fresh": true]]]], budget: 25)
+        let launched = await call("launch Qeno Gym fresh", "do", ["actions": [["launch": ["bundle": .string(gymBundle), "fresh": true]]]], budget: 25)
         var menu = launched.contains("Gym: menu") ? launched : await call("look (menu)", "look")
-        check(menu.contains("Gym: menu"), "Poki Gym is in front after launch")
+        check(menu.contains("Gym: menu"), "Qeno Gym is in front after launch")
 
         // 1. Animation that never idles: the tree must still come, and the Next button must work, in time.
         var a = await open("animation")
@@ -436,9 +436,9 @@ public final class GymScorecard {
             var relaunched = ""
             for i in 1...3 {
                 relaunched = await call("look after the relaunch (\(i))", "look")
-                if relaunched.contains("app: Poki Gym") && relaunched.contains("Gym: menu") { break }
+                if relaunched.contains("app: Qeno Gym") && relaunched.contains("Gym: menu") { break }
             }
-            check(relaunched.contains("app: Poki Gym") && relaunched.contains("Gym: menu"), "the relaunched app's tree is read (menu in front)")
+            check(relaunched.contains("app: Qeno Gym") && relaunched.contains("Gym: menu"), "the relaunched app's tree is read (menu in front)")
         }
 
 
@@ -715,15 +715,15 @@ public final class GymScorecard {
         check(!deadDo.contains("HUNG") && !deadDo.contains("did: swipe"), "a do with a dead runner answers and sends nothing")
         if env.canRestartRunner {
             // PokiCore asked the host to restart the runner; the look must come back by itself.
-            // A tree read ("app: Poki Gym"), not the picture-only reading the fallback screenshot gives
+            // A tree read ("app: Qeno Gym"), not the picture-only reading the fallback screenshot gives
             // while the runner is still down.
             var back = ""
             for i in 1...25 {
                 back = await call("look after the runner restart (\(i))", "look", budget: 30)
-                if back.contains("app: Poki Gym") { break }
+                if back.contains("app: Qeno Gym") { break }
                 try? await Task.sleep(nanoseconds: 3_000_000_000)
             }
-            check(back.contains("app: Poki Gym"), "look reads the tree again once the runner is back")
+            check(back.contains("app: Qeno Gym"), "look reads the tree again once the runner is back")
             let afterDo = await call("do after the runner restart", "do", ["actions": [["swipe": "up"]]])
             check(afterDo.contains("did: swipe"), "do works again once the runner is back")
         }

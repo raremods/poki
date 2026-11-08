@@ -19,6 +19,6 @@ For cellular acceptance, establish the session on Wi-Fi, disconnect USB, and swi
 
 ## Tool catalog contract
 
-The existing protocol tests cover default and full HTTP discovery, per-client stdio profiles, and the independent Poki Agent client. The complete catalog includes `reconnect_device` and `disconnect_device`, raising its count from 56 to 58.
+The existing protocol tests cover default and full HTTP discovery, per-client stdio profiles, and the independent Qeno Agent client. The complete catalog includes `reconnect_device` and `disconnect_device`, raising its count from 56 to 58.
 
 These checks protect the public discovery contract at each distinct transport or configuration boundary. They use real MCP discovery and add no production test entry points.

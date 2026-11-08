@@ -109,7 +109,7 @@ pub async fn check(url: &str) -> Result<Check> {
     // Register a client.
     let reg = http
         .post(format!("{base}/register"))
-        .json(&serde_json::json!({ "client_name": "Poki Setup check", "redirect_uris": ["http://127.0.0.1/poki-setup"], "token_endpoint_auth_method": "none", "grant_types": ["authorization_code"], "response_types": ["code"] }))
+        .json(&serde_json::json!({ "client_name": "Qeno Setup check", "redirect_uris": ["http://127.0.0.1/poki-setup"], "token_endpoint_auth_method": "none", "grant_types": ["authorization_code"], "response_types": ["code"] }))
         .send()
         .await?;
     if !reg.status().is_success() {
@@ -161,7 +161,7 @@ pub async fn check(url: &str) -> Result<Check> {
         .bearer_auth(&access)
         .header("Accept", "application/json, text/event-stream")
         .header("MCP-Protocol-Version", "2025-06-18")
-        .json(&serde_json::json!({ "jsonrpc": "2.0", "id": 1, "method": "initialize", "params": { "protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": { "name": "Poki Setup", "version": crate::VERSION } } }))
+        .json(&serde_json::json!({ "jsonrpc": "2.0", "id": 1, "method": "initialize", "params": { "protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": { "name": "Qeno Setup", "version": crate::VERSION } } }))
         .send()
         .await?;
     let session = init.headers().get("mcp-session-id").and_then(|v| v.to_str().ok()).map(|s| s.to_string());
@@ -204,8 +204,8 @@ pub fn snippets(url: &str) -> Vec<(String, String)> {
     vec![
         ("Claude.ai".into(), "Settings → Connectors → Add custom connector → paste the link → Connect. The phone approves it silently; it has to be online.".into()),
         ("Claude Code".into(), format!("claude mcp add --transport http poki \"{url}\"")),
-        ("Claude Desktop (claude_desktop_config.json)".into(), serde_json::to_string_pretty(&serde_json::json!({ "mcpServers": { "poki": { "type": "http", "url": url } } })).unwrap_or_default()),
-        ("Cursor (.cursor/mcp.json)".into(), serde_json::to_string_pretty(&serde_json::json!({ "mcpServers": { "poki": { "url": url } } })).unwrap_or_default()),
+        ("Claude Desktop (claude_desktop_config.json)".into(), serde_json::to_string_pretty(&serde_json::json!({ "mcpServers": { "qeno": { "type": "http", "url": url } } })).unwrap_or_default()),
+        ("Cursor (.cursor/mcp.json)".into(), serde_json::to_string_pretty(&serde_json::json!({ "mcpServers": { "qeno": { "url": url } } })).unwrap_or_default()),
         ("ChatGPT".into(), "Settings → Connectors → Advanced → Developer mode → Create → paste the link as the MCP server URL, authentication OAuth.".into()),
         ("curl".into(), format!("curl -sS -X POST \"{url}\" -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \\\n  -H \"Authorization: Bearer $TOKEN\" -d '{{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}}'")),
     ]

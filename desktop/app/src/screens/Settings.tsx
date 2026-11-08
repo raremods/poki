@@ -33,17 +33,17 @@ export default function Settings({ info }: { info: AppInfo | null }) {
       </Card>
       <Card>
         <h2>{t("Updates")}</h2>
-        <p className="muted small">{t("Stable has tested releases only. Beta adds test builds. Alpha adds early builds. Pre-alpha adds every snapshot, which can break. Poki Setup installs and renews Poki from this channel and checks it for its own updates.")}</p>
+        <p className="muted small">{t("Stable has tested releases only. Beta adds test builds. Alpha adds early builds. Pre-alpha adds every snapshot, which can break. Qeno Setup installs and renews Qeno from this channel and checks it for its own updates.")}</p>
         <div className="row" style={{ alignItems: "center" }}>
           <div className="seg" role="radiogroup" aria-label={t("Channel")}>
             {channels.map((c) => <button key={c.id} role="radio" aria-checked={c.selected} className={c.selected ? "on" : ""} onClick={() => api.setChannel(c.id).then((l) => { setChannels(l); setUpdate(null); }).catch((e) => setError(failureText(e)))}>{t(c.title)}</button>)}
           </div>
-          <span className="muted small">{chosen?.latest ? `${t("Newest Poki")}: ${chosen.latest.version} (${chosen.latest.build})` : t("None published")}</span>
+          <span className="muted small">{chosen?.latest ? `${t("Newest Qeno")}: ${chosen.latest.version} (${chosen.latest.build})` : t("None published")}</span>
         </div>
       </Card>
       <Card>
         <h2>{t("About")}</h2>
-        <p className="muted small" style={{ userSelect: "text" }}>Poki Setup {info?.version} · {info?.os} {info?.arch} · {info?.data_dir}</p>
+        <p className="muted small" style={{ userSelect: "text" }}>Qeno Setup {info?.version} · {info?.os} {info?.arch} · {info?.data_dir}</p>
         <div className="row">
           <Capsule kind="ghost" onClick={() => api.checkUpdate().then(setUpdate).catch((e) => setError(failureText(e)))}>{t("Check for updates")}</Capsule>
           {update && (update.newer ? <Capsule disabled={updating} onClick={() => { setUpdating(true); api.installUpdate().catch((e) => setError(failureText(e))).finally(() => setUpdating(false)); }}>{updating ? t("Downloading…") : `${t("Install update")}: ${update.latest}`}</Capsule> : <span className="muted">{t("Up to date")}</span>)}

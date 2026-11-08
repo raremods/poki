@@ -1,4 +1,4 @@
-# Poki iPhone 独立运行：全链路操作文档
+# Qeno iPhone 独立运行：全链路操作文档
 
 本文记录从应用签名到 Codex 手机端操作 iPhone 的完整配置过程。配置阶段可以使用 Mac；运行阶段由手机上的 Poki、用户自建中转和云端模型协作。Poki 在自己的进程里建立 XCTest 自动化会话来看屏和操作，默认只装 Poki 一个应用；旧的 Runner 路径要另装 Poki Runner，见第 3 节的可选步骤。
 
@@ -58,9 +58,9 @@ flowchart LR
 
 应用制品：
 
-- `Poki-unsigned.ipa`：包含内置本机连接与隧道扩展。
-- `Poki-external-unsigned.ipa`：不包含隧道扩展，依赖外部本机连接。
-- `Poki-signing.zip`：用于重签名的具体 entitlement 文件，即系统签名权限配置。
+- `Qeno-unsigned.ipa`：包含内置本机连接与隧道扩展。
+- `Qeno-external-unsigned.ipa`：不包含隧道扩展，依赖外部本机连接。
+- `Qeno-signing.zip`：用于重签名的具体 entitlement 文件，即系统签名权限配置。
 
 Runner 制品（仅 Runner 路径）：`poki-runner-unsigned.ipa`。同一工作流另提供保留 XCTest 框架的版本，按安装方式选择。2026-11-07 的成功路径使用普通版本，由手机上的开发者磁盘映像提供系统测试框架；Runner 自身依赖的框架仍须保留并签名。
 

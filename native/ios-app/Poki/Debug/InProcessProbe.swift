@@ -2,8 +2,8 @@ import PokiCore
 import SwiftUI
 import UIKit
 
-/// The Debug tab's check of UI automation from Poki's own process (no runner, no port): open the
-/// daemon session, tap, type. Every step goes to Poki's log, to the system log (`PokiInProcess`), and
+/// The Debug tab's check of UI automation from Qeno's own process (no runner, no port): open the
+/// daemon session, tap, type. Every step goes to Qeno's log, to the system log (`PokiInProcess`), and
 /// to Documents/inprocess-probe.json.
 ///
 /// Launch arguments run it without touching the phone, for a device check from the Mac:
@@ -11,12 +11,12 @@ import UIKit
 /// `-pokiInProcess later -pokiProbeX 200 -pokiProbeY 300 -pokiProbeDelay 8` waits, then taps that
 /// point and types, whatever app is in front by then;
 /// `-automationPath runner -pokiInProcess source -pokiProbeDelay 10` waits, then keeps the front app's
-/// tree as read by Poki Runner and by Poki's own process;
+/// tree as read by Qeno Runner and by Qeno's own process;
 /// `-pokiInProcess apps -pokiProbeApp BUNDLE` launches that app, launches Settings, activates the app,
 /// launches it again and terminates it, noting the front app and its pid after each;
 /// `-pokiInProcess tools -pokiProbeApp BUNDLE` runs PokiCore's look and do as an agent would: open
 /// the app, tap its first field and type, open Settings and swipe, press Home, looking after each;
-/// `-pokiInProcess gym` runs the whole Poki Gym scorecard (native/ios-gym/check) through PokiCore on
+/// `-pokiInProcess gym` runs the whole Qeno Gym scorecard (native/ios-gym/check) through PokiCore on
 /// this path, answering approvals as the owner would, into Documents/gym-scorecard.txt and
 /// Documents/gym-pictures (the gym workflow's scorecard-inprocess job).
 @MainActor
@@ -81,7 +81,7 @@ final class InProcessProbe: ObservableObject {
         note("read: \(parts)", result.merging(["step": "read"]) { a, _ in a })
     }
 
-    /// Taps Poki's own empty field, which focuses it only if the tap arrived, types the sample and
+    /// Taps Qeno's own empty field, which focuses it only if the tap arrived, types the sample and
     /// reads the field back.
     func selfTest() async {
         guard begin("self test") else { return }
@@ -117,7 +117,7 @@ final class InProcessProbe: ObservableObject {
         defer { UIApplication.shared.endBackgroundTask(background) }
         note("waiting \(Int(seconds)) s; bring the app to try to the front", ["step": "wait", "seconds": seconds])
         try? await Task.sleep(for: .seconds(seconds))
-        note("app state: \(UIApplication.shared.applicationState == .active ? "Poki in front" : "Poki in the background")", ["step": "state", "active": UIApplication.shared.applicationState == .active])
+        note("app state: \(UIApplication.shared.applicationState == .active ? "Qeno in front" : "Qeno in the background")", ["step": "state", "active": UIApplication.shared.applicationState == .active])
         var point = CGPoint(x: Double(x) ?? 201, y: Double(y) ?? 437)
         if x == "field" {
             guard let found = await frontField() else { note("no text or search field in the front app's tree", ["step": "field_missing"]); return }
@@ -232,7 +232,7 @@ final class InProcessProbe: ObservableObject {
         note("separate session: \(line); watch whether the banner goes now", (["step": "separate_result"] as [String: Any]).merging(result) { a, _ in a })
     }
 
-    /// Nothing in Poki may listen on WebDriverAgent's port on the in-process path: a connection to
+    /// Nothing in Qeno may listen on WebDriverAgent's port on the in-process path: a connection to
     /// 127.0.0.1:8100 from inside the app has to be refused.
     func portCheck() async {
         guard begin("port 8100") else { return }
@@ -284,12 +284,12 @@ final class InProcessProbe: ObservableObject {
         try? transcript.lines.joined(separator: "\n").write(to: documents.appendingPathComponent("gym-scorecard.txt"), atomically: true, encoding: .utf8)
     }
 
-    /// `-pokiInProcess chat -pokiProbeModelURL http://127.0.0.1:8765/v1`: Poki's own agent end to end on
+    /// `-pokiInProcess chat -pokiProbeModelURL http://127.0.0.1:8765/v1`: Qeno's own agent end to end on
     /// this path. The chat is pointed at an OpenAI-compatible endpoint (on CI, a scripted model on the
     /// Mac), the owner sends a task, pi runs it with look and do on the phone, the session is saved; then an
     /// outside agent's `ask_poki` runs a second task as a hand-off. Into Documents/inprocess-probe.json.
     func chatCycle(model: AppModel) async {
-        guard begin("chat with Poki's agent") else { return }
+        guard begin("chat with Qeno's agent") else { return }
         defer { end() }
         guard await prepare() else { return }
         model.inProcessReadyForProbe()
@@ -302,7 +302,7 @@ final class InProcessProbe: ObservableObject {
         AskPoki.refresh()
         guard let chat = AskPoki.chat else { note("no chat", ["step": "chat_missing"]); return }
         chat.newConversation()
-        let task = defaults.string(forKey: "pokiProbeTask") ?? "Open the Poki fixture app and tell me what it shows."
+        let task = defaults.string(forKey: "pokiProbeTask") ?? "Open the Qeno fixture app and tell me what it shows."
         let t0 = ProcessInfo.processInfo.systemUptime
         chat.send(task)
         for _ in 0..<1200 where chat.running { try? await Task.sleep(for: .milliseconds(250)) }
@@ -318,7 +318,7 @@ final class InProcessProbe: ObservableObject {
         note("chat session saved: \(saved != nil)", ["step": "chat_saved", "saved": saved != nil, "entries": saved?.entries.count ?? 0, "calls": saved?.calls.count ?? 0])
         // An outside agent hands a task over.
         let t1 = ProcessInfo.processInfo.systemUptime
-        let handoff = await model.phoneToolWithPicture("ask_poki", arguments: "{\"task\":\"Open the Poki fixture app and tell me what it shows.\"}")
+        let handoff = await model.phoneToolWithPicture("ask_poki", arguments: "{\"task\":\"Open the Qeno fixture app and tell me what it shows.\"}")
         note("ask_poki: \(handoff.isError ? "failed" : "ok") in \(String(format: "%.1f", ProcessInfo.processInfo.systemUptime - t1)) s",
              ["step": "ask_poki", "error": handoff.isError, "text": String(handoff.text.prefix(4000))])
         let handoffs = SessionStore.shared.sessions.filter { $0.kind == .handoff }
@@ -405,11 +405,11 @@ struct InProcessSection: View {
     var body: some View {
         Section {
             Picker("Agents' actions go through", selection: $path) {
-                Text("Poki Runner").tag(AutomationPath.runner.rawValue)
-                Text("Poki itself").tag(AutomationPath.inProcess.rawValue)
+                Text("Qeno Runner").tag(AutomationPath.runner.rawValue)
+                Text("Qeno itself").tag(AutomationPath.inProcess.rawValue)
             }
             if path != running.rawValue {
-                Text("Takes effect when Poki starts again.").font(.caption).foregroundStyle(.orange)
+                Text("Takes effect when Qeno starts again.").font(.caption).foregroundStyle(.orange)
             }
             ProbeField(probe: probe).frame(height: 44)
             HStack {
@@ -436,7 +436,7 @@ struct InProcessSection: View {
         } header: {
             Text("In-process automation")
         } footer: {
-            Text("Taps and types from Poki itself, without Poki Runner. Self test taps the field above and types into it. Later waits, then taps the point (x, y) and types, in whatever app is in front.")
+            Text("Taps and types from Qeno itself, without Qeno Runner. Self test taps the field above and types into it. Later waits, then taps the point (x, y) and types, in whatever app is in front.")
         }
     }
 }

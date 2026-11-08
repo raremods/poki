@@ -165,7 +165,7 @@ func listable(_ elements: [Element], _ size: ScreenSize) -> [Element] {
         guard !e.text.isEmpty || (e.type == "WebView" && e.frame.height >= 40) else { return false }
         let f = e.frame
         guard f.x + f.width > 0 && f.y + f.height > 0 && f.x < size.width && f.y < size.height else { return false }
-        // The Dynamic Island (and Poki's Live Activity in it) is never listed: a tap there opens Poki.
+        // The Dynamic Island (and Qeno's Live Activity in it) is never listed: a tap there opens Qeno.
         // It is the top 64 points of the screen in the middle half of the width; no app content
         // lies there (the status bar ends at 62 on an iPhone 17 Pro).
         let centre = f.x + f.width / 2

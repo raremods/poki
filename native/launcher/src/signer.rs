@@ -1,4 +1,4 @@
-//! Poki keeps its own signing: Poki Setup's core (desktop/core) on the phone. It signs in to the
+//! Poki keeps its own signing: Qeno Setup's core (desktop/core) on the phone. It signs in to the
 //! Apple account with remote anisette, asks the developer portal for the certificate and the 7-day
 //! profiles, re-signs Poki (the installed copy for a refresh, the channel's release for an update)
 //! ahead of time, and installs it over the loopback when the person says so.
@@ -218,7 +218,7 @@ async fn udid(device: &mut Device) -> std::result::Result<String, Failure> {
     v.as_string().map(String::from).filter(|s| !s.is_empty()).ok_or_else(|| fail("the phone did not say its UDID", "device"))
 }
 
-/// Takes the signing key Poki Setup left in the container (Documents/PokiSetup/signing-identity.json),
+/// Takes the signing key Qeno Setup left in the container (Documents/PokiSetup/signing-identity.json),
 /// keeps it in the Keychain and deletes the file, so the phone and the computer share one
 /// certificate (a free team allows one).
 async fn import_identity(request: &Value) -> Out {

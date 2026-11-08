@@ -1,6 +1,6 @@
 [package]
 name = "poki-setup-bridge"
-description = "Poki Setup's core behind a JSON-lines pipe, for the native macOS app"
+description = "Qeno Setup's core behind a JSON-lines pipe, for the native macOS app"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

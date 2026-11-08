@@ -4,7 +4,7 @@ Poki uses BlueBubbles to receive iMessage tasks and return replies. Install it o
 
 ## Install
 
-Use macOS on Apple Silicon or Intel, Python 3.11 or newer, and the macOS `curl` and `ditto` tools. The channel itself also needs Node.js 24+ and the [Poki Agent prerequisites](../agent/README.md).
+Use macOS on Apple Silicon or Intel, Python 3.11 or newer, and the macOS `curl` and `ditto` tools. The channel itself also needs Node.js 24+ and the [Qeno Agent prerequisites](../agent/README.md).
 
 From the repository root, run:
 

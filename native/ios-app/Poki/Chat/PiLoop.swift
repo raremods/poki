@@ -5,7 +5,7 @@ import PokiCore
 
 /// The chat's model loop: pi's agent loop (PiSwiftAgent from xibbon/PiSwift, MIT, a Swift port of
 /// pi-mono's pi-agent-core) with the providers of PiSwiftAI, on this iPhone. The prompt and the tools
-/// are the chat's `Harness` (the Mac Poki Agent's); each tool call goes back to `ChatModel.perform`, so
+/// are the chat's `Harness` (the Mac Qeno Agent's); each tool call goes back to `ChatModel.perform`, so
 /// look, do and status run through PokiCore with its approval rules and report_plan and finish_task
 /// drive the plan bubble as before.
 ///

@@ -30,7 +30,7 @@ export class PiSession extends EventEmitter {
     } else {
       const credentials = await this.runtime.listCredentials();
       this.provider = ['openai', 'openai-codex'].find(provider => credentials.some(c => c.providerId === provider && c.type === 'oauth'));
-      if (!this.provider) throw new Error('ChatGPT is not signed in. Run poki login and choose ChatGPT. Then run Poki Agent again.');
+      if (!this.provider) throw new Error('ChatGPT is not signed in. Run poki login and choose ChatGPT. Then run Qeno Agent again.');
     }
     const originalStream = this.runtime.streamSimple.bind(this.runtime);
     this.runtime.streamSimple = (model, context, options) => {

@@ -1,15 +1,15 @@
-//! Where Poki Setup keeps its files: the app's own data directory per platform.
+//! Where Qeno Setup keeps its files: the app's own data directory per platform.
 use std::path::PathBuf;
 
-/// `~/Library/Application Support/Poki Setup` on macOS, `%APPDATA%\Poki\Poki Setup` on Windows,
+/// `~/Library/Application Support/Qeno Setup` on macOS, `%APPDATA%\Poki\Qeno Setup` on Windows,
 /// `$XDG_DATA_HOME/poki-setup` on Linux. `POKI_SETUP_HOME` overrides it (tests, CI).
 pub fn data_dir() -> PathBuf {
     if let Ok(p) = std::env::var("POKI_SETUP_HOME") {
         return PathBuf::from(p);
     }
-    directories::ProjectDirs::from("nz", "Poki", "Poki Setup")
+    directories::ProjectDirs::from("nz", "Poki", "Qeno Setup")
         .map(|d| d.data_dir().to_path_buf())
-        .unwrap_or_else(|| std::env::temp_dir().join("poki-setup"))
+        .unwrap_or_else(|| std::env::temp_dir().join("qeno-setup"))
 }
 
 pub fn ensure(dir: PathBuf) -> std::io::Result<PathBuf> {

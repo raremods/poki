@@ -17,22 +17,22 @@ final class LoopbackTunnel {
     private var statusObserver: NSObjectProtocol?
     private var connectionDeadline: Task<Void, Never>?
     /// After the tunnel failed or dropped without the owner ending it, dial again with a backoff and a
-    /// cap (GitHub issue 44: it stayed down for 101 s and 134 s until someone opened Poki). The
+    /// cap (GitHub issue 44: it stayed down for 101 s and 134 s until someone opened Qeno). The
     /// owner's own Disconnect, or Turn off, ends it for good until they connect again; so does another
-    /// VPN being detected when a try comes (best effort: a VPN that sets no proxy, such as Tailscale, may not be detected). Opening Poki dials nothing.
+    /// VPN being detected when a try comes (best effort: a VPN that sets no proxy, such as Tailscale, may not be detected). Opening Qeno dials nothing.
     private var reconnect = ReconnectPlan()
     private var reconnectTask: Task<Void, Never>?
     private var reconnecting = false
-    /// When Poki itself last stopped the tunnel. The tunnel hears that as a stop by the user, and its
-    /// "stopped on purpose" notification must not cancel the retry Poki queued right after.
+    /// When Qeno itself last stopped the tunnel. The tunnel hears that as a stop by the user, and its
+    /// "stopped on purpose" notification must not cancel the retry Qeno queued right after.
     private var stoppedByAppAt: Date?
     /// The owner pressed Disconnect while a connection was still being brought up: stop it when that ends.
     private var stopAfterBringUp = false
-    /// Whether Poki is on and needs the local connection; the app model answers.
+    /// Whether Qeno is on and needs the local connection; the app model answers.
     var wanted: () -> Bool = { false }
     /// The tunnel is up again after an automatic reconnect; the app checks the loopback at once.
     var onReconnected: (() -> Void)?
-    /// Something the owner has to see: Poki did not dial because another VPN is on. nil when it is over.
+    /// Something the owner has to see: Qeno did not dial because another VPN is on. nil when it is over.
     var onAttention: ((String?) -> Void)?
 
     // Read the embedded id: signing tools can rewrite bundle identifiers.
@@ -69,11 +69,11 @@ final class LoopbackTunnel {
         busy = true
         defer { busy = false }
         do { manager = try await savedManager(); updateStatus() }
-        catch { state = .failed("Cannot read Poki's VPN configuration. Try again, or choose an external connection.") }
+        catch { state = .failed("Cannot read Qeno's VPN configuration. Try again, or choose an external connection.") }
         #endif
     }
 
-    /// Called only after the owner chooses Poki's local VPN, never while using an external proxy.
+    /// Called only after the owner chooses Qeno's local VPN, never while using an external proxy.
     func connect() async throws {
         reconnect.ownerStarted()
         try await bringUp()
@@ -104,10 +104,10 @@ final class LoopbackTunnel {
             configuration.disconnectOnSleep = false
             configuration.includeAllNetworks = false
             manager.protocolConfiguration = configuration
-            manager.localizedDescription = "Poki local connection"
+            manager.localizedDescription = "Qeno local connection"
             manager.isEnabled = true
-            // Never on demand: iOS must not bring Poki's tunnel up by itself (it could displace another VPN).
-            // Only the owner's connect, or Poki's own retry after its tunnel failed, dials it.
+            // Never on demand: iOS must not bring Qeno's tunnel up by itself (it could displace another VPN).
+            // Only the owner's connect, or Qeno's own retry after its tunnel failed, dials it.
             manager.isOnDemandEnabled = false
             state = .connecting
             try await manager.saveToPreferences()
@@ -129,7 +129,7 @@ final class LoopbackTunnel {
             updateStatus()
             throw CancellationError()
         } catch {
-            let message = "Could not start Poki's local VPN. Allow the VPN configuration when asked. If signing does not include Network Extensions, use the external-connection build with LocalDevVPN or a compatible proxy."
+            let message = "Could not start Qeno's local VPN. Allow the VPN configuration when asked. If signing does not include Network Extensions, use the external-connection build with LocalDevVPN or a compatible proxy."
             state = .failed(message)
             throw failure(message)
         }
@@ -175,7 +175,7 @@ final class LoopbackTunnel {
             if busy && state == .connecting { return }
             connectionDeadline?.cancel()
             if state == .connecting || state == .connected {
-                state = .failed("The local VPN disconnected. Reconnect here. If it keeps stopping, check that both Poki and its tunnel were signed with Network Extensions, or choose an external connection.")
+                state = .failed("The local VPN disconnected. Reconnect here. If it keeps stopping, check that both Qeno and its tunnel were signed with Network Extensions, or choose an external connection.")
                 logStopReason()
                 scheduleReconnect(because: "the local VPN disconnected")
             } else if case .failed = state {
@@ -186,7 +186,7 @@ final class LoopbackTunnel {
     }
 
     /// The tunnel posts this (a Darwin notification, no payload; named by `TunnelStopSignal`) when the
-    /// owner turned it off in Settings or another VPN took over. Poki then leaves it down until the
+    /// owner turned it off in Settings or another VPN took over. Qeno then leaves it down until the
     /// owner connects it again.
     private func listenForEndedOnPurpose() {
         guard let providerID else { return }
@@ -198,11 +198,11 @@ final class LoopbackTunnel {
     }
 
     private func endedOnPurpose() {
-        // Poki's own stop (the 15 s try that did not connect, or the owner's Disconnect) is told as a stop by
+        // Qeno's own stop (the 15 s try that did not connect, or the owner's Disconnect) is told as a stop by
         // the user too. For the first the retry stands; for the second nothing is queued anyway.
         if let at = stoppedByAppAt, Date().timeIntervalSince(at) < 5 {
             stoppedByAppAt = nil
-            AppLog.shared.add("loopback", "local VPN: stopped by Poki itself; the retry stands")
+            AppLog.shared.add("loopback", "local VPN: stopped by Qeno itself; the retry stands")
             return
         }
         AppLog.shared.add("loopback", "local VPN: ended on purpose (turned off in Settings, or another VPN took over); not reconnecting")
@@ -221,7 +221,7 @@ final class LoopbackTunnel {
         }
     }
 
-    /// Dials again after `ReconnectPlan`'s next delay (jittered), if Poki is on and the owner has not
+    /// Dials again after `ReconnectPlan`'s next delay (jittered), if Qeno is on and the owner has not
     /// ended the connection. The tries are counted when they fail, so a connect that works and drops
     /// again at once does not start over.
     private func scheduleReconnect(because cause: String) {
@@ -239,7 +239,7 @@ final class LoopbackTunnel {
             // A change the owner started a moment ago finishes first.
             for _ in 0..<10 where self.busy { try? await Task.sleep(for: .milliseconds(500)) }
             guard !Task.isCancelled, self.wanted(), !self.busy else { return }
-            // Poki's own tunnel stops first; what is left is somebody else's.
+            // Qeno's own tunnel stops first; what is left is somebody else's.
             for _ in 0..<10 where self.manager?.connection.status == .disconnecting { try? await Task.sleep(for: .milliseconds(500)) }
             if self.anotherVPNIsOn() {
                 self.yieldToAnotherVPN()
@@ -258,11 +258,11 @@ final class LoopbackTunnel {
     }
 
     /// The owner has a VPN on, and a second packet tunnel would take its place: stop dialling and say so.
-    /// The owner's own tap on Enable Local Connection (or turning Poki on) is what starts it again.
+    /// The owner's own tap on Enable Local Connection (or turning Qeno on) is what starts it again.
     private func yieldToAnotherVPN() {
         reconnect.ownerStopped()
         reconnecting = false
-        let message = "Another VPN appears to be on, so Poki did not turn its local connection back on. Turn that VPN off and tap Enable Local Connection, or choose an external connection in Setup."
+        let message = "Another VPN appears to be on, so Qeno did not turn its local connection back on. Turn that VPN off and tap Enable Local Connection, or choose an external connection in Setup."
         AppLog.shared.add("loopback", "local VPN: another VPN is on; not reconnecting")
         state = .failed(message)
         onAttention?(message)

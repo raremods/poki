@@ -58,7 +58,7 @@ export default function Setup({ goAccount }: { goAccount: () => void }) {
       <div className="hero" style={{ marginBottom: 24 }}>
         <img className="bear" src="/icon.png" alt="" />
         <div>
-          <h1>{t("Set up Poki on this iPhone")}</h1>
+          <h1>{t("Set up Qeno on this iPhone")}</h1>
           <p className="page-sub" style={{ margin: 0 }}>{t("Connect the iPhone with a cable to set it up; this works on every iOS version.")}</p>
         </div>
       </div>
@@ -77,7 +77,7 @@ export default function Setup({ goAccount }: { goAccount: () => void }) {
               <h2 style={{ margin: 0 }}>{phone.facts?.name ?? t("Phone")}</h2>
               <div className="muted small">
                 {phone.facts ? `${phone.facts.product_type} · iOS ${phone.facts.ios}` : phone.error}
-                {phone.record && <> · {t("Poki is installed.")} {phone.record.version}</>}
+                {phone.record && <> · {t("Qeno is installed.")} {phone.record.version}</>}
               </div>
             </div>
             {phone.facts && <Pill tone={phone.facts.paired_with_this_computer ? "ok" : "warn"}>{t(phone.facts.paired_with_this_computer ? "paired" : "not paired")}</Pill>}
@@ -95,7 +95,7 @@ export default function Setup({ goAccount }: { goAccount: () => void }) {
             <span className="muted small grow">{account?.name ?? account?.apple_id ?? ""}{account?.team_id ? ` · ${t("Team")} ${account.team_id}` : ""}</span>
             <span className="muted small">{localIpa ? localIpa.split(/[\\/]/).pop() : t("Latest release")}</span>
             <Capsule kind="ghost" sm onClick={localIpa ? () => setLocalIpa(null) : pickIpa} disabled={running}>{localIpa ? t("Use the latest release") : t("Use an IPA file…")}</Capsule>
-            <Capsule big={false} onClick={start} disabled={!phone || running || !account?.signed_in}>{running ? t("Setting up…") : t("Set up Poki")}</Capsule>
+            <Capsule big={false} onClick={start} disabled={!phone || running || !account?.signed_in}>{running ? t("Setting up…") : t("Set up Qeno")}</Capsule>
           </div>
         )}
       </Card>
@@ -110,13 +110,13 @@ export default function Setup({ goAccount }: { goAccount: () => void }) {
       {result && (
         <Card white>
           <h2>{t("Done")}</h2>
-          <p style={{ margin: 0 }}>Poki {result.version} · {result.name}</p>
+          <p style={{ margin: 0 }}>Qeno {result.version} · {result.name}</p>
           {result.notes.map((n, i) => <p key={i} className="muted small" style={{ margin: "6px 0 0" }}>{n}</p>)}
           {result.handoff && (
             <div className="row" style={{ marginTop: 14, alignItems: "flex-start" }}>
               <Qr svg={result.handoff.qr_svg} />
               <div className="grow">
-                <p style={{ marginTop: 0 }}>{t("Scan this with the iPhone's Camera (same Wi-Fi). Poki opens and takes the pairing file.")}</p>
+                <p style={{ marginTop: 0 }}>{t("Scan this with the iPhone's Camera (same Wi-Fi). Qeno opens and takes the pairing file.")}</p>
                 <code className="small" style={{ userSelect: "text" }}>{result.handoff.link}</code>
               </div>
             </div>

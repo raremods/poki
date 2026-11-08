@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Poki Setup",
+  "productName": "Qeno Setup",
   "version": "0.2.1",
-  "identifier": "nz.zheha.poki.setup",
+  "identifier": "com.owaiken.qeno.setup",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "macOSPrivateApi": true,
     "windows": [
       {
-        "title": "Poki Setup",
+        "title": "Qeno Setup",
         "label": "main",
         "width": 980,
         "height": 680,
@@ -37,7 +37,7 @@
     "targets": ["dmg", "app", "msi", "nsis"],
     "category": "Utility",
     "shortDescription": "Installs Poki on an iPhone and keeps it signed.",
-    "longDescription": "Poki Setup installs the Poki iPhone app with your Apple ID, pairs the iPhone, keeps the app signed, and manages your relay and connector links.",
+    "longDescription": "Qeno Setup installs the Qeno iPhone app with your Apple ID, pairs the iPhone, keeps the app signed, and manages your relay and connector links.",
     "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
     "macOS": {
       "minimumSystemVersion": "12.0",

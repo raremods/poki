@@ -1,6 +1,6 @@
 # Source provenance
 
-Poki Agent runs from this repository. It does not import files from Poki App.
+Qeno Agent runs from this repository. It does not import files from Poki App.
 
 | Files | Source | Adaptation |
 | --- | --- | --- |
@@ -34,6 +34,6 @@ The BlueBubbles adapter uses the documented [REST API](https://docs.bluebubbles.
 | `hermes-base.py`, `_send_with_retry`; `hermes-telegram.py`, `_send_chunks`, `_classify_send_exception` | Bounded backoff, server retry delay, no replay of delivered chunks, uncertain timeout handling | Two retries per request, 30-second inline retry cap, static errors keep credentials out of logs; read-only calls may retry network failures |
 | `hermes-telegram.py`, `send_or_update_status`, `_edit_markdown_or_plain` | Remember status message ID, edit progress, tolerate not-modified, replace missing/uneditable status | One status ID per conversation and task; handoff prompts and final results get new messages |
 
-Python Telegram Bot, media handling, Markdown rendering, group topics, plugin authorization callbacks and Hermes's general gateway are not runtime dependencies of Poki Agent. The task interface remains `MessageRunner` and `PhoneTask`.
+Python Telegram Bot, media handling, Markdown rendering, group topics, plugin authorization callbacks and Hermes's general gateway are not runtime dependencies of Qeno Agent. The task interface remains `MessageRunner` and `PhoneTask`.
 
 The execution prompts in `prompts/system.md` and `prompts/pi-app.md` are now written for Poki's local acknowledgement, step deadline and tool behavior. The former human-handoff prompt and its separate license have been removed. The iPhone unlock skill and native helper originate in this repository at `5134e1a`; the Agent host adds stdin-only credential transport and screenshot verification.

@@ -32,7 +32,7 @@ For a stdio client, the variable belongs to the MCP process environment. This cl
 ```json
 {
   "mcpServers": {
-    "poki": {
+    "qeno": {
       "command": "node",
       "args": ["/absolute/path/to/poki-mcp/src/stdio.mjs"],
       "env": {
@@ -53,7 +53,7 @@ Profiles affect discovery only. Every tool remains callable by name through `too
 
 Consecutive device calls do not require `acquire_device`. With one available device, calls select it automatically. With multiple devices, `list_devices` and `select_device` identify the target. An explicit lease remains available for sessions that need exclusive access across several calls. Another session's lease can still block access.
 
-Poki Agent starts its own stdio process with `POKI_MCP_TOOLS=all`. Its existing tool allowlist determines which tools reach its model.
+Qeno Agent starts its own stdio process with `POKI_MCP_TOOLS=all`. Its existing tool allowlist determines which tools reach its model.
 
 ## Ask in plain language
 
@@ -146,7 +146,7 @@ Accessibility can miss changes that affect only pixels, such as Calculator's dis
 
 ## Agent skills
 
-[Unlock an iPhone](../agent/skills/iphone-unlock/SKILL.md) packages an authorized passcode workflow, a calibrated portrait keypad, and a native helper that keeps one connection open for the entire input sequence. Poki Agent loads this skill and exposes the host-side `unlock_device` tool when the user has configured a passcode locally. It requires Poki device ownership; it does not add an MCP tool. The skill documents the physical-device evidence and supported layout.
+[Unlock an iPhone](../agent/skills/iphone-unlock/SKILL.md) packages an authorized passcode workflow, a calibrated portrait keypad, and a native helper that keeps one connection open for the entire input sequence. Qeno Agent loads this skill and exposes the host-side `unlock_device` tool when the user has configured a passcode locally. It requires Poki device ownership; it does not add an MCP tool. The skill documents the physical-device evidence and supported layout.
 
 ## Coordinates, Screenshots, and Recordings
 

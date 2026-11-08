@@ -1,9 +1,9 @@
 //! Hands the pairing record to Poki on the phone over the local network.
 //!
-//! Poki opens `poki://pairing?url=http://<host>:<port>/<file>&sha256=<hex>`, fetches the file,
-//! checks the digest and keeps it (lockdown pairing plist or RPPairing plist). Poki Setup serves
+//! Poki opens `qeno://pairing?url=http://<host>:<port>/<file>&sha256=<hex>`, fetches the file,
+//! checks the digest and keeps it (lockdown pairing plist or RPPairing plist). Qeno Setup serves
 //! the file from a tiny HTTP server for one fetch, shows the link as a QR code for the Camera, and
-//! also offers `poki://pairing?data=<base64url>` for a phone that cannot reach the computer.
+//! also offers `qeno://pairing?data=<base64url>` for a phone that cannot reach the computer.
 use crate::{Error, Result};
 use base64::Engine;
 use sha2::{Digest, Sha256};
@@ -12,9 +12,9 @@ use tokio::{io::{AsyncReadExt, AsyncWriteExt}, net::TcpListener, sync::Notify};
 
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct Handoff {
-    /// `poki://pairing?url=…&sha256=…`
+    /// `qeno://pairing?url=…&sha256=…`
     pub link: String,
-    /// `poki://pairing?data=…`: the whole record inside the link (a dense QR).
+    /// `qeno://pairing?data=…`: the whole record inside the link (a dense QR).
     pub inline_link: String,
     pub url: String,
     pub sha256: String,
@@ -55,7 +55,7 @@ pub fn lan_address() -> Result<IpAddr> {
 }
 
 pub fn inline_link(record: &[u8]) -> String {
-    format!("poki://pairing?data={}", base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(record))
+    format!("qeno://pairing?data={}", base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(record))
 }
 
 /// Serves `record` on a random port until it was fetched once or the server is dropped.
@@ -67,7 +67,7 @@ pub async fn serve(record: Vec<u8>) -> Result<Server> {
     let path = format!("/{token}.mobiledevicepairing");
     let sha256 = hex::encode(Sha256::digest(&record));
     let url = format!("http://{host}:{port}{path}");
-    let link = format!("poki://pairing?url={}&sha256={sha256}", urlencode(&url));
+    let link = format!("qeno://pairing?url={}&sha256={sha256}", urlencode(&url));
     let inline = inline_link(&record);
     let handoff = Handoff {
         qr_svg: qr_svg(&link)?,
@@ -146,8 +146,8 @@ mod tests {
     #[test]
     fn link_shape() {
         let l = inline_link(b"<plist/>");
-        assert!(l.starts_with("poki://pairing?data="));
+        assert!(l.starts_with("qeno://pairing?data="));
         assert_eq!(urlencode("http://10.0.0.2:1/a.plist"), "http%3A%2F%2F10.0.0.2%3A1%2Fa.plist");
-        assert!(qr_svg("poki://pairing?x=1").unwrap().contains("<svg"));
+        assert!(qr_svg("qeno://pairing?x=1").unwrap().contains("<svg"));
     }
 }

@@ -1,4 +1,4 @@
-# Poki Setup for Mac
+# Qeno Setup for Mac
 
 The native macOS app: a SwiftUI shell (`Sources/PokiSetup`) over the Rust core, which runs as the
 bundled `poki-setup-bridge` helper (JSON lines over a pipe). Build on a Mac with Xcode and Rust:

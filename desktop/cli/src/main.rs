@@ -1,4 +1,4 @@
-//! `poki-setup`: the command line over Poki Setup's core. Same steps as the app, for maintainers,
+//! `poki-setup`: the command line over Qeno Setup's core. Same steps as the app, for maintainers,
 //! scripts and anyone without a window system.
 use anyhow::{Context, Result, anyhow};
 use clap::{Parser, Subcommand};
@@ -8,7 +8,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 #[derive(Parser)]
-#[command(name = "poki-setup", version, about = "Install Poki on an iPhone, keep it signed, and manage the relay and connector links.")]
+#[command(name = "qeno-setup", version, about = "Install Poki on an iPhone, keep it signed, and manage the relay and connector links.")]
 struct Cli {
     #[command(subcommand)]
     cmd: Cmd,

@@ -4,12 +4,12 @@ import Speech
 
 /// Voice without the Mac's voice bridge.
 ///
-/// - With the owner's OpenAI API key on this iPhone, Poki asks OpenAI for a one-minute Realtime key
+/// - With the owner's OpenAI API key on this iPhone, Qeno asks OpenAI for a one-minute Realtime key
 ///   itself (what `bin/voice-bridge.mjs` does on the Mac: the same model, instructions and tools), and
 ///   look and do run here, through PokiCore, as with the bridge's phone tools.
 /// - With any other model (a ChatGPT plan, Anthropic, OpenRouter…), whose sign-in has no Realtime
 ///   audio, holding the button dictates on this iPhone (Apple's speech recognition, on the device when
-///   it can) and lets go to send it to Poki's chat; Poki reads the answer out loud.
+///   it can) and lets go to send it to Qeno's chat; Qeno reads the answer out loud.
 enum VoiceDirect {
     /// The live voice model the owner picked (Accounts › OpenAI › Live Voice), GPT Realtime 2.1 by default.
     static var model: String { ModelCatalog.voiceModel }
@@ -27,12 +27,12 @@ enum VoiceDirect {
     static var canDictate: Bool { ModelKeys.hasUsableKey }
 
     private static let instructions = """
-    You are Poki, a voice assistant that operates the user's iPhone with tools.
+    You are Qeno, a voice assistant that operates the user's iPhone with tools.
     Speak briefly: one short sentence per reply, in the user's language.
     When a tool can answer or do what the user asks, call it at once, without speaking first. Never guess facts about the phone; use a tool.
     A request can take several steps (open an app, tap, type): call one tool after another until it is done, then say in one short sentence that it is done. Never repeat an action that already ran, including actions from before a reconnect that the conversation says have finished.
     Tapping something that sends, pays, deletes or calls waits until the user allows it on the phone; if the result says they did not, tell them in one sentence and do not try another way.
-    Only the user approves, with their own finger: never open Poki to tap Allow, Deny or anything else in it.
+    Only the user approves, with their own finger: never open Qeno to tap Allow, Deny or anything else in it.
     If the user tells you to stop or be quiet, stop talking, but anything already running keeps running; when its result arrives, report it in one sentence.
     To read a page, open it first, then read the screen.
     You can open and operate every app installed on this iPhone, Apple's and anyone else's (WeChat, Instagram, Uber, a bank, a game): never tell the user an app is out of reach before you have tried. With do, open an app by its bundle id ({launch: "com.apple.mobilenotes"}, Messages com.apple.MobileSMS, Settings com.apple.Preferences, Safari com.apple.mobilesafari are only examples). When you do not know an app's bundle id, go home ({button: "home"}), swipe down on the Home Screen to search, type the app's name and tap it. Put several actions in one do when you know them; tap elements by the numbers from the latest look or do.
@@ -80,7 +80,7 @@ enum VoiceDirect {
     }
 }
 
-/// Hold to dictate, let go to send to Poki's chat, hear the answer: voice for models without Realtime.
+/// Hold to dictate, let go to send to Qeno's chat, hear the answer: voice for models without Realtime.
 @MainActor
 final class Dictation: NSObject, AVSpeechSynthesizerDelegate {
     private let engine = AVAudioEngine()

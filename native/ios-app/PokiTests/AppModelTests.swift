@@ -1,6 +1,6 @@
 import PokiCore
 import XCTest
-@testable import Poki
+@testable import Qeno
 
 /// A launcher that records what the app asked of it and plays back runner events.
 final class FakeLauncher: RunnerLauncher, @unchecked Sendable {
@@ -24,17 +24,17 @@ final class AppModelTests: XCTestCase {
         return (model, launcher)
     }
 
-    /// Poki automates the iPhone in its own process by default, and a running launcher then only means
+    /// Qeno automates the iPhone in its own process by default, and a running launcher then only means
     /// the disk image is mounted: the agent reads "running" once the in-process session is open. The
     /// tests below are about the launcher's states, so they open the session first (the Debug probe's
-    /// own call); on the Poki Runner path (`-automationPath runner`) it changes nothing.
+    /// own call); on the Qeno Runner path (`-automationPath runner`) it changes nothing.
     private func sessionOpen(_ model: AppModel) { model.inProcessReadyForProbe() }
 
     /// The default path: a running launcher is not yet a running phone. The agent hears that the
     /// session is opening until it is open, and "running" right after.
     func testRunningLauncherWaitsForTheInProcessSession() throws {
         let (model, _) = model()
-        try XCTSkipUnless(model.automationPath == .inProcess, "Poki Runner path: the launcher's state is the whole story")
+        try XCTSkipUnless(model.automationPath == .inProcess, "Qeno Runner path: the launcher's state is the whole story")
         model.loopback.simulate(.working(ms: 9))
         let opening = model.coreState(of: RunnerStatus(state: "running")).describe
         XCTAssertTrue(opening.contains("opening the in-process session"), opening)
@@ -77,7 +77,7 @@ final class AppModelTests: XCTestCase {
     /// A pairing refusal is kept until the phone accepts again; a disk-image refusal re-downloads.
     func testPairingRefusalThenAcceptance() {
         let (model, _) = model()
-        model.runnerChanged(RunnerStatus(state: "failed", detail: "the phone refused the pairing", fix: "Pair again in Poki's setup"))
+        model.runnerChanged(RunnerStatus(state: "failed", detail: "the phone refused the pairing", fix: "Pair again in Qeno's setup"))
         XCTAssertNotNil(model.pairingTrouble)
         model.runnerChanged(RunnerStatus(state: "launching"))
         XCTAssertNil(model.pairingTrouble)
@@ -96,7 +96,7 @@ final class AppModelTests: XCTestCase {
     }
 
     /// A loopback that answers before any connection was chosen in Setup (a proxy app set up before
-    /// Poki, or by Poki Setup on a computer) is the step done, and the external connection becomes the
+    /// Qeno, or by Qeno Setup on a computer) is the step done, and the external connection becomes the
     /// recorded choice so Turn on does not ask for one (0.2.8 build 91 held the owner on the page).
     func testWorkingLoopbackWithNoChoiceIsTheStepDone() {
         let (model, _) = model()

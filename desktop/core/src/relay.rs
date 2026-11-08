@@ -26,7 +26,7 @@ pub struct Deployed {
     pub address: String,
     pub first_deploy: bool,
     pub deployed_at: i64,
-    /// `poki://setup?relay=<address>`, for the QR the phone scans.
+    /// `qeno://setup?relay=<address>`, for the QR the phone scans.
     pub phone_link: String,
     /// SHA-256 of the Worker code deployed, to tell when a newer relay is out.
     #[serde(default)]
@@ -77,7 +77,7 @@ pub fn sha256_hex(s: &str) -> String {
     hex::encode(sha2::Sha256::digest(s.as_bytes()))
 }
 
-/// Whether the relay you deployed differs from the one Poki Setup would deploy now.
+/// Whether the relay you deployed differs from the one Qeno Setup would deploy now.
 #[derive(Debug, Clone, Serialize)]
 pub struct WorkerStatus {
     pub source: String,
@@ -96,7 +96,7 @@ pub async fn worker_status() -> Result<WorkerStatus> {
     let at = if source == "built in" { "standalone" } else { source.as_str() };
     let guide_url = format!("https://github.com/{}/blob/{at}/deploy/cf-relay/DEPLOY.md", crate::release::repo());
     let deployed_sha256 = remembered()?.and_then(|d| d.worker_sha256);
-    // A relay deployed before Poki Setup recorded hashes counts as older.
+    // A relay deployed before Qeno Setup recorded hashes counts as older.
     let update_available = remembered()?.is_some() && deployed_sha256.as_deref() != Some(sha256.as_str());
     Ok(WorkerStatus { source, download_url, guide_url, sha256, deployed_sha256, update_available })
 }
@@ -255,7 +255,7 @@ pub fn token_or_saved(given: Option<String>) -> Result<String> {
     given.filter(|t| !t.trim().is_empty()).or_else(saved_token).ok_or_else(|| Error::msg("Paste a Cloudflare API token first."))
 }
 
-pub fn phone_link(address: &str) -> String { format!("poki://setup?relay={}", urlencode(address)) }
+pub fn phone_link(address: &str) -> String { format!("qeno://setup?relay={}", urlencode(address)) }
 
 fn path() -> Result<std::path::PathBuf> { Ok(crate::paths::state_dir()?.join("relay.json")) }
 pub fn remembered() -> Result<Option<Deployed>> { Ok(std::fs::read_to_string(path()?).ok().and_then(|t| serde_json::from_str(&t).ok())) }
@@ -270,7 +270,7 @@ mod tests {
     fn worker_is_bundled() {
         assert!(super::WORKER_JS.contains("DeviceRelay"));
         assert!(super::WORKER_JS.len() > 10_000);
-        assert_eq!(super::phone_link("https://poki-relay.me.workers.dev"), "poki://setup?relay=https%3A%2F%2Fpoki-relay.me.workers.dev");
+        assert_eq!(super::phone_link("https://poki-relay.me.workers.dev"), "qeno://setup?relay=https%3A%2F%2Fpoki-relay.me.workers.dev");
     }
 }
 

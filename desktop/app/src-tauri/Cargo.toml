@@ -1,6 +1,6 @@
 [package]
 name = "poki-setup-app"
-description = "Poki Setup: the desktop app (macOS and Windows) over poki-setup-core."
+description = "Qeno Setup: the desktop app (macOS and Windows) over poki-setup-core."
 version.workspace = true
 edition.workspace = true
 license.workspace = true

@@ -48,7 +48,7 @@ export default function Account({ info }: { info: AppInfo | null }) {
           {teams.map((tm) => (
             <label key={tm.team_id} className="row" style={{ padding: "6px 0" }}>
               <input type="radio" name="team" checked={acct.team_id === tm.team_id} onChange={() => api.chooseTeam(tm.team_id).then(load)} />
-              <span className="grow">{tm.name} <span className="muted small">{tm.team_id} · {tm.is_free ? t("free, Poki is signed 7 days at a time") : t("paid")}</span></span>
+              <span className="grow">{tm.name} <span className="muted small">{tm.team_id} · {tm.is_free ? t("free, Qeno is signed 7 days at a time") : t("paid")}</span></span>
             </label>
           ))}
         </Card>

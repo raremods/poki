@@ -1,7 +1,7 @@
 # Poki Gym
 
 A small iPhone app for the iOS Simulator with one screen per case that trips UI automation. The
-look/do scenarios in `native/ios/PokiCore` run against it (bundle id `nz.zheha.poki.gym`).
+look/do scenarios in `native/ios/PokiCore` run against it (bundle id `com.owaiken.qeno.gym`).
 
 Open a scenario with `xcrun simctl openurl <udid> pokigym://<scenario>`, or from the menu:
 

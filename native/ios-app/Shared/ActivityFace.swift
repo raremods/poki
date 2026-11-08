@@ -6,7 +6,7 @@ typealias PokiState = PokiActivityAttributes.ContentState
 /// island, the compact island and the minimal view all draw this, so the four presentations always say
 /// the same thing in the same order.
 ///
-/// The one fact to read at a glance is what Poki is doing on the phone right now, or what it needs
+/// The one fact to read at a glance is what Qeno is doing on the phone right now, or what it needs
 /// from you. Every presentation is built around it: a state glyph in the state's colour (the same glyph
 /// in all four), a short status word, and in the larger presentations the content line (the step, the
 /// question, the result) in the large size. Below it there is at most one action: Stop while working,
@@ -93,11 +93,11 @@ struct ActivityFace: Hashable {
 /// Where a tap on the Live Activity goes, handled by RootView's onOpenURL.
 enum ActivityLink {
     /// The chat that runs the agent (also approvals and handoffs, which the chat shows).
-    static let chat = URL(string: "poki://chat")!
+    static let chat = URL(string: "qeno://chat")!
     /// The Activity Log, where a problem's details are.
-    static let log = URL(string: "poki://log")!
+    static let log = URL(string: "qeno://log")!
     static func setup(_ step: String? = nil) -> URL {
-        URL(string: step.map { "poki://setup?step=\($0)" } ?? "poki://setup")!
+        URL(string: step.map { "qeno://setup?step=\($0)" } ?? "qeno://setup")!
     }
 }
 

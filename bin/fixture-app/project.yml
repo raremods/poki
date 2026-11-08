@@ -14,7 +14,7 @@ targets:
         PRODUCT_NAME: PokiMCPFixture
         SWIFT_VERSION: '5.0'
         GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: Poki MCP Test
+        INFOPLIST_KEY_CFBundleDisplayName: Qeno MCP Test
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         TARGETED_DEVICE_FAMILY: '1,2'

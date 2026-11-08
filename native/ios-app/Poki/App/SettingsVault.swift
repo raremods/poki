@@ -3,7 +3,7 @@ import Foundation
 /// A copy of the owner's settings in the Keychain, so they survive an update, a reinstall or a
 /// sideloading tool that re-signs the app with a fresh container (UserDefaults lives in the container;
 /// Keychain items outlive it). At launch, any setting missing from UserDefaults is put back from the
-/// copy; while Poki runs, every change to a setting rewrites the copy. Development switches (`poki…`
+/// copy; while Qeno runs, every change to a setting rewrites the copy. Development switches (`poki…`
 /// launch arguments) are never kept.
 enum SettingsVault {
     private static let account = "settings.v1"
@@ -23,7 +23,7 @@ enum SettingsVault {
             defaults.set(value, forKey: key)
             restored += 1
         }
-        if restored > 0 { NSLog("Poki: restored %d settings from the Keychain", restored) }
+        if restored > 0 { NSLog("Qeno: restored %d settings from the Keychain", restored) }
     }
 
     /// The current kept settings, written to the Keychain.

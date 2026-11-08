@@ -1,6 +1,6 @@
 import Foundation
 
-/// Touches and typing shaped after a person's, so the owner's own apps take Poki's input as the
+/// Touches and typing shaped after a person's, so the owner's own apps take Qeno's input as the
 /// owner's. A synthesised touch that holds for exactly 50 ms without moving, a drag that runs in a
 /// straight line at one speed, text that arrives at a fixed 120 characters a second: apps that watch
 /// for scripted input see all three, and some treat the owner's session as a bot (captchas, silent
@@ -17,7 +17,7 @@ import Foundation
 /// `POKI_HUMANIZE=off` (or `CoreConfig.humanize = false`) sends the exact legacy schedules through the
 /// legacy endpoints, so the gym can compare the two; `POKI_HUMANIZE_SEED=<n>` makes a run repeatable.
 /// Every plan is a list of fingers, each a list of (x, y, seconds since the finger went down), sent
-/// as W3C pointer actions (`POST /actions`), which WebDriverAgent and Poki's in-process table both
+/// as W3C pointer actions (`POST /actions`), which WebDriverAgent and Qeno's in-process table both
 /// turn into one XCPointerEventPath with those waypoints.
 struct Humanize: Sendable {
     typealias Sample = (x: Double, y: Double, t: Double)

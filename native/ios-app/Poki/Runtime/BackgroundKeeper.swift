@@ -2,10 +2,10 @@ import AVFoundation
 import CoreLocation
 import Foundation
 
-/// Keeps Poki running in the background while it is on, so the relay connection and the launcher stay
+/// Keeps Qeno running in the background while it is on, so the relay connection and the launcher stay
 /// up. Silent audio does it; location is the backup only when it is needed: while a pairing waits in
 /// Settings, and when the silent audio cannot play (it failed to start, or another app's audio
-/// interrupted it), when iOS would otherwise suspend Poki mid-session. Then it is the coarsest
+/// interrupted it), when iOS would otherwise suspend Qeno mid-session. Then it is the coarsest
 /// accuracy, with no indicator under Always Allow, and it stops again as soon as the audio is back.
 /// The location is never read or sent anywhere.
 @MainActor
@@ -29,7 +29,7 @@ final class BackgroundKeeper: NSObject, CLLocationManagerDelegate {
     var allowed: Bool { authorization == .authorizedWhenInUse || authorization == .authorizedAlways }
     var denied: Bool { authorization == .denied || authorization == .restricted }
 
-    /// Always Allow lets Poki stay up without the location pill. iOS asks for While Using first and
+    /// Always Allow lets Qeno stay up without the location pill. iOS asks for While Using first and
     /// offers the upgrade on the second request.
     var always: Bool { authorization == .authorizedAlways }
 
@@ -37,11 +37,11 @@ final class BackgroundKeeper: NSObject, CLLocationManagerDelegate {
         if authorization == .notDetermined { manager.requestWhenInUseAuthorization() } else { manager.requestAlwaysAuthorization() }
     }
 
-    /// Called while Poki is in front (iOS only starts background location from the foreground).
+    /// Called while Qeno is in front (iOS only starts background location from the foreground).
     func start() {
         guard !isOn else { return }
         isOn = true
-        // iOS 26 and later: the system's continued processing task keeps Poki up, with no audio and
+        // iOS 26 and later: the system's continued processing task keeps Qeno up, with no audio and
         // no location. Silent audio only when iOS refuses it or ends it early.
         if #available(iOS 26.0, *) {
             let run = ContinuedRun.shared
@@ -59,7 +59,7 @@ final class BackgroundKeeper: NSObject, CLLocationManagerDelegate {
     /// The iOS 26 continued run (typed loosely so this class builds for iOS 18).
     private var continued: AnyObject?
 
-    /// Silent audio could not hold Poki up (it would be suspended): location stands in until it can.
+    /// Silent audio could not hold Qeno up (it would be suspended): location stands in until it can.
     private(set) var audioLost = false
     private var interruption: NSObjectProtocol?
 
@@ -70,7 +70,7 @@ final class BackgroundKeeper: NSObject, CLLocationManagerDelegate {
     private func setAudioLost(_ lost: Bool) {
         guard lost != audioLost else { return }
         audioLost = lost
-        AppLog.shared.add("background", lost ? "silent audio stopped: location keeps Poki running until it is back" : "silent audio back: location off")
+        AppLog.shared.add("background", lost ? "silent audio stopped: location keeps Qeno running until it is back" : "silent audio back: location off")
         if lost { startLocation() } else if !pairingHold { stopLocation() }
     }
 
@@ -93,8 +93,8 @@ final class BackgroundKeeper: NSObject, CLLocationManagerDelegate {
     }
 
     /// A voice conversation needs the audio session for the microphone; the voice-chat session keeps
-    /// Poki running meanwhile. The silent audio comes back when it ends, if Poki is still on.
-    /// While a voice conversation holds the audio session (it keeps Poki running itself).
+    /// Qeno running meanwhile. The silent audio comes back when it ends, if Qeno is still on.
+    /// While a voice conversation holds the audio session (it keeps Qeno running itself).
     private var audioPaused = false
     func pauseAudio() { audioPaused = true; audio.stop() }
     func resumeAudio() {
@@ -115,7 +115,7 @@ final class BackgroundKeeper: NSObject, CLLocationManagerDelegate {
         audio.stop()
     }
 
-    /// While a pairing waits in Settings, location keeps Poki running (with the silent audio), so the
+    /// While a pairing waits in Settings, location keeps Qeno running (with the silent audio), so the
     /// pairing listener answers when Settings connects. While Using is enough here: the updates start
     /// in front, and a CLBackgroundActivitySession carries them into the background (iOS shows its
     /// location indicator meanwhile). Ended when the pairing ends.

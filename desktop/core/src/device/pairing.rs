@@ -8,7 +8,7 @@ use crate::{Error, Progress, Reporter, Result, paths};
 use idevice::{IdeviceService, lockdown::LockdownClient, pairing_file::PairingFile, usbmuxd::UsbmuxdConnection};
 use std::{path::PathBuf, time::Duration};
 
-pub const HOST_NAME: &str = "Poki Setup";
+pub const HOST_NAME: &str = "Qeno Setup";
 
 pub fn record_path(udid: &str) -> Result<PathBuf> {
     Ok(paths::pairings_dir()?.join(format!("{udid}.plist")))
@@ -136,7 +136,7 @@ pub async fn enable_network(phone: &Phone) -> Result<()> {
 //
 // Since iOS 26.4 the phone hangs up on lockdown records over the loopback Poki uses to reach its
 // own developer services; a Remote Pairing record (the kind the phone makes for itself, or that
-// idevice_pair makes over USB) is accepted there. Poki Setup makes one over the cable, through
+// idevice_pair makes over USB) is accepted there. Qeno Setup makes one over the cable, through
 // remotepairingdeviced, right after the lockdown pairing, and that is what Poki gets.
 
 /// The plist key Poki reads for the host name to send with an RPPairing record.

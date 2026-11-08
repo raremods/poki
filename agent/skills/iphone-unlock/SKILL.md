@@ -6,7 +6,7 @@ license: AGPL-3.0-only
 
 # iPhone 解锁
 
-Poki Agent 通过 unlock_device 加载本技能并调用本地助手。模型只提供设备页面的确认信息，密码由宿主读取 POKI_IPHONE_PASSCODE，通过子进程标准输入传递。密码不进入模型输入、参数、日志、证据和提交。缺少本机密码时工具返回明确错误，模型根据任务和可用能力继续解决，无法完成就 finish_task(success=false)。
+Qeno Agent 通过 unlock_device 加载本技能并调用本地助手。模型只提供设备页面的确认信息，密码由宿主读取 POKI_IPHONE_PASSCODE，通过子进程标准输入传递。密码不进入模型输入、参数、日志、证据和提交。缺少本机密码时工具返回明确错误，模型根据任务和可用能力继续解决，无法完成就 finish_task(success=false)。
 
 1. 先观察当前屏幕。已经解锁时直接继续原任务。面容 ID 有密码入口时进入密码页。
 2. 核对当前截图与 [键盘布局](references/iphone-402x874.json) 一致，为普通 iPhone 402×874 逻辑点、竖屏、六位数字。输入圆点应为空。其他布局要根据当前页面选择匹配的输入方式。

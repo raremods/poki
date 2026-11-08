@@ -1,8 +1,8 @@
 import Foundation
 import Network
 
-/// Live loopback status: every few seconds while Poki is in front (and on demand), a TCP connect to
-/// developer services at 10.7.0.1, which only answer when Poki or an external VPN reflects
+/// Live loopback status: every few seconds while Qeno is in front (and on demand), a TCP connect to
+/// developer services at 10.7.0.1, which only answer when Qeno or an external VPN reflects
 /// 10.7.0.1 back to this phone. Also whether Wi-Fi is up, which the phone's developer services need.
 @MainActor
 @Observable
@@ -137,7 +137,7 @@ final class LoopbackMonitor {
     }
     #endif
 
-    static var cellularHint: String { String(localized: "Connect to Wi-Fi and open Poki first. Once it is on, you can switch to cellular and keep using it.") }
+    static var cellularHint: String { String(localized: "Connect to Wi-Fi and open Qeno first. Once it is on, you can switch to cellular and keep using it.") }
 
     var text: String {
         switch state {
@@ -154,7 +154,7 @@ final class LoopbackMonitor {
         case .working(let ms): String(localized: "This iPhone answers at 10.7.0.1 (\(ms) ms).") + (onWiFi || cellularOnly ? "" : " " + String(localized: "Connect to Wi-Fi: the developer services need it."))
         case .noAnswer where cellularOnly: Self.cellularHint
         case .noAnswer: String(localized: "The local interface is present, but this iPhone's developer services do not answer. Check Developer Mode and Wi-Fi, then reconnect the local connection.")
-        case .off: String(localized: "This iPhone does not answer yet. Enable Poki's local connection, or choose an external connection in Setup.")
+        case .off: String(localized: "This iPhone does not answer yet. Enable Qeno's local connection, or choose an external connection in Setup.")
         }
     }
 }

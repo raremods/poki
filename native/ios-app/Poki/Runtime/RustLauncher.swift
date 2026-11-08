@@ -20,9 +20,9 @@ final class RustLauncher: RunnerLauncher {
             let box = Unmanaged<EventBox>.fromOpaque(context).takeUnretainedValue()
             if let status = try? JSONDecoder().decode(RunnerStatus.self, from: Data(String(cString: text).utf8)) { box.onEvent(status) }
         }, box.toOpaque()) }
-        guard let handle else { box.release(); throw NSError(domain: "Poki", code: 10, userInfo: [NSLocalizedDescriptionKey: "the launcher did not accept its configuration"]) }
+        guard let handle else { box.release(); throw NSError(domain: "Qeno", code: 10, userInfo: [NSLocalizedDescriptionKey: "the launcher did not accept its configuration"]) }
         self.handle = handle; self.box = box
-        guard poki_launcher_start(handle) == 0 else { throw NSError(domain: "Poki", code: 11, userInfo: [NSLocalizedDescriptionKey: "the launcher did not start"]) }
+        guard poki_launcher_start(handle) == 0 else { throw NSError(domain: "Qeno", code: 11, userInfo: [NSLocalizedDescriptionKey: "the launcher did not start"]) }
     }
 
     func restart() { if let handle { poki_launcher_restart(handle) } }
@@ -40,7 +40,7 @@ final class RustLauncher: RunnerLauncher {
 
 /// On-device pairing through PokiLauncher (iOS 27): the launcher listens and makes the PIN; the app
 /// publishes the Bonjour service it describes, so Settings > Privacy & Security > Developer Mode lists
-/// "Pair with Poki".
+/// "Pair with Qeno".
 final class RustPairing: NSObject, DevicePairing, NetServiceDelegate {
     private var handle: OpaquePointer?
     private var box: Unmanaged<RustLauncher.PairBox>?
@@ -74,7 +74,7 @@ final class RustPairing: NSObject, DevicePairing, NetServiceDelegate {
             let box = Unmanaged<RustLauncher.PairBox>.fromOpaque(context).takeUnretainedValue()
             if let value = (try? JSONSerialization.jsonObject(with: Data(String(cString: text).utf8))) as? [String: Any] { box.onEvent(value) }
         }, box.toOpaque()) }
-        guard let handle else { box.release(); throw NSError(domain: "Poki", code: 12, userInfo: [NSLocalizedDescriptionKey: "pairing did not start"]) }
+        guard let handle else { box.release(); throw NSError(domain: "Qeno", code: 12, userInfo: [NSLocalizedDescriptionKey: "pairing did not start"]) }
         self.handle = handle; self.box = box
     }
 

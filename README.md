@@ -67,7 +67,7 @@ claude mcp add --scope user poki-mcp -- node "$PWD/src/stdio.mjs"   # Claude Cod
 codex mcp add poki-mcp -- node "$PWD/src/stdio.mjs"                 # Codex
 ```
 
-**Poki Agent.** For Poki's standalone terminal agent or messaging channels, keep `npm start` running and open another terminal in the same directory. Install the agent, add its command to this terminal's path, and sign in:
+**Qeno Agent.** For Poki's standalone terminal agent or messaging channels, keep `npm start` running and open another terminal in the same directory. Install the agent, add its command to this terminal's path, and sign in:
 
 ```sh
 npm ci --prefix agent
@@ -76,7 +76,7 @@ poki login
 poki status
 ```
 
-Poki Agent uses GPT-6.1 Terra (`gpt-6.1-terra`) with low reasoning by default. We recommend keeping it: it is the fastest setup we have tested for phone tasks. Override it with `POKI_AGENT_MODEL`; see [Run Poki Agent](agent/README.md).
+Qeno Agent uses GPT-6.1 Terra (`gpt-6.1-terra`) with low reasoning by default. We recommend keeping it: it is the fastest setup we have tested for phone tasks. Override it with `POKI_AGENT_MODEL`; see [Run Qeno Agent](agent/README.md).
 
 For a physical iPhone, pair it with your Mac over USB first. See [Physical iPhone setup](docs/physical-iphone.md).
 
@@ -84,7 +84,7 @@ Update with `./bin/poki update`. Set `POKI_NO_UPDATE_CHECK=1` to disable the dai
 
 ## Try a task
 
-With Poki Agent, one connected iPhone is selected automatically. With multiple devices, add `--device '<device UUID>'`.
+With Qeno Agent, one connected iPhone is selected automatically. With multiple devices, add `--device '<device UUID>'`.
 
 ```sh
 node bin/call.mjs list_devices   # Find your device UUID
@@ -93,9 +93,9 @@ poki "Search esp32 in Chrome and summarize the top result"
 
 > **Note:** Poki controls your real iPhone. If you ask it to send messages or make payments, it will. Screen contents are sent to your configured model service.
 
-Gets faster with use: Poki Agent remembers past tasks and runs them faster on repeat.
+Gets faster with use: Qeno Agent remembers past tasks and runs them faster on repeat.
 
-**Channels:** After configuring an authorized channel, start it with `poki imessage` or `poki telegram`. See [Poki Agent](agent/README.md) for setup.
+**Channels:** After configuring an authorized channel, start it with `poki imessage` or `poki telegram`. See [Qeno Agent](agent/README.md) for setup.
 
 **MCP clients:** Claude Code, Codex, and any client supporting `mcpServers` JSON.
 
@@ -106,7 +106,7 @@ Physical iPhone support has been verified only on iPhones using the Chinese inte
 | Topic | Read |
 | --- | --- |
 | Installation, other MCP clients, and troubleshooting | [Install guide](docs/install.md) |
-| Poki Agent, models, iMessage, and Telegram | [Run Poki Agent](agent/README.md) |
+| Qeno Agent, models, iMessage, and Telegram | [Run Qeno Agent](agent/README.md) |
 | MCP tool reference | [Tool behavior](docs/tools.md) |
 | Environment variables and sessions | [Configuration](docs/configuration.md) |
 | USB pairing, Developer Mode, and Wi-Fi | [Physical iPhone setup](docs/physical-iphone.md) |
@@ -117,7 +117,7 @@ Physical iPhone support has been verified only on iPhones using the Chinese inte
 ## Roadmap
 
 <p align="center">
-  <img src="docs/images/roadmap.png" width="860" alt="Poki roadmap. Shipped: Poki MCP, Poki Agent, iMessage and Terminal integrations, self-learning routes, remote connections. In Progress: persistent connection performance improvements, Telegram integration, native text input (clipboard-free), simplified tool interface. Planned: Poki App, which runs locally on iPhone and is available while your Mac is powered off. Future: iPhone Duo support, physical device support (no Xcode required), additional model providers.">
+  <img src="docs/images/roadmap.png" width="860" alt="Poki roadmap. Shipped: Poki MCP, Qeno Agent, iMessage and Terminal integrations, self-learning routes, remote connections. In Progress: persistent connection performance improvements, Telegram integration, native text input (clipboard-free), simplified tool interface. Planned: Poki App, which runs locally on iPhone and is available while your Mac is powered off. Future: iPhone Duo support, physical device support (no Xcode required), additional model providers.">
 </p>
 
 ## Star History

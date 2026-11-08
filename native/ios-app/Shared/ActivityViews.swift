@@ -6,7 +6,7 @@
 // ios/AgentActivity/AgentActivityWidget.swift in onehumanbeing/esp32-iphone-agent (commit cc966294),
 // MIT License, Copyright (c) 2026 Henry Yuan. Interpolated text, the phase spring and margins kept
 // concentric with the island's corners are from leepokai/Codync (commit 848070d,
-// apps/ios/Widgets/CodyncWidgets.swift), Copyright 2026 Po Kai Lee, Apache License 2.0. Poki adds the
+// apps/ios/Widgets/CodyncWidgets.swift), Copyright 2026 Po Kai Lee, Apache License 2.0. Qeno adds the
 // step line, the pairing code, the setup steps, the thumbnail and the bear avatar from ESP-139's
 // board 02, with ESP-162's shorter words. See THIRD_PARTY_NOTICES.md.
 import ActivityKit

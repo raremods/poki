@@ -30,7 +30,7 @@ export default function Phones() {
   return (
     <>
       <h1 className="page-title">{t("Phones")}</h1>
-      <p className="page-sub">{t("free, Poki is signed 7 days at a time")}.</p>
+      <p className="page-sub">{t("free, Qeno is signed 7 days at a time")}.</p>
       <ErrorBox error={error} />
       {records.length === 0 && <Card><span className="muted">{t("No iPhone set up from this computer yet.")}</span></Card>}
       {records.map((r) => {
@@ -40,7 +40,7 @@ export default function Phones() {
             <div className="row between">
               <div className="grow">
                 <h2 style={{ margin: 0 }}>{r.phone_name}</h2>
-                <div className="muted small">iOS {r.ios} · Poki {r.version} ({r.build}) · {r.team_name}{r.team_is_free ? " · free" : ""} · <span className="mono">{r.bundle_id}</span></div>
+                <div className="muted small">iOS {r.ios} · Qeno {r.version} ({r.build}) · {r.team_name}{r.team_is_free ? " · free" : ""} · <span className="mono">{r.bundle_id}</span></div>
                 {r.last_error && <div className="small" style={{ color: "var(--bad)", marginTop: 4 }}>{r.last_error}</div>}
               </div>
               <Pill tone={days < 0 ? "bad" : days <= 2 ? "warn" : "ok"}>{days < 0 ? t("expired") : `${days} ${t("days left")}`}</Pill>
@@ -53,7 +53,7 @@ export default function Phones() {
               <div className="row" style={{ marginTop: 14, alignItems: "flex-start" }}>
                 <Qr svg={qr.handoff.qr_svg} />
                 <div className="grow">
-                  <p style={{ marginTop: 0 }}>{t("Scan this in Poki on the iPhone (same Wi-Fi).")}</p>
+                  <p style={{ marginTop: 0 }}>{t("Scan this in Qeno on the iPhone (same Wi-Fi).")}</p>
                   <code className="small" style={{ userSelect: "text" }}>{qr.handoff.link}</code>
                   <div style={{ marginTop: 10 }}><Capsule kind="ghost" sm onClick={() => { api.stopSharing(); setQr(null); }}>{t("Stop")}</Capsule></div>
                 </div>

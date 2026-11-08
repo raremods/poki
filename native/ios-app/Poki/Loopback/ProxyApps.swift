@@ -34,10 +34,10 @@ enum ProxyApps {
     static let all: [ProxyApp] = [
         ProxyApp(id: "karing", name: "Karing", scheme: "karing", minimumVersion: "1.2.4.862",
                  install: .toggle("TUN > Loopback address > 10.7.0.1"),
-                 steps: ["Open Karing's settings, then TUN.", "Set Loopback address (loopback_address) to 10.7.0.1, then reconnect Karing.", "Keep Karing connected. Choose External app in Poki; do not enable Poki's built-in connection."]),
+                 steps: ["Open Karing's settings, then TUN.", "Set Loopback address (loopback_address) to 10.7.0.1, then reconnect Karing.", "Keep Karing connected. Choose External app in Qeno; do not enable Qeno's built-in connection."]),
         ProxyApp(id: "surge", name: "Surge", scheme: "surge", minimumVersion: "5.23.0",
                  install: .url(URL(string: "surge:///install-module?url=\(encoded(modulesBase.appendingPathComponent("poki-loopback.sgmodule")))")!),
-                 steps: ["Tap Install Module, then confirm in Surge.", "Turn on the Poki Device Loopback module.", "Turn on Enhanced Mode (required for loopback)."]),
+                 steps: ["Tap Install Module, then confirm in Surge.", "Turn on the Qeno Device Loopback module.", "Turn on Enhanced Mode (required for loopback)."]),
         ProxyApp(id: "loon", name: "Loon", scheme: "loon", minimumVersion: "3.5.3",
                  install: .url(URL(string: "loon://import?plugin=\(encoded(modulesBase.appendingPathComponent("poki-loopback.lpx")))")!),
                  steps: ["Tap Install Plugin, then confirm in Loon.", "Make sure the plugin and Loon VPN are turned on."]),

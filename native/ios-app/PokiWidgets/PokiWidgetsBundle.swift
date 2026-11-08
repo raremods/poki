@@ -10,7 +10,7 @@ struct PokiWidgetsBundle: WidgetBundle {
     var body: some Widget { PokiLiveActivity() }
 }
 
-/// Poki's Live Activity: what the agent is doing on the phone, or what it needs from you. The pairing
+/// Qeno's Live Activity: what the agent is doing on the phone, or what it needs from you. The pairing
 /// code while pairing, the current setup step while setting up, and Allow/Deny for sensitive actions.
 /// The buttons are for the person; PokiCore sends no input while an approval waits, so the runner never
 /// taps them. A tap anywhere else opens the screen the state is about (`ActivityFace.link`).

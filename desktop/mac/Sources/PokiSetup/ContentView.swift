@@ -54,7 +54,7 @@ private struct SidebarFooter: View {
                 Text(model.account?.signedIn == true ? (model.account?.name ?? "Signed In") : "Not Signed In")
                     .font(.callout.weight(.medium))
                     .lineLimit(1)
-                Text(model.account?.signedIn == true ? (model.account?.appleId ?? "") : "Sign in to set up Poki")
+                Text(model.account?.signedIn == true ? (model.account?.appleId ?? "") : "Sign in to set up Qeno")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
@@ -69,7 +69,7 @@ private struct SidebarFooter: View {
 }
 
 /// The Apple Account's picture: this Mac's account photo when the Mac is signed in to the same
-/// Apple Account (the photo the Apple Account uses), otherwise initials on flat Poki blue.
+/// Apple Account (the photo the Apple Account uses), otherwise initials on flat Qeno blue.
 struct AccountBadge: View {
     var name: String?
     var appleID: String? = nil

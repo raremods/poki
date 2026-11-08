@@ -95,7 +95,7 @@ final class AppModel: ObservableObject {
                 try? await Task.sleep(for: .seconds(3))
             }
         }
-        // Keep Poki signed: every six hours, renew what is due (needs the kept password).
+        // Keep Qeno signed: every six hours, renew what is due (needs the kept password).
         keeperTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(60))
             while !Task.isCancelled {
@@ -309,27 +309,27 @@ final class AppModel: ObservableObject {
     // MARK: Demo data (screenshots only: POKI_SETUP_DEMO=1)
 
     private func loadDemo() {
-        info = AppInfo(version: "0.2.0", os: "macos", arch: "aarch64", dataDir: "~/Library/Application Support/nz.zheha.poki.setup", canUseSystemAnisette: true, defaultAnisette: "https://new.ani.sidestore.io", anisetteServers: ["https://new.ani.sidestore.io", "https://mac-ani.jkcoxson.com", "https://ani2.stikstore.app"])
+        info = AppInfo(version: "0.2.0", os: "macos", arch: "aarch64", dataDir: "~/Library/Application Support/com.owaiken.qeno.setup", canUseSystemAnisette: true, defaultAnisette: "https://new.ani.sidestore.io", anisetteServers: ["https://new.ani.sidestore.io", "https://mac-ani.jkcoxson.com", "https://ani2.stikstore.app"])
         account = AccountState(signedIn: true, appleId: "jane.appleseed@icloud.com", name: "Jane Appleseed", teamId: "A1B2C3D4E5", passwordKept: true, anisette: .remote("https://new.ani.sidestore.io"), pendingFactor: nil)
         teams = [Team(teamId: "A1B2C3D4E5", name: "Jane Appleseed (Personal Team)", kind: "Individual", isFree: true)]
         let facts = Facts(udid: "00008150-000829EA2183C01C", name: "Jane's iPhone", productType: "iPhone18,1", ios: "26.1", build: "23B85", developerMode: true, pairedWithThisComputer: true, canPairOnDevice: false, wifiAddress: "192.168.1.23")
         let now = Int(Date().timeIntervalSince1970)
-        let rec = Record(udid: facts.udid, phoneName: facts.name, ios: facts.ios, appleId: "jane.appleseed@icloud.com", teamId: "A1B2C3D4E5", teamName: "Jane Appleseed (Personal Team)", teamIsFree: true, bundleId: "nz.zheha.poki.A1B2C3D4E5", appGroup: "group.nz.zheha.poki.A1B2C3D4E5", version: "0.2.8", build: "64", releaseTag: "local:Poki-0.2.8-external-unsigned.ipa", signedAt: now - 2 * 86_400, profileExpiresAt: now + 5 * 86_400, lastCheckedAt: now - 3600, lastError: nil, wifiAddress: "192.168.1.23", pairingHandedOff: false)
+        let rec = Record(udid: facts.udid, phoneName: facts.name, ios: facts.ios, appleId: "jane.appleseed@icloud.com", teamId: "A1B2C3D4E5", teamName: "Jane Appleseed (Personal Team)", teamIsFree: true, bundleId: "com.owaiken.qeno.A1B2C3D4E5", appGroup: "group.com.owaiken.qeno.A1B2C3D4E5", version: "0.2.8", build: "64", releaseTag: "local:Qeno-0.2.8-external-unsigned.ipa", signedAt: now - 2 * 86_400, profileExpiresAt: now + 5 * 86_400, lastCheckedAt: now - 3600, lastError: nil, wifiAddress: "192.168.1.23", pairingHandedOff: false)
         phones = [PhoneRow(phone: PhoneRef(udid: facts.udid), facts: facts, error: nil, record: rec)]
         records = [rec]
-        relay = Deployed(accountId: "abc", accountName: "Jane's account", address: "https://poki-relay.jane.workers.dev", firstDeploy: false, deployedAt: now - 86_400, phoneLink: "poki://setup?relay=https://poki-relay.jane.workers.dev")
-        latest = Release(tag: "ios-v0.2.8", version: "0.2.8", build: "64", ipaName: "Poki-external-0.2.8-64.ipa", channel: "beta")
+        relay = Deployed(accountId: "abc", accountName: "Jane's account", address: "https://poki-relay.jane.workers.dev", firstDeploy: false, deployedAt: now - 86_400, phoneLink: "qeno://setup?relay=https://poki-relay.jane.workers.dev")
+        latest = Release(tag: "ios-v0.2.8", version: "0.2.8", build: "64", ipaName: "Qeno-external-0.2.8-64.ipa", channel: "beta")
         channels = [
             ChannelInfo(id: "stable", title: "Stable", selected: true, latest: nil),
             ChannelInfo(id: "beta", title: "Beta", selected: false, latest: latest),
-            ChannelInfo(id: "alpha", title: "Alpha", selected: false, latest: Release(tag: "ios-alpha-0.2.8-110", version: "0.2.8", build: "110", ipaName: "Poki-external-0.2.8-110.ipa", channel: "alpha")),
-            ChannelInfo(id: "pre-alpha", title: "Pre-alpha", selected: false, latest: Release(tag: "ios-prealpha-0.2.8-260", version: "0.2.8", build: "260", ipaName: "Poki-external-0.2.8-260.ipa", channel: "pre-alpha")),
+            ChannelInfo(id: "alpha", title: "Alpha", selected: false, latest: Release(tag: "ios-alpha-0.2.8-110", version: "0.2.8", build: "110", ipaName: "Qeno-external-0.2.8-110.ipa", channel: "alpha")),
+            ChannelInfo(id: "pre-alpha", title: "Pre-alpha", selected: false, latest: Release(tag: "ios-prealpha-0.2.8-260", version: "0.2.8", build: "260", ipaName: "Qeno-external-0.2.8-260.ipa", channel: "pre-alpha")),
         ]
         steps["install"] = [
             StepItem(id: "phone", title: "Finding the iPhone", state: .done, detail: facts.name),
             StepItem(id: "pair", title: "Pairing with the iPhone", state: .done),
             StepItem(id: "account", title: "Checking the Apple Account", state: .done, detail: "Personal Team"),
-            StepItem(id: "sign", title: "Signing Poki for Jane Appleseed", state: .running, fraction: 0.62, detail: "Signing PokiWidgets.appex"),
+            StepItem(id: "sign", title: "Signing Qeno for Jane Appleseed", state: .running, fraction: 0.62, detail: "Signing PokiWidgets.appex"),
         ]
     }
 }

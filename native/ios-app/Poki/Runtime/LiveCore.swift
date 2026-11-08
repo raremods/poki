@@ -16,10 +16,10 @@ final class LiveCore: CoreSession {
     init(host: AppCoreHost, transport: HTTPTransport) {
         self.host = host
         var config = CoreConfig()
-        // Signing tools may rename the app; its own id is Poki too.
+        // Signing tools may rename the app; its own id is Qeno too.
         if let own = Bundle.main.bundleIdentifier { config.ownApps.append(own) }
         // Alpha: every step goes ahead without asking (payments, deleting, sending, passwords, Wallet).
-        // Asking mid-task stalled Wallet runs and asked inside Poki where nobody saw it; an automatic
+        // Asking mid-task stalled Wallet runs and asked inside Qeno where nobody saw it; an automatic
         // classifier replaces this in the next alpha. Settings → Approvals turns asking back on.
         config.sensitive.enabled = UserDefaults.standard.bool(forKey: Self.askKey) || ApprovalClassifier.isOn
         core = PokiCore(config: config, host: host, transport: transport)
@@ -31,7 +31,7 @@ final class LiveCore: CoreSession {
         core.onSession { signal in continuation.yield(.session(signal)) }
     }
 
-    /// Settings → Approvals → Ask Before Sensitive Steps (off by default in the alpha). Read when Poki starts.
+    /// Settings → Approvals → Ask Before Sensitive Steps (off by default in the alpha). Read when Qeno starts.
     static let askKey = "approvals.ask"
 
     deinit { pump?.cancel() }
@@ -111,7 +111,7 @@ final class AppCoreHost: CoreHost, @unchecked Sendable {
     func setPaused(_ value: Bool) { lock.withLock { paused = value } }
 
     func signingKey() throws -> RelayKey {
-        guard let key = lock.withLock({ self.key }) else { throw NSError(domain: "Poki", code: 1, userInfo: [NSLocalizedDescriptionKey: "no relay key in the keychain"]) }
+        guard let key = lock.withLock({ self.key }) else { throw NSError(domain: "Qeno", code: 1, userInfo: [NSLocalizedDescriptionKey: "no relay key in the keychain"]) }
         return DeviceKey(key: key)
     }
     func accessHashes() -> [String] { lock.withLock { hashes } }
@@ -153,12 +153,12 @@ final class AppCoreHost: CoreHost, @unchecked Sendable {
     func jpeg(fromPNG png: Data, width: Int, quality: Double) throws -> Data {
         guard let source = CGImageSourceCreateWithData(png as CFData, nil),
               let image = CGImageSourceCreateThumbnailAtIndex(source, 0, [kCGImageSourceCreateThumbnailFromImageAlways: true, kCGImageSourceThumbnailMaxPixelSize: Self.maxSide(source, width: width)] as CFDictionary) else {
-            throw NSError(domain: "Poki", code: 2, userInfo: [NSLocalizedDescriptionKey: "the screenshot is not an image"])
+            throw NSError(domain: "Qeno", code: 2, userInfo: [NSLocalizedDescriptionKey: "the screenshot is not an image"])
         }
         let out = NSMutableData()
-        guard let destination = CGImageDestinationCreateWithData(out, UTType.jpeg.identifier as CFString, 1, nil) else { throw NSError(domain: "Poki", code: 3) }
+        guard let destination = CGImageDestinationCreateWithData(out, UTType.jpeg.identifier as CFString, 1, nil) else { throw NSError(domain: "Qeno", code: 3) }
         CGImageDestinationAddImage(destination, image, [kCGImageDestinationLossyCompressionQuality: quality] as CFDictionary)
-        guard CGImageDestinationFinalize(destination) else { throw NSError(domain: "Poki", code: 4) }
+        guard CGImageDestinationFinalize(destination) else { throw NSError(domain: "Qeno", code: 4) }
         return out as Data
     }
 

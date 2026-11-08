@@ -28,7 +28,7 @@ typedef NS_ENUM(NSInteger, PKDelivery) {
 @property (nonatomic, readonly) uint64_t generation;
 @end
 
-/// UI automation from Poki's own process: the XCTest daemon session (testmanagerd), Automation Mode,
+/// UI automation from Qeno's own process: the XCTest daemon session (testmanagerd), Automation Mode,
 /// and synthesized touch and text events. No runner app and no port. Every method blocks, so call it
 /// from a serial worker queue, never the main thread: the first enable waits for the owner to
 /// authenticate in iOS's prompt.
@@ -37,7 +37,7 @@ typedef NS_ENUM(NSInteger, PKDelivery) {
 /// Loads the Developer libraries, opens the daemon session and enables Automation Mode, or reuses an
 /// enable of the same session and generation. Keys: ok, code, detail, generation, reused, seconds.
 - (NSDictionary<NSString *, id> *)prepare;
-/// Ends the session, and with it Automation Mode and iOS's "Automation Running" banner, while Poki
+/// Ends the session, and with it Automation Mode and iOS's "Automation Running" banner, while Qeno
 /// stays up. Keys: closed (whether one was open), generation (the one that ended), seconds. The next
 /// prepare opens a new session; iOS asks for no passcode again within the same boot.
 - (NSDictionary<NSString *, id> *)close;
@@ -59,7 +59,7 @@ typedef NS_ENUM(NSInteger, PKDelivery) {
 /// The app in front: bundleId, name, pid. Empty when accessibility gives none.
 - (NSDictionary<NSString *, id> *)frontApp;
 /// The front app's frame when it does not fill the screen (its half of the iPhone Duo's inner
-/// display, its window on an iPad, with Poki beside it), else CGRectNull. Set by the last tree read, front
+/// display, its window on an iPad, with Qeno beside it), else CGRectNull. Set by the last tree read, front
 /// read or screenshot. The tree's frames and the screenshot are relative to it, and touches are
 /// offset by it, so the agent sees and drives the one app as if it had the screen.
 @property (nonatomic, readonly) CGRect viewport;
@@ -78,7 +78,7 @@ typedef NS_ENUM(NSInteger, PKDelivery) {
 - (uint64_t)generation;
 /// A trial for ending the session: opens a session of its own (not the shared one that XCUIAutomation
 /// uses), turns on Automation Mode with it, taps once at the point, waits `hold` seconds, then closes its
-/// connection to testmanagerd and waits for the invalidation handler. Run it in a fresh Poki process
+/// connection to testmanagerd and waits for the invalidation handler. Run it in a fresh Qeno process
 /// before anything opens the shared session. The dictionary says what each step returned and when.
 - (NSDictionary<NSString *, id> *)separateSessionTrialAt:(CGPoint)point hold:(double)hold;
 @end

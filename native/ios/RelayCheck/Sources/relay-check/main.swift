@@ -4,7 +4,7 @@ import PokiCore
 
 // relay-check <relay address> [seconds]: connects as a phone, prints the connector URL on one line
 // ("connector: …"), the relay states, and each tool call, then exits after `seconds`. The address is
-// the one entered in Poki, such as https://poki-relay.you.workers.dev, or http://127.0.0.1:8787 for
+// the one entered in Qeno, such as https://poki-relay.you.workers.dev, or http://127.0.0.1:8787 for
 // wrangler dev.
 let args = CommandLine.arguments
 guard args.count > 1, let relay = RelayAddress(args[1]) else {

@@ -220,9 +220,9 @@ static id PKForegroundElementTimed(id ax, NSString *(^bundleForPID)(int)) {
     if (candidates.count == 1) return candidates.firstObject;
     if (!candidates.count) return springBoard ?: system;
     CGRect screen = PKScreenFrame(ax, system);
-    // The app under the screen's centre is the front one. Poki's own process is the answer only when
+    // The app under the screen's centre is the front one. Qeno's own process is the answer only when
     // it is there and fills the screen; beside the target app (the iPhone Duo's side-by-side apps,
-    // iPad windows) the centre can fall on Poki, and the other app is the one being driven. (A
+    // iPad windows) the centre can fall on Qeno, and the other app is the one being driven. (A
     // process in the background still reports a full-screen frame, so the frame alone says nothing.)
     id own = nil;
     for (id element in candidates) if (PKAXPid(element) == getpid()) own = element;
@@ -558,7 +558,7 @@ static NSData *PKCropped(NSData *png, CGRect viewport) {
     if (!oriented && ![recordClass instancesRespondToSelector:@selector(initWithName:)]) {
         return [PKOutcome delivery:PKDeliveryNotSent code:@"event_api_unavailable" detail:@"no XCSynthesizedEventRecord"];
     }
-    id record = oriented ? [[recordClass alloc] initWithName:@"Poki touch" interfaceOrientation:1] : [[recordClass alloc] initWithName:@"Poki touch"];
+    id record = oriented ? [[recordClass alloc] initWithName:@"Qeno touch" interfaceOrientation:1] : [[recordClass alloc] initWithName:@"Qeno touch"];
     if (![record respondsToSelector:@selector(addPointerEventPath:)]) {
         return [PKOutcome delivery:PKDeliveryNotSent code:@"event_dispatch_api_unavailable" detail:@"XCSynthesizedEventRecord cannot take a path"];
     }
@@ -761,7 +761,7 @@ static NSData *PKCropped(NSData *png, CGRect viewport) {
     // Once accessibility is on, every AX notification (an app activating, for one) reaches
     // -[XCAXClient_iOS handleAccessibilityNotification:fromElement:payload:], which asks
     // XCUIApplicationMonitor for an XCUIApplication on the main queue; that throws outside a UI test
-    // and ends Poki (seen on the phone). Poki reads on request and needs none of them.
+    // and ends Qeno (seen on the phone). Qeno reads on request and needs none of them.
     static dispatch_once_t quiet;
     dispatch_once(&quiet, ^{
         Class client = NSClassFromString(@"XCAXClient_iOS");
@@ -778,7 +778,7 @@ static NSData *PKCropped(NSData *png, CGRect viewport) {
             // pids they marked unresponsive (the accessibility server's among them) are asked again,
             // and the AX client is a new one on the new session rather than XCUIDevice's, which keeps
             // talking to the session that was closed (0.2.8 build 144: every read after a stand-by
-            // and reopen timed out until Poki was relaunched).
+            // and reopen timed out until Qeno was relaunched).
             @synchronized (PKHungLock()) { [PKHungSince() removeAllObjects]; }
             Class client = NSClassFromString(@"XCAXClient_iOS");
             id fresh = [client instancesRespondToSelector:@selector(init)] ? [[client alloc] init] : nil;
@@ -1090,7 +1090,7 @@ static NSString *PKDaemonReply(NSTimeInterval seconds, void (^send)(void (^)(NSE
     if (!enabled) { out[@"code"] = @"enable_failed"; out[@"detail"] = error.localizedDescription ?: @""; return out; }
     Class pathClass = NSClassFromString(@"XCPointerEventPath"), recordClass = NSClassFromString(@"XCSynthesizedEventRecord");
     id record = [recordClass instancesRespondToSelector:@selector(initWithName:interfaceOrientation:)]
-        ? [[recordClass alloc] initWithName:@"Poki trial" interfaceOrientation:1] : [[recordClass alloc] initWithName:@"Poki trial"];
+        ? [[recordClass alloc] initWithName:@"Qeno trial" interfaceOrientation:1] : [[recordClass alloc] initWithName:@"Qeno trial"];
     id path = [[pathClass alloc] initForTouchAtPoint:point offset:0];
     [path liftUpAtOffset:0.05];
     [record addPointerEventPath:path];

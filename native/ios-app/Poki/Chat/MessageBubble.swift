@@ -1,6 +1,6 @@
 // MessageBubble is from Mackarous/ConversationUI (commit e77c69e,
 // Sources/ConversationUI/MessageBubble.swift), Copyright (c) 2024 Andrew Mackarous, MIT License. See
-// THIRD_PARTY_NOTICES.md. Changed: Poki's message kinds, the ESP-171 board's colours, 17 pt text, the
+// THIRD_PARTY_NOTICES.md. Changed: Qeno's message kinds, the ESP-171 board's colours, 17 pt text, the
 // tail corner on the last bubble of a run, and 60 pt kept free on the far side (280 pt at most).
 import SwiftUI
 
@@ -35,7 +35,7 @@ struct MessageBubble: View {
         }
     }
 
-    /// Poki's words as Markdown (bold, italics, code, links), as models write them; the owner's as typed.
+    /// Qeno's words as Markdown (bold, italics, code, links), as models write them; the owner's as typed.
     private var rendered: AttributedString {
         guard direction == .incoming, text.contains(where: { "*_`[".contains($0) }),
               let markdown = try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)) else {

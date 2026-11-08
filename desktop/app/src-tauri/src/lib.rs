@@ -1,4 +1,4 @@
-//! The Poki Setup window: Tauri over poki-setup-core. Commands are thin: each one calls the core
+//! The Qeno Setup window: Tauri over poki-setup-core. Commands are thin: each one calls the core
 //! and turns its `Progress` into events the page draws.
 mod commands;
 
@@ -27,7 +27,7 @@ pub fn run() {
         .plugin(
             tauri_plugin_log::Builder::new()
                 .level(log::LevelFilter::Info)
-                .target(tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Folder { path: poki_setup_core::paths::log_dir().unwrap_or_else(|_| std::env::temp_dir()), file_name: Some("poki-setup".into()) }))
+                .target(tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Folder { path: poki_setup_core::paths::log_dir().unwrap_or_else(|_| std::env::temp_dir()), file_name: Some("qeno-setup".into()) }))
                 .target(tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Stdout))
                 .build(),
         )
@@ -96,17 +96,17 @@ pub fn run() {
             commands::qr_svg,
         ])
         .run(tauri::generate_context!())
-        .expect("Poki Setup could not start");
+        .expect("Qeno Setup could not start");
 }
 
 fn tray(app: &tauri::App) -> tauri::Result<()> {
     use tauri::menu::{MenuBuilder, MenuItemBuilder};
     use tauri::tray::TrayIconBuilder;
-    let open = MenuItemBuilder::with_id("open", "Open Poki Setup").build(app)?;
+    let open = MenuItemBuilder::with_id("open", "Open Qeno Setup").build(app)?;
     let renew = MenuItemBuilder::with_id("renew", "Renew Poki now").build(app)?;
-    let quit = MenuItemBuilder::with_id("quit", "Quit Poki Setup").build(app)?;
+    let quit = MenuItemBuilder::with_id("quit", "Quit Qeno Setup").build(app)?;
     let menu = MenuBuilder::new(app).item(&open).item(&renew).separator().item(&quit).build()?;
-    let mut builder = TrayIconBuilder::with_id("main").menu(&menu).tooltip("Poki Setup").show_menu_on_left_click(true);
+    let mut builder = TrayIconBuilder::with_id("main").menu(&menu).tooltip("Qeno Setup").show_menu_on_left_click(true);
     if let Some(icon) = app.default_window_icon() {
         builder = builder.icon(icon.clone());
     }

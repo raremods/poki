@@ -28,11 +28,11 @@
 - (void)invalidate;
 @end
 
-/// The session of Poki's own opened after a close. XCTest's accessibility client
+/// The session of Qeno's own opened after a close. XCTest's accessibility client
 /// (XCUIDevice.accessibilityInterface) and XCUIScreen reach testmanagerd through
 /// +[XCTRunnerDaemonSession sharedSession], which keeps answering the session that was closed: on the
 /// phone (0.2.8 build 144) every tree read after a stand-by and reopen hung there while the new
-/// session answered. While Poki holds a session of its own, sharedSession answers that one.
+/// session answered. While Qeno holds a session of its own, sharedSession answers that one.
 static id SROwnedSharedSession;
 static NSLock *SROwnedLock(void) {
     static NSLock *lock; static dispatch_once_t once;

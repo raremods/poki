@@ -4,7 +4,7 @@ use plist::{Dictionary, Value};
 
 const ALWAYS: &[&str] = &["application-identifier", "com.apple.developer.team-identifier", "get-task-allow", "keychain-access-groups"];
 
-/// `requested` is what the app was built asking for (from Poki-signing.zip or the defaults);
+/// `requested` is what the app was built asking for (from Qeno-signing.zip or the defaults);
 /// `profile` is the profile's Entitlements dictionary.
 pub fn merge(requested: &Dictionary, profile: &Dictionary) -> Dictionary {
     let mut out = Dictionary::new();
@@ -41,13 +41,13 @@ mod tests {
     #[test]
     fn keeps_identity_and_requested_only() {
         let mut profile = Dictionary::new();
-        profile.insert("application-identifier".into(), "T.nz.zheha.poki.T".into());
+        profile.insert("application-identifier".into(), "T.com.owaiken.qeno.T".into());
         profile.insert("com.apple.developer.team-identifier".into(), "T".into());
         profile.insert("get-task-allow".into(), true.into());
         profile.insert("keychain-access-groups".into(), Value::Array(vec!["T.*".into()]));
-        profile.insert("com.apple.security.application-groups".into(), Value::Array(vec!["group.nz.zheha.poki.T".into()]));
+        profile.insert("com.apple.security.application-groups".into(), Value::Array(vec!["group.com.owaiken.qeno.T".into()]));
         profile.insert("com.apple.developer.associated-domains".into(), "*".into());
-        let requested = poki_defaults("group.nz.zheha.poki");
+        let requested = poki_defaults("group.com.owaiken.qeno");
         let merged = merge(&requested, &profile);
         assert_eq!(merged.len(), 5);
         assert!(!merged.contains_key("com.apple.developer.associated-domains"));

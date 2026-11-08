@@ -243,7 +243,7 @@ only touched the beta packaging, which were dropped; their ids map to the commit
 | 7f33685 | 7585d71 | translated | Merge feat/esp-156-voice (real-time voice) into the chat entry branch |
 | 7b25384, 2fcd645, ce621da | 7f463fa | squashed | iOS: chat page, Poki's details page, model settings and voice page (ESP-174, first version) |
 | cd60d51 | d16d0bb | translated | Merge the voice branch's change: do checks an element's identifier against the approval words too (ae8b942) |
-| ffeb3b3 | 539d4f7 | translated | Chat: use the Mac Poki Agent's prompt and its plan and finish tools |
+| ffeb3b3 | 539d4f7 | translated | Chat: use the Mac Qeno Agent's prompt and its plan and finish tools |
 | ae6f9f5 | a3a92a1 | translated | Chat: OpenAI, defaulting to GPT-6.1 Sol with low reasoning |
 | c7e696c | 5fe6e41 | translated | Chat: OpenAI's default model is GPT-6.1 Terra, still with low reasoning |
 | 228bf3b | 410180a | translated | Chat: the pi loop (PiSwift), with DeepSeek, Gemini and ChatGPT login |

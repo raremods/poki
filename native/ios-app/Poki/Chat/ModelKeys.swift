@@ -88,7 +88,7 @@ enum ModelProvider: String, CaseIterable, Identifiable, Sendable {
             ChatModelChoice(id: "gpt-6.1-terra", name: "GPT-6.1 Terra"),
             ChatModelChoice(id: "gpt-6.1-sol", name: "GPT-6.1 Sol"),
         ]
-        // The ChatGPT plan's models on the OpenAI API; gpt-6.1-terra is also Poki
+        // The ChatGPT plan's models on the OpenAI API; gpt-6.1-terra is also Qeno
         // Agent's default on the Mac (agent/model-config.mjs).
         case .chatgpt: [
             ChatModelChoice(id: "gpt-6.1-terra", name: "ChatGPT GPT-6.1 Terra"),
@@ -127,7 +127,7 @@ enum ModelProvider: String, CaseIterable, Identifiable, Sendable {
         case .deepseek: String(localized: "Create a key at platform.deepseek.com, then paste it here.")
         case .gemini: String(localized: "Create a key at aistudio.google.com, then paste it here.")
         case .openrouter: String(localized: "Create a key at openrouter.ai/keys, then paste it here.")
-        case .custom: String(localized: "Any server that speaks the OpenAI chat completions API. Poki sends the key, if any, only to this address.")
+        case .custom: String(localized: "Any server that speaks the OpenAI chat completions API. Qeno sends the key, if any, only to this address.")
         default: ""
         }
     }
