@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;
 
-pub const DEFAULT_REPO: &str = "JosssphZhou/poki";
+pub const DEFAULT_REPO: &str = "raremods/poki";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Release {

@@ -135,7 +135,7 @@ jobs:
           RUN=$(gh api "repos/${{ github.repository }}/actions/workflows/$WF/runs?branch=dev/ios-integration-sync&status=success&per_page=1" --jq '.workflow_runs[0].id')
           echo "Poki IPA from iOS app run $RUN"
           gh run download "$RUN" -R ${{ github.repository }} -n Poki-unsigned -D ipa
-          desktop/mac/scripts/sign-check.sh desktop/target/release/poki-setup ipa/Poki-external-unsigned.ipa ipa/Poki-signing.zip
+          desktop/mac/scripts/sign-check.sh desktop/target/release/poki-setup ipa/Poki-external-unsigned.ipa ipa/Qeno-signing.zip
       - name: Screenshots
         if: always()
         run: |
