@@ -34,6 +34,26 @@ enum QenoCharacter: String, CaseIterable, Identifiable {
         }
         set { UserDefaults.standard.set(newValue.rawValue, forKey: storageKey) }
     }
+
+    /// The app icon this character syncs to, as the argument for setAlternateIconName. It is a
+    /// double optional on purpose: outer nil means the character has no matching icon and the
+    /// icon is left alone; outer .some holds the name to set, with inner nil meaning the primary
+    /// (Dark) icon. White restores the primary icon, Red Panda switches to the red icon, and
+    /// Black, Brown and Gray have no icon yet, so they do not touch it.
+    var syncedIconName: String?? {
+        switch self {
+        case .white: .some(nil)
+        case .red: .some("AppIcon-Red")
+        case .black, .brown, .gray: nil
+        }
+    }
+
+    /// Switches the home screen icon to this character's matching icon, if it has one. Failures
+    /// are ignored: the character still changes even when iOS will not switch the icon.
+    func syncAppIcon() {
+        guard let name = syncedIconName else { return }
+        UIApplication.shared.setAlternateIconName(name) { _ in }
+    }
 }
 
 /// One character's face, round, at the given size: the stored image, or the white panda's face
@@ -74,7 +94,10 @@ struct CharacterPickerView: View {
             Section {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 96), spacing: 16)], spacing: 20) {
                     ForEach(QenoCharacter.allCases) { character in
-                        Button { selection.wrappedValue = character } label: {
+                        Button {
+                            selection.wrappedValue = character
+                            character.syncAppIcon()
+                        } label: {
                             VStack(spacing: 8) {
                                 CharacterFace(character: character, size: 72)
                                     .overlay(alignment: .topTrailing) {

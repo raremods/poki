@@ -1,7 +1,10 @@
 #!/bin/bash
 # Makes the asset catalogs from docs/images/qeno-icon.png (macOS, needs swift): the app icon (Qeno,
 # the white panda ball full-bleed on black, no margin; iOS applies its own corner mask) and the Bear image for the app and the Live Activity. They are generated, not
-# checked in, so the one source image stays the only copy. Run before xcodegen.
+# checked in, so the one source image stays the only copy. Run before xcodegen. The two alternate
+# app icons (AppIcon-Blue, AppIcon-Red) come from docs/images/qeno-icon-blue.png and
+# docs/images/qeno-icon-red.png the same way; project-base.yml lists them in
+# ASSETCATALOG_COMPILER_ALTERNATE_APP_ICON_NAMES so Xcode includes them.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"
@@ -23,6 +26,14 @@ catalog "$APP"
 mkdir -p "$APP/AppIcon.appiconset"
 swift "$COMPOSE" "$ICON" "$APP/AppIcon.appiconset/icon-1024.png" 1024 1.0 "$ICON_BG"
 echo '{"images":[{"filename":"icon-1024.png","idiom":"universal","platform":"ios","size":"1024x1024"}],"info":{"version":1,"author":"poki"}}' > "$APP/AppIcon.appiconset/Contents.json"
+# Alternate app icons (Settings > App Icon): the blue icon and the red panda. Same format as the
+# primary AppIcon; the background colour is covered by the full-bleed source image.
+mkdir -p "$APP/AppIcon-Blue.appiconset"
+swift "$COMPOSE" "$ROOT/docs/images/qeno-icon-blue.png" "$APP/AppIcon-Blue.appiconset/icon-1024.png" 1024 1.0 "$ICON_BG"
+echo '{"images":[{"filename":"icon-1024.png","idiom":"universal","platform":"ios","size":"1024x1024"}],"info":{"version":1,"author":"poki"}}' > "$APP/AppIcon-Blue.appiconset/Contents.json"
+mkdir -p "$APP/AppIcon-Red.appiconset"
+swift "$COMPOSE" "$ROOT/docs/images/qeno-icon-red.png" "$APP/AppIcon-Red.appiconset/icon-1024.png" 1024 1.0 "$ICON_BG"
+echo '{"images":[{"filename":"icon-1024.png","idiom":"universal","platform":"ios","size":"1024x1024"}],"info":{"version":1,"author":"poki"}}' > "$APP/AppIcon-Red.appiconset/Contents.json"
 mkdir -p "$APP/AccentColor.colorset"
 echo '{"colors":[{"idiom":"universal","color":{"color-space":"srgb","components":{"red":"0x20","green":"0x84","blue":"0xFD","alpha":"1.000"}}}],"info":{"version":1,"author":"poki"}}' > "$APP/AccentColor.colorset/Contents.json"
 bear "$APP"
