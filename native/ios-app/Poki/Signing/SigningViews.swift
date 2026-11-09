@@ -91,7 +91,6 @@ struct SigningSection: View {
             } label: {
                 Label("Qeno Version", systemImage: "info.circle")
             }
-            }
             LabeledContent {
                 if let expiry = signer.expiry {
                     // One line: the date, and how long is left in the warning colour when it is close.
