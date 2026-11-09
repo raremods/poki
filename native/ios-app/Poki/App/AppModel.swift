@@ -58,9 +58,9 @@ final class AppModel {
     var closeSessionWhenIdle: Bool = UserDefaults.standard.bool(forKey: "inProcess.closeWhenIdle") {
         didSet { UserDefaults.standard.set(closeSessionWhenIdle, forKey: "inProcess.closeWhenIdle"); log.add("runner", "close the session when idle: \(closeSessionWhenIdle ? "on" : "off")") }
     }
-    /// Ask the owner before payments, deleting, sending, passwords and Wallet input. Off in the alpha;
-    /// PokiCore reads it when Qeno starts.
-    var askBeforeSensitiveSteps: Bool = UserDefaults.standard.bool(forKey: LiveCore.askKey) {
+    /// Ask the owner before payments, deleting, sending, calls, passwords and Wallet input. On unless
+    /// they turned it off; PokiCore reads it when Qeno starts.
+    var askBeforeSensitiveSteps: Bool = LiveCore.asksBeforeSensitiveSteps {
         didSet { UserDefaults.standard.set(askBeforeSensitiveSteps, forKey: LiveCore.askKey); log.add("approval", "ask before sensitive steps: \(askBeforeSensitiveSteps ? "on" : "off") (from the next start of Qeno)") }
     }
     /// Approvals are decided by the chat model (ApprovalClassifier) instead of the owner. Testing only, off.
@@ -77,8 +77,9 @@ final class AppModel {
     var idleStopSeconds: Int = UserDefaults.standard.object(forKey: "idleStopSeconds.v4") as? Int ?? 60 {
         didSet { UserDefaults.standard.set(idleStopSeconds, forKey: "idleStopSeconds.v4"); log.add("runner", "idle stop set to \(idleStopSeconds) s") }
     }
-    /// Qeno was on when it last ran; it turns itself on again at launch.
-    private var wantsOn: Bool {
+    /// Qeno was on when it last ran; it turns itself on again at launch. Qeno Setup's install turns it
+    /// on the first time (see `init`).
+    private(set) var wantsOn: Bool {
         get { UserDefaults.standard.bool(forKey: "wantsOn") }
         set { UserDefaults.standard.set(newValue, forKey: "wantsOn") }
     }
@@ -113,6 +114,10 @@ final class AppModel {
     private(set) var pairingTrouble: String?
     /// When the phone last accepted the pairing (the runner got past the pairing step).
     private(set) var pairingVerifiedAt: Date?
+    /// The loopback took the connection, but the phone's remote pairing service did not answer through
+    /// it (GitHub issue 69). The loopback probe only connects, so it still reads Working; the
+    /// Loopback page says so. false once the phone answers again.
+    private(set) var servicesSilent = false
     /// The runner has been launching for a while: iOS may be asking for the passcode.
     private(set) var passcodeHint = false
     /// Turning on now will probably bring up iOS's passcode screen (no automation has started since
@@ -125,6 +130,7 @@ final class AppModel {
     private static let automationBootKey = "automationStartedBoot"
     /// Automation started in this boot: iOS will not ask again until the next restart.
     private func automationStarted() {
+        InProcessWDA.gate.withLock { $0.startedThisBoot = true }
         guard UserDefaults.standard.double(forKey: Self.automationBootKey) != BootClock.current else { return }
         UserDefaults.standard.set(BootClock.current, forKey: Self.automationBootKey)
     }
@@ -132,14 +138,24 @@ final class AppModel {
     func continueAfterPasscodeHeadsUp() {
         passcodeHeadsUp = false
         passcodeHeadsUpSeen = BootClock.current
+        if let why = passcodeHeldOpen {
+            passcodeHeldOpen = nil
+            warmInProcess(why)
+            return
+        }
         startSession(reconnectLocal: passcodeHeadsUpReconnect)
     }
+    /// The in-process open waiting for Continue on the passcode note: its reason.
+    private var passcodeHeldOpen: String?
     /// The hand-off the agent asked the owner for, while it waits (shown on the home screen too).
     private(set) var handoffText: String?
     private var launchingSince: Date?
     private var endCheck = 0
     /// Not set at launch: a fresh launch has run nothing, so Install is available at once.
     private var lastAgentActivity = Date.distantPast
+    /// The last agent step (a tool call, a hand-off), for Install's wait. Turning on or waking the
+    /// runner is not a step: lastAgentActivity counts those for the idle stop, this does not.
+    private var lastStepAt = Date.distantPast
     /// The agent's step now running (its label and start), for the foreground check above.
     private var stepUnderWay: (summary: String, started: Date)?
     /// When the last approval ended, so a Stop landing on the Live Activity right after is not taken.
@@ -157,6 +173,7 @@ final class AppModel {
     private let activity = ActivityController()
     let log = AppLog.shared
     private var eventsTask: Task<Void, Never>?
+    private var handoffTimer: Timer?
     private var sessionStartTask: Task<Void, Never>?
     private(set) var sessionStarting = false
 
@@ -173,7 +190,7 @@ final class AppModel {
         if let step = stepUnderWay, sessionOn, Date().timeIntervalSince(step.started) < 120 {
             return String(localized: "The agent is doing a step: \(step.summary).")
         }
-        let since = Date().timeIntervalSince(lastAgentActivity)
+        let since = Date().timeIntervalSince(lastStepAt)
         if since < 60 { return String(localized: "The agent acted \(Int(since)) s ago; Install opens a minute after its last step.") }
         return nil
     }
@@ -235,8 +252,9 @@ final class AppModel {
         return ChatModel.delegatedBusy
     }
 
-    init(launcher: RunnerLauncher = RustLauncher(), pairer: DevicePairing = RustPairing()) {
+    init(launcher: RunnerLauncher = RustLauncher(), pairer: DevicePairing = RustPairing(), automation: InProcessAutomation = PKInProcess.shared()) {
         ActivityController.endAll()
+        self.automation = automation
         // A reinstall emptied the container: the pairing file comes back from the Keychain (and the
         // setup state did the same in `SetupState.load`), so the owner is not sent through setup again.
         if SetupVault.restorePairingIfMissing() { AppLog.shared.add("pairing", "pairing file restored from the Keychain after a reinstall") }
@@ -309,6 +327,16 @@ final class AppModel {
             else if problem == tunnelAttention { problem = nil; tunnelAttention = nil }
         }
         if !diskImage.isReady { Task { await diskImage.download() } }
+        // Just installed by Qeno Setup on a computer (its signing key still waits in the container, and
+        // the owner never turned Qeno on or off): Qeno turns on by itself, so it does not stand at Off.
+        if UserDefaults.standard.object(forKey: "wantsOn") == nil, FileManager.default.fileExists(atPath: SelfSigner.handedIdentity.path) {
+            wantsOn = true
+            log.add("session", "installed by Qeno Setup: Qeno turns on by itself")
+        }
+        // The installer on the Mac reads the hello and may leave a sealed model key while Qeno is in front.
+        handoffTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
+            Task { @MainActor in if self?.inFront == true { self?.handoffTick() } }
+        }
         // An agent whose session began before this launch is named from its connector.
         SessionStore.shared.connectorAgent = { [identity] hash in
             identity.secrets.first { $0.hash == hash }.map { $0.named ? $0.name : ($0.agent ?? $0.name) }
@@ -329,7 +357,13 @@ final class AppModel {
 
     /// The in-process session as prepare last answered it in this process (ESP-152).
     private var inProcessSession = InProcessSession.opening
+    /// Qeno's own automation session (ESP-152); a fake in tests.
+    private let automation: InProcessAutomation
     private var inProcessWarming = false
+    /// iOS is asking the owner for the passcode to allow automation (in-process): an open has not
+    /// answered in 5 s. The Live Activity and Qeno's home ask the owner, and the agent reads that the
+    /// owner has to enter it.
+    private var inProcessPasscode = false
     /// When the open under way began: one that has not answered in `staleOpen` seconds no longer
     /// holds the next one back (seen on the phone: the banner up, the session open, and every look
     /// answered "still starting" because an open that never answered blocked all the others).
@@ -352,8 +386,9 @@ final class AppModel {
         // its answer is not taken (it would show .open, or keep .opening for good).
         inProcessEpoch += 1
         inProcessWarming = false
-        DispatchQueue.global(qos: .userInitiated).async {
-            let result = PKInProcess.shared().close()
+        endPasscodeWait(opened: false)
+        DispatchQueue.global(qos: .userInitiated).async { [automation] in
+            let result = automation.close()
             Task { @MainActor [weak self] in
                 let closed = (result["closed"] as? Bool) == true
                 if closed { self?.inProcessUsedUp = true }
@@ -367,8 +402,8 @@ final class AppModel {
     /// main thread. The log says how, or what the session offers when it found no way.
     private func pauseAutomationMode() {
         guard automationPath == .inProcess, !Self.onSimulator else { return }
-        DispatchQueue.global(qos: .userInitiated).async {
-            let result = PKInProcess.shared().pauseAutomation()
+        DispatchQueue.global(qos: .userInitiated).async { [automation] in
+            let result = automation.pauseAutomation()
             Task { @MainActor [weak self] in
                 let paused = (result["paused"] as? Bool) == true
                 self?.log.add("runner", paused ? "Automation Mode turned off while standing by (\(result["how"] ?? "?")): the banner goes until an agent asks"
@@ -383,6 +418,18 @@ final class AppModel {
     /// already open answers "reused" in milliseconds.
     func warmInProcess(_ why: String) {
         guard automationPath == .inProcess, sessionOn, runner.isRunning else { return }
+        if InProcessWDA.automationDeclined { return }
+        // The first open since the iPhone restarted is what brings up iOS's passcode screen: with
+        // Qeno in front, the owner is told just before it (Continue opens; elsewhere the Live
+        // Activity asks for the passcode once an open takes 5 s).
+        if passcodeExpected, passcodeHeadsUpSeen != BootClock.current, inFront, !Self.onSimulator, !inProcessWarming {
+            if passcodeHeldOpen == nil {
+                log.add("runner", "first automation since this iPhone restarted: telling the owner iOS will ask for the passcode")
+            }
+            passcodeHeldOpen = why
+            passcodeHeadsUp = true
+            return
+        }
         if inProcessWarming {
             guard Date().timeIntervalSince(inProcessWarmStarted) > Self.staleOpen else { return }
             log.add("runner", "the in-process open under way has not answered in \(Int(Self.staleOpen)) s: asking again for \(why)")
@@ -391,12 +438,12 @@ final class AppModel {
         inProcessWarmStarted = Date()
         inProcessWarmToken += 1
         let epoch = inProcessEpoch, token = inProcessWarmToken
-        if case .failed = inProcessSession {
+        if inProcessSession != .open, inProcessSession != .opening, inProcessSession != .waitingForPasscode {
             inProcessSession = .opening
             host.update(runner: coreState(of: runner))
         }
-        DispatchQueue.global(qos: .userInitiated).async {
-            let result = PKInProcess.shared().prepare()
+        DispatchQueue.global(qos: .userInitiated).async { [automation] in
+            let result = InProcessWDA.openThroughGate { automation.prepare() }
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 guard epoch == self.inProcessEpoch else {
@@ -408,14 +455,45 @@ final class AppModel {
                 // A stale open's failure does not undo what a newer one is doing.
                 guard token == self.inProcessWarmToken || ok else { return }
                 if token == self.inProcessWarmToken { self.inProcessWarming = false }
+                let waitedForPasscode = self.inProcessPasscode
+                self.endPasscodeWait(opened: ok)
                 let seconds = String(format: "%.2f", result["seconds"] as? Double ?? 0)
                 let warm = (result["warm_seconds"] as? Double).map { $0 > 0 ? String(format: ", first snapshot and screenshot %.2f s", $0) : "" } ?? ""
                 self.log.add("runner", ok ? "in-process session ready for \(why) (generation \(result["generation"] ?? 0), \((result["reused"] as? Bool) == true ? "already open" : "opened"), \(seconds) s\(warm))"
                                           : "in-process session not ready for \(why): \(result["code"] ?? "unknown") after \(seconds) s")
                 if ok { self.automationStarted() }
-                self.inProcessSession = ok ? .open : .failed(code: "\(result["code"] ?? "unknown")", detail: result["detail"] as? String ?? "")
+                let detail = result["detail"] as? String ?? ""
+                // iOS gives up on the passcode after a minute and says only that enabling timed out.
+                let passcodeMissed = waitedForPasscode || detail.localizedCaseInsensitiveContains("enabling automation mode")
+                // Cancelled (or left) iOS's passcode screen: Qeno does not open it again by itself.
+                if !ok, passcodeMissed {
+                    InProcessWDA.gate.withLock { $0.declined = true }
+                    self.log.add("runner", "the passcode for automation was not entered: Qeno will not ask again until it is turned on again")
+                }
+                self.inProcessSession = ok ? .open : passcodeMissed ? .passcodeMissed : .failed(code: "\(result["code"] ?? "unknown")", detail: detail)
                 if self.sessionOn { self.host.update(runner: self.coreState(of: self.runner)) }
             }
+        }
+    }
+
+    /// An open has taken over 5 s: iOS is asking for the passcode before it allows automation (after
+    /// Qeno restarts, and 8 hours after the last time). Asked as the runner path's launcher asks.
+    private func beginPasscodeWait() {
+        inProcessPasscode = true
+        passcodeHint = true
+        log.add("runner", "the in-process session has not opened for 5 s: asking the owner for the passcode on the Live Activity")
+        inProcessSession = .waitingForPasscode
+        host.update(runner: coreState(of: runner))
+        activity.update { $0.phase = .handoff; $0.handoff = .init(id: Self.runnerPasscodeHandoff, kind: .automationPasscode, text: nil, app: nil, since: Date()) }
+    }
+
+    private func endPasscodeWait(opened: Bool) {
+        guard inProcessPasscode else { return }
+        inProcessPasscode = false
+        passcodeHint = false
+        log.add("runner", opened ? "the passcode was entered: the in-process session is open" : "the in-process session did not open while iOS asked for the passcode")
+        if activity.state.handoff?.id == Self.runnerPasscodeHandoff {
+            activity.update { $0.handoff = nil; $0.phase = .idle; if opened { $0.headline = "Ready for the agent" } }
         }
     }
 
@@ -423,12 +501,14 @@ final class AppModel {
     /// setup step the person just did in Settings.
     func becameActive() {
         inFront = true
+        InProcessWDA.gate.withLock { $0.inFront = true }
         cameToFront = Date()
         // A pairing file and disk image Qeno Setup put in the container while Qeno was running (or
         // since it last came to the front) count at once: mirrored to the Keychain, the disk image
         // checked again, and the pairing checked as soon as the loopback answers.
         SetupVault.mirrorPairingFromContainer()
         lookForHandedPairing()
+        handoffTick()
         diskImage.notice()
         warmInProcess("Qeno came to the front")
         loopback.resume()
@@ -445,17 +525,48 @@ final class AppModel {
         if sessionOn, let step = stepUnderWay, Date().timeIntervalSince(step.started) < 20 {
             log.add("app", "Qeno came to the front during a step (\(step.summary)): a tap hit the Live Activity")
         }
+        turnOnIfWanted()
+        if let step = guiding, isDone(step) { stopGuide() }
+    }
+
+    /// Turns on when Qeno was on (or Qeno Setup just installed it) and the pairing and disk image are there.
+    private func turnOnIfWanted() {
         Task {
             await tunnel.refresh()
             if wantsOn, !sessionOn, pairingPath != nil, diskImage.isReady { startSession(reconnectLocal: false) }
         }
-        if let step = guiding, isDone(step) { stopGuide() }
+    }
+
+    // MARK: Hand-off with the installer on the Mac (PokiHandoff)
+
+    /// Takes a model key the installer sealed to this phone, then tells the installer how Qeno is.
+    /// A key that just came may be what Qeno needed to turn on.
+    func handoffTick() {
+        if let what = PokiHandoff.takeSealedKey() {
+            log.add("setup", what)
+            turnOnIfWanted()
+        }
+        PokiHandoff.writeHello(loopbackWorking: loopback.isWorking, loopbackSay: loopback.isWorking ? nil : loopbackSentence)
+    }
+
+    /// The one thing to do for the local connection, for the person, as the installer says it.
+    var loopbackSentence: String {
+        if tunnel.available { return "In Qeno, open Setup > Connect to this iPhone and turn on Qeno's own connection." }
+        guard let app = ProxyApps.all.first(where: \.isInstalled) else {
+            return "Install a VPN app that can reach 10.7.0.1 (Karing, Surge, Loon or Shadowrocket), then in Qeno open Setup > Connect to this iPhone."
+        }
+        switch app.install {
+        case .url: return "In Qeno, open Setup > Connect to this iPhone > \(app.name), tap Install, then confirm in \(app.name)."
+        case .toggle(let setting): return "In \(app.name), set \(setting), and keep \(app.name) connected."
+        case .snippet: return "In Qeno, open Setup > Connect to this iPhone > \(app.name) and add the lines it shows to \(app.name)."
+        }
     }
 
     /// In the background the loopback is still watched while Qeno is on (the agent's runner depends on
     /// it): every 6 s, light enough for the location-kept background time.
     func wentToBackground() {
         inFront = false
+        InProcessWDA.gate.withLock { $0.inFront = false }
         sessionOn ? loopback.resume(every: 6) : loopback.pause()
         if pairingUnderWay { log.add("pairing", "Qeno in the background while pairing; keep-alive \(pairingKeepAlive.isOn ? "playing" : "off")") }
     }
@@ -469,7 +580,7 @@ final class AppModel {
         ActivityController.endAll()
         guard sessionOn else { Thread.sleep(forTimeInterval: 0.5); return }
         log.add("app", "Qeno is closing: ending the runner")
-        if automationPath == .inProcess { _ = PKInProcess.shared().close() }
+        if automationPath == .inProcess { _ = automation.close() }
         launcher.stop()
         Thread.sleep(forTimeInterval: 2.5)
     }
@@ -578,6 +689,12 @@ final class AppModel {
         return dict["HostID"] != nil
     }
 
+    /// The way to the phone's developer services when a check or the runner fails, for the log:
+    /// whether Wi-Fi is up (iOS refuses the loopback on cellular) and which loopback carries it.
+    private var networkNote: String {
+        "loopback \(setup.loopback.rawValue), local VPN \(tunnel.state), Wi-Fi \(loopback.onWiFi ? "on" : "off")\(loopback.cellularOnly ? ", cellular only" : ""), path \(loopback.pathSummary)"
+    }
+
     @discardableResult
     func verifyPairing(force: Bool = false) async -> Bool {
         if Self.onSimulator { return true }
@@ -591,12 +708,13 @@ final class AppModel {
                 _ = try await SignerBridge.call(["op": "udid", "device_address": "10.7.0.1", "pairing_file": path, "host_name": "Qeno"])
                 if self.pairingTrouble != nil { self.log.add("pairing", "check: accepted again") }
                 self.pairingTrouble = nil
+                self.servicesSilent = false
                 self.pairingVerifiedAt = Date()
                 return true
             } catch {
                 let text = error.localizedDescription
-                // The launcher ends a refused pairing's message with its fix, "Pair again in Qeno's setup."
-                if text.contains("Pair again") {
+                let code = (error as? SignerError)?.code
+                if code == "pairing" {
                     if self.pairingTrouble == nil { self.log.add("pairing", "check: refused: \(text)") }
                     self.pairingTrouble = text.replacingOccurrences(of: " Pair again in Qeno's setup.", with: "")
                     return false
@@ -608,7 +726,8 @@ final class AppModel {
                     self.pairingTrouble = String(localized: "the pairing file from a computer does not work over the loopback on this iOS version. Pair this iPhone here once; the pairing stays.")
                     return false
                 }
-                self.log.add("pairing", "check could not finish: \(text)")
+                self.log.add("pairing", "check could not finish: \(text) [\(self.networkNote)]")
+                if code == "handshake" { self.servicesSilent = true }
                 return true
             }
         }
@@ -618,12 +737,17 @@ final class AppModel {
 
     func startSession(reconnectLocal: Bool = true) {
         guard !sessionOn, !sessionStarting else { return }
+        // Turning on is the owner asking for automation again, after a cancelled passcode screen too.
+        InProcessWDA.gate.withLock { $0.declined = false }
         if automationPath == .inProcess, inProcessUsedUp, !Self.onSimulator {
-            relaunchForFreshSession()
+            // With Qeno in front the owner is told first that it exits and must be opened again.
+            if inFront { relaunchNotice = true } else { relaunchForFreshSession() }
             return
         }
         // The first automation after a restart (or ever) brings up iOS's own passcode screen. With
         // Qeno in front, the owner is told first that it is expected and that Qeno cannot see it.
+        // Start asks for everything at once: the note now, and on Continue the session's first open
+        // (warmInProcess, as soon as the launcher is ready), which brings up iOS's passcode screen.
         if passcodeExpected, passcodeHeadsUpSeen != BootClock.current, inFront, !Self.onSimulator {
             passcodeHeadsUpReconnect = reconnectLocal
             passcodeHeadsUp = true
@@ -707,6 +831,38 @@ final class AppModel {
     /// Turned on again after a session of this launch was closed: Qeno starts over as a new process
     /// (the only way to a session that reads the screen) and comes back on by itself. A notice reopens
     /// it; `wantsOn` turns it on when it does.
+    /// Off by hand, in-process: Qeno leaves for the Home Screen and exits, so the next turn-on is a
+    /// fresh launch whose session can read the screen; the notice brings the owner back.
+    private func exitAfterStop() {
+        guard !Self.onSimulator, !sessionOn, !exitingAfterStop else { return }
+        exitingAfterStop = true
+        log.add("session", "turned off: Qeno exits, and opening it again starts the next task")
+        let content = UNMutableNotificationContent()
+        content.title = String(localized: "Open Qeno Again to Start Another Task")
+        content.body = String(localized: "Qeno closed after you stopped it. Open it to turn it on again.")
+        content.userInfo = ["poki_link": "qeno://chat"]
+        content.sound = .default
+        // Shown at once (the delegate shows banners while Qeno is open too); Qeno leaves only after
+        // iOS has taken the notification, so an exit cannot drop it.
+        UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "com.owaiken.qeno.stopped", content: content, trigger: nil)) { error in
+            Task { @MainActor [weak self] in
+                self?.log.add("session", error.map { "the reopen notice was not posted: \($0.localizedDescription)" } ?? "reopen notice posted")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                    UIApplication.shared.perform(NSSelectorFromString("suspend"))
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { exit(0) }
+                }
+            }
+        }
+    }
+    private var exitingAfterStop = false
+
+    /// The note before Qeno exits to turn on again (Continue exits).
+    var relaunchNotice = false
+    func continueRelaunch() {
+        relaunchNotice = false
+        relaunchForFreshSession()
+    }
+
     private func relaunchForFreshSession() {
         log.add("session", "turning on after the automation session was closed: Qeno restarts so agents can see the screen")
         wantsOn = true
@@ -741,7 +897,13 @@ final class AppModel {
         }
         if !inFront { loopback.pause() }
         log.add("session", automationPath == .inProcess ? "turned off: closing the in-process session" : "turned off: ending the runner")
-        if automationPath == .inProcess { closeInProcess("turned off") }
+        // In-process, a session closed in this launch cannot be opened again in it: Qeno exits once
+        // the session has closed, and a notice says to open it again for the next task.
+        if automationPath == .inProcess {
+            closeInProcess("turned off") { [weak self] in self?.exitAfterStop() }
+            // A close that hangs does not keep Qeno from exiting.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in self?.exitAfterStop() }
+        }
         core.stop()
         launcher.stop()
         if setup.loopback == .builtIn { tunnel.disconnect() }
@@ -893,12 +1055,15 @@ final class AppModel {
         launchRunner()
     }
 
-    private func checkIdle() {
-        passcodeHint = runner.state == "launching" && launchingSince.map { Date().timeIntervalSince($0) > 10 } == true
+    func checkIdle(now: Date = Date()) {
+        if automationPath == .inProcess, inProcessWarming, !inProcessPasscode, now.timeIntervalSince(inProcessWarmStarted) > 5 {
+            beginPasscodeWait()
+        }
+        passcodeHint = inProcessPasscode || runner.state == "launching" && launchingSince.map { now.timeIntervalSince($0) > 10 } == true
         // On both paths the automation (the runner, or the in-process session) ends after the idle
         // time, so iOS's banner shows only while an agent works; the next request starts it again.
         guard sessionOn, !runnerPaused, idleStopSeconds > 0, approvals.isEmpty, activityText == "Idle" else { return }
-        if Date().timeIntervalSince(lastAgentActivity) >= Double(idleStopSeconds) {
+        if now.timeIntervalSince(lastAgentActivity) >= Double(idleStopSeconds) {
             let reason = "Stopped after \(idleStopSeconds / 60 > 0 ? "\(idleStopSeconds / 60) min" : "\(idleStopSeconds) s") without agent activity"
             // The task is over: the phone goes back to the app it began in while the runner can still
             // switch apps, then the runner stops unless an agent came back meanwhile.
@@ -961,7 +1126,7 @@ final class AppModel {
     private static let clock: DateFormatter = { let f = DateFormatter(); f.dateFormat = "HH:mm:ss"; return f }()
 
     func runnerChanged(_ status: RunnerStatus) {
-        if status != runner { log.add("runner", "\(status.state)\(status.detail.map { ": \($0)" } ?? "")") }
+        if status != runner { log.add("runner", "\(status.state)\(status.detail.map { ": \($0)" } ?? "")\(status.state == "failed" && runner.state != "failed" ? " [\(networkNote)]" : "")") }
         // Events from a launcher that was stopped for idle are old news.
         guard !runnerPaused else { return }
         switch status.state {
@@ -969,6 +1134,7 @@ final class AppModel {
             // The phone accepted the pairing.
             if pairingTrouble != nil { log.add("pairing", "accepted again") }
             pairingTrouble = nil
+            servicesSilent = false
             pairingVerifiedAt = Date()
             // The disk image mounted and the runner is starting, so Developer Mode is on; a running
             // runner means UI Automation is on too. Setup's confirm steps tick themselves (a pairing
@@ -977,12 +1143,14 @@ final class AppModel {
             if status.state == "running", !setup.uiAutomation { setup.uiAutomation = true; log.add("setup", "UI Automation is on (the runner runs)") }
             if status.state == "running", automationPath == .runner { automationStarted() }
             if status.state == "launching", runner.state != "launching" { launchingSince = Date() }
-        case "failed" where status.fix?.contains("Pair again") == true:
+        case "failed" where status.code == "handshake":
+            servicesSilent = true
+        case "failed" where status.code == "pairing":
             if pairingTrouble == nil { log.add("pairing", "refused: \(status.detail ?? "")") }
             pairingTrouble = status.detail ?? "The phone refused the pairing."
         default: break
         }
-        if status.state != "launching" { launchingSince = nil; passcodeHint = false }
+        if status.state != "launching" { launchingSince = nil; passcodeHint = inProcessPasscode }
         if status.code == "passcode", runner.code != "passcode" {
             // iOS is asking for the passcode before the first UI automation after a restart. The
             // launcher waits minutes for it; the person is asked on the Live Activity, and the agent
@@ -1005,7 +1173,7 @@ final class AppModel {
         // the first look finds it open.
         if status.state == "running" { warmInProcess("the launcher is ready") }
         if status.state == "failed" {
-            let title = Self.problemText(status.fix ?? status.detail ?? "The runner stopped")
+            let title = Self.problemText(code: status.code, fix: status.fix ?? status.detail ?? "The runner stopped")
             activity.update { $0.phase = .problem; $0.label = "Runner Stopped"; $0.headline = title }
         } else if !status.isRunning {
             activity.update { $0.phase = .idle; $0.headline = status.title }
@@ -1037,7 +1205,7 @@ final class AppModel {
             if status != relayStatus { log.add("relay", "\(status)") }
             relayStatus = status
         case .toolStarted(_, let summary, _):
-            lastAgentActivity = Date()
+            lastAgentActivity = Date(); lastStepAt = Date()
             stepUnderWay = (summary, Date())
             activityText = summary
             log.add("agent", "started: \(summary)")
@@ -1052,7 +1220,7 @@ final class AppModel {
                 state.caller = caller
             }
         case .toolFinished(let summary, let delivery, let app, let thumbnail, let error, _):
-            lastAgentActivity = Date()
+            lastAgentActivity = Date(); lastStepAt = Date()
             stepUnderWay = nil
             lastAction = "\(summary) · \(delivery)"
             activityText = "Idle"
@@ -1098,7 +1266,7 @@ final class AppModel {
                 if state.approval?.id == id { state.approval = nil; state.phase = .working; state.headline = approved == true ? "Continuing" : "Step skipped" }
             }
         case .handoffRequested(let id, let kind, let text, let app):
-            lastAgentActivity = Date()
+            lastAgentActivity = Date(); lastStepAt = Date()
             let shown = PokiActivityAttributes.Handoff.Kind(rawValue: kind) ?? .other
             handoffText = text ?? Self.handoffWording(shown)
             log.add("handoff", "the agent handed over \(id) (\(kind))\(app.map { " in \($0)" } ?? ""): \(handoffText ?? "")")
@@ -1109,7 +1277,7 @@ final class AppModel {
                 state.app = app ?? state.app
             }
         case .handoffEnded(let id, let how):
-            lastAgentActivity = Date()
+            lastAgentActivity = Date(); lastStepAt = Date()
             log.add("handoff", "ended \(id): \(how)")
             handoffText = nil
             activity.update { state in
@@ -1138,7 +1306,7 @@ final class AppModel {
             let why = problem ?? "Qeno is off."
             return PokiCore.ToolAnswer(text: "not_sent: Qeno could not turn on: \(why) Nothing was sent. Tell the owner what to fix.", jpeg: nil, isError: true)
         }
-        lastAgentActivity = Date()
+        lastAgentActivity = Date(); lastStepAt = Date()
         return await core.callTool(name, arguments: arguments)
     }
 
@@ -1187,6 +1355,7 @@ final class AppModel {
     static func handoffWording(_ kind: PokiActivityAttributes.Handoff.Kind) -> String {
         switch kind {
         case .runnerPasscode: "The phone asks for your passcode so the runner can start"
+        case .automationPasscode: "The phone asks for your passcode to allow automation"
         case .passcode: "The screen asks for your passcode"
         case .password: "The screen asks for a password"
         case .verification: "The screen asks for a verification step"
@@ -1222,22 +1391,27 @@ final class AppModel {
     /// How long the expanded island takes to fold after a tap on its button.
     static let islandCollapse: TimeInterval = 1.5
 
-    /// The launcher's fix as the Live Activity's content line, in English (the face words it in the
-    /// system's language). The fixes the launcher sends (native/launcher/src/device.rs, launch.rs) have
-    /// names of a few words; any other text gives its first part. What to do is in the app, which shows
-    /// the whole fix.
-    nonisolated static func problemText(_ fix: String) -> String {
-        let short: [(String, String)] = [
-            ("Turn on the loopback", "Loopback Off"),
-            ("Qeno needs the internet", "No Internet"),
-            ("Mounting the developer disk image timed out", "No Internet"),
-            ("This iOS version needs a newer", "Disk Image Outdated"),
-            ("The developer disk image did not install", "Fetching Disk Image"),
-            ("Pair again", "Pairing Refused"),
-            ("Turn on Developer Mode", "Developer Mode Off"),
-            ("Install Qeno Runner", "Qeno Runner Missing"),
+    /// A launcher failure as the Live Activity's content line, in English (the face words it in the
+    /// system's language). The codes the launcher sends (native/launcher/src/device.rs, ddi.rs,
+    /// launch.rs) have names of a few words; a failure without one gives the first part of its fix.
+    /// What to do is in the app, which shows the whole fix.
+    nonisolated static func problemText(code: String?, fix: String) -> String {
+        let short = [
+            "loopback": "Loopback Off",
+            "network": "No Internet",
+            "ddi_timeout": "No Internet",
+            "ddi_refused": "Disk Image Outdated",
+            "ddi_bad": "Fetching Disk Image",
+            "pairing": "Pairing Refused",
+            "handshake": "Loopback or Pairing",
+            "unreachable": "Can’t Reach iPhone",
+            "developer_mode": "Developer Mode Off",
+            "no_cryptexd": "Check Developer Mode",
+            "ios_too_old": "Update iOS",
+            "runner": "Qeno Runner Missing",
+            "runner_blocked": "Qeno Runner Didn’t Start",
         ]
-        return short.first { fix.hasPrefix($0.0) }?.1 ?? firstPart(fix)
+        return code.flatMap { short[$0] } ?? firstPart(fix)
     }
 
     /// A text up to its first colon or the end of its first sentence, capitalised.
@@ -1442,13 +1616,21 @@ final class AppModel {
         case .loopback: loopback.isWorking
         // The disk image downloads by itself (and is checked again when Qeno turns on): it does not hold the step open.
         case .pairing: pairingPath != nil && pairingTrouble == nil
-        case .account: signer.signedIn
         case .automation: setup.uiAutomation
         case .background: background.allowed && activity.enabled
         }
     }
 
     var setupComplete: Bool { SetupStep.shown.allSatisfy(isDone) }
+
+    /// A step as Home, the tab badge and the status pill show it: the loopback's first check after
+    /// launch (a connection was chosen before) counts as done until it says otherwise, so Qeno shows
+    /// Ready rather than Paused and a warning for the second it takes. The Setup page keeps isDone.
+    func looksDone(_ step: SetupStep) -> Bool {
+        if step == .loopback, loopback.state == .checking, setup.loopback != .none { return true }
+        return isDone(step)
+    }
+    var setupLooksComplete: Bool { SetupStep.shown.allSatisfy(looksDone) }
 
     /// A setup step is still to do. The loopback counts as done once a connection is chosen: whether it
     /// answers right now is checked live and is off whenever Qeno is (the built-in connection), which is

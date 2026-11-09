@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Setup's Apple Account step: sign in once, so Qeno can keep its own signing. Sections of the
-/// step's Form, like the other steps.
+/// The Apple Account, optional and out of the way (ESP-222): Qeno Setup on a Mac signs Qeno, and
+/// signed in here Qeno can also renew itself with no computer. Sections of the Apple Account page's Form.
 struct AccountPage: View {
     @Environment(AppModel.self) private var model
     @State private var appleID = ""
@@ -86,14 +86,11 @@ struct SigningSection: View {
 
     var body: some View {
         Section {
-            // The Apple Account Qeno signs itself with: Setup's account step, opened from here.
-            NavigationLink(value: SetupStep.account) {
-                LabeledContent {
-                    if signer.signedIn { Text(verbatim: signer.status?.apple_id ?? "") }
-                    else { Text("Sign In").foregroundStyle(.orange) }
-                } label: {
-                    Label("Apple Account", systemImage: "person.crop.circle")
-                }
+            LabeledContent {
+                Text(verbatim: "\(signer.installedVersion) (\(signer.installedBuild))")
+            } label: {
+                Label("Qeno Version", systemImage: "info.circle")
+            }
             }
             LabeledContent {
                 if let expiry = signer.expiry {
@@ -112,19 +109,24 @@ struct SigningSection: View {
                 } label: {
                     Label(next.kind == "update" ? "Update Ready" : "Refresh Ready", systemImage: "checkmark.seal")
                 }
+            } else if let latest = signer.latest, signer.isNewer(latest) {
+                LabeledContent { Text(verbatim: "\(latest.version) (\(latest.build))") } label: { Label("Update Available", systemImage: "sparkles") }
+            }
+            NavigationLink { SigningOptionsPage() } label: {
+                Label("Signing Options", systemImage: "slider.horizontal.3")
+            }
+            // The actions last, under what they act on.
+            if let next = signer.next {
                 // Idle is partly time (a minute since the last agent step), which nothing observes, so
                 // the row looks again every few seconds instead of staying as it was first drawn.
                 TimelineView(.periodic(from: .now, by: 5)) { _ in
                     Button(next.kind == "update" ? "Install Update" : "Install Refresh", systemImage: "arrow.down.app") { Task { await signer.install() } }
                         .disabled(signer.working != nil)
                 }
-            } else if let latest = signer.latest, signer.isNewer(latest) {
-                LabeledContent { Text(verbatim: "\(latest.version) (\(latest.build))") } label: { Label("Update Available", systemImage: "sparkles") }
             }
-            Button("Prepare Refresh Now", systemImage: "arrow.clockwise") { Task { await signer.prepare(kind: "refresh") } }
-                .disabled(!signer.signedIn || signer.working != nil)
-            NavigationLink { SigningOptionsPage() } label: {
-                LabeledContent { Text(verbatim: signer.channelTitle) } label: { Label("Release Channel", systemImage: "antenna.radiowaves.left.and.right") }
+            if signer.signedIn {
+                Button("Prepare Refresh Now", systemImage: "arrow.clockwise") { Task { await signer.prepare(kind: "refresh") } }
+                    .disabled(signer.working != nil)
             }
         } header: {
             Text("Signing")
@@ -140,7 +142,7 @@ struct SigningSection: View {
     }
 
     private var footer: String {
-        if !signer.signedIn { return String(localized: "Sign in to your Apple Account in Setup so Qeno can sign itself again before it expires.") }
+        if !signer.signedIn { return String(localized: "Qeno Setup on your Mac renews Qeno when this iPhone is connected.") }
         if signer.next != nil {
             return model.signingIdle
                 ? String(localized: "Installing closes Qeno for a moment. Your chats and setup stay.")
@@ -150,10 +152,45 @@ struct SigningSection: View {
     }
 }
 
-/// The release channel and the anisette server.
+/// Home's warning that the installed Qeno stops opening soon (ESP-222). Renewing happens on the Mac:
+/// it installs a build with a new profile, so a renewed Qeno has a later expiry and no warning.
+struct ExpiryWarning {
+    let expiry: Date
+
+    init?(expiry: Date?, now: Date = .now) {
+        guard let expiry, expiry.timeIntervalSince(now) <= SelfSigner.warnWithDaysLeft * 86_400 else { return nil }
+        self.expiry = expiry
+    }
+
+    var message: String {
+        let when = expiry.formatted(date: .abbreviated, time: .shortened)
+        return String(localized: "Qeno stops opening after \(when). Connect this iPhone to your Mac and ask your agent to renew it.")
+    }
+}
+
+struct ExpiryWarningSection: View {
+    let warning: ExpiryWarning
+
+    var body: some View {
+        Section {
+            Label {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Qeno’s signing ends soon").font(Prominent.font(.headline, .semibold))
+                    Text(warning.message).font(.subheadline).foregroundStyle(Color(.secondaryLabel))
+                }
+            } icon: {
+                Image(systemName: "clock.badge.exclamationmark.fill").foregroundStyle(.orange)
+            }
+        }
+    }
+}
+
+/// The release channel, the anisette server, and the optional Apple Account.
 struct SigningOptionsPage: View {
     @Environment(AppModel.self) private var model
     @State private var anisette = ""
+    /// The channel's newest build has been looked up (found or not) since the page opened.
+    @State private var checked = false
     private var signer: SelfSigner { model.signer }
 
     /// Shown most stable first, as the person reads them.
@@ -176,6 +213,28 @@ struct SigningOptionsPage: View {
                 Text("Qeno downloads and signs updates from this channel ahead of time, the same way Qeno Setup does. Stable gets full releases only; Beta, Alpha and Pre-alpha get earlier builds.")
             }
             Section {
+                LabeledContent("Installed") { Text(verbatim: "\(signer.installedVersion) (\(signer.installedBuild))") }
+                LabeledContent("Newest on This Channel") {
+                    if let latest = signer.latest {
+                        Text(verbatim: "\(latest.version) (\(latest.build))")
+                    } else {
+                        (checked ? Text("Not Found") : Text("Checking…")).foregroundStyle(Color(.secondaryLabel))
+                    }
+                }
+                if let latest = signer.latest {
+                    LabeledContent("Status") { signer.isNewer(latest) ? Text("Update Available") : Text("Up to Date") }
+                }
+            } header: {
+                Text("Version")
+            } footer: {
+                Text("Qeno looks on GitHub for the newest build on the chosen channel.")
+            }
+            .task(id: signer.status?.channel) {
+                checked = false
+                await signer.checkLatest()
+                checked = true
+            }
+            Section {
                 TextField("https://new.ani.sidestore.io", text: $anisette)
                     .keyboardType(.URL)
                     .textInputAutocapitalization(.never)
@@ -186,6 +245,22 @@ struct SigningOptionsPage: View {
                 Text("Anisette Server")
             } footer: {
                 Text("Apple’s sign-in needs device headers that only Apple hardware makes. Qeno gets them from this anisette server. It never sees your Apple ID or password.")
+            }
+            Section {
+                NavigationLink {
+                    Form { AccountPage() }
+                        .navigationTitle("Apple Account")
+                        .navigationBarTitleDisplayMode(.inline)
+                } label: {
+                    LabeledContent {
+                        if signer.signedIn { Text(verbatim: signer.status?.apple_id ?? "") }
+                        else { Text("Optional").foregroundStyle(Color(.secondaryLabel)) }
+                    } label: {
+                        Label("Apple Account", systemImage: "person.crop.circle")
+                    }
+                }
+            } footer: {
+                Text("Optional. To renew Qeno without a Mac, sign in to your Apple Account here.")
             }
             SignerActivityRows(signer: signer)
         }

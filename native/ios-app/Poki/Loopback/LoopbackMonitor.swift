@@ -68,14 +68,15 @@ final class LoopbackMonitor {
         if only != cellularOnly { cellularOnly = only; check() }
     }
 
-    /// `-pokiLoopback cellular`: a simulator has no cellular and no 10.7.0.x, so a screenshot sets the state by hand.
-    nonisolated private static var forcedCellular: Bool {
+    /// `-pokiLoopback cellular`, `working` or `noanswer`: a simulator has no cellular and no 10.7.0.x, so a screenshot sets the state by hand.
+    nonisolated private static var forced: String? {
         #if targetEnvironment(simulator)
-        UserDefaults.standard.string(forKey: "pokiLoopback") == "cellular"
+        UserDefaults.standard.string(forKey: "pokiLoopback")
         #else
-        false
+        nil
         #endif
     }
+    nonisolated private static var forcedCellular: Bool { forced == "cellular" }
 
     private static func same(_ a: State, _ b: State) -> Bool {
         switch (a, b) {
@@ -111,7 +112,7 @@ final class LoopbackMonitor {
             }
             running = false
             let probed: State = result.outcome == "connected" ? .working(ms: result.milliseconds) : loopbackInterface() == nil ? .off : .noAnswer
-            let next = Self.forcedCellular ? State.noAnswer : probed
+            let next = Self.forcedCellular || Self.forced == "noanswer" ? State.noAnswer : Self.forced == "working" ? State.working(ms: 5) : probed
             // Only a change is published, so the screens are not redrawn every 3 s (a redraw while
             // the person drags a list makes scrolling stutter).
             if !Self.same(next, state) {
@@ -153,7 +154,7 @@ final class LoopbackMonitor {
         case .checking: String(localized: "Looking for this iPhone at 10.7.0.1.")
         case .working(let ms): String(localized: "This iPhone answers at 10.7.0.1 (\(ms) ms).") + (onWiFi || cellularOnly ? "" : " " + String(localized: "Connect to Wi-Fi: the developer services need it."))
         case .noAnswer where cellularOnly: Self.cellularHint
-        case .noAnswer: String(localized: "The local interface is present, but this iPhone's developer services do not answer. Check Developer Mode and Wi-Fi, then reconnect the local connection.")
+        case .noAnswer: String(localized: "The local interface is present, but this iPhone does not answer at 10.7.0.1. Reconnect the local connection and check Wi-Fi. If it still does not answer, pair again in Setup › Pairing, then check Developer Mode.")
         case .off: String(localized: "This iPhone does not answer yet. Enable Qeno's local connection, or choose an external connection in Setup.")
         }
     }

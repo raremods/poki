@@ -1,9 +1,9 @@
 #!/bin/bash
-# Brands a built WebDriverAgentRunner-Runner.app as Poki Runner, at build time on macOS (needs Xcode's
+# Brands a built WebDriverAgentRunner-Runner.app as Qeno Runner, at build time on macOS (needs Xcode's
 # actool and ibtool): the runner's own home-screen icon (a full-bleed 1024 px render, distinct from the
-# Poki app's), the display name Poki Runner, and a launch screen with the bear on brand blue. The app is
+# Qeno app's), the display name Qeno Runner, and a launch screen with the bear on brand blue. The app is
 # unsigned here; it is signed when it is installed.
-#   brand.sh <path/to/WebDriverAgentRunner-Runner.app> <path/to/poki-icon.png> [<path/to/AppIcon-1024.png>]
+#   brand.sh <path/to/WebDriverAgentRunner-Runner.app> <path/to/qeno-icon.png> [<path/to/AppIcon-1024.png>]
 # Without the third argument the icon is the bear composed on brand blue.
 set -euo pipefail
 APP="$1"; ICON="$2"; APPICON="${3:-}"
@@ -43,7 +43,7 @@ xcrun ibtool --compile "$APP/RunnerInfo.storyboardc" "$HERE/RunnerInfo.storyboar
   --minimum-deployment-target "$MIN" --target-device iphone --target-device ipad --errors --warnings
 
 set_key() { plutil -replace "$1" -string "$2" "$PLIST"; }
-set_key CFBundleDisplayName "Poki Runner"
+set_key CFBundleDisplayName "Qeno Runner"
 set_key UILaunchStoryboardName LaunchScreen
 set_key UIMainStoryboardFile RunnerInfo
 # The XCTest host declares a scene (delegate _XCTRunnerAppDelegate), so UIKit takes the storyboard from

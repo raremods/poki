@@ -94,7 +94,7 @@ jobs:
               "$edition" "out/signing/$edition"
             echo "::endgroup::"
           done
-          ditto -c -k --keepParent out/signing out/Poki-signing.zip
+          ditto -c -k --keepParent out/signing out/Qeno-signing.zip
           (cd out && shasum -a 256 *.ipa | tee SHA256SUMS)
           for ipa in out/*.ipa; do
             unzip -p "$ipa" Payload/Poki.app/Info.plist > build/ipa-Info.plist

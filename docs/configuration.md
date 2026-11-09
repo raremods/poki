@@ -1,17 +1,22 @@
 # Configuration and sessions
 
-All device operations are serialized inside the daemon. Every setting below is optional:
+All device operations are serialized inside the daemon, unless `POKI_INPUT_LOCK=1` gives each session its own queue. Every setting below is optional:
 
 | Setting | Purpose |
 | --- | --- |
 | `POKI_MCP_STATE_DIR` | Override the state and endpoint directory. Must be set to the same value for both daemon and client. |
 | `POKI_MCP_SESSION` | Session identifier (`1–80` characters: letters, digits, `_`, or `-`). Simultaneously connected clients with the same identifier share a session and its device selection, while distinct identifiers isolate them. The session closes as soon as any sharing client exits. Because of this, a shared value will not preserve a selection across separate `bin/call.mjs` runs, and reusing a running client's identifier in `bin/call.mjs` will clear that client's selection when the command exits. |
+| `POKI_MCP_DEVICE` | Default device id or name for every session that has not selected one, for example when a physical iPhone and a booted simulator are both available. Set it in the daemon's environment. A `device` argument or `select_device` still takes precedence. |
 | `POKI_MCP_APPROVAL_MODE=allow` | Preapprove sensitive operations (listed under [Approval & Clipboard Behavior](tools.md#approval--clipboard-behavior)) for this daemon instance. Omit for interactive local approval prompts. |
 | `POKI_MCP_NATIVE_TRACE` | Enable native diagnostic timing output on `stderr`. |
 | `POKI_BIND_HOST` | Addresses the local HTTP bridge listens on, comma-separated. Defaults to `127.0.0.1`; `127.0.0.1` is added to any list that has no `127.0.0.1` or wildcard entry, because local clients read a `127.0.0.1` endpoint from `mcp.json` and send that `Host` header. A wildcard address cannot be combined with others. |
 | `POKI_HOST_ALLOW` | Comma-separated `Host` header allowlist, for example `127.0.0.1,192.168.1.20`. When set, `hostHeaderValidation(list)` replaces `localhostHostValidation()`, which otherwise rejects every non-loopback `Host` with `403` and makes a LAN bind unusable. It must contain `127.0.0.1` itself: an entry for `localhost` or `[::1]` does not match the `Host` header local clients send. |
 | `POKI_MCP_TOKEN` | Fixed bearer token for the local HTTP bridge. Defaults to a random token generated at each start, which invalidates every client's configuration on restart. |
 | `IDEVICE_TOOLS` | Optional path override for the pinned upstream CLI. |
+| `POKI_INPUT_LOCK=1` | For a daemon shared by several MCP clients: each session keeps its own order, read-only tools run beside other sessions' work, and input takes a lock on its device. See [One daemon, several clients](tools.md#one-daemon-several-clients). |
+| `POKI_INPUT_LOCK_WAIT_MS` | How long a call waits for a device another session is driving before it fails and names the holder. Default 30000. |
+| `POKI_MAX_CONCURRENT_READS` | How many read-only calls run at once with `POKI_INPUT_LOCK=1`. Default 4. |
+| `POKI_MCP_CALL_LOG` | Path of a log with one JSON line per tool call: tool, duration, verdict and whether it failed, never arguments, text or images. |
 
 The authenticated local HTTP bridge passes the session via the `x-poki-mcp-session` header. Standard MCP clients should always connect through `src/stdio.mjs`.
 

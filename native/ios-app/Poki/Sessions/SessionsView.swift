@@ -59,6 +59,9 @@ struct SessionsView: View {
                     }
                 }
             }
+            if let warning = ExpiryWarning(expiry: model.signer.expiry) {
+                ExpiryWarningSection(warning: warning)
+            }
             if store.ordered.isEmpty {
                 // In the list, under the controls (an overlay would sit on top of them).
                 Section {
@@ -115,7 +118,7 @@ struct SessionsView: View {
         .toolbar {
             HomeBrand()
             ToolbarItem(placement: .topBarTrailing) {
-                PowerButton(state: !model.setupComplete && !SetupStep.shown.allSatisfy(model.isDone) ? .paused : model.sessionOn ? .ready : .stopped,
+                PowerButton(state: !model.setupLooksComplete ? .paused : model.sessionOn ? .ready : .stopped,
                             turnOn: { model.startSession() }, turnOff: { chat.stop(); model.stopSession() }, openSetup: openSetup)
             }
         }
@@ -167,7 +170,7 @@ struct SessionsView: View {
 
     private var needsSetup: Bool { model.pairingPath == nil || model.setupStepsLeft }
 
-    private var setupLeft: Int { model.setupComplete ? 0 : SetupStep.shown.filter { !model.isDone($0) }.count }
+    private var setupLeft: Int { model.setupLooksComplete ? 0 : SetupStep.shown.filter { !model.looksDone($0) }.count }
 
     /// What the Agents tab needs, if anything (the same test as its tab bar dot).
     private var agentsIssue: String? {
@@ -453,8 +456,9 @@ struct SessionView: View {
     }
 }
 
-/// An approval waiting for the owner, inside the session that asked for it (also in the Dynamic Island).
-private struct ApprovalCard: View {
+/// An approval waiting for the owner, in the chat and in the session that asked for it (also in the
+/// Dynamic Island, which iOS hides while Qeno is in front).
+struct ApprovalCard: View {
     var approval: PendingApproval
     var answer: (Bool) -> Void
     var body: some View {

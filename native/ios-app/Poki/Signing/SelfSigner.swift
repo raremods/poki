@@ -62,6 +62,8 @@ final class SelfSigner {
 
     /// Prepare a fresh build when the installed profile has this many days left or fewer.
     static let refreshWithDaysLeft: Double = 3
+    /// Home warns, and a notification reminds once a day, when the installed profile has this many days left.
+    static let warnWithDaysLeft: Double = 2
 
     private(set) var status: Status?
     private(set) var teams: [Team] = []
@@ -73,7 +75,7 @@ final class SelfSigner {
     private(set) var lastError: String?
     private(set) var lastCheck: Date?
     /// When the installed Qeno stops opening: its own profile's expiry. Nil when it has none (simulator).
-    let expiry: Date? = SelfSigner.installedProfileExpiry()
+    let expiry: Date? = SelfSigner.installedProfileExpiry() ?? SelfSigner.screenshotExpiry
     let installedVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
     let installedBuild = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
 
@@ -219,6 +221,16 @@ final class SelfSigner {
         }
     }
 
+    /// Looks up the newest build on the chosen channel without preparing it, for the version rows.
+    /// Works without an Apple Account. False when GitHub could not be read.
+    @discardableResult
+    func checkLatest() async -> Bool {
+        guard let rel = try? await SignerBridge.decode(Release.self, ["op": "check_update"]) else { return false }
+        latest = rel
+        lastCheck = Date()
+        return true
+    }
+
     func isNewer(_ rel: Release) -> Bool {
         let installed = (installedVersion, Int(installedBuild) ?? 0)
         switch rel.version.compare(installed.0, options: .numeric) {
@@ -315,17 +327,34 @@ final class SelfSigner {
     /// Qeno to the Home Screen, as the person swiping up would: iOS finishes the upgrade only once the
     /// app it replaces is no longer in front. Once per install.
     private func stepAside() {
-        guard !steppedAside, UIApplication.shared.applicationState == .active else { return }
+        guard !steppedAside else { return }
+        log.add("signing", "the install's last step: asking the owner to close Qeno and swipe it away")
         steppedAside = true
-        working = String(localized: "Finishing the update: Qeno closes and the notice reopens it")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        working = String(localized: "Finishing the update: close Qeno and swipe it away in the app switcher")
+        // The last step: the owner is told Qeno must exit, and how to finish (the alert's OK steps
+        // aside); the notice says it again in case the alert was missed.
+        finishNotice = true
+        notify(title: String(localized: "Close Qeno to Finish the Update"),
+               body: String(localized: "Swipe up to the app switcher and swipe Qeno away, then open it again."))
+    }
+    /// The last install step's alert: Qeno has to exit for the update to finish.
+    var finishNotice = false
+    /// OK on that alert: Qeno leaves for the Home Screen.
+    func finishNoticeAnswered() {
+        finishNotice = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             UIApplication.shared.perform(NSSelectorFromString("suspend"))
         }
     }
 
     private func show(_ progress: [String: Any]) {
         switch progress["kind"] as? String {
-        case "step": working = progress["title"] as? String ?? working; fraction = nil
+        case "step":
+            working = progress["title"] as? String ?? working; fraction = nil
+            // The install itself has begun (the build is on the phone): the last step, where Qeno
+            // must exit for iOS to finish. The owner is told now rather than at a percentage that a
+            // fast or stalled install may never report.
+            if progress["id"] as? String == "install" { stepAside() }
         case "part":
             fraction = progress["fraction"] as? Double
             if progress["id"] as? String == "install" { installFraction = fraction }
@@ -350,13 +379,23 @@ final class SelfSigner {
 
     /// Once a day in the last two days: the build is ready (or can't be made) and nothing installed it.
     private func remindIfExpiring() {
-        guard let days = daysLeft, days <= 2 else { return }
+        guard let days = daysLeft, days <= Self.warnWithDaysLeft else { return }
         let key = "signing.reminded"
         if let last = UserDefaults.standard.object(forKey: key) as? Date, Date().timeIntervalSince(last) < 20 * 3600 { return }
         UserDefaults.standard.set(Date(), forKey: key)
         let when = expiry.map { $0.formatted(date: .abbreviated, time: .shortened) } ?? ""
         notify(title: String(localized: "Qeno Expires Soon"),
                body: next != nil ? String(localized: "A refreshed Qeno is ready. Open Setup and tap Install before \(when).") : String(localized: "Open Setup to refresh Qeno before \(when)."))
+    }
+
+    /// `-pokiSigningDays 1`: a simulator has no profile, so a screenshot gives Qeno one that ends then.
+    nonisolated private static var screenshotExpiry: Date? {
+        #if targetEnvironment(simulator)
+        guard UserDefaults.standard.object(forKey: "pokiSigningDays") != nil else { return nil }
+        return Date().addingTimeInterval(UserDefaults.standard.double(forKey: "pokiSigningDays") * 86_400)
+        #else
+        nil
+        #endif
     }
 
     /// The ExpirationDate of Qeno's own embedded.mobileprovision (a CMS envelope around a plist).

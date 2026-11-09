@@ -46,7 +46,7 @@ jobs:
           test -d "$PRODUCTS/$RUNNER"
 
       - name: Brand as Poki
-        run: native/ios-runner/branding/brand.sh "$PRODUCTS/$RUNNER" docs/images/poki-icon.png docs/images/runner/AppIcon-1024.png
+        run: native/ios-runner/branding/brand.sh "$PRODUCTS/$RUNNER" docs/images/qeno-icon.png docs/images/runner/AppIcon-1024.png
 
       - name: PokiRunnerHost (opened by hand, the runner starts no test and sends people to Poki)
         run: native/ios-runner/host/install.sh "$PRODUCTS/$RUNNER" iphoneos

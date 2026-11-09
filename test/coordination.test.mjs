@@ -203,10 +203,20 @@ test('renewal and rejected management calls preserve SDK cancellation identity',
  }
 });
 
+test('an English query taps a mixed Chinese and English label',async t=>{
+ const f=await fixture(t);await f.set({label:'Sign in 登录',afterInput:{label:'Signed in'}});
+ const result=await f.call('tap_text',{text:'Sign in'});
+ assert.notEqual(result.isError,true,JSON.stringify(result));
+ assert.ok((await f.events()).some(event=>event.op==='tap'),'the matching target must receive the tap');
+ assert.match(JSON.stringify(result),/Signed in/);
+});
+
 test('recognized prompts report their type without forcing a human handoff',async t=>{
  for(const [tool,args,label,kind] of [
   ['handle_alert',{action:'accept'},'Allow Paste','paste'],
   ['handle_alert',{button:'允许粘贴'},'允许粘贴','paste'],
+  // A recognizer can space out what it reads; the button text a caller writes is never spaced.
+  ['handle_alert',{button:'允许粘贴'},'允 许 粘 贴','paste'],
   ['handle_alert',{action:'dismiss'},"Don't Allow Paste",'paste'],
   ['take_screenshot',{},'Enter iPhone Passcode','passcode'],
   ['observe_device',{},'Apple Account Password','apple_account'],
@@ -215,6 +225,7 @@ test('recognized prompts report their type without forcing a human handoff',asyn
   ['list_elements',{},'Face ID','face_id'],
   ['list_elements',{},'触控 ID','touch_id'],
   ['list_elements',{},'Touch ID','touch_id'],
+  ['list_elements',{},'Touch ID for “微信”','touch_id'],
   ['list_elements',{},'“VPN”想添加 VPN 配置','vpn'],
   ['list_elements',{},'「VPN」想要加入 VPN 設定','vpn'],
   ['list_elements',{},'安装描述文件','profile'],
@@ -562,6 +573,13 @@ test('launch_app on a simulator waits for a readable interface and reports when 
  await f.set({simulatorOnly:true,simulatorBooted:true,axEmptyReads:100000});
  const blank=await f.call('launch_app',{bundle_id:'local.fixture'});
  assert.notEqual(blank.isError,true);assert.equal(value(blank).interface_ready,false);
+});
+
+// A route replay opens its app and goes on only when the receipt says the app is in front, as a phone's does.
+test('launch_app on a simulator says the launched app is in front',async t=>{
+ const f=await fixture(t);await f.set({simulatorOnly:true,simulatorBooted:true,label:'Ready'});
+ const launched=value(await f.call('launch_app',{bundle_id:'local.fixture'}));
+ assert.equal(launched.pid,4242);assert.equal(launched.foreground_verified,true);
 });
 
 test('fill enters plain text exactly when the simulator keyboard is an input method',async t=>{
