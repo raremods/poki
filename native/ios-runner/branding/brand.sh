@@ -3,7 +3,7 @@
 # actool and ibtool): the runner's own home-screen icon (a full-bleed 1024 px render, distinct from the
 # Poki app's), the display name Poki Runner, and a launch screen with the bear on brand blue. The app is
 # unsigned here; it is signed when it is installed.
-#   brand.sh <path/to/WebDriverAgentRunner-Runner.app> <path/to/poki-icon.png> [<path/to/AppIcon-1024.png>]
+#   brand.sh <path/to/WebDriverAgentRunner-Runner.app> <path/to/qeno-icon.png> [<path/to/AppIcon-1024.png>]
 # Without the third argument the icon is the bear composed on brand blue.
 set -euo pipefail
 APP="$1"; ICON="$2"; APPICON="${3:-}"

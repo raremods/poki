@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/poki-icon.png" width="72" height="72" alt="Poki icon">
+  <img src="docs/images/qeno-icon.png" width="72" height="72" alt="Qeno icon">
 </p>
 
 <h1 align="center">Poki usa tu iPhone como lo harías tú</h1>
