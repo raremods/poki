@@ -61,6 +61,7 @@ struct PokiDetailsView: View {
                 Section {
                     NavigationLink(value: DetailsRoute.settings) { Label("Agents and Relay", systemImage: "point.3.connected.trianglepath.dotted") }
                     NavigationLink(value: SettingsRoute.memory) { Label("Memory", systemImage: "brain") }
+                    NavigationLink(value: SettingsRoute.character) { Label("Character", systemImage: "face.smiling") }
                     NavigationLink(value: DetailsRoute.setup) {
                         LabeledContent {
                             Text(model.setupComplete ? String(localized: "Done") : String(localized: "\(SetupStep.shown.filter { !model.isDone($0) }.count) Needed"))
