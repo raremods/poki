@@ -65,7 +65,7 @@ struct SetupView: View {
     }
 
     /// The current step's own check passed: the pairing took, location and Live Activities are on.
-    private var checkedByPhone: Bool { step == .pairing || step == .account || step == .background ? model.isDone(step) : false }
+    private var checkedByPhone: Bool { step == .pairing || step == .background ? model.isDone(step) : false }
 
     private var header: some View {
         HStack(spacing: 12) {
@@ -104,7 +104,6 @@ struct SetupView: View {
             ConfirmCard(step: .developerMode, title: "Developer Mode is on", isOn: binding(\.developerMode))
         case .loopback: LoopbackPage()
         case .pairing: PairingPage()
-        case .account: AccountPage()
         case .automation:
             InstructionsCard(lines: [
                 "Open **Settings › Developer**. It appears once Developer Mode is on.",
@@ -157,7 +156,6 @@ extension SetupStep {
         case .developerMode: "Turn On Developer Mode"
         case .loopback: "Turn On Loopback"
         case .pairing: "Pair This iPhone"
-        case .account: "Sign In to Apple Account"
         case .automation: "Allow UI Automation"
         case .background: "Keep Qeno Running"
         }
@@ -169,7 +167,6 @@ extension SetupStep {
         case .developerMode: SetupStep.inProcess ? "Allows Qeno to use this iPhone’s developer services." : "Allows this iPhone to run Qeno Runner."
         case .loopback: "Allows Qeno to reach this iPhone’s developer services through your proxy app."
         case .pairing: "Gives Qeno its own key to this iPhone. The key stays on this device."
-        case .account: "Lets Qeno sign itself again every week and install updates, with no computer. A free Apple Account works."
         case .automation: SetupStep.inProcess ? "Allows Qeno to control other apps." : "Allows Qeno Runner to control other apps."
         case .background: "Keeps Qeno connected in the background and shows its activity on the Lock Screen."
         }
@@ -301,6 +298,10 @@ private struct LoopbackPage: View {
             }
         } header: {
             Text("Status")
+        } footer: {
+            if model.servicesSilent, monitor.isWorking {
+                Text("10.7.0.1 takes the connection, but the phone's remote pairing service does not answer through it, so this page can show Working while Qeno cannot connect. Reconnect your proxy app or LocalDevVPN, then pair again in Setup › Pairing.")
+            }
         }
 
         // The external app is the way (ESP-168): every app's steps can be read at any time.
@@ -355,9 +356,18 @@ private struct LoopbackPage: View {
             else if chosen { Text("Not Answering").foregroundStyle(.orange) }
             else if installed { Text("Installed") }
         } label: {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(verbatim: name)
-                if let sub { Text(sub).font(.footnote).foregroundStyle(Color(.secondaryLabel)) }
+            // The app's own icon, the size and corners of Settings' app rows.
+            HStack(spacing: 12) {
+                Image("Proxy-\(id)")
+                    .resizable()
+                    .frame(width: 29, height: 29)
+                    .clipShape(.rect(cornerRadius: 6.5, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 6.5, style: .continuous).strokeBorder(Color(.separator), lineWidth: 0.5))
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: name)
+                    if let sub { Text(sub).font(.footnote).foregroundStyle(Color(.secondaryLabel)) }
+                }
             }
         }
     }
@@ -570,9 +580,9 @@ private struct PairingPage: View {
             if PairingScanner.available {
                 Button("Scan Pairing Code", systemImage: "qrcode.viewfinder") { scanning = true }
             }
-            Button("Import Pairing File") { importing = true }
+            Button("Import Pairing File", systemImage: "doc.badge.plus") { importing = true }
             if SetupStep.onDevicePairing && model.pairing == nil && model.pairingTrouble == nil && model.pairingPath != nil {
-                Button("Pair Again") { Self.pair(model) }
+                Button("Pair Again", systemImage: "arrow.triangle.2.circlepath") { Self.pair(model) }
             }
         } header: {
             Text("Other Ways")
@@ -659,8 +669,7 @@ struct SetupChecklist: View {
     var body: some View {
         List {
             Section {
-                // The Apple Account is managed in Signing, below.
-                ForEach(SetupStep.shown.filter { $0 != .account }) { step in
+                ForEach(SetupStep.shown) { step in
                     NavigationLink(value: step) { SetupStepRow(step: step) }
                 }
             } footer: {
@@ -835,7 +844,6 @@ struct SetupStepPage: View {
             ConfirmCard(step: .developerMode, title: "Developer Mode is on", isOn: binding(\.developerMode))
         case .loopback: LoopbackPage()
         case .pairing: PairingPage()
-        case .account: AccountPage()
         case .automation:
             InstructionsCard(lines: [
                 "Open **Settings › Developer**. It appears once Developer Mode is on.",

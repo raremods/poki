@@ -1,3 +1,4 @@
+import os
 import Foundation
 import PokiCore
 import UIKit
@@ -12,18 +13,41 @@ enum AutomationPath: String, CaseIterable, Identifiable {
     static let current: AutomationPath = UserDefaults.standard.string(forKey: "automationPath").flatMap(AutomationPath.init(rawValue:)) ?? .inProcess
 }
 
+/// Qeno's own automation session as AppModel drives it: `PKInProcess`, or a fake in tests.
+protocol InProcessAutomation: AnyObject, Sendable {
+    /// Opens the session and Automation Mode, or reuses an open one. Keys: ok, code, detail,
+    /// generation, reused, seconds. Blocks: call it off the main thread.
+    func prepare() -> [String: Any]
+    /// Ends the session. Keys: closed, generation, seconds.
+    func close() -> [String: Any]
+    /// Automation Mode off with the session kept. Keys: paused, how, selectors.
+    func pauseAutomation() -> [String: Any]
+}
+
+/// Thread-safe: its session state is behind locks, and every call blocks on its own.
+extension PKInProcess: InProcessAutomation, @unchecked Sendable {}
+
 /// Qeno's own automation session, once the launcher has mounted the disk image (ESP-152).
 enum InProcessSession: Equatable {
     case opening
     case open
     /// prepare answered no: its code and detail.
     case failed(code: String, detail: String)
+    /// iOS is asking the owner for the passcode before it allows automation.
+    case waitingForPasscode
+    /// iOS asked for the passcode and nobody entered it before it gave up (about a minute).
+    case passcodeMissed
 
     /// What PokiCore reads while the launcher runs. A failure is answered at once, with its fix.
     var agentState: RunnerState {
         switch self {
         case .open: return .running
         case .opening: return .starting("opening the in-process session; it takes a few seconds the first time")
+        case .waitingForPasscode:
+            return .starting("waiting for the owner to enter the iPhone passcode on the phone: iOS asks for it before it allows automation, after Qeno restarts and 8 hours after the last time. Only the owner can do this; the Live Activity asks them. Call again in about 10 s")
+        case .passcodeMissed:
+            return .failed("the owner did not enter the iPhone passcode when iOS asked for it to allow automation (cancelled, or a minute passed). Nothing was sent, and Qeno does not ask again by itself: the owner turns Qeno off and on to be asked again",
+                           fix: "Turn Qeno off and on, then enter the iPhone passcode when iOS asks for it to allow automation")
         case .failed(let code, let detail):
             return .failed("the in-process session could not be opened (\(code)\(detail.isEmpty ? "" : ": \(detail)")); Qeno tries again on the next call",
                            fix: "Open Qeno and, if iOS asks, enter the passcode to allow automation")
@@ -57,12 +81,51 @@ final class InProcessWDA: HTTPTransport, @unchecked Sendable {
     /// too long is followed by a smaller one, in-process as on WebDriverAgent. 0: unbounded.
     private var maxDepth = 0, maxChildren = 0
 
+    /// When an open may bring up iOS's passcode screen. It does only before the first automation
+    /// of a boot, so until then: one open at a time (two at once each showed a screen), never from
+    /// the background (the screen then could not be closed), and none after the owner cancelled one,
+    /// until they turn Qeno on again.
+    struct OpenGate {
+        var declined = false
+        var inFront = true
+        var startedThisBoot = false
+        var opening = false
+    }
+    static let gate = OSAllocatedUnfairLock(initialState: OpenGate())
+    static var automationDeclined: Bool { gate.withLock { $0.declined } }
+
+    /// prepare through the gate: an answer in prepare's shape when it may not run now.
+    static func openThroughGate(_ prepare: () -> [String: Any]) -> [String: Any] {
+        let refusal: String? = gate.withLock { g in
+            if g.startedThisBoot { return nil }
+            if g.declined { return "passcode_declined" }
+            if !g.inFront { return "open_poki_first" }
+            if g.opening { return "open_under_way" }
+            g.opening = true
+            return nil
+        }
+        if let refusal {
+            let detail = refusal == "passcode_declined" ? "the owner cancelled iOS's passcode screen for automation; Qeno asks again when they turn it on"
+                : refusal == "open_poki_first" ? "iOS asks for the passcode before the first automation since the iPhone restarted; that happens with Qeno open, so the owner opens Qeno first"
+                : "an open is already asking for the passcode"
+            return ["ok": false, "code": refusal, "detail": detail, "seconds": 0.0]
+        }
+        let result = prepare()
+        gate.withLock { g in
+            g.opening = false
+            if result["ok"] as? Bool == true { g.startedThisBoot = true }
+        }
+        return result
+    }
+
     init(screen: CGSize) {
         self.screen = screen
         routes = [
             "GET /status": { _, _ in ["ready": true, "message": "in-process"] },
             "POST /session": { [unowned self] _, _ in
-                let prepared = self.native.prepare()
+                // The owner cancelled iOS's passcode screen: no new open (and no new screen) until they
+                // turn Qeno on again.
+                let prepared = Self.openThroughGate { self.native.prepare() }
                 guard prepared["ok"] as? Bool == true else {
                     throw Refusal("session not created", "the automation session could not be opened: \(prepared["code"] ?? "unknown") \(prepared["detail"] ?? "")")
                 }

@@ -105,7 +105,7 @@ struct ActivityPreview: View {
         yourTurn.stepCount = 9
         yourTurn.handoff = .init(id: "h1", kind: .payment, text: "Confirm the $42.10 order with Face ID", app: "Amazon", since: now.addingTimeInterval(-20))
         var passcode = PokiState(phase: .handoff, headline: "Your turn", thumbnailVersion: 0)
-        passcode.handoff = .init(id: "h2", kind: .runnerPasscode, text: nil, app: nil, since: now.addingTimeInterval(-6))
+        passcode.handoff = .init(id: "h2", kind: AutomationPath.current == .inProcess ? .automationPasscode : .runnerPasscode, text: nil, app: nil, since: now.addingTimeInterval(-6))
 
         var done = PokiState(phase: .done, headline: "Finished", thumbnailVersion: 1)
         done.app = "Messages"
@@ -118,7 +118,7 @@ struct ActivityPreview: View {
         idle.runnerPaused = true
         ready.runnerPaused = false
 
-        let title = AppModel.problemText("Turn on the loopback in your proxy app: the Qeno module in Surge or Loon.")
+        let title = AppModel.problemText(code: "loopback", fix: "Turn on the loopback in your proxy app: the Qeno module in Surge or Loon.")
         var problem = PokiState(phase: .problem, headline: title, thumbnailVersion: 0)
         problem.label = "Runner Stopped"
         problem.stepCount = 6
@@ -128,7 +128,7 @@ struct ActivityPreview: View {
         pairCode.pin = "482913"
 
         var setup = PokiState(phase: .setup, headline: "Setting up Qeno", thumbnailVersion: 0)
-        setup.guide = .init(number: 2, count: 6, title: SetupStep.developerMode.activityTitle)
+        setup.guide = .init(number: 2, count: SetupStep.shown.count, title: SetupStep.developerMode.activityTitle)
 
         return [("start", start), ("working", working), ("step", step), ("approval", approval), ("deciding", deciding), ("yourturn", yourTurn), ("passcode", passcode), ("done", done),
                 ("ready", ready), ("idle", idle), ("problem", problem), ("pairing", pairWait), ("code", pairCode), ("setup", setup)]

@@ -137,7 +137,7 @@ struct RootView: View {
 
             Tab("Setup", systemImage: "checklist", value: RootTab.setup) { SetupTab(path: $setup) }
                 // A dot while a setup item is still open.
-                .badge(model.setupComplete || SetupStep.shown.allSatisfy(model.isDone) ? nil : Text(verbatim: " "))
+                .badge(model.setupLooksComplete ? nil : Text(verbatim: " "))
 
             // iOS 26: New Chat is the round button at the bottom right, on the tab bar's line (the
             // place iOS gives a search tab). Choosing it starts a chat and goes back to the Qeno tab.
@@ -166,6 +166,19 @@ struct RootView: View {
             Button("Allow") { model.answerConnection(true) }
         } message: { ask in
             Text("\(ask.client) is signing in through \(ask.connector) and returns to \(ask.callback), which isn’t on Qeno’s list of known agents. Allow it only if you are connecting it yourself right now. It could then see your screen and act on this iPhone.")
+        }
+        // The update's last step: Qeno has to exit, and the owner closes it from the app switcher.
+        .alert("Close Qeno to Finish the Update", isPresented: Binding(get: { model.signer.finishNotice }, set: { if !$0 { model.signer.finishNoticeAnswered() } })) {
+            Button("OK") { model.signer.finishNoticeAnswered() }
+        } message: {
+            Text("The update is almost in. Qeno has to exit for iOS to finish it: after OK, swipe up to the app switcher, swipe Qeno away, then open Qeno again.")
+        }
+        // Turning on after Off: Qeno exits by itself and has to be opened again.
+        .alert("Qeno Restarts to Turn On", isPresented: Binding(get: { model.relaunchNotice }, set: { if !$0 { model.relaunchNotice = false } })) {
+            Button("Cancel", role: .cancel) { model.relaunchNotice = false }
+            Button("Continue") { model.continueRelaunch() }
+        } message: {
+            Text("Qeno closes by itself so agents can see the screen again. Open Qeno again afterwards, from the notification or the Home Screen; it turns on when it opens.")
         }
         // Before the first automation after a restart: iOS's passcode screen is next, and expected.
         .alert("Enter Your Passcode Next", isPresented: Binding(get: { model.passcodeHeadsUp }, set: { if !$0 { model.passcodeHeadsUp = false } })) {

@@ -108,11 +108,42 @@ impl Channel {
             Some(Channel::PreAlpha)
         } else if rest.starts_with("alpha-") {
             Some(Channel::Alpha)
+        } else if rest.starts_with("beta-") {
+            Some(Channel::Beta)
         } else if rest.starts_with('v') {
             Some(if prerelease { Channel::Beta } else { Channel::Stable })
         } else {
             None
         }
+    }
+}
+
+impl Channel {
+    /// The channel of an `app-*` release (Poki's tags from Nov 2026 on): `app-0.2.9-prealpha.640`
+    /// and `app-prealpha-latest`, `app-0.2.9-alpha.640` and `app-alpha-latest`, `app-0.3.0-beta.1`,
+    /// and `app-0.3.0` (Stable, or Beta while it is marked prerelease). None for any other tag.
+    pub fn of_app_tag(tag: &str, prerelease: bool) -> Option<Channel> {
+        let rest = tag.strip_prefix("app-")?;
+        match rest {
+            "prealpha-latest" => return Some(Channel::PreAlpha),
+            "alpha-latest" => return Some(Channel::Alpha),
+            _ => {}
+        }
+        if !rest.starts_with(|c: char| c.is_ascii_digit()) {
+            return None;
+        }
+        Some(match rest.split_once('-').map(|(_, s)| s) {
+            None => if prerelease { Channel::Beta } else { Channel::Stable },
+            Some(s) if s.starts_with("prealpha.") => Channel::PreAlpha,
+            Some(s) if s.starts_with("alpha.") => Channel::Alpha,
+            // beta.N, and rc.N or any other pre-release suffix.
+            Some(_) => Channel::Beta,
+        })
+    }
+
+    /// The channel of a release of Poki itself, under either scheme (`ios-*` or `app-*`).
+    pub fn of_app_release(tag: &str, prerelease: bool) -> Option<Channel> {
+        Channel::of_tag("ios", tag, prerelease).or_else(|| Channel::of_app_tag(tag, prerelease))
     }
 }
 
@@ -172,13 +203,13 @@ async fn list() -> Result<Vec<GhRelease>> {
 
 /// An installable Poki release (one with the external IPA) from GitHub's answer.
 fn installable(r: &GhRelease) -> Option<(Channel, Release)> {
-    let channel = Channel::of_tag("ios", &r.tag_name, r.prerelease)?;
+    let channel = Channel::of_app_release(&r.tag_name, r.prerelease)?;
     let ipa = r.assets.iter().find(|a| a.name.starts_with("Poki-external-") && a.name.ends_with(".ipa"))?;
     // Poki-external-<version>-<build>.ipa; the tag names the version too for ios-v* releases.
     let stem = ipa.name.trim_start_matches("Poki-external-").trim_end_matches(".ipa");
     let (version, build) = match stem.rsplit_once('-') {
         Some((v, b)) if !v.is_empty() => (v.to_string(), b.to_string()),
-        _ => (r.tag_name.trim_start_matches("ios-v").trim_start_matches("ios-prealpha-").trim_start_matches("ios-alpha-").to_string(), String::new()),
+        _ => (r.tag_name.trim_start_matches("app-").trim_start_matches("ios-v").trim_start_matches("ios-prealpha-").trim_start_matches("ios-alpha-").trim_start_matches("ios-beta-").to_string(), String::new()),
     };
     Some((
         channel,
@@ -198,8 +229,18 @@ fn installable(r: &GhRelease) -> Option<(Channel, Release)> {
     ))
 }
 
+/// The highest version and build the channel offers, whatever order GitHub lists releases in
+/// (rolling ios-*-latest releases keep their first creation date while their files change).
+/// On a tie the channel's own release wins, then the later published one.
 fn pick_exact(list: &[GhRelease], channel: Channel) -> Option<Release> {
-    list.iter().filter_map(installable).find(|(c, _)| channel.includes(*c)).map(|(_, r)| r)
+    list.iter()
+        .filter_map(installable)
+        .filter(|(c, _)| channel.includes(*c))
+        .max_by(|(ca, a), (cb, b)| {
+            let key = |c: &Channel, r: &Release| (version_key(&full(&r.version, &r.build)), *c == channel, r.published_at.clone());
+            key(ca, a).cmp(&key(cb, b))
+        })
+        .map(|(_, r)| r)
 }
 
 /// The newest release the channel offers; when it has none yet, the next less stable channel's,
@@ -251,6 +292,9 @@ pub struct UpdateInfo {
     pub asset_name: Option<String>,
     pub newer: bool,
     pub channel: Channel,
+    /// The release's SHA256SUMS-desktop.txt, to check the download against.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sums_url: Option<String>,
 }
 
 /// The installer name suffix for this platform.
@@ -265,7 +309,7 @@ fn desktop_asset_version(name: &str, suffix: &str) -> Option<String> {
 }
 
 fn release_channel(r: &GhRelease) -> Option<Channel> {
-    Channel::of_tag("desktop", &r.tag_name, r.prerelease).or_else(|| Channel::of_tag("ios", &r.tag_name, r.prerelease))
+    Channel::of_tag("desktop", &r.tag_name, r.prerelease).or_else(|| Channel::of_app_release(&r.tag_name, r.prerelease))
 }
 
 /// The newest Qeno Setup installer a channel offers (stepping down like Poki's own releases).
@@ -273,7 +317,8 @@ fn pick_desktop<'a>(list: &'a [GhRelease], channel: Channel, suffix: &str) -> Op
     channel.fallbacks().find_map(|want| {
         list.iter()
             .filter(|r| release_channel(r).map(|c| want.includes(c)).unwrap_or(false))
-            .find_map(|r| r.assets.iter().find_map(|a| desktop_asset_version(&a.name, suffix).map(|v| (r, a, v))))
+            .flat_map(|r| r.assets.iter().filter_map(move |a| desktop_asset_version(&a.name, suffix).map(|v| (r, a, v))))
+            .max_by(|a, b| version_key(&a.2).cmp(&version_key(&b.2)))
     })
 }
 
@@ -284,14 +329,30 @@ pub async fn desktop_update() -> Result<UpdateInfo> {
     let found = pick_desktop(&list, channel, platform_suffix());
     let newer = found.as_ref().map(|(_, _, v)| version_key(v) > version_key(&current)).unwrap_or(false);
     Ok(match found {
-        Some((r, a, v)) => UpdateInfo { current, latest: Some(v), url: r.html_url.clone(), asset_url: Some(a.browser_download_url.clone()), asset_name: Some(a.name.clone()), newer, channel },
-        None => UpdateInfo { current, latest: None, url: None, asset_url: None, asset_name: None, newer, channel },
+        Some((r, a, v)) => {
+            let sums_url = r.assets.iter().find(|a| a.name == "SHA256SUMS-desktop.txt").map(|a| a.browser_download_url.clone());
+            UpdateInfo { current, latest: Some(v), url: r.html_url.clone(), asset_url: Some(a.browser_download_url.clone()), asset_name: Some(a.name.clone()), newer, channel, sums_url }
+        }
+        None => UpdateInfo { current, latest: None, url: None, asset_url: None, asset_name: None, newer, channel, sums_url: None },
     })
 }
 
-/// Downloads the newer Qeno Setup and opens it: the disk image on a Mac (drag it over the old
-/// one), the installer on Windows. Returns where it was saved.
-pub async fn install_desktop_update(reporter: &Reporter) -> Result<PathBuf> {
+/// What installing an update did.
+#[derive(Debug, Clone, Serialize)]
+pub struct Installed {
+    /// The downloaded installer.
+    pub path: PathBuf,
+    /// The new Qeno Setup is in place (or its installer is running) and starts by itself once
+    /// this one quits: the app should quit now.
+    pub relaunching: bool,
+}
+
+/// Downloads the newer Qeno Setup, checks it against the release's SHA256SUMS-desktop.txt, and
+/// installs it over this one: on a Mac the app inside the disk image replaces this app bundle and
+/// a helper opens the new one after this one quits; on Windows the installer runs in passive mode
+/// and starts Qeno Setup again. When the swap is not possible (the app is not in a writable
+/// place, for example) the disk image or installer is opened for the person instead.
+pub async fn install_desktop_update(reporter: &Reporter) -> Result<Installed> {
     let info = desktop_update().await?;
     let (Some(url), Some(name), true) = (info.asset_url, info.asset_name, info.newer) else {
         return Err(Error::msg("Qeno Setup is up to date."));
@@ -299,14 +360,122 @@ pub async fn install_desktop_update(reporter: &Reporter) -> Result<PathBuf> {
     let dir = paths::cache_dir()?.join("updates");
     std::fs::create_dir_all(&dir)?;
     let to = dir.join(&name);
-    if !to.is_file() {
+    let expected = match &info.sums_url {
+        Some(u) => client()?.get(u).send().await?.error_for_status()?.text().await.ok().and_then(|t| sum_for(&t, &name)),
+        None => None,
+    };
+    let good = |p: &std::path::Path| p.is_file() && expected.as_deref().map(|e| sha256_file(p).ok().as_deref() == Some(e)).unwrap_or(true);
+    if !good(&to) {
         let part = dir.join(format!("{name}.part"));
         download(&url, &part, reporter, "update").await?;
+        if let Some(e) = &expected {
+            let got = sha256_file(&part)?;
+            if &got != e {
+                let _ = std::fs::remove_file(&part);
+                return Err(Error::msg(format!("The downloaded update did not match its checksum ({got}). Try again.")));
+            }
+        }
         std::fs::rename(&part, &to)?;
     }
-    open_installer(&to)?;
-    Ok(to)
+    match install_in_place(&to) {
+        Ok(()) => Ok(Installed { path: to, relaunching: true }),
+        Err(e) => {
+            tracing::warn!("update not installed in place ({e}); opening the installer");
+            open_installer(&to)?;
+            Ok(Installed { path: to, relaunching: false })
+        }
+    }
 }
+
+fn sum_for(sums: &str, name: &str) -> Option<String> {
+    sums.lines().find_map(|l| {
+        let mut parts = l.split_whitespace();
+        let hash = parts.next()?;
+        (parts.next()?.trim_start_matches('*') == name).then(|| hash.to_lowercase())
+    })
+}
+
+#[cfg(target_os = "macos")]
+fn install_in_place(dmg: &std::path::Path) -> Result<()> {
+    use std::process::Command;
+    // This process is Qeno Setup.app/Contents/MacOS/<exe>.
+    let exe = std::env::current_exe()?;
+    let bundle = exe.ancestors().nth(3).filter(|p| p.extension().map(|e| e == "app").unwrap_or(false))
+        .ok_or_else(|| Error::msg("Qeno Setup is not running from an app bundle."))?.to_path_buf();
+    let mount = std::env::temp_dir().join(format!("poki-setup-update-{}", std::process::id()));
+    std::fs::create_dir_all(&mount)?;
+    let st = Command::new("/usr/bin/hdiutil").args(["attach", "-nobrowse", "-readonly", "-noautoopen", "-mountpoint"]).arg(&mount).arg(dmg).status()?;
+    if !st.success() {
+        return Err(Error::msg("Could not open the update's disk image."));
+    }
+    let result = (|| -> Result<()> {
+        let new_app = std::fs::read_dir(&mount)?.filter_map(|e| e.ok()).map(|e| e.path())
+            .find(|p| p.extension().map(|e| e == "app").unwrap_or(false))
+            .ok_or_else(|| Error::msg("The update's disk image has no app in it."))?;
+        verify_mac_app(&new_app)?;
+        let staged = bundle.with_extension("app.new");
+        let old = bundle.with_extension("app.old");
+        let _ = std::fs::remove_dir_all(&staged);
+        let _ = std::fs::remove_dir_all(&old);
+        if !Command::new("/usr/bin/ditto").arg(&new_app).arg(&staged).status()?.success() {
+            let _ = std::fs::remove_dir_all(&staged);
+            return Err(Error::msg("Could not copy the new Qeno Setup next to this one."));
+        }
+        // Swap: a running app keeps its open files after its bundle is renamed.
+        std::fs::rename(&bundle, &old)?;
+        if let Err(e) = std::fs::rename(&staged, &bundle) {
+            let _ = std::fs::rename(&old, &bundle);
+            return Err(e.into());
+        }
+        let _ = std::fs::remove_dir_all(&old);
+        Ok(())
+    })();
+    let _ = Command::new("/usr/bin/hdiutil").args(["detach", "-quiet"]).arg(&mount).status();
+    let _ = std::fs::remove_dir(&mount);
+    result?;
+    // Opens the new app once this one has quit (the app quits when told `relaunching`).
+    let pid = std::process::id();
+    let script = format!("while kill -0 {pid} 2>/dev/null; do sleep 0.3; done; sleep 0.5; /usr/bin/open \"$0\"");
+    use std::os::unix::process::CommandExt;
+    Command::new("/bin/sh").arg("-c").arg(script).arg(&bundle).process_group(0)
+        .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
+        .spawn()?;
+    Ok(())
+}
+
+/// The new app must carry a valid signature from the same team as this one (Developer ID,
+/// notarized builds only), so a swapped download can never replace Qeno Setup with something else.
+#[cfg(target_os = "macos")]
+fn verify_mac_app(app: &std::path::Path) -> Result<()> {
+    use std::process::Command;
+    let ok = Command::new("/usr/bin/codesign").args(["--verify", "--deep", "--strict"]).arg(app).status()?.success();
+    if !ok {
+        return Err(Error::msg("The update's signature did not check out."));
+    }
+    let team = |p: &std::path::Path| -> Option<String> {
+        let out = Command::new("/usr/bin/codesign").args(["-dv"]).arg(p).output().ok()?;
+        let text = String::from_utf8_lossy(&out.stderr).to_string();
+        text.lines().find_map(|l| l.strip_prefix("TeamIdentifier=")).map(|t| t.trim().to_string()).filter(|t| t != "not set")
+    };
+    let exe = std::env::current_exe()?;
+    let mine = exe.ancestors().nth(3).and_then(team);
+    let theirs = team(app);
+    match (mine, theirs) {
+        (Some(a), Some(b)) if a == b => Ok(()),
+        (None, _) => Err(Error::msg("This Qeno Setup is not signed with a Developer ID, so it does not update itself.")),
+        (Some(a), b) => Err(Error::msg(format!("The update is signed by another team ({}), not {a}.", b.unwrap_or_else(|| "none".into())))),
+    }
+}
+
+#[cfg(windows)]
+fn install_in_place(setup: &std::path::Path) -> Result<()> {
+    // Tauri's NSIS installer: /P passive (progress only, no questions), /R starts the app again.
+    std::process::Command::new(setup).args(["/P", "/R"]).spawn()?;
+    Ok(())
+}
+
+#[cfg(not(any(target_os = "macos", windows)))]
+fn install_in_place(_: &std::path::Path) -> Result<()> { Err(Error::msg("Updates install by themselves on macOS and Windows only.")) }
 
 fn open_installer(path: &std::path::Path) -> Result<()> {
     #[cfg(target_os = "macos")]
@@ -318,8 +487,34 @@ fn open_installer(path: &std::path::Path) -> Result<()> {
     Ok(())
 }
 
-/// `0.2.1` < `0.2.1-5` < `0.2.2`: numbers compared in order, a build suffix counts after the version.
-fn version_key(s: &str) -> Vec<u64> { s.split(['.', '-']).map(|x| x.parse::<u64>().unwrap_or(0)).collect() }
+/// One dot-separated part of a suffix: numbers compare as numbers and sort before words.
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+enum Ident {
+    Num(u64),
+    Text(String),
+}
+
+/// How a version compares, SemVer-like with Poki's build numbers:
+/// `0.3.0-beta.1` < `0.3.0-beta.2` < `0.3.0` < `0.3.0-700` < `0.3.1`. The numbers before the
+/// first `-` compare in order; then a pre-release suffix (any part that is not a number, like
+/// `beta.1` or `rc.2`) sorts below the plain version, and a build number (`-700`) above it.
+type VersionKey = (Vec<u64>, u8, Vec<Ident>);
+
+fn version_key(s: &str) -> VersionKey {
+    let (core, suffix) = s.split_once('-').unwrap_or((s, ""));
+    let core = core.split('.').map(|x| x.parse::<u64>().unwrap_or(0)).collect();
+    if suffix.is_empty() {
+        return (core, 1, vec![]);
+    }
+    let parts: Vec<Ident> = suffix.split(['.', '-']).map(|x| x.parse::<u64>().map(Ident::Num).unwrap_or_else(|_| Ident::Text(x.to_ascii_lowercase()))).collect();
+    let build = parts.iter().all(|p| matches!(p, Ident::Num(_)));
+    (core, if build { 2 } else { 0 }, parts)
+}
+
+/// A release's version and build as one string for [`version_key`]: `0.3.0`, `0.3.0-beta.1`, `0.2.9-630`.
+fn full(version: &str, build: &str) -> String {
+    if build.is_empty() { version.to_string() } else { format!("{version}-{build}") }
+}
 
 /// Downloads the IPA (and the signing zip) into the cache, checks SHA-256 against SHA256SUMS.
 pub async fn fetch(release: &Release, reporter: &Reporter) -> Result<(PathBuf, Option<PathBuf>)> {
@@ -449,6 +644,10 @@ mod tests {
         assert_eq!(Channel::of_tag("ios", "ios-v0.2.7", true), Some(Channel::Beta));
         assert_eq!(Channel::of_tag("ios", "ios-prealpha-0.2.7-252", true), Some(Channel::PreAlpha));
         assert_eq!(Channel::of_tag("ios", "ios-alpha-0.2.8-110", true), Some(Channel::Alpha));
+        assert_eq!(Channel::of_tag("ios", "ios-alpha-latest", true), Some(Channel::Alpha));
+        assert_eq!(Channel::of_tag("ios", "ios-prealpha-latest", true), Some(Channel::PreAlpha));
+        assert_eq!(Channel::of_tag("ios", "ios-beta-0.3.0-600", true), Some(Channel::Beta));
+        assert_eq!(Channel::of_tag("desktop", "desktop-beta-0.3.0-9", true), Some(Channel::Beta));
         assert_eq!(Channel::of_tag("desktop", "desktop-alpha-0.2.1-3", true), Some(Channel::Alpha));
         assert!(Channel::PreAlpha.includes(Channel::Alpha) && Channel::Alpha.includes(Channel::Beta) && !Channel::Beta.includes(Channel::Alpha));
         assert_eq!(Channel::parse("alpha"), Some(Channel::Alpha));
@@ -481,6 +680,26 @@ mod tests {
     }
 
     #[test]
+    fn rolling_release_wins_by_build_not_list_order() {
+        // Rolling releases keep their first date; a Beta made later sits above them in the list.
+        let list = vec![
+            gh("ios-beta-0.2.9-520", true, "2026-11-10T05:00:00Z", Some("Poki-external-0.2.9-520.ipa")),
+            gh("ios-prealpha-latest", true, "2026-11-08T05:00:00Z", Some("Poki-external-0.2.9-540.ipa")),
+            gh("ios-alpha-latest", true, "2026-11-08T05:00:00Z", Some("Poki-external-0.2.9-530.ipa")),
+        ];
+        assert_eq!(pick(&list, Channel::PreAlpha).unwrap().build, "540");
+        assert_eq!(pick(&list, Channel::Alpha).unwrap().build, "530");
+        assert_eq!(pick(&list, Channel::Beta).unwrap().tag, "ios-beta-0.2.9-520");
+        // Same build on two channels: Pre-alpha users get their own channel's release.
+        let tie = vec![
+            gh("ios-alpha-latest", true, "2026-11-08T05:00:00Z", Some("Poki-external-0.2.8-501.ipa")),
+            gh("ios-prealpha-latest", true, "2026-11-08T05:00:00Z", Some("Poki-external-0.2.8-501.ipa")),
+        ];
+        assert_eq!(pick(&tie, Channel::PreAlpha).unwrap().tag, "ios-prealpha-latest");
+        assert_eq!(pick(&tie, Channel::Alpha).unwrap().tag, "ios-alpha-latest");
+    }
+
+    #[test]
     fn choice_is_saved() {
         let (_g, _d) = paths::test_home();
         unsafe { std::env::remove_var("POKI_RELEASE_CHANNEL") };
@@ -506,5 +725,97 @@ mod tests {
     fn build_suffix_sorts_after_version() {
         assert!(version_key("0.2.1-5") > version_key("0.2.1"));
         assert!(version_key("0.2.2") > version_key("0.2.1-5"));
+    }
+
+    #[test]
+    fn betas_sort_below_their_stable_and_by_number() {
+        let order = ["0.2.9-630", "0.3.0-beta.1", "0.3.0-beta.2", "0.3.0-rc.1", "0.3.0", "0.3.0-700", "0.3.1-beta.1"];
+        for w in order.windows(2) {
+            assert!(version_key(w[0]) < version_key(w[1]), "{} < {}", w[0], w[1]);
+        }
+        assert!(version_key("0.3.0-beta.10") > version_key("0.3.0-beta.9"));
+        assert_eq!(Channel::of_tag("ios", "ios-v0.3.0-beta.1", true), Some(Channel::Beta));
+        assert_eq!(Channel::of_tag("ios", "ios-v0.3.0", false), Some(Channel::Stable));
+        assert_eq!(Channel::of_tag("desktop", "desktop-v0.3.0-beta.1", true), Some(Channel::Beta));
+        assert_eq!(Channel::of_tag("desktop", "desktop-v0.3.0", false), Some(Channel::Stable));
+    }
+
+    #[test]
+    fn app_tags_map_to_channels() {
+        let c = |t: &str, pre: bool| Channel::of_app_release(t, pre);
+        assert_eq!(c("app-0.2.9-prealpha.640", true), Some(Channel::PreAlpha));
+        assert_eq!(c("app-prealpha-latest", true), Some(Channel::PreAlpha));
+        assert_eq!(c("app-0.2.9-alpha.640", true), Some(Channel::Alpha));
+        assert_eq!(c("app-alpha-latest", true), Some(Channel::Alpha));
+        assert_eq!(c("app-0.3.0-beta.1", true), Some(Channel::Beta));
+        assert_eq!(c("app-0.3.0", false), Some(Channel::Stable));
+        assert_eq!(c("app-0.3.0", true), Some(Channel::Beta));
+        assert_eq!(c("app-latest", false), None);
+        assert_eq!(c("desktop-v0.3.0", false), None);
+        // The ios-* rules stay as they were.
+        assert_eq!(c("ios-prealpha-latest", true), Some(Channel::PreAlpha));
+        assert_eq!(c("ios-alpha-0.2.8-501", true), Some(Channel::Alpha));
+        assert_eq!(c("ios-v0.3.0-beta.1", true), Some(Channel::Beta));
+    }
+
+    #[test]
+    fn app_and_ios_releases_are_read_together() {
+        let list = vec![
+            gh("app-0.3.0", false, "2026-11-14T05:00:00Z", Some("Poki-external-0.3.0.ipa")),
+            gh("app-0.3.0-beta.1", true, "2026-11-12T05:00:00Z", Some("Poki-external-0.3.0-beta.1.ipa")),
+            gh("app-alpha-latest", true, "2026-11-09T06:00:00Z", Some("Poki-external-0.2.9-650.ipa")),
+            gh("app-prealpha-latest", true, "2026-11-09T06:00:00Z", Some("Poki-external-0.2.9-660.ipa")),
+            gh("ios-alpha-latest", true, "2026-11-08T05:00:00Z", Some("Poki-external-0.2.9-650.ipa")),
+            gh("ios-prealpha-latest", true, "2026-11-08T05:00:00Z", Some("Poki-external-0.2.9-660.ipa")),
+        ];
+        let p = pick(&list, Channel::Stable).unwrap();
+        assert_eq!((p.tag.as_str(), p.version.as_str(), p.build.as_str()), ("app-0.3.0", "0.3.0", ""));
+        assert_eq!(pick(&list[1..], Channel::Beta).unwrap().tag, "app-0.3.0-beta.1");
+        // The mirrors carry the same build: either release is fine, the build is what counts.
+        assert_eq!(pick(&list[2..], Channel::Alpha).unwrap().build, "650");
+        assert_eq!(pick(&list[2..], Channel::PreAlpha).unwrap().build, "660");
+        assert_eq!(pick(&list[4..], Channel::PreAlpha).unwrap().tag, "ios-prealpha-latest");
+
+        let mut app = gh("app-alpha-latest", true, "2026-11-09T06:00:00Z", None);
+        app.assets.push(GhAsset { name: "PokiSetup-0.2.2-640-macos.dmg".into(), browser_download_url: "https://x/a".into() });
+        assert_eq!(pick_desktop(&[app], Channel::Alpha, "-macos.dmg").unwrap().2, "0.2.2-640");
+    }
+
+    #[test]
+    fn stable_wins_over_its_betas_on_every_channel() {
+        let list = vec![
+            gh("ios-v0.3.0-beta.2", true, "2026-11-12T05:00:00Z", Some("Poki-external-0.3.0-beta.2.ipa")),
+            gh("ios-v0.3.0-beta.1", true, "2026-11-11T05:00:00Z", Some("Poki-external-0.3.0-beta.1.ipa")),
+            gh("ios-v0.3.0", false, "2026-11-10T05:00:00Z", Some("Poki-external-0.3.0.ipa")),
+            gh("ios-alpha-latest", true, "2026-11-08T05:00:00Z", Some("Poki-external-0.3.0-700.ipa")),
+            gh("ios-prealpha-latest", true, "2026-11-08T05:00:00Z", Some("Poki-external-0.2.9-630.ipa")),
+        ];
+        let p = pick(&list, Channel::Stable).unwrap();
+        assert_eq!((p.tag.as_str(), p.version.as_str(), p.build.as_str()), ("ios-v0.3.0", "0.3.0", ""));
+        assert_eq!(pick(&list, Channel::Beta).unwrap().tag, "ios-v0.3.0");
+        assert_eq!(pick(&list[..2], Channel::Beta).unwrap().tag, "ios-v0.3.0-beta.2");
+        assert_eq!(pick(&list, Channel::Alpha).unwrap().build, "700");
+        // Pre-alpha includes every channel: the Alpha 0.3.0-700 is above its own 0.2.9-630.
+        assert_eq!(pick(&list, Channel::PreAlpha).unwrap().build, "700");
+
+        let mut beta = gh("desktop-v0.3.0-beta.1", true, "2026-11-11T05:00:00Z", None);
+        beta.assets.push(GhAsset { name: "PokiSetup-0.3.0-beta.1-macos.dmg".into(), browser_download_url: "https://x/b".into() });
+        let mut stable = gh("desktop-v0.3.0", false, "2026-11-10T05:00:00Z", None);
+        stable.assets.push(GhAsset { name: "PokiSetup-0.3.0-macos.dmg".into(), browser_download_url: "https://x/s".into() });
+        let desk = vec![beta, stable];
+        assert_eq!(pick_desktop(&desk, Channel::Beta, "-macos.dmg").unwrap().2, "0.3.0");
+        assert!(version_key("0.3.0") > version_key("0.3.0-beta.1"));
+        assert!(version_key("0.3.0-beta.1") > version_key("0.2.2-618"));
+    }
+}
+
+#[cfg(test)]
+mod update_tests {
+    #[test]
+    fn checksum_line_for_a_file() {
+        let sums = "aa11  PokiSetup-0.2.1-307-macos.dmg\nBB22 *PokiSetup-0.2.1-307-windows-x64-setup.exe\n";
+        assert_eq!(super::sum_for(sums, "PokiSetup-0.2.1-307-macos.dmg").as_deref(), Some("aa11"));
+        assert_eq!(super::sum_for(sums, "PokiSetup-0.2.1-307-windows-x64-setup.exe").as_deref(), Some("bb22"));
+        assert_eq!(super::sum_for(sums, "other"), None);
     }
 }
