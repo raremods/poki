@@ -163,9 +163,24 @@ struct ChatTranscript<Footer: View>: View {
             .padding(.top, startsRun(i) ? 10 : 0)
             .transition(.move(edge: .bottom).combined(with: .opacity))
         case .poki(let text):
-            MessageBubble(direction: .incoming, text: text, tail: isLast(i, poki: true))
-                .padding(.top, startsRun(i) ? 10 : 0)
-                .transition(PlanMotion.stepTransition)
+            VStack(spacing: 4) {
+                // At the start of a run of Qeno's messages, the chosen character sits centred above
+                // the bubble with its name pill overlapping the bubble's top, as in Messages' apps.
+                if startsRun(i) || i == 0 {
+                    PokiAvatar(size: 44)
+                    Text("Qeno")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(ChatColor.secondary)
+                        .padding(.horizontal, 9).padding(.vertical, 3)
+                        .background(Color(.systemBackground), in: .capsule)
+                        .overlay(Capsule().strokeBorder(ChatColor.secondary.opacity(0.25), lineWidth: 0.5))
+                        .padding(.bottom, -9)
+                        .zIndex(1)
+                }
+                MessageBubble(direction: .incoming, text: text, tail: isLast(i, poki: true))
+            }
+            .padding(.top, startsRun(i) ? 10 : 0)
+            .transition(PlanMotion.stepTransition)
         case .plan(let steps):
             HStack {
                 PlanBubble(steps: steps, tail: isLast(i, poki: true))
@@ -283,17 +298,14 @@ private struct StepLine: View {
 // MARK: Header
 
 
-/// The bear in a round frame, as the ESP-171 boards draw it (`PokiFace.png` is the boards' own image: the
-/// app icon's bear, closer up).
+/// The bear in a round frame, as the ESP-171 boards draw it. The face is the character picked in
+/// Settings (White by default); `PokiFace.png` is the fallback, the app icon's bear closer up.
 struct PokiAvatar: View {
     var size: CGFloat
-    static let face = UIImage(named: "PokiFace")
+    @AppStorage(QenoCharacter.storageKey) private var selectedRaw = QenoCharacter.white.rawValue
+
     var body: some View {
-        Group {
-            if let face = Self.face { Image(uiImage: face).resizable().scaledToFill() } else { Image("Bear").resizable().scaledToFill() }
-        }
-        .frame(width: size, height: size).clipShape(.circle)
-        .accessibilityHidden(true)
+        CharacterFace(character: QenoCharacter(rawValue: selectedRaw) ?? .white, size: size)
     }
 }
 
