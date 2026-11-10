@@ -103,10 +103,26 @@ struct ChatTranscript<Footer: View>: View {
     var retry: () -> Void = {}
     @ViewBuilder var footer: () -> Footer
 
+    /// A fresh chat holding only the greeting (no message from the user and no request yet).
+    /// The same test ChatModel.persist() uses to skip saving greeting-only conversations.
+    var isGreetingOnly: Bool {
+        !entries.contains { entry in
+            switch entry.kind {
+            case .you, .request: true
+            default: false
+            }
+        }
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 4) {
-                Spacer(minLength: 0)
+                // A fresh greeting sits at the top in the normal flow instead of being pushed
+                // to the bottom by the spacer; a real conversation keeps the spacer so the
+                // messages sit at the bottom by the composer.
+                if !isGreetingOnly {
+                    Spacer(minLength: 0)
+                }
                 ForEach(Array(entries.enumerated()), id: \.element.id) { i, entry in
                     row(entry, at: i).id(entry.id)
                 }
@@ -163,9 +179,16 @@ struct ChatTranscript<Footer: View>: View {
             .padding(.top, startsRun(i) ? 10 : 0)
             .transition(.move(edge: .bottom).combined(with: .opacity))
         case .poki(let text):
-            MessageBubble(direction: .incoming, text: text, tail: isLast(i, poki: true))
-                .padding(.top, startsRun(i) ? 10 : 0)
-                .transition(PlanMotion.stepTransition)
+            VStack(spacing: 4) {
+                // At the start of a run of Qeno's messages, the chosen character's face sits
+                // centred above the bubble. No name pill under it.
+                if startsRun(i) || i == 0 {
+                    PokiAvatar(size: 44)
+                }
+                MessageBubble(direction: .incoming, text: text, tail: isLast(i, poki: true))
+            }
+            .padding(.top, startsRun(i) ? 10 : 0)
+            .transition(PlanMotion.stepTransition)
         case .plan(let steps):
             HStack {
                 PlanBubble(steps: steps, tail: isLast(i, poki: true))
