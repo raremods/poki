@@ -103,19 +103,6 @@ struct ChatTranscript<Footer: View>: View {
     var retry: () -> Void = {}
     @ViewBuilder var footer: () -> Footer
 
-    /// A chat that only has the greeting (nothing the owner sent yet) is an empty state, not a
-    /// conversation: its content sits in the middle of the screen, as in Muse, instead of at the
-    /// bottom above the field. Once the owner sends a message, the chat is bottom-anchored as
-    /// usual. This is the same test ChatModel.persist() uses to skip saving a greeting-only
-    /// conversation: no `.you` and no `.request` entry.
-    private var isGreetingOnly: Bool {
-        !entries.contains { entry in
-            if case .you = entry.kind { return true }
-            if case .request = entry.kind { return true }
-            return false
-        }
-    }
-
     var body: some View {
         ScrollView {
             VStack(spacing: 4) {
@@ -132,13 +119,6 @@ struct ChatTranscript<Footer: View>: View {
                         .buttonStyle(.bordered).buttonBorderShape(.capsule).tint(Site.blue).padding(.top, 2).padding(.bottom, 6)
                 }
                 footer()
-                // Greeting-only: a spacer below the content balances the one above it, so the
-                // greeting sits in the middle of the screen instead of at the bottom. The two
-                // spacers split the leftover space equally; if the content ever grows taller
-                // than the screen, both collapse to nothing and the chat scrolls as usual.
-                if isGreetingOnly {
-                    Spacer(minLength: 0)
-                }
             }
             .padding(.horizontal, 16).padding(.top, 12).padding(.bottom, 10)
             .frame(maxWidth: .infinity)
@@ -183,24 +163,9 @@ struct ChatTranscript<Footer: View>: View {
             .padding(.top, startsRun(i) ? 10 : 0)
             .transition(.move(edge: .bottom).combined(with: .opacity))
         case .poki(let text):
-            VStack(spacing: 4) {
-                // At the start of a run of Qeno's messages, the chosen character sits centred above
-                // the bubble with its name pill overlapping the bubble's top, as in Messages' apps.
-                if startsRun(i) || i == 0 {
-                    PokiAvatar(size: 44)
-                    Text("Qeno")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(ChatColor.secondary)
-                        .padding(.horizontal, 9).padding(.vertical, 3)
-                        .background(Color(.systemBackground), in: .capsule)
-                        .overlay(Capsule().strokeBorder(ChatColor.secondary.opacity(0.25), lineWidth: 0.5))
-                        .padding(.bottom, -9)
-                        .zIndex(1)
-                }
-                MessageBubble(direction: .incoming, text: text, tail: isLast(i, poki: true))
-            }
-            .padding(.top, startsRun(i) ? 10 : 0)
-            .transition(PlanMotion.stepTransition)
+            MessageBubble(direction: .incoming, text: text, tail: isLast(i, poki: true))
+                .padding(.top, startsRun(i) ? 10 : 0)
+                .transition(PlanMotion.stepTransition)
         case .plan(let steps):
             HStack {
                 PlanBubble(steps: steps, tail: isLast(i, poki: true))
