@@ -103,6 +103,19 @@ struct ChatTranscript<Footer: View>: View {
     var retry: () -> Void = {}
     @ViewBuilder var footer: () -> Footer
 
+    /// A chat that only has the greeting (nothing the owner sent yet) is an empty state, not a
+    /// conversation: its content sits in the middle of the screen, as in Muse, instead of at the
+    /// bottom above the field. Once the owner sends a message, the chat is bottom-anchored as
+    /// usual. This is the same test ChatModel.persist() uses to skip saving a greeting-only
+    /// conversation: no `.you` and no `.request` entry.
+    private var isGreetingOnly: Bool {
+        !entries.contains { entry in
+            if case .you = entry.kind { return true }
+            if case .request = entry.kind { return true }
+            return false
+        }
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 4) {
@@ -119,6 +132,13 @@ struct ChatTranscript<Footer: View>: View {
                         .buttonStyle(.bordered).buttonBorderShape(.capsule).tint(Site.blue).padding(.top, 2).padding(.bottom, 6)
                 }
                 footer()
+                // Greeting-only: a spacer below the content balances the one above it, so the
+                // greeting sits in the middle of the screen instead of at the bottom. The two
+                // spacers split the leftover space equally; if the content ever grows taller
+                // than the screen, both collapse to nothing and the chat scrolls as usual.
+                if isGreetingOnly {
+                    Spacer(minLength: 0)
+                }
             }
             .padding(.horizontal, 16).padding(.top, 12).padding(.bottom, 10)
             .frame(maxWidth: .infinity)
