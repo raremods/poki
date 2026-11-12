@@ -188,6 +188,7 @@ struct AdvancedView: View {
     var push: (SettingsRoute) -> Void
 
     var body: some View {
+        @Bindable var model = model
         Form {
             if model.automationPath == .runner {
                 Section {
