@@ -11,6 +11,13 @@ the only app to install. The older Runner path (WebDriverAgent as a second bundl
 `.github/workflows/ios-runner.yml`; `docs/single-bundle.md` is the earlier study) stays in the code
 and is chosen per launch with `-automationPath runner`.
 
+Diagnostics also contains a third, experimental **Native services** path. It uses the paired
+accessibility, screenshot and HID services shared with the Mac/Linux bridge, without opening an
+XCTest session or showing its automation banner. The normal PokiCore control and approval logic is
+unchanged. Its state, screenshot and input lanes remain connected independently while active; the
+Diagnostics path comparison records tap, type, swipe and parallel tree/screenshot timings against
+the in-process path. Changing paths takes effect on the next app launch.
+
 ## Layout
 
 | Path | What |
@@ -75,9 +82,9 @@ Qeno is in English and Simplified Chinese and follows the iPhone's language. The
 - Runner path only (`-automationPath runner`): the runner, and with it the banner, starts only when
   an agent asks, and stops after the idle time (default 60 s), from Stop on the Live Activity or in
   Qeno, or when Qeno is closed. Only Qeno starts the runner; opened by hand, Qeno Runner starts no
-  test (PokiRunnerHost, `native/ios-runner/host`) and sends the person to Qeno. While it runs, it
-  answers on port 8100 to any device on the same network, with no credentials and without Qeno's
-  approvals (`native/ios-runner/README.md`).
+  test (PokiRunnerHost, `native/ios-runner/host`) and sends the person to Qeno. While it runs, its
+  HTTP and MJPEG listeners bind to `127.0.0.1`, so only software on the phone can reach it; PokiCore
+  remains the approval boundary (`native/ios-runner/README.md`).
 - The Live Activity starts from the foreground, because iOS does not allow it from the background:
   when Qeno turns on, when pairing starts, and when a setup step opens Settings.
 

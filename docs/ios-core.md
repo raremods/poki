@@ -12,11 +12,11 @@ MCP client ──HTTPS──▶ Cloudflare Worker (relay) ──WebSocket (phone
 Poki app ──TCP 10.7.0.1:* (loopback tunnel)──▶ the phone's own developer services ──▶ WebDriverAgent runner (127.0.0.1:8100)
 ```
 
-Known issue: PokiCore reaches the runner at 127.0.0.1:8100, but the runner listens on port 8100 on
-every network interface of the phone and asks for no credentials. While it runs, any device on the
-same network can take screenshots and tap, and PokiCore's approvals do not apply to those requests.
-Turn Poki on only on networks you trust. The planned fix is a pairing code between Poki and the
-runner (`native/ios-runner/README.md`).
+The standalone launcher sets WebDriverAgent's `USE_IP=127.0.0.1`, which binds its HTTP and MJPEG
+listeners to the phone's loopback. PokiCore reaches the runner at `127.0.0.1:8100`; devices on the
+phone's Wi-Fi or cellular network cannot reach that standalone runner. Mac-hosted control uses the
+native bridge or RemotePairing by default. A Mac may still deliberately launch a separate,
+network-visible WDA for the explicit `POKI_CUA_BACKEND=wda` mode; see `native/ios-runner/README.md`.
 
 Three interfaces, each owned by one side:
 
@@ -27,7 +27,12 @@ Three interfaces, each owned by one side:
 | 3. PokiLauncher C ABI | PokiLauncher (`native/launcher`); used by the app |
 | 4. What the launcher needs from the loopback | PokiTunnel (`native/ios-app/PokiTunnel`), or the user's external VPN |
 
-Version: 1.3 (2026-11-07: the phone goes back to the app a task began in, `do {finish}` and `finishTask()` in section 2). 1.2 (2026-11-07: built-in loopback and separate external-connection build in section 4; 2026-11-06: on-device pairing in section 3, ToolFacts on toolFinished in section 2, tunnel facts in section 4, keep-alive). Every change to a section below bumps its version and is announced to the other threads.
+Version: 1.4 (2026-11-09: the standalone launcher binds the runner's HTTP and MJPEG listeners to
+the phone's loopback). 1.3 (2026-11-07: the phone goes back to the app a task began in, `do {finish}`
+and `finishTask()` in section 2). 1.2 (2026-11-07: built-in loopback and separate external-connection
+build in section 4; 2026-11-06: on-device pairing in section 3, ToolFacts on toolFinished in section
+2, tunnel facts in section 4, keep-alive). Every change to a section below bumps its version and is
+announced to the other threads.
 
 ## 1. Relay frames, v1
 
@@ -357,8 +362,12 @@ on the phone; the next first `look` of a task in that app names the saved routin
   together). The action time starts when the actions do, after the runner's start and the lock
   check (seen on the phone: a launch sent while the runner was starting had its time used up
   before it went, and a batch of Home, tap and drag had 6 s for all three), by at most
-  `runnerWait` (15 s): the call's backstop allows that much for the start, and a call pushed past
-  the backstop answers with nothing (the soak test caught one at 6.3 s against a 4 s deadline).
+  `runnerWait` (15 s): the call's backstop allows that much for the start. The backstop is a
+  backstop: it should never be what answers. A call that reaches it answers with nothing, which
+  is the worst answer the agent can get (the soak test caught one at 6.3 s against a 4 s
+  deadline, and the read was what spent the time — its parts each started under their own
+  timeout, so a read budgeted 1.0 s could run for 3.4 s; the read now holds to the call's
+  deadline like every other step).
 - At the deadline the tool answers anyway, saying which step did not finish and whether it may
   have been delivered, plus the last good read if any. A late runner answer is dropped.
 - Two refused or broken runner requests in a row mark the runner unhealthy: PokiCore calls

@@ -24,11 +24,18 @@
 </p>
 <!-- badges:end -->
 
+## Poki keyboard
+
+On the native path Poki types through its own keyboard panel at a person's pace, without
+reading the screen while it types. The panel has no keys and is not a keyboard for people:
+it shows while Poki types and has a Take Over button. Nothing is pasted unless you choose
+Paste in Advanced. See [docs/poki-keyboard.md](docs/poki-keyboard.md).
+
 ## Quick start
 
 ### Poki on your iPhone
 
-Tell Claude Code or Codex on your Mac:
+Tell your agent:
 
 ```text
 Install Poki on my iPhone from https://github.com/JosssphZhou/poki
@@ -40,7 +47,7 @@ Requires macOS 14+, Node.js 24+, iOS 18+, a USB data cable, an Apple Account, an
 
 No Node.js 24, or on Windows? The same prompt works once Poki Setup is installed: the agent then uses the command line tool inside Poki Setup. Poki Setup's own menu also copies a prompt for your agent (Poki > Copy Prompt for Your Agent on a Mac, Settings > Use an agent on Windows).
 
-Prefer clicking through it yourself? Download Poki Setup from the [Alpha release](https://github.com/JosssphZhou/poki/releases#release-ios-alpha-latest) and follow its window.
+Prefer clicking through it yourself? Download Poki Setup for macOS or Windows (contributed by [@ZhehanZhang](https://github.com/ZhehanZhang)) from the [Alpha release](https://github.com/JosssphZhou/poki/releases/tag/app-alpha-latest) and follow its window.
 
 ### Poki MCP for your agent
 
@@ -65,7 +72,7 @@ Requires macOS 15 or later, full Xcode, Rust, Node.js 24+, and ffmpeg. `./bin/se
 
 Poki targets macOS. For Linux, see the community port [poki-for-linux](https://github.com/carrotciallo/poki-for-linux) ([#16](https://github.com/JosssphZhou/poki/issues/16)), maintained outside this repo.
 
-Windows: community port at [scy7796/poki-for-windows](https://github.com/scy7796/poki-for-windows) (maintained by its author, not tested by us).
+Poki MCP on Windows: community port at [scy7796/poki-for-windows](https://github.com/scy7796/poki-for-windows) (maintained by its author, not tested by us).
 
 ### Prebuilt macOS arm64 package
 
@@ -115,7 +122,7 @@ poki "Search esp32 in Chrome and summarize the top result"
 
 Gets faster with use: Qeno Agent remembers past tasks and runs them faster on repeat.
 
-**Channels:** After configuring an authorized channel, start it with `poki imessage` or `poki telegram`. See [Qeno Agent](agent/README.md) for setup.
+**Channels:** After configuring an authorized channel, start it with `poki imessage` or [`poki telegram`](agent/README.md#telegram). See [Qeno Agent](agent/README.md) for setup.
 
 **MCP clients:** Claude Code, Codex, and any client supporting `mcpServers` JSON.
 
@@ -137,7 +144,7 @@ Physical iPhone support has been verified only on iPhones using the Chinese inte
 ## Roadmap
 
 <p align="center">
-  <img src="docs/images/roadmap.png" width="860" alt="Poki roadmap. Shipped: Poki MCP, Qeno Agent, iMessage and Terminal integrations, self-learning routes, remote connections. In Progress: persistent connection performance improvements, Telegram integration, native text input (clipboard-free), simplified tool interface. Planned: Poki App, which runs locally on iPhone and is available while your Mac is powered off. Future: iPhone Duo support, physical device support (no Xcode required), additional model providers.">
+  <img src="docs/images/roadmap.png" width="860" alt="Poki roadmap. Shipped: Poki MCP, Qeno Agent, iMessage, Telegram, and Terminal integrations, self-learning routes, remote connections. In Progress: persistent connection performance improvements, native text input (clipboard-free), simplified tool interface. Planned: Poki App, which runs locally on iPhone and is available while your Mac is powered off. Future: iPhone Duo support, physical device support (no Xcode required), additional model providers.">
 </p>
 
 ## Star History
@@ -155,7 +162,7 @@ Physical iPhone support has been verified only on iPhones using the Chinese inte
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="33%"><a href="https://github.com/ZhehanZhang"><img src="https://avatars.githubusercontent.com/u/67270559?v=4&size=240" width="120" height="120" alt="ZhehanZhang"/><br /><sub><b>ZhehanZhang</b></sub></a><br />Proposed driving a physical iPhone over Tailscale in <a href="https://github.com/JosssphZhou/poki/issues/2">#2</a>, the idea behind remote connections, which shipped in <a href="https://github.com/JosssphZhou/poki/pull/8">#8</a>.</td>
+      <td align="center" valign="top" width="33%"><a href="https://github.com/ZhehanZhang"><img src="https://avatars.githubusercontent.com/u/67270559?v=4&size=240" width="120" height="120" alt="ZhehanZhang"/><br /><sub><b>ZhehanZhang</b></sub></a><br />The great co-creator of Poki.</td>
       <td align="center" valign="top" width="33%"><a href="https://github.com/igc110"><img src="https://avatars.githubusercontent.com/u/241411380?v=4&size=240" width="120" height="120" alt="igc110"/><br /><sub><b>igc110</b></sub></a><br />Found why taps on a physical iPhone were slow in <a href="https://github.com/JosssphZhou/poki/issues/10">#10</a>; the fix that followed made them about a third faster.</td>
       <td align="center" valign="top" width="33%"><a href="https://github.com/edge369"><img src="https://avatars.githubusercontent.com/u/63720633?v=4&size=240" width="120" height="120" alt="edge369"/><br /><sub><b>edge369</b></sub></a><br />Made Poki run on a router in <a href="https://github.com/JosssphZhou/poki/pull/14">#14</a>, so Telegram can drive the iPhone with the Mac powered off; <a href="https://github.com/JosssphZhou/poki/pull/15">#15</a>, <a href="https://github.com/JosssphZhou/poki/pull/17">#17</a> and <a href="https://github.com/JosssphZhou/poki/issues/19">#19</a> followed.</td>
     </tr>
