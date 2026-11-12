@@ -188,7 +188,6 @@ struct AdvancedView: View {
     var push: (SettingsRoute) -> Void
 
     var body: some View {
-        @Bindable var model = model
         Form {
             if model.automationPath == .runner {
                 Section {
@@ -198,15 +197,20 @@ struct AdvancedView: View {
                     }
                 } header: { Text("Qeno Runner") }
             }
+            if model.automationPath == .nativeServices { TypingSettingsSection() }
             Section {
-                Button("Notifications") {
+                Button("Notification Settings") {
                     if let url = URL(string: UIApplication.openNotificationSettingsURLString) { UIApplication.shared.open(url) }
                 }
+            } header: { Text("Notifications") }
+            Section {
                 NavigationLink("Diagnostics", value: SettingsRoute.diagnostics)
                 NavigationLink("Log", value: SettingsRoute.log)
-                NavigationLink("Live Activity Preview", value: SettingsRoute.activityPreview)
+                NavigationLink("Testing Options") { TestingOptionsView() }
+            } header: {
+                Text("Debugging")
             } footer: {
-                Text("Diagnostics: connection checks, the background hold, this iPhone’s addresses and the in-process automation switch.")
+                Text("Diagnostics: connection checks and this iPhone’s addresses. Testing Options: the automation method and switches being tried.")
             }
         }
         .navigationTitle("Advanced")

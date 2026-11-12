@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/qeno-icon.png" width="72" height="72" alt="Qeno icon">
+  <img src="docs/images/poki-icon.png" width="72" height="72" alt="Poki icon">
 </p>
 
 <h1 align="center">Poki は、あなたと同じように iPhone を使う</h1>
@@ -25,6 +25,8 @@
 <!-- badges:end -->
 
 ## クイックスタート
+
+**iPhone に Poki App をインストールする。** [Alpha リリース](https://github.com/JosssphZhou/poki/releases/tag/app-alpha-latest)から Poki Setup をダウンロードし、画面の案内に従ってください。詳しくは [iPhone のインストール手順](README.md#poki-on-your-iphone)を参照してください。
 
 **エージェントにインストールを任せる。** 次の内容をエージェントに渡してください：
 
@@ -69,7 +71,7 @@ claude mcp add --scope user poki-mcp -- node "$PWD/src/stdio.mjs"   # Claude Cod
 codex mcp add poki-mcp -- node "$PWD/src/stdio.mjs"                 # Codex
 ```
 
-**Qeno Agent。** Poki 単体のターミナルエージェントやメッセージングチャネルを使う場合は、`npm start` を動かしたまま、同じディレクトリで別のターミナルを開きます。エージェントをインストールし、そのコマンドをこのターミナルの PATH に追加して、サインインします：
+**Poki Agent。** Poki 単体のターミナルエージェントやメッセージングチャネルを使う場合は、`npm start` を動かしたまま、同じディレクトリで別のターミナルを開きます。エージェントをインストールし、そのコマンドをこのターミナルの PATH に追加して、サインインします：
 
 ```sh
 npm ci --prefix agent
@@ -78,13 +80,13 @@ poki login
 poki status
 ```
 
-Qeno Agent は、デフォルトで GPT-6.1 Terra（`gpt-6.1-terra`）を推論強度 low で使用します。スマートフォンのタスクで私たちがテストした中で最も速い設定なので、そのまま使うことをおすすめします。モデルは `POKI_AGENT_MODEL` で変更できます。[Qeno Agent の実行](agent/README.md)を参照してください。
+Poki Agent は、デフォルトで GPT-6.1 Terra（`gpt-6.1-terra`）を推論強度 low で使用します。スマートフォンのタスクで私たちがテストした中で最も速い設定なので、そのまま使うことをおすすめします。モデルは `POKI_AGENT_MODEL` で変更できます。[Poki Agent の実行](agent/README.md)を参照してください。
 
 実機の iPhone を使う場合は、先に USB で Mac とペアリングしてください。[実機 iPhone のセットアップ](docs/physical-iphone.md)を参照してください。
 
 ## タスクを試す
 
-Qeno Agent では、接続中の iPhone が 1 台なら自動で選択されます。複数台ある場合は `--device '<device UUID>'` を追加します。
+Poki Agent では、接続中の iPhone が 1 台なら自動で選択されます。複数台ある場合は `--device '<device UUID>'` を追加します。
 
 ```sh
 node bin/call.mjs list_devices   # デバイスの UUID を確認
@@ -93,9 +95,9 @@ poki "Search esp32 in Chrome and summarize the top result"
 
 > **注意：** Poki はあなたの実機 iPhone を操作します。メッセージの送信や支払いを頼めば、そのとおりに実行します。画面の内容は、設定したモデルサービスに送信されます。
 
-使うほど速くなる：Qeno Agent は過去のタスクを記憶し、繰り返し実行するときはより速く動きます。
+使うほど速くなる：Poki Agent は過去のタスクを記憶し、繰り返し実行するときはより速く動きます。
 
-**チャネル：** 許可済みのチャネルを設定したら、`poki imessage` または `poki telegram` で起動します。設定方法は [Qeno Agent](agent/README.md) を参照してください。
+**チャネル：** 許可済みのチャネルを設定したら、`poki imessage` または [`poki telegram`](agent/README.md#telegram) で起動します。設定方法は [Poki Agent](agent/README.md) を参照してください。
 
 **MCP クライアント：** Claude Code、Codex、および `mcpServers` JSON に対応したクライアント。
 
@@ -106,7 +108,7 @@ poki "Search esp32 in Chrome and summarize the top result"
 | トピック | 参照先 |
 | --- | --- |
 | インストール、その他の MCP クライアント、トラブルシューティング | [インストールガイド](docs/install.md) |
-| Qeno Agent、モデル、iMessage、Telegram | [Qeno Agent を実行する](agent/README.md) |
+| Poki Agent、モデル、iMessage、Telegram | [Poki Agent を実行する](agent/README.md) |
 | MCP ツールリファレンス | [ツールの動作](docs/tools.md) |
 | 環境変数とセッション | [設定](docs/configuration.md) |
 | USB ペアリング、デベロッパモード、Wi-Fi | [実機 iPhone のセットアップ](docs/physical-iphone.md) |
@@ -117,11 +119,11 @@ poki "Search esp32 in Chrome and summarize the top result"
 ## ロードマップ
 
 <p align="center">
-  <img src="docs/images/roadmap.png" width="860" alt="Poki roadmap. Shipped: Poki MCP, Qeno Agent, iMessage and Terminal integrations, self-learning routes, remote connections. In Progress: persistent connection performance improvements, Telegram integration, native text input (clipboard-free), simplified tool interface. Planned: Poki App, which runs locally on iPhone and is available while your Mac is powered off. Future: iPhone Duo support, physical device support (no Xcode required), additional model providers.">
+  <img src="docs/images/roadmap.png" width="860" alt="Poki roadmap. Shipped: Poki MCP, Poki Agent, iMessage, Telegram, and Terminal integrations, self-learning routes, remote connections. In Progress: persistent connection performance improvements, native text input (clipboard-free), simplified tool interface. Planned: Poki App, which runs locally on iPhone and is available while your Mac is powered off. Future: iPhone Duo support, physical device support (no Xcode required), additional model providers.">
 </p>
 
-- **リリース済み:** Poki MCP、Qeno Agent、iMessage とターミナルの連携、自己学習ルート、リモート接続
-- **開発中:** **常時接続のパフォーマンス改善**、Telegram 連携、ネイティブテキスト入力（クリップボード不使用）、ツールインターフェースの簡素化
+- **リリース済み:** Poki MCP、Poki Agent、iMessage、Telegram とターミナルの連携、自己学習ルート、リモート接続
+- **開発中:** **常時接続のパフォーマンス改善**、ネイティブテキスト入力（クリップボード不使用）、ツールインターフェースの簡素化
 - **計画中:** Poki App：iPhone 上でローカル実行、Mac の電源がオフでも利用可能
 - **将来の予定:** iPhone Duo のサポート、実機サポート（Xcode 不要）、対応モデルプロバイダーの追加
 
@@ -140,7 +142,7 @@ poki "Search esp32 in Chrome and summarize the top result"
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="33%"><a href="https://github.com/ZhehanZhang"><img src="https://avatars.githubusercontent.com/u/67270559?v=4&size=240" width="120" height="120" alt="ZhehanZhang"/><br /><sub><b>ZhehanZhang</b></sub></a><br /><a href="https://github.com/JosssphZhou/poki/issues/2">#2</a> で Tailscale 経由で実機 iPhone を操作することを提案しました。これがリモート接続のもとになり、<a href="https://github.com/JosssphZhou/poki/pull/8">#8</a> で実現しました。</td>
+      <td align="center" valign="top" width="33%"><a href="https://github.com/ZhehanZhang"><img src="https://avatars.githubusercontent.com/u/67270559?v=4&size=240" width="120" height="120" alt="ZhehanZhang"/><br /><sub><b>ZhehanZhang</b></sub></a><br />Poki の偉大な共同創造者。</td>
       <td align="center" valign="top" width="33%"><a href="https://github.com/igc110"><img src="https://avatars.githubusercontent.com/u/241411380?v=4&size=240" width="120" height="120" alt="igc110"/><br /><sub><b>igc110</b></sub></a><br /><a href="https://github.com/JosssphZhou/poki/issues/10">#10</a> で実機 iPhone のタップが遅い原因を突き止め、その後の修正でタップが約 3 分の 1 速くなりました。</td>
       <td align="center" valign="top" width="33%"><a href="https://github.com/edge369"><img src="https://avatars.githubusercontent.com/u/63720633?v=4&size=240" width="120" height="120" alt="edge369"/><br /><sub><b>edge369</b></sub></a><br /><a href="https://github.com/JosssphZhou/poki/pull/14">#14</a> で Poki をルーター上で動かせるようにし、Mac の電源がオフでも Telegram から iPhone を操作できます。<a href="https://github.com/JosssphZhou/poki/pull/15">#15</a>、<a href="https://github.com/JosssphZhou/poki/pull/17">#17</a>、<a href="https://github.com/JosssphZhou/poki/issues/19">#19</a> が続きました。</td>
     </tr>

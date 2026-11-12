@@ -103,16 +103,21 @@ struct RootView: View {
 
     @ViewBuilder private var pokiTab: some View {
         if width == .regular {
-            NavigationSplitView {
-                sessions
-                    .navigationDestination(for: SetupStep.self) { SetupStepPage(step: $0) }
-            } detail: {
+            // Two plain stacks side by side, not a NavigationSplitView: its sidebar is a floating panel
+            // on iOS 26, set in from the top edge, which left a gap above home's blue header and pushed
+            // the title down. The left stack is the iPhone's home as it is.
+            HStack(spacing: 0) {
+                NavigationStack {
+                    sessions
+                        .navigationDestination(for: SetupStep.self) { SetupStepPage(step: $0) }
+                }
+                .frame(width: 375)
+                Divider().ignoresSafeArea()
                 NavigationStack {
                     page(wide, split: true).id(wide)
                         .navigationDestination(for: SetupStep.self) { SetupStepPage(step: $0) }
                 }
             }
-            .navigationSplitViewStyle(.balanced)
         } else {
             NavigationStack(path: $home) {
                 sessions
@@ -125,17 +130,21 @@ struct RootView: View {
         }
     }
 
-    var body: some View {
+    /// The tabs, apart from `body`: together with its alerts and handlers the one expression was more
+    /// than the compiler would type-check in its time limit.
+    private var tabs: some View {
         TabView(selection: $tab) {
-            Tab(String(localized: "Qeno"), systemImage: "bubble.left.and.bubble.right.fill", value: RootTab.chats) { pokiTab }
+            Tab(String(localized: "Qeno"), systemImage: "bubble.left.and.bubble.right.fill", value: RootTab.chats) {
+                pokiTab.environment(\.horizontalSizeClass, width)
+            }
 
             Tab("Agents", systemImage: "point.3.connected.trianglepath.dotted", value: RootTab.agents) {
-                AgentsView(path: $agents, openSession: openRun)
+                AgentsView(path: $agents, openSession: openRun).environment(\.horizontalSizeClass, width)
             }
             // A dot when something there needs attention: no account for the chat, or the relay down.
             .badge(agentsNeedAttention ? Text(verbatim: " ") : nil)
 
-            Tab("Setup", systemImage: "checklist", value: RootTab.setup) { SetupTab(path: $setup) }
+            Tab("Setup", systemImage: "checklist", value: RootTab.setup) { SetupTab(path: $setup).environment(\.horizontalSizeClass, width) }
                 // A dot while a setup item is still open.
                 .badge(model.setupLooksComplete ? nil : Text(verbatim: " "))
 
@@ -145,6 +154,14 @@ struct RootView: View {
                 Tab(String(localized: "New Chat"), systemImage: "square.and.pencil", value: RootTab.newChat, role: .search) { Color.clear }
             }
         }
+        // The tab bar stays at the bottom on iPad too: in a wide window iOS moves it to a floating bar
+        // at the top, over home's header. The tab bar reads the compact width here; each tab's own
+        // content gets the real width back.
+        .environment(\.horizontalSizeClass, UserInterfaceSizeClass.compact)
+    }
+
+    var body: some View {
+        tabs
         .onChange(of: tab) { old, new in
             // Leaving the Qeno tab from a conversation (to Accounts, Setup, a connector): the Qeno
             // tab is back at Sessions, with its tab bar, when you come back. Done without animation
@@ -167,11 +184,11 @@ struct RootView: View {
         } message: { ask in
             Text("\(ask.client) is signing in through \(ask.connector) and returns to \(ask.callback), which isn’t on Qeno’s list of known agents. Allow it only if you are connecting it yourself right now. It could then see your screen and act on this iPhone.")
         }
-        // The update's last step: Qeno has to exit, and the owner closes it from the app switcher.
-        .alert("Close Qeno to Finish the Update", isPresented: Binding(get: { model.signer.finishNotice }, set: { if !$0 { model.signer.finishNoticeAnswered() } })) {
+        // The update's last step: Qeno has to exit, and does so by itself.
+        .alert("Qeno Will Close to Finish the Update", isPresented: Binding(get: { model.signer.finishNotice }, set: { if !$0 { model.signer.finishNoticeAnswered() } })) {
             Button("OK") { model.signer.finishNoticeAnswered() }
         } message: {
-            Text("The update is almost in. Qeno has to exit for iOS to finish it: after OK, swipe up to the app switcher, swipe Qeno away, then open Qeno again.")
+            Text("The update is almost in. Qeno will close to finish it; open Qeno again afterwards.")
         }
         // Turning on after Off: Qeno exits by itself and has to be opened again.
         .alert("Qeno Restarts to Turn On", isPresented: Binding(get: { model.relaunchNotice }, set: { if !$0 { model.relaunchNotice = false } })) {
@@ -188,31 +205,12 @@ struct RootView: View {
             Text("This is the first time Qeno starts automation since your iPhone restarted, so iOS will ask for your passcode on the next screen. That screen belongs to iOS: Qeno can’t see or read what you enter, and it asks only once until the next restart.")
         }
         .onChange(of: scenePhase, initial: true) { _, phase in
-            if phase == .active { model.becameActive(); AskPoki.refresh(); model.startSigner(); model.signer.maintain(); Task { await model.verifyPairing() } } else if phase == .background { model.wentToBackground() }
+            if phase == .active { model.becameActive(); AskPoki.refresh(); model.startSigner(); model.signer.clearNotices(); model.signer.maintain(); Task { await model.verifyPairing() } } else if phase == .background { model.wentToBackground() }
         }
         // A tap on the Live Activity opens the screen its state is about (ActivityFace.link): the chat,
         // the setup step, or the Activity Log for a problem; `qeno://voice` opens the chat too (it
         // never turns on the microphone).
-        .onOpenURL { url in
-            AppLog.shared.add("app", "opened by link qeno://\(url.host() ?? "")")
-            // Pairing is not interrupted: it stays on the pairing step, where the PIN is.
-            guard !model.pairingUnderWay else { return }
-            // A pairing file or a setup link (from Qeno Setup on a computer, AirDrop or Files) opens
-            // setup at that step, where the result is shown.
-            if let step = model.open(link: url) {
-                tab = .setup
-                setup = NavigationPath([step])
-            } else if url.host() == "setup", !url.absoluteString.contains("relay=") {
-                // The Live Activity during setup: the Setup tab.
-                tab = .setup
-            } else if url.host() == "log" {
-                // The Live Activity's problem: what went wrong is in the Activity Log.
-                openAgents(.activityLog)
-            } else {
-                if url.host() == "voice" { model.voice.open(url) }
-                tab = .chats; show(HomeRoute.chat)
-            }
-        }
+        .onOpenURL { url in open(link: url) }
         .onAppear(perform: openLaunchScreen)
         .task {
             #if DEBUG
@@ -222,6 +220,27 @@ struct RootView: View {
                 model.voice.openAtLaunch(url)
             }
             #endif
+        }
+    }
+
+    private func open(link url: URL) {
+        AppLog.shared.add("app", "opened by link qeno://\(url.host() ?? "")")
+        // Pairing is not interrupted: it stays on the pairing step, where the PIN is.
+        guard !model.pairingUnderWay else { return }
+        // A pairing file or a setup link (from Qeno Setup on a computer, AirDrop or Files) opens
+        // setup at that step, where the result is shown.
+        if let step = model.open(link: url) {
+            tab = .setup
+            setup = NavigationPath([step])
+        } else if url.host() == "setup", !url.absoluteString.contains("relay=") {
+            // The Live Activity during setup: the Setup tab.
+            tab = .setup
+        } else if url.host() == "log" {
+            // The Live Activity's problem: what went wrong is in the Activity Log.
+            openAgents(.activityLog)
+        } else {
+            if url.host() == "voice" { model.voice.open(url) }
+            tab = .chats; show(HomeRoute.chat)
         }
     }
 

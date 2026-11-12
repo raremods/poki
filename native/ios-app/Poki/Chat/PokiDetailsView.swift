@@ -32,9 +32,9 @@ struct PokiDetailsView: View {
                         NavigationLink(value: DetailsRoute.history) { LabeledContent("Last Action", value: lastRun) }
                     }
                     if model.sessionOn && !model.runnerPaused || chat.running {
-                        Button("Pause", systemImage: "pause.fill") { chat.stop(); model.pauseRunner() }
+                        Button("Pause") { chat.stop(); model.pauseRunner() }
                     } else if model.sessionOn {
-                        Button("Resume", systemImage: "play.fill") { model.wakeRunner() }
+                        Button("Resume") { model.wakeRunner() }
                     }
                     ForEach(issues) { issue in
                         IssueRow(issue: issue, openSetup: openSetup)
@@ -69,8 +69,6 @@ struct PokiDetailsView: View {
                                 .foregroundStyle(model.setupComplete ? Color.secondary : Color.orange)
                         } label: { Label("Setup", systemImage: "checklist") }
                     }
-                    Button { openNotificationSettings() } label: { Label("Notifications", systemImage: "bell.badge") }
-                    NavigationLink(value: SettingsRoute.diagnostics) { Label("Diagnostics", systemImage: "stethoscope") }
                 }
             }
             .listStyle(.insetGrouped)
@@ -101,9 +99,6 @@ struct PokiDetailsView: View {
         return model.currentApp.map { "\($0), \(time)" } ?? time
     }
 
-    private func openNotificationSettings() {
-        if let url = URL(string: UIApplication.openNotificationSettingsURLString) { UIApplication.shared.open(url) }
-    }
 }
 
 enum DetailsRoute: Hashable { case model, history, voice, settings, setup }
@@ -264,6 +259,7 @@ extension ModelProvider {
         case .gemini: "Provider-googlegemini"
         case .deepseek: "Provider-deepseek"
         case .openrouter: "Provider-openrouter"
+        case .opencodeGo: nil // Neutral server icon; do not borrow another provider's trademark.
         case .custom: nil
         }
     }

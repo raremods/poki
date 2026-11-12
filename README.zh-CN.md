@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/qeno-icon.png" width="72" height="72" alt="Qeno icon">
+  <img src="docs/images/poki-icon.png" width="72" height="72" alt="Poki icon">
 </p>
 
 <h1 align="center">Poki 像你一样使用你的 iPhone</h1>
@@ -25,6 +25,8 @@
 <!-- badges:end -->
 
 ## 快速开始
+
+**在 iPhone 上安装 Poki App。** 从 [Alpha 发布页](https://github.com/JosssphZhou/poki/releases/tag/app-alpha-latest)下载 Poki Setup，按安装窗口操作。详见 [iPhone 安装说明](README.md#poki-on-your-iphone)。
 
 **让 agent 帮你安装。** 把这段发给你的 agent：
 
@@ -69,7 +71,7 @@ claude mcp add --scope user poki-mcp -- node "$PWD/src/stdio.mjs"   # Claude Cod
 codex mcp add poki-mcp -- node "$PWD/src/stdio.mjs"                 # Codex
 ```
 
-**Qeno Agent。** 如果要使用 Poki 独立终端智能体或消息渠道，保持 `npm start` 运行，在同一目录下打开另一个终端。安装智能体，将命令加入当前终端的路径，再登录模型账号：
+**Poki Agent。** 如果要使用 Poki 独立终端智能体或消息渠道，保持 `npm start` 运行，在同一目录下打开另一个终端。安装智能体，将命令加入当前终端的路径，再登录模型账号：
 
 ```sh
 npm ci --prefix agent
@@ -78,13 +80,13 @@ poki login
 poki status
 ```
 
-Qeno Agent 默认使用 GPT-6.1 Terra（`gpt-6.1-terra`），推理强度为 low。建议保留这一配置，它是我们在手机任务中测试过的最快配置。可通过 `POKI_AGENT_MODEL` 更换模型，详见[运行 Qeno Agent](agent/README.md)。
+Poki Agent 默认使用 GPT-6.1 Terra（`gpt-6.1-terra`），推理强度为 low。建议保留这一配置，它是我们在手机任务中测试过的最快配置。可通过 `POKI_AGENT_MODEL` 更换模型，详见[运行 Poki Agent](agent/README.md)。
 
 如果连接 iPhone 真机，请先通过 USB 与 Mac 配对。详见[真机配置指南](docs/physical-iphone.md)。
 
 ## 试跑一个任务
 
-Qeno Agent 会自动选择唯一连接的 iPhone。连接多台设备时，加上 `--device '<device UUID>'` 指定设备。
+Poki Agent 会自动选择唯一连接的 iPhone。连接多台设备时，加上 `--device '<device UUID>'` 指定设备。
 
 ```sh
 node bin/call.mjs list_devices   # 查设备 UUID
@@ -93,9 +95,9 @@ poki "Search esp32 in Chrome and summarize the top result"
 
 > **注意：** Poki 操作的是真实手机，如果你让它发消息或付款，它会直接执行；屏幕内容也会发送给你配置的模型服务。
 
-越用越快：Qeno Agent 会记住跑过的任务，再次执行同款任务时速度更快。
+越用越快：Poki Agent 会记住跑过的任务，再次执行同款任务时速度更快。
 
-**消息渠道：** 配置获授权的渠道后，运行 `poki imessage` 或 `poki telegram`。详见[运行 Qeno Agent](agent/README.md)。
+**消息渠道：** 配置获授权的渠道后，运行 `poki imessage` 或 [`poki telegram`](agent/README.md#telegram)。详见[运行 Poki Agent](agent/README.md)。
 
 **MCP 客户端：** Claude Code、Codex，以及任何支持 `mcpServers` JSON 配置的客户端。
 
@@ -106,7 +108,7 @@ poki "Search esp32 in Chrome and summarize the top result"
 | 主题 | 文档 |
 | --- | --- |
 | 安装、其他 MCP 客户端与故障排查 | [安装指南](docs/install.md) |
-| Qeno Agent、模型、iMessage 与 Telegram | [运行 Qeno Agent](agent/README.md) |
+| Poki Agent、模型、iMessage 与 Telegram | [运行 Poki Agent](agent/README.md) |
 | MCP 工具说明 | [工具说明](docs/tools.md) |
 | 环境变量与会话管理 | [配置说明](docs/configuration.md) |
 | USB 配对、开发者模式与 Wi-Fi 连接 | [真机配置指南](docs/physical-iphone.md) |
@@ -117,7 +119,7 @@ poki "Search esp32 in Chrome and summarize the top result"
 ## 路线图
 
 <p align="center">
-  <img src="docs/images/roadmap.zh-CN.png" width="860" alt="Poki 路线图。已发布：Poki MCP、Qeno Agent、iMessage 与终端集成、自学习路线、远程连接。开发中：长连接性能优化、Telegram 集成、原生文本输入（不经剪贴板）、简化工具接口。计划中：Poki App，在 iPhone 本地运行，Mac 关机时可用。远期规划：iPhone Duo 支持、真机支持（无需安装 Xcode）、更多模型提供商。">
+  <img src="docs/images/roadmap.zh-CN.png" width="860" alt="Poki 路线图。已发布：Poki MCP、Poki Agent、iMessage、Telegram 与终端集成、自学习路线、远程连接。开发中：长连接性能优化、原生文本输入（不经剪贴板）、简化工具接口。计划中：Poki App，在 iPhone 本地运行，Mac 关机时可用。远期规划：iPhone Duo 支持、真机支持（无需安装 Xcode）、更多模型提供商。">
 </p>
 
 ## Star History
@@ -135,7 +137,7 @@ poki "Search esp32 in Chrome and summarize the top result"
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="33%"><a href="https://github.com/ZhehanZhang"><img src="https://avatars.githubusercontent.com/u/67270559?v=4&size=240" width="120" height="120" alt="ZhehanZhang"/><br /><sub><b>ZhehanZhang</b></sub></a><br />在 <a href="https://github.com/JosssphZhou/poki/issues/2">#2</a> 中提出通过 Tailscale 驱动 iPhone 真机，这是远程连接的由来，并在 <a href="https://github.com/JosssphZhou/poki/pull/8">#8</a> 中上线。</td>
+      <td align="center" valign="top" width="33%"><a href="https://github.com/ZhehanZhang"><img src="https://avatars.githubusercontent.com/u/67270559?v=4&size=240" width="120" height="120" alt="ZhehanZhang"/><br /><sub><b>ZhehanZhang</b></sub></a><br />Poki 伟大的共同创造者。</td>
       <td align="center" valign="top" width="33%"><a href="https://github.com/igc110"><img src="https://avatars.githubusercontent.com/u/241411380?v=4&size=240" width="120" height="120" alt="igc110"/><br /><sub><b>igc110</b></sub></a><br />在 <a href="https://github.com/JosssphZhou/poki/issues/10">#10</a> 中查明真机点按慢的原因，随后的修复让点按快了约三分之一。</td>
       <td align="center" valign="top" width="33%"><a href="https://github.com/edge369"><img src="https://avatars.githubusercontent.com/u/63720633?v=4&size=240" width="120" height="120" alt="edge369"/><br /><sub><b>edge369</b></sub></a><br />在 <a href="https://github.com/JosssphZhou/poki/pull/14">#14</a> 中让 Poki 能在路由器上运行，Mac 关机时也能通过 Telegram 操作 iPhone；<a href="https://github.com/JosssphZhou/poki/pull/15">#15</a>、<a href="https://github.com/JosssphZhou/poki/pull/17">#17</a> 和 <a href="https://github.com/JosssphZhou/poki/issues/19">#19</a> 随后跟进。</td>
     </tr>

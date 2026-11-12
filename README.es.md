@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/qeno-icon.png" width="72" height="72" alt="Qeno icon">
+  <img src="docs/images/poki-icon.png" width="72" height="72" alt="Poki icon">
 </p>
 
 <h1 align="center">Poki usa tu iPhone como lo harías tú</h1>
@@ -25,6 +25,8 @@
 <!-- badges:end -->
 
 ## Inicio rápido
+
+**Instala Poki App en tu iPhone.** Descarga Poki Setup desde la [versión Alpha](https://github.com/JosssphZhou/poki/releases/tag/app-alpha-latest) y sigue las instrucciones de su ventana. Consulta la [guía de instalación en iPhone](README.md#poki-on-your-iphone).
 
 **Deja que tu agente lo instale.** Copia esto a tu agente:
 
@@ -69,7 +71,7 @@ claude mcp add --scope user poki-mcp -- node "$PWD/src/stdio.mjs"   # Claude Cod
 codex mcp add poki-mcp -- node "$PWD/src/stdio.mjs"                 # Codex
 ```
 
-**Qeno Agent.** Para usar el agente de terminal independiente de Poki o sus canales de mensajería, deja `npm start` en ejecución y abre otra terminal en el mismo directorio. Instala el agente, añade su comando al PATH de esta terminal e inicia sesión:
+**Poki Agent.** Para usar el agente de terminal independiente de Poki o sus canales de mensajería, deja `npm start` en ejecución y abre otra terminal en el mismo directorio. Instala el agente, añade su comando al PATH de esta terminal e inicia sesión:
 
 ```sh
 npm ci --prefix agent
@@ -78,13 +80,13 @@ poki login
 poki status
 ```
 
-Qeno Agent usa GPT-6.1 Terra (`gpt-6.1-terra`) con razonamiento low de forma predeterminada. Recomendamos mantener esta configuración: es la más rápida que hemos probado para tareas en el teléfono. Puedes cambiar el modelo con `POKI_AGENT_MODEL`; consulta [Ejecutar Qeno Agent](agent/README.md).
+Poki Agent usa GPT-6.1 Terra (`gpt-6.1-terra`) con razonamiento low de forma predeterminada. Recomendamos mantener esta configuración: es la más rápida que hemos probado para tareas en el teléfono. Puedes cambiar el modelo con `POKI_AGENT_MODEL`; consulta [Ejecutar Poki Agent](agent/README.md).
 
 Para un iPhone físico, primero emparéjalo con tu Mac por USB. Consulta [Configuración del iPhone físico](docs/physical-iphone.md).
 
 ## Prueba una tarea
 
-Con Qeno Agent, si hay un solo iPhone conectado, se selecciona automáticamente. Con varios dispositivos, añade `--device '<device UUID>'`.
+Con Poki Agent, si hay un solo iPhone conectado, se selecciona automáticamente. Con varios dispositivos, añade `--device '<device UUID>'`.
 
 ```sh
 node bin/call.mjs list_devices   # Busca el UUID de tu dispositivo
@@ -93,9 +95,9 @@ poki "Search esp32 in Chrome and summarize the top result"
 
 > **Nota:** Poki controla tu iPhone real. Si le pides que envíe mensajes o haga pagos, lo hará. El contenido de la pantalla se envía al servicio de modelos que hayas configurado.
 
-Cada vez más rápido: Qeno Agent recuerda las tareas anteriores y las ejecuta más rápido al repetirlas.
+Cada vez más rápido: Poki Agent recuerda las tareas anteriores y las ejecuta más rápido al repetirlas.
 
-**Canales:** Tras configurar un canal autorizado, inícialo con `poki imessage` o `poki telegram`. Consulta [Qeno Agent](agent/README.md) para la configuración.
+**Canales:** Tras configurar un canal autorizado, inícialo con `poki imessage` o [`poki telegram`](agent/README.md#telegram). Consulta [Poki Agent](agent/README.md) para la configuración.
 
 **Clientes MCP:** Claude Code, Codex y cualquier cliente compatible con JSON de `mcpServers`.
 
@@ -106,7 +108,7 @@ La compatibilidad con iPhone físico solo se ha verificado en iPhone con la inte
 | Tema | Leer |
 | --- | --- |
 | Instalación, otros clientes MCP y solución de problemas | [Guía de instalación](docs/install.md) |
-| Qeno Agent, modelos, iMessage y Telegram | [Ejecutar Qeno Agent](agent/README.md) |
+| Poki Agent, modelos, iMessage y Telegram | [Ejecutar Poki Agent](agent/README.md) |
 | Referencia de herramientas MCP | [Comportamiento de las herramientas](docs/tools.md) |
 | Variables de entorno y sesiones | [Configuración](docs/configuration.md) |
 | Emparejamiento USB, modo de desarrollador y Wi-Fi | [Configuración del iPhone físico](docs/physical-iphone.md) |
@@ -117,11 +119,11 @@ La compatibilidad con iPhone físico solo se ha verificado en iPhone con la inte
 ## Hoja de ruta
 
 <p align="center">
-  <img src="docs/images/roadmap.png" width="860" alt="Poki roadmap. Shipped: Poki MCP, Qeno Agent, iMessage and Terminal integrations, self-learning routes, remote connections. In Progress: persistent connection performance improvements, Telegram integration, native text input (clipboard-free), simplified tool interface. Planned: Poki App, which runs locally on iPhone and is available while your Mac is powered off. Future: iPhone Duo support, physical device support (no Xcode required), additional model providers.">
+  <img src="docs/images/roadmap.png" width="860" alt="Poki roadmap. Shipped: Poki MCP, Poki Agent, iMessage, Telegram, and Terminal integrations, self-learning routes, remote connections. In Progress: persistent connection performance improvements, native text input (clipboard-free), simplified tool interface. Planned: Poki App, which runs locally on iPhone and is available while your Mac is powered off. Future: iPhone Duo support, physical device support (no Xcode required), additional model providers.">
 </p>
 
-- **Publicado:** Poki MCP, Qeno Agent, integraciones con iMessage y la terminal, rutas de autoaprendizaje, Conexión remota
-- **En desarrollo:** **mejoras de rendimiento en conexiones persistentes**, integración con Telegram, entrada de texto nativa (sin portapapeles), interfaz de herramientas simplificada
+- **Publicado:** Poki MCP, Poki Agent, integraciones con iMessage, Telegram y la terminal, rutas de autoaprendizaje, Conexión remota
+- **En desarrollo:** **mejoras de rendimiento en conexiones persistentes**, entrada de texto nativa (sin portapapeles), interfaz de herramientas simplificada
 - **Planificado:** Poki App: ejecución local en el iPhone, disponible con el Mac apagado
 - **Futuro:** Compatibilidad con iPhone Duo, compatibilidad con dispositivos físicos (sin Xcode), más proveedores de modelos
 
@@ -140,7 +142,7 @@ La compatibilidad con iPhone físico solo se ha verificado en iPhone con la inte
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="33%"><a href="https://github.com/ZhehanZhang"><img src="https://avatars.githubusercontent.com/u/67270559?v=4&size=240" width="120" height="120" alt="ZhehanZhang"/><br /><sub><b>ZhehanZhang</b></sub></a><br />Propuso en <a href="https://github.com/JosssphZhou/poki/issues/2">#2</a> controlar un iPhone físico a través de Tailscale, la idea detrás de la conexión remota, que llegó en <a href="https://github.com/JosssphZhou/poki/pull/8">#8</a>.</td>
+      <td align="center" valign="top" width="33%"><a href="https://github.com/ZhehanZhang"><img src="https://avatars.githubusercontent.com/u/67270559?v=4&size=240" width="120" height="120" alt="ZhehanZhang"/><br /><sub><b>ZhehanZhang</b></sub></a><br />El gran cocreador de Poki.</td>
       <td align="center" valign="top" width="33%"><a href="https://github.com/igc110"><img src="https://avatars.githubusercontent.com/u/241411380?v=4&size=240" width="120" height="120" alt="igc110"/><br /><sub><b>igc110</b></sub></a><br />Descubrió en <a href="https://github.com/JosssphZhou/poki/issues/10">#10</a> por qué los toques en un iPhone físico eran lentos; la corrección posterior los hizo alrededor de un tercio más rápidos.</td>
       <td align="center" valign="top" width="33%"><a href="https://github.com/edge369"><img src="https://avatars.githubusercontent.com/u/63720633?v=4&size=240" width="120" height="120" alt="edge369"/><br /><sub><b>edge369</b></sub></a><br />Hizo que Poki funcionara en un router en <a href="https://github.com/JosssphZhou/poki/pull/14">#14</a>, de modo que Telegram controla el iPhone con el Mac apagado; siguieron <a href="https://github.com/JosssphZhou/poki/pull/15">#15</a>, <a href="https://github.com/JosssphZhou/poki/pull/17">#17</a> y <a href="https://github.com/JosssphZhou/poki/issues/19">#19</a>.</td>
     </tr>

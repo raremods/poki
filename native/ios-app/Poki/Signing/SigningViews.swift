@@ -102,37 +102,69 @@ struct SigningSection: View {
             } label: {
                 Label("Signed Until", systemImage: "signature")
             }
-            if let next = signer.next {
+            // A newer build that isn't downloaded yet shows even when a refresh (or an older update) is
+            // ready, so it is never hidden behind it.
+            if signer.updateNotReady, let latest = signer.latest {
+                LabeledContent { Text(verbatim: "\(latest.version) (\(latest.build))") } label: { Label("Update Available", systemImage: "sparkles") }
+            } else if let next = signer.next {
                 LabeledContent {
                     Text(next.kind == "update" ? "\(next.version) (\(next.build))" : "Until \(next.expires.formatted(.dateTime.month(.abbreviated).day().year()))").lineLimit(1)
                 } label: {
                     Label(next.kind == "update" ? "Update Ready" : "Refresh Ready", systemImage: "checkmark.seal")
                 }
-            } else if let latest = signer.latest, signer.isNewer(latest) {
-                LabeledContent { Text(verbatim: "\(latest.version) (\(latest.build))") } label: { Label("Update Available", systemImage: "sparkles") }
             }
             NavigationLink { SigningOptionsPage() } label: {
                 Label("Signing Options", systemImage: "slider.horizontal.3")
             }
-            // The actions last, under what they act on.
-            if let next = signer.next {
+            // The actions last, under what they act on. A newer build not yet downloaded comes first:
+            // one tap downloads and installs it (or, without an Apple Account, opens the sign-in).
+            if signer.updateNotReady {
+                if signer.signedIn {
+                    action("Download and Install Update", id: "download") { await signer.downloadAndInstallUpdate() }
+                } else {
+                    NavigationLink {
+                        Form { AccountPage() }
+                            .navigationTitle("Apple Account")
+                            .navigationBarTitleDisplayMode(.inline)
+                    } label: {
+                        Label("Sign In to Download the Update", systemImage: "person.crop.circle.badge.plus")
+                    }
+                }
+            } else if let next = signer.next {
                 // Idle is partly time (a minute since the last agent step), which nothing observes, so
                 // the row looks again every few seconds instead of staying as it was first drawn.
                 TimelineView(.periodic(from: .now, by: 5)) { _ in
-                    Button(next.kind == "update" ? "Install Update" : "Install Refresh", systemImage: "arrow.down.app") { Task { await signer.install() } }
-                        .disabled(signer.working != nil)
+                    action(next.kind == "update" ? "Install Update" : "Install Refresh", id: "install") { await signer.install() }
                 }
             }
             if signer.signedIn {
-                Button("Prepare Refresh Now", systemImage: "arrow.clockwise") { Task { await signer.prepare(kind: "refresh") } }
-                    .disabled(signer.working != nil)
+                action("Prepare Refresh Now", id: "refresh") { await signer.prepare(kind: "refresh") }
             }
         } header: {
-            Text("Signing")
+            Text("Updates")
         } footer: {
             Text(footer)
         }
         SignerActivityRows(signer: signer)
+    }
+
+    /// The action last tapped, which shows a spinner while it runs.
+    @State private var pressed: String?
+
+    /// One action row: its title in the tint with no symbol, as in Settings, and the system's
+    /// spinner at the trailing edge from the tap until the work ends.
+    private func action(_ title: LocalizedStringKey, id: String, _ work: @escaping () async -> Void) -> some View {
+        Button {
+            pressed = id
+            Task { await work(); if pressed == id { pressed = nil } }
+        } label: {
+            HStack {
+                Text(title)
+                Spacer()
+                if pressed == id, signer.working != nil { ProgressView() }
+            }
+        }
+        .disabled(signer.working != nil)
     }
 
     private var countdownColor: Color {
@@ -141,6 +173,7 @@ struct SigningSection: View {
     }
 
     private var footer: String {
+        if let blocker = signer.updateBlocker { return blocker }
         if !signer.signedIn { return String(localized: "Qeno Setup on your Mac renews Qeno when this iPhone is connected.") }
         if signer.next != nil {
             return model.signingIdle

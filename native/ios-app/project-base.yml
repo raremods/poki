@@ -37,6 +37,9 @@ targets:
     sources:
       - path: Poki
       - path: Shared
+      # The mailbox the app and the Poki keyboard share (tested on its own: KeyboardShared/Package.swift).
+      - path: KeyboardShared/Sources/KeyboardShared
+        group: KeyboardShared
       # The gym scorecard (native/ios-gym/check), run in-process by the Debug probe's `gym` mode.
       - path: ../ios-gym/check/GymScorecard.swift
         group: Poki/Debug
@@ -107,6 +110,7 @@ targets:
         com.apple.security.application-groups: [$(POKI_APP_GROUP)]
     dependencies:
       - target: PokiWidgets
+      - target: PokiKeyboard
       - package: PokiCore
       - package: WebRTC
       - package: PiSwift
@@ -133,6 +137,36 @@ targets:
         # generates the CFBundleAlternateIcons entries from these names.
         ASSETCATALOG_COMPILER_ALTERNATE_APP_ICON_NAMES: AppIcon-Blue AppIcon-Red
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  PokiKeyboard:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: PokiKeyboard
+      - path: KeyboardShared/Sources/KeyboardShared
+        group: KeyboardShared
+    info:
+      path: PokiKeyboard/Info.plist
+      properties:
+        CFBundleDisplayName: Qeno
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        PokiAppGroup: $(POKI_APP_GROUP)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.keyboard-service
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).KeyboardViewController
+          NSExtensionAttributes:
+            IsASCIICapable: true
+            PrefersRightToLeft: false
+            PrimaryLanguage: en-US
+            RequestsOpenAccess: true
+    entitlements:
+      path: PokiKeyboard/PokiKeyboard.entitlements
+      properties:
+        com.apple.security.application-groups: [$(POKI_APP_GROUP)]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(POKI_BUNDLE_ID).keyboard
+        APPLICATION_EXTENSION_API_ONLY: YES
   PokiTests:
     type: bundle.unit-test
     platform: iOS
@@ -140,6 +174,8 @@ targets:
     dependencies:
       - target: Poki
       - package: PokiCore
+      - package: PiSwift
+        product: PiSwiftAI
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(POKI_BUNDLE_ID).tests

@@ -26,7 +26,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在“%2$@”中%1$@"
+            "value": "\u6b63\u5728\u201c%2$@\u201d\u4e2d%1$@"
           }
         }
       }
@@ -36,7 +36,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在“%2$@”中%1$@。打开 Qeno 允许或拒绝。"
+            "value": "\u5728\u201c%2$@\u201d\u4e2d%1$@\u3002\u6253\u5f00 Qeno \u5141\u8bb8\u6216\u62d2\u7edd\u3002"
           }
         }
       }
@@ -46,7 +46,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 密钥"
+            "value": "%@ \u5bc6\u94a5"
           }
         }
       }
@@ -56,7 +56,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 或更高版本"
+            "value": "%@ \u6216\u66f4\u9ad8\u7248\u672c"
           }
         }
       }
@@ -76,7 +76,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@，%2$lld 步失败"
+            "value": "%1$@\uff0c%2$lld \u6b65\u5931\u8d25"
           }
         }
       }
@@ -86,7 +86,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@，第 %lld 步"
+            "value": "%@\uff0c\u7b2c %lld \u6b65"
           }
         }
       }
@@ -96,7 +96,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@，等待确认"
+            "value": "%@\uff0c\u7b49\u5f85\u786e\u8ba4"
           }
         }
       }
@@ -106,7 +106,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@（使用 %@ 密钥）"
+            "value": "%@\uff08\u4f7f\u7528 %@ \u5bc6\u94a5\uff09"
           }
         }
       }
@@ -116,7 +116,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@。始于%2$@。"
+            "value": "%1$@\u3002\u59cb\u4e8e%2$@\u3002"
           }
         }
       }
@@ -126,7 +126,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@：%2$@"
+            "value": "%1$@\uff1a%2$@"
           }
         }
       }
@@ -136,7 +136,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld 行"
+            "value": "%lld \u884c"
           }
         }
       }
@@ -156,7 +156,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld 点"
+            "value": "%lld \u70b9"
           }
         }
       }
@@ -166,7 +166,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld 秒"
+            "value": "%lld \u79d2"
           }
         }
       }
@@ -176,7 +176,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld 步"
+            "value": "%lld \u6b65"
           }
         }
       }
@@ -186,7 +186,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$lld 步，用时 %2$@"
+            "value": "%1$lld \u6b65\uff0c\u7528\u65f6 %2$@"
           }
         }
       }
@@ -196,7 +196,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "1 个链接"
+            "value": "1 \u4e2a\u94fe\u63a5"
           }
         }
       }
@@ -206,7 +206,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "1 分钟"
+            "value": "1 \u5206\u949f"
           }
         }
       }
@@ -216,18 +216,18 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "1 步"
+            "value": "1 \u6b65"
           }
         }
       }
     },
-    "10.7.0.1 takes the connection, but the phone's remote pairing service does not answer through it, so this page can show Working while Qeno cannot connect. Reconnect your proxy app or LocalDevVPN, then pair again in Setup › Pairing.": {
+    "10.7.0.1 takes the connection, but the phone's remote pairing service does not answer through it, so this page can show Working while Qeno cannot connect. Reconnect your proxy app or LocalDevVPN, then pair again in Setup \u203a Pairing.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "10.7.0.1 接受了连接，但手机的远程配对服务没有通过它回应，所以本页可能显示“正常”而 Qeno 仍连不上。请重新连接代理 App 或 LocalDevVPN，然后到“设置引导 › 配对”重新配对。"
+            "value": "10.7.0.1 \u63a5\u53d7\u4e86\u8fde\u63a5\uff0c\u4f46\u624b\u673a\u7684\u8fdc\u7a0b\u914d\u5bf9\u670d\u52a1\u6ca1\u6709\u901a\u8fc7\u5b83\u56de\u5e94\uff0c\u6240\u4ee5\u672c\u9875\u53ef\u80fd\u663e\u793a\u201c\u6b63\u5e38\u201d\u800c Qeno \u4ecd\u8fde\u4e0d\u4e0a\u3002\u8bf7\u91cd\u65b0\u8fde\u63a5\u4ee3\u7406 App \u6216 LocalDevVPN\uff0c\u7136\u540e\u5230\u201c\u8bbe\u7f6e\u5f15\u5bfc \u203a \u914d\u5bf9\u201d\u91cd\u65b0\u914d\u5bf9\u3002"
           }
         }
       }
@@ -237,7 +237,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "2 分钟"
+            "value": "2 \u5206\u949f"
           }
         }
       }
@@ -247,7 +247,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 秒"
+            "value": "30 \u79d2"
           }
         }
       }
@@ -257,7 +257,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "5 分钟"
+            "value": "5 \u5206\u949f"
           }
         }
       }
@@ -267,7 +267,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已保存密钥。输入新密钥将覆盖原密钥。"
+            "value": "\u5df2\u4fdd\u5b58\u5bc6\u94a5\u3002\u8f93\u5165\u65b0\u5bc6\u94a5\u5c06\u8986\u76d6\u539f\u5bc6\u94a5\u3002"
           }
         }
       }
@@ -277,7 +277,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "网络地址"
+            "value": "\u7f51\u7edc\u5730\u5740"
           }
         }
       }
@@ -287,7 +287,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "智能体"
+            "value": "\u667a\u80fd\u4f53"
           }
         }
       }
@@ -297,7 +297,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "API 密钥（可选）"
+            "value": "API \u5bc6\u94a5\uff08\u53ef\u9009\uff09"
           }
         }
       }
@@ -307,7 +307,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "约需 5 分钟。所有数据均保留在此 iPhone 上。"
+            "value": "\u7ea6\u9700 5 \u5206\u949f\u3002\u6240\u6709\u6570\u636e\u5747\u4fdd\u7559\u5728\u6b64 iPhone \u4e0a\u3002"
           }
         }
       }
@@ -317,7 +317,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "添加"
+            "value": "\u6dfb\u52a0"
           }
         }
       }
@@ -327,7 +327,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "添加密钥"
+            "value": "\u6dfb\u52a0\u5bc6\u94a5"
           }
         }
       }
@@ -337,7 +337,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "添加地址"
+            "value": "\u6dfb\u52a0\u5730\u5740"
           }
         }
       }
@@ -347,7 +347,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请先添加模型密钥：轻点头像，再选择“模型”。"
+            "value": "\u8bf7\u5148\u6dfb\u52a0\u6a21\u578b\u5bc6\u94a5\uff1a\u8f7b\u70b9\u5934\u50cf\uff0c\u518d\u9009\u62e9\u201c\u6a21\u578b\u201d\u3002"
           }
         }
       }
@@ -358,7 +358,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "将其添加到 sing-box 配置的 tun 入站中，然后重新加载配置。"
+            "value": "\u5c06\u5176\u6dfb\u52a0\u5230 sing-box \u914d\u7f6e\u7684 tun \u5165\u7ad9\u4e2d\uff0c\u7136\u540e\u91cd\u65b0\u52a0\u8f7d\u914d\u7f6e\u3002"
+          }
+        }
+      }
+    },
+    "Add the Qeno Keyboard": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u6dfb\u52a0 Qeno \u952e\u76d8"
           }
         }
       }
@@ -368,7 +378,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在客户端中将此地址添加为远程 MCP 服务器。Qeno 运行期间，任何持有此地址的人都能控制此 iPhone。请妥善保管，如有泄露请在此处撤销。"
+            "value": "\u5728\u5ba2\u6237\u7aef\u4e2d\u5c06\u6b64\u5730\u5740\u6dfb\u52a0\u4e3a\u8fdc\u7a0b MCP \u670d\u52a1\u5668\u3002Qeno \u8fd0\u884c\u671f\u95f4\uff0c\u4efb\u4f55\u6301\u6709\u6b64\u5730\u5740\u7684\u4eba\u90fd\u80fd\u63a7\u5236\u6b64 iPhone\u3002\u8bf7\u59a5\u5584\u4fdd\u7ba1\uff0c\u5982\u6709\u6cc4\u9732\u8bf7\u5728\u6b64\u5904\u64a4\u9500\u3002"
           }
         }
       }
@@ -378,7 +388,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请添加 %@ 密钥：轻点头像，再选择“模型”。"
+            "value": "\u8bf7\u6dfb\u52a0 %@ \u5bc6\u94a5\uff1a\u8f7b\u70b9\u5934\u50cf\uff0c\u518d\u9009\u62e9\u201c\u6a21\u578b\u201d\u3002"
           }
         }
       }
@@ -388,7 +398,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "添加智能体"
+            "value": "\u6dfb\u52a0\u667a\u80fd\u4f53"
           }
         }
       }
@@ -398,7 +408,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "添加密钥以开始与 Qeno 对话"
+            "value": "\u6dfb\u52a0\u5bc6\u94a5\u4ee5\u5f00\u59cb\u4e0e Qeno \u5bf9\u8bdd"
           }
         }
       }
@@ -408,7 +418,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "添加日期"
+            "value": "\u6dfb\u52a0\u65e5\u671f"
           }
         }
       }
@@ -418,7 +428,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "服务地址"
+            "value": "\u670d\u52a1\u5730\u5740"
           }
         }
       }
@@ -429,7 +439,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新启动后，解锁此 iPhone 并轻点“**打开**”。"
+            "value": "\u91cd\u65b0\u542f\u52a8\u540e\uff0c\u89e3\u9501\u6b64 iPhone \u5e76\u8f7b\u70b9\u201c**\u6253\u5f00**\u201d\u3002"
           }
         }
       }
@@ -439,27 +449,27 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "智能体已完成"
+            "value": "\u667a\u80fd\u4f53\u5df2\u5b8c\u6210"
           }
         }
       }
     },
-    "Agents can reach this iPhone, but Qeno can’t tap until Loopback is on.": {
+    "Agents can reach this iPhone, but Qeno can\u2019t tap until Loopback is on.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "智能体已可连接此 iPhone，但开启回环后 Qeno 才能执行轻点。"
+            "value": "\u667a\u80fd\u4f53\u5df2\u53ef\u8fde\u63a5\u6b64 iPhone\uff0c\u4f46\u5f00\u542f\u56de\u73af\u540e Qeno \u624d\u80fd\u6267\u884c\u8f7b\u70b9\u3002"
           }
         }
       }
     },
-    "Agents can’t reach this iPhone": {
+    "Agents can\u2019t reach this iPhone": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "智能体无法连接此 iPhone"
+            "value": "\u667a\u80fd\u4f53\u65e0\u6cd5\u8fde\u63a5\u6b64 iPhone"
           }
         }
       }
@@ -469,7 +479,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "所有设置"
+            "value": "\u6240\u6709\u8bbe\u7f6e"
           }
         }
       }
@@ -479,7 +489,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "所有步骤"
+            "value": "\u6240\u6709\u6b65\u9aa4"
           }
         }
       }
@@ -489,7 +499,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "允许"
+            "value": "\u5141\u8bb8"
           }
         }
       }
@@ -499,7 +509,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "允许访问位置信息"
+            "value": "\u5141\u8bb8\u8bbf\u95ee\u4f4d\u7f6e\u4fe1\u606f"
           }
         }
       }
@@ -509,7 +519,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "允许 UI 自动化"
+            "value": "\u5141\u8bb8 UI \u81ea\u52a8\u5316"
           }
         }
       }
@@ -519,17 +529,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "允许操作"
+            "value": "\u5141\u8bb8\u64cd\u4f5c"
           }
         }
       }
     },
-    "Allow location access for Qeno (Settings › Qeno › Location › Always). Qeno uses it only to keep running; it never records where you are.": {
+    "Allow location access for Qeno (Settings \u203a Qeno \u203a Location \u203a Always). Qeno uses it only to keep running; it never records where you are.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请允许 Qeno 访问位置信息（设置 › Qeno › 位置 › 始终）。Qeno 仅用它保持运行，绝不记录你的位置。"
+            "value": "\u8bf7\u5141\u8bb8 Qeno \u8bbf\u95ee\u4f4d\u7f6e\u4fe1\u606f\uff08\u8bbe\u7f6e \u203a Qeno \u203a \u4f4d\u7f6e \u203a \u59cb\u7ec8\uff09\u3002Qeno \u4ec5\u7528\u5b83\u4fdd\u6301\u8fd0\u884c\uff0c\u7edd\u4e0d\u8bb0\u5f55\u4f60\u7684\u4f4d\u7f6e\u3002"
           }
         }
       }
@@ -539,7 +549,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "允许这一步吗？"
+            "value": "\u5141\u8bb8\u8fd9\u4e00\u6b65\u5417\uff1f"
           }
         }
       }
@@ -549,7 +559,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已允许"
+            "value": "\u5df2\u5141\u8bb8"
           }
         }
       }
@@ -559,27 +569,27 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "允许 Qeno Runner 操作其他 App。"
+            "value": "\u5141\u8bb8 Qeno Runner \u64cd\u4f5c\u5176\u4ed6 App\u3002"
           }
         }
       }
     },
-    "Allows Qeno to reach this iPhone’s developer services through your proxy app.": {
+    "Allows Qeno to reach this iPhone\u2019s developer services through your proxy app.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "允许 Qeno 通过你常用的代理 App 连接此 iPhone 的开发者服务。"
+            "value": "\u5141\u8bb8 Qeno \u901a\u8fc7\u4f60\u5e38\u7528\u7684\u4ee3\u7406 App \u8fde\u63a5\u6b64 iPhone \u7684\u5f00\u53d1\u8005\u670d\u52a1\u3002"
           }
         }
       }
     },
-    "Allows Qeno to reach this iPhone’s developer services, with its built-in connection or your proxy app.": {
+    "Allows Qeno to reach this iPhone\u2019s developer services, with its built-in connection or your proxy app.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "允许 Qeno 通过内置连接或你常用的代理 App 连接此 iPhone 的开发者服务。"
+            "value": "\u5141\u8bb8 Qeno \u901a\u8fc7\u5185\u7f6e\u8fde\u63a5\u6216\u4f60\u5e38\u7528\u7684\u4ee3\u7406 App \u8fde\u63a5\u6b64 iPhone \u7684\u5f00\u53d1\u8005\u670d\u52a1\u3002"
           }
         }
       }
@@ -589,7 +599,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "允许此 iPhone 运行 Qeno Runner。"
+            "value": "\u5141\u8bb8\u6b64 iPhone \u8fd0\u884c Qeno Runner\u3002"
           }
         }
       }
@@ -599,7 +609,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "即将就绪"
+            "value": "\u5373\u5c06\u5c31\u7eea"
           }
         }
       }
@@ -609,17 +619,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anthropic 返回错误（%lld）：%@"
+            "value": "Anthropic \u8fd4\u56de\u9519\u8bef\uff08%lld\uff09\uff1a%@"
           }
         }
       }
     },
-    "Anthropic did not accept the key. Check it in Qeno › Model.": {
+    "Anthropic did not accept the key. Check it in Qeno \u203a Model.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anthropic 密钥无效。请前往“Qeno”›“模型”检查。"
+            "value": "Anthropic \u5bc6\u94a5\u65e0\u6548\u3002\u8bf7\u524d\u5f80\u201cQeno\u201d\u203a\u201c\u6a21\u578b\u201d\u68c0\u67e5\u3002"
           }
         }
       }
@@ -629,7 +639,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anthropic 服务繁忙，请稍后再试。"
+            "value": "Anthropic \u670d\u52a1\u7e41\u5fd9\uff0c\u8bf7\u7a0d\u540e\u518d\u8bd5\u3002"
           }
         }
       }
@@ -639,7 +649,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已达调用频率上限，请稍后再试。"
+            "value": "\u5df2\u8fbe\u8c03\u7528\u9891\u7387\u4e0a\u9650\uff0c\u8bf7\u7a0d\u540e\u518d\u8bd5\u3002"
           }
         }
       }
@@ -649,7 +659,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "兼容 OpenAI 的接口地址"
+            "value": "\u517c\u5bb9 OpenAI \u7684\u63a5\u53e3\u5730\u5740"
           }
         }
       }
@@ -659,7 +669,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple 账号"
+            "value": "Apple \u8d26\u53f7"
           }
         }
       }
@@ -669,7 +679,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "批准"
+            "value": "\u6279\u51c6"
           }
         }
       }
@@ -679,7 +689,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "需要批准"
+            "value": "\u9700\u8981\u6279\u51c6"
           }
         }
       }
@@ -689,7 +699,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "批准"
+            "value": "\u6279\u51c6"
           }
         }
       }
@@ -699,7 +709,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已在灵动岛批准：%@"
+            "value": "\u5df2\u5728\u7075\u52a8\u5c9b\u6279\u51c6\uff1a%@"
           }
         }
       }
@@ -709,7 +719,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已批准：%@"
+            "value": "\u5df2\u6279\u51c6\uff1a%@"
           }
         }
       }
@@ -719,7 +729,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "敏感步骤先问我"
+            "value": "\u654f\u611f\u6b65\u9aa4\u5148\u95ee\u6211"
           }
         }
       }
@@ -729,7 +739,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "后台保活"
+            "value": "\u540e\u53f0\u4fdd\u6d3b"
           }
         }
       }
@@ -739,7 +749,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "内置连接"
+            "value": "\u5185\u7f6e\u8fde\u63a5"
           }
         }
       }
@@ -749,7 +759,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "返回"
+            "value": "\u8fd4\u56de"
           }
         }
       }
@@ -759,7 +769,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "内置"
+            "value": "\u5185\u7f6e"
           }
         }
       }
@@ -769,7 +779,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "对话"
+            "value": "\u5bf9\u8bdd"
           }
         }
       }
@@ -779,7 +789,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "检查"
+            "value": "\u68c0\u67e5"
           }
         }
       }
@@ -789,7 +799,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "取消"
+            "value": "\u53d6\u6d88"
           }
         }
       }
@@ -799,7 +809,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "取消连接"
+            "value": "\u53d6\u6d88\u8fde\u63a5"
           }
         }
       }
@@ -809,7 +819,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "取消配对"
+            "value": "\u53d6\u6d88\u914d\u5bf9"
           }
         }
       }
@@ -819,7 +829,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法读取 Qeno 的 VPN 配置。请重试，或选择外部连接。"
+            "value": "\u65e0\u6cd5\u8bfb\u53d6 Qeno \u7684 VPN \u914d\u7f6e\u3002\u8bf7\u91cd\u8bd5\uff0c\u6216\u9009\u62e9\u5916\u90e8\u8fde\u63a5\u3002"
           }
         }
       }
@@ -829,28 +839,28 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "修改地址"
+            "value": "\u4fee\u6539\u5730\u5740"
           }
         }
       }
     },
-    "Check that Developer Mode is on (Settings → Privacy & Security → Developer Mode) and that iOS is 17.4 or later.": {
+    "Check that Developer Mode is on (Settings \u2192 Privacy & Security \u2192 Developer Mode) and that iOS is 17.4 or later.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请确认开发者模式已开启（设置 › 隐私与安全性 › 开发者模式），并且 iOS 是 17.4 或更高版本。"
+            "value": "\u8bf7\u786e\u8ba4\u5f00\u53d1\u8005\u6a21\u5f0f\u5df2\u5f00\u542f\uff08\u8bbe\u7f6e \u203a \u9690\u79c1\u4e0e\u5b89\u5168 \u203a \u5f00\u53d1\u8005\u6a21\u5f0f\uff09\uff0c\u5e76\u4e14 iOS \u662f 17.4 \u6216\u66f4\u9ad8\u7248\u672c\u3002"
           }
         }
       }
     },
-    "Checking 10.7.0.1 every few seconds…": {
+    "Checking 10.7.0.1 every few seconds\u2026": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "每隔几秒检查一次 10.7.0.1…"
+            "value": "\u6bcf\u9694\u51e0\u79d2\u68c0\u67e5\u4e00\u6b21 10.7.0.1\u2026"
           }
         }
       }
@@ -861,17 +871,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在检查配对"
+            "value": "\u6b63\u5728\u68c0\u67e5\u914d\u5bf9"
           }
         }
       }
     },
-    "Checking…": {
+    "Checking\u2026": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在检查…"
+            "value": "\u6b63\u5728\u68c0\u67e5\u2026"
           }
         }
       }
@@ -881,7 +891,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请先选择并开启本机连接（设置引导）。"
+            "value": "\u8bf7\u5148\u9009\u62e9\u5e76\u5f00\u542f\u672c\u673a\u8fde\u63a5\uff08\u8bbe\u7f6e\u5f15\u5bfc\uff09\u3002"
           }
         }
       }
@@ -891,7 +901,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Claude、Codex 等 MCP 客户端替你轻点和输入。每一步都清晰可见，敏感操作须经你批准。"
+            "value": "Claude\u3001Codex \u7b49 MCP \u5ba2\u6237\u7aef\u66ff\u4f60\u8f7b\u70b9\u548c\u8f93\u5165\u3002\u6bcf\u4e00\u6b65\u90fd\u6e05\u6670\u53ef\u89c1\uff0c\u654f\u611f\u64cd\u4f5c\u987b\u7ecf\u4f60\u6279\u51c6\u3002"
           }
         }
       }
@@ -901,7 +911,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "清除"
+            "value": "\u6e05\u9664"
           }
         }
       }
@@ -911,7 +921,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "关闭"
+            "value": "\u5173\u95ed"
           }
         }
       }
@@ -921,7 +931,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已收起"
+            "value": "\u5df2\u6536\u8d77"
           }
         }
       }
@@ -931,7 +941,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请先连 Wi-Fi 打开 Qeno，打开后可以切到蜂窝继续用"
+            "value": "\u8bf7\u5148\u8fde Wi-Fi \u6253\u5f00 Qeno\uff0c\u6253\u5f00\u540e\u53ef\u4ee5\u5207\u5230\u8702\u7a9d\u7ee7\u7eed\u7528"
           }
         }
       }
@@ -941,7 +951,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请先连接 Wi-Fi"
+            "value": "\u8bf7\u5148\u8fde\u63a5 Wi-Fi"
           }
         }
       }
@@ -951,18 +961,18 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请连接无线局域网，开发者服务需要它。"
+            "value": "\u8bf7\u8fde\u63a5\u65e0\u7ebf\u5c40\u57df\u7f51\uff0c\u5f00\u53d1\u8005\u670d\u52a1\u9700\u8981\u5b83\u3002"
           }
         }
       }
     },
-    "Connect to Wi‑Fi and tap **Start Pairing**. Allow local network access when prompted.": {
+    "Connect to Wi\u2011Fi and tap **Start Pairing**. Allow local network access when prompted.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "连接无线局域网并轻点“**开始配对**”。出现提示时，请允许访问本地网络。"
+            "value": "\u8fde\u63a5\u65e0\u7ebf\u5c40\u57df\u7f51\u5e76\u8f7b\u70b9\u201c**\u5f00\u59cb\u914d\u5bf9**\u201d\u3002\u51fa\u73b0\u63d0\u793a\u65f6\uff0c\u8bf7\u5141\u8bb8\u8bbf\u95ee\u672c\u5730\u7f51\u7edc\u3002"
           }
         }
       }
@@ -972,7 +982,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "连接此 iPhone"
+            "value": "\u8fde\u63a5\u6b64 iPhone"
           }
         }
       }
@@ -983,7 +993,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已连接"
+            "value": "\u5df2\u8fde\u63a5"
           }
         }
       }
@@ -993,17 +1003,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在连接"
+            "value": "\u6b63\u5728\u8fde\u63a5"
           }
         }
       }
     },
-    "Connecting to this iPhone…": {
+    "Connecting to this iPhone\u2026": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在连接此 iPhone…"
+            "value": "\u6b63\u5728\u8fde\u63a5\u6b64 iPhone\u2026"
           }
         }
       }
@@ -1013,7 +1023,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "继续"
+            "value": "\u7ee7\u7eed"
           }
         }
       }
@@ -1023,7 +1033,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "历史对话"
+            "value": "\u5386\u53f2\u5bf9\u8bdd"
           }
         }
       }
@@ -1033,7 +1043,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已拷贝"
+            "value": "\u5df2\u62f7\u8d1d"
           }
         }
       }
@@ -1043,7 +1053,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "拷贝"
+            "value": "\u62f7\u8d1d"
           }
         }
       }
@@ -1053,7 +1063,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "拷贝地址"
+            "value": "\u62f7\u8d1d\u5730\u5740"
           }
         }
       }
@@ -1063,7 +1073,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "拷贝日志"
+            "value": "\u62f7\u8d1d\u65e5\u5fd7"
           }
         }
       }
@@ -1074,7 +1084,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "拷贝下方配置。"
+            "value": "\u62f7\u8d1d\u4e0b\u65b9\u914d\u7f6e\u3002"
           }
         }
       }
@@ -1084,7 +1094,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在 aistudio.google.com 创建密钥并粘贴到此处。"
+            "value": "\u5728 aistudio.google.com \u521b\u5efa\u5bc6\u94a5\u5e76\u7c98\u8d34\u5230\u6b64\u5904\u3002"
           }
         }
       }
@@ -1094,7 +1104,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在 console.anthropic.com 创建密钥并粘贴至此处。"
+            "value": "\u5728 console.anthropic.com \u521b\u5efa\u5bc6\u94a5\u5e76\u7c98\u8d34\u81f3\u6b64\u5904\u3002"
           }
         }
       }
@@ -1104,7 +1114,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在 platform.deepseek.com 创建密钥并粘贴到此处。"
+            "value": "\u5728 platform.deepseek.com \u521b\u5efa\u5bc6\u94a5\u5e76\u7c98\u8d34\u5230\u6b64\u5904\u3002"
           }
         }
       }
@@ -1114,7 +1124,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在 platform.openai.com 创建密钥并粘贴至此。"
+            "value": "\u5728 platform.openai.com \u521b\u5efa\u5bc6\u94a5\u5e76\u7c98\u8d34\u81f3\u6b64\u3002"
           }
         }
       }
@@ -1124,7 +1134,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "自定义地址"
+            "value": "\u81ea\u5b9a\u4e49\u5730\u5740"
+          }
+        }
+      }
+    },
+    "Debugging": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u8c03\u8bd5"
           }
         }
       }
@@ -1134,7 +1154,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "DeepSeek V4 Pro（不支持图像识别）"
+            "value": "DeepSeek V4 Pro\uff08\u4e0d\u652f\u6301\u56fe\u50cf\u8bc6\u522b\uff09"
           }
         }
       }
@@ -1144,7 +1164,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已送达"
+            "value": "\u5df2\u9001\u8fbe"
           }
         }
       }
@@ -1154,7 +1174,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已拒绝"
+            "value": "\u5df2\u62d2\u7edd"
           }
         }
       }
@@ -1164,7 +1184,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "拒绝"
+            "value": "\u62d2\u7edd"
           }
         }
       }
@@ -1174,7 +1194,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "拒绝操作"
+            "value": "\u62d2\u7edd\u64cd\u4f5c"
           }
         }
       }
@@ -1184,7 +1204,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开发者磁盘映像已就绪"
+            "value": "\u5f00\u53d1\u8005\u78c1\u76d8\u6620\u50cf\u5df2\u5c31\u7eea"
           }
         }
       }
@@ -1194,7 +1214,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已开启开发者模式"
+            "value": "\u5df2\u5f00\u542f\u5f00\u53d1\u8005\u6a21\u5f0f"
           }
         }
       }
@@ -1204,7 +1224,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "诊断"
+            "value": "\u8bca\u65ad"
+          }
+        }
+      }
+    },
+    "Diagnostics: connection checks and this iPhone\u2019s addresses. Testing Options: the automation method and switches being tried.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u8bca\u65ad\uff1a\u8fde\u63a5\u68c0\u67e5\u548c\u672c\u673a\u5730\u5740\u3002\u6d4b\u8bd5\u9009\u9879\uff1a\u81ea\u52a8\u5316\u65b9\u5f0f\u548c\u8bd5\u9a8c\u4e2d\u7684\u5f00\u5173\u3002"
           }
         }
       }
@@ -1214,17 +1244,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "断开本机连接"
+            "value": "\u65ad\u5f00\u672c\u673a\u8fde\u63a5"
           }
         }
       }
     },
-    "Disconnecting…": {
+    "Disconnecting\u2026": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在断开…"
+            "value": "\u6b63\u5728\u65ad\u5f00\u2026"
           }
         }
       }
@@ -1234,28 +1264,28 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "完成"
+            "value": "\u5b8c\u6210"
           }
         }
       }
     },
-    "Don’t Allow": {
+    "Don\u2019t Allow": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "不允许"
+            "value": "\u4e0d\u5141\u8bb8"
           }
         }
       }
     },
-    "Don’t open Qeno Runner yourself. Qeno starts it when an agent needs this iPhone.": {
+    "Don\u2019t open Qeno Runner yourself. Qeno starts it when an agent needs this iPhone.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请勿手动打开 Qeno Runner。智能体需要使用此 iPhone 时，Qeno 会自动启动它。"
+            "value": "\u8bf7\u52ff\u624b\u52a8\u6253\u5f00 Qeno Runner\u3002\u667a\u80fd\u4f53\u9700\u8981\u4f7f\u7528\u6b64 iPhone \u65f6\uff0cQeno \u4f1a\u81ea\u52a8\u542f\u52a8\u5b83\u3002"
           }
         }
       }
@@ -1265,7 +1295,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新下载"
+            "value": "\u91cd\u65b0\u4e0b\u8f7d"
           }
         }
       }
@@ -1275,7 +1305,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "下载开发者磁盘映像"
+            "value": "\u4e0b\u8f7d\u5f00\u53d1\u8005\u78c1\u76d8\u6620\u50cf"
           }
         }
       }
@@ -1285,7 +1315,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在下载开发者磁盘映像：%@"
+            "value": "\u6b63\u5728\u4e0b\u8f7d\u5f00\u53d1\u8005\u78c1\u76d8\u6620\u50cf\uff1a%@"
           }
         }
       }
@@ -1295,7 +1325,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开启本机连接"
+            "value": "\u5f00\u542f\u672c\u673a\u8fde\u63a5"
           }
         }
       }
@@ -1305,7 +1335,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请在设置引导中开启本机连接，等连接检查通过后再重新配对。"
+            "value": "\u8bf7\u5728\u8bbe\u7f6e\u5f15\u5bfc\u4e2d\u5f00\u542f\u672c\u673a\u8fde\u63a5\uff0c\u7b49\u8fde\u63a5\u68c0\u67e5\u901a\u8fc7\u540e\u518d\u91cd\u65b0\u914d\u5bf9\u3002"
           }
         }
       }
@@ -1315,7 +1345,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "结束对话"
+            "value": "\u7ed3\u675f\u5bf9\u8bdd"
           }
         }
       }
@@ -1326,7 +1356,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "输入此处或锁定屏幕上显示的配对码。"
+            "value": "\u8f93\u5165\u6b64\u5904\u6216\u9501\u5b9a\u5c4f\u5e55\u4e0a\u663e\u793a\u7684\u914d\u5bf9\u7801\u3002"
           }
         }
       }
@@ -1336,7 +1366,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "iPhone 要求时请输入锁屏密码"
+            "value": "iPhone \u8981\u6c42\u65f6\u8bf7\u8f93\u5165\u9501\u5c4f\u5bc6\u7801"
           }
         }
       }
@@ -1346,18 +1376,18 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在“设置”中输入此配对码。配对码也会显示在锁定屏幕上。"
+            "value": "\u5728\u201c\u8bbe\u7f6e\u201d\u4e2d\u8f93\u5165\u6b64\u914d\u5bf9\u7801\u3002\u914d\u5bf9\u7801\u4e5f\u4f1a\u663e\u793a\u5728\u9501\u5b9a\u5c4f\u5e55\u4e0a\u3002"
           }
         }
       }
     },
-    "Enter your relay's address first (Settings › Relay). Qeno has no default relay.": {
+    "Enter your relay's address first (Settings \u203a Relay). Qeno has no default relay.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请先在“设置 › 中转”中输入你的中转地址。Qeno 没有默认中转。"
+            "value": "\u8bf7\u5148\u5728\u201c\u8bbe\u7f6e \u203a \u4e2d\u8f6c\u201d\u4e2d\u8f93\u5165\u4f60\u7684\u4e2d\u8f6c\u5730\u5740\u3002Qeno \u6ca1\u6709\u9ed8\u8ba4\u4e2d\u8f6c\u3002"
           }
         }
       }
@@ -1367,7 +1397,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已展开"
+            "value": "\u5df2\u5c55\u5f00"
           }
         }
       }
@@ -1377,7 +1407,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "实验模式"
+            "value": "\u5b9e\u9a8c\u6a21\u5f0f"
           }
         }
       }
@@ -1387,7 +1417,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "外部 App"
+            "value": "\u5916\u90e8 App"
           }
         }
       }
@@ -1397,7 +1427,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "失败"
+            "value": "\u5931\u8d25"
           }
         }
       }
@@ -1407,7 +1437,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "完成此 iPhone 的设置。"
+            "value": "\u5b8c\u6210\u6b64 iPhone \u7684\u8bbe\u7f6e\u3002"
           }
         }
       }
@@ -1417,7 +1447,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已完成"
+            "value": "\u5df2\u5b8c\u6210"
           }
         }
       }
@@ -1427,7 +1457,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已在“%@”中完成"
+            "value": "\u5df2\u5728\u201c%@\u201d\u4e2d\u5b8c\u6210"
           }
         }
       }
@@ -1437,7 +1467,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "完成此 iPhone 的初始设置，约需 5 分钟。"
+            "value": "\u5b8c\u6210\u6b64 iPhone \u7684\u521d\u59cb\u8bbe\u7f6e\uff0c\u7ea6\u9700 5 \u5206\u949f\u3002"
           }
         }
       }
@@ -1447,17 +1477,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "处理下方问题后，智能体即可使用此 iPhone。"
+            "value": "\u5904\u7406\u4e0b\u65b9\u95ee\u9898\u540e\uff0c\u667a\u80fd\u4f53\u5373\u53ef\u4f7f\u7528\u6b64 iPhone\u3002"
           }
         }
       }
     },
-    "For a code, first turn on device code sign-in for Codex in ChatGPT › Settings › Security. Then enter the code on auth.openai.com/codex/device.": {
+    "For a code, first turn on device code sign-in for Codex in ChatGPT \u203a Settings \u203a Security. Then enter the code on auth.openai.com/codex/device.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用验证码登录前，请先在 ChatGPT 的“设置 › 安全”中启用 Codex 设备码登录，然后前往 auth.openai.com/codex/device 输入验证码。"
+            "value": "\u4f7f\u7528\u9a8c\u8bc1\u7801\u767b\u5f55\u524d\uff0c\u8bf7\u5148\u5728 ChatGPT \u7684\u201c\u8bbe\u7f6e \u203a \u5b89\u5168\u201d\u4e2d\u542f\u7528 Codex \u8bbe\u5907\u7801\u767b\u5f55\uff0c\u7136\u540e\u524d\u5f80 auth.openai.com/codex/device \u8f93\u5165\u9a8c\u8bc1\u7801\u3002"
           }
         }
       }
@@ -1467,7 +1497,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "App Store 免费提供"
+            "value": "App Store \u514d\u8d39\u63d0\u4f9b"
+          }
+        }
+      }
+    },
+    "Full Access lets the panel talk to Qeno on this iPhone. It has no network access and never uses the clipboard.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u5b8c\u5168\u8bbf\u95ee\u8ba9\u9762\u677f\u80fd\u4e0e\u672c\u673a\u4e0a\u7684 Qeno \u901a\u4fe1\u3002\u5b83\u4e0d\u8054\u7f51\uff0c\u4e5f\u4e0d\u4f7f\u7528\u526a\u8d34\u677f\u3002"
           }
         }
       }
@@ -1477,7 +1517,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在 App Store 获取 LocalDevVPN"
+            "value": "\u5728 App Store \u83b7\u53d6 LocalDevVPN"
           }
         }
       }
@@ -1487,28 +1527,28 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "为 Qeno 生成访问此 iPhone 的专属密钥。密钥仅保留在本机上。"
+            "value": "\u4e3a Qeno \u751f\u6210\u8bbf\u95ee\u6b64 iPhone \u7684\u4e13\u5c5e\u5bc6\u94a5\u3002\u5bc6\u94a5\u4ec5\u4fdd\u7559\u5728\u672c\u673a\u4e0a\u3002"
           }
         }
       }
     },
-    "Go to Settings › Other and turn on Include route 10.7.0.1/32 (update Shadowrocket if missing).": {
+    "Go to Settings \u203a Other and turn on Include route 10.7.0.1/32 (update Shadowrocket if missing).": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "前往“设置 › 其他”并开启“包含路由 10.7.0.1/32”（若无此选项请更新 Shadowrocket）。"
+            "value": "\u524d\u5f80\u201c\u8bbe\u7f6e \u203a \u5176\u4ed6\u201d\u5e76\u5f00\u542f\u201c\u5305\u542b\u8def\u7531 10.7.0.1/32\u201d\uff08\u82e5\u65e0\u6b64\u9009\u9879\u8bf7\u66f4\u65b0 Shadowrocket\uff09\u3002"
           }
         }
       }
     },
-    "Hi, I’m Qeno. Tell me what to do on this iPhone.": {
+    "Hi, I\u2019m Qeno. Tell me what to do on this iPhone.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "你好，我是 Qeno。请告诉我需要在这台 iPhone 上执行什么操作。"
+            "value": "\u4f60\u597d\uff0c\u6211\u662f Qeno\u3002\u8bf7\u544a\u8bc9\u6211\u9700\u8981\u5728\u8fd9\u53f0 iPhone \u4e0a\u6267\u884c\u4ec0\u4e48\u64cd\u4f5c\u3002"
           }
         }
       }
@@ -1518,7 +1558,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "历史记录"
+            "value": "\u5386\u53f2\u8bb0\u5f55"
           }
         }
       }
@@ -1528,7 +1568,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "按住说话。"
+            "value": "\u6309\u4f4f\u8bf4\u8bdd\u3002"
           }
         }
       }
@@ -1538,7 +1578,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "按住说话"
+            "value": "\u6309\u4f4f\u8bf4\u8bdd"
           }
         }
       }
@@ -1548,7 +1588,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "按住继续说"
+            "value": "\u6309\u4f4f\u7ee7\u7eed\u8bf4"
           }
         }
       }
@@ -1558,7 +1598,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "按住说话，上滑结束"
+            "value": "\u6309\u4f4f\u8bf4\u8bdd\uff0c\u4e0a\u6ed1\u7ed3\u675f"
           }
         }
       }
@@ -1568,7 +1608,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "主屏幕"
+            "value": "\u4e3b\u5c4f\u5e55"
+          }
+        }
+      }
+    },
+    "How to Add It": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u5982\u4f55\u6dfb\u52a0"
           }
         }
       }
@@ -1578,7 +1628,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已执行 %lld 步并暂停。请指示下一步操作。"
+            "value": "\u5df2\u6267\u884c %lld \u6b65\u5e76\u6682\u505c\u3002\u8bf7\u6307\u793a\u4e0b\u4e00\u6b65\u64cd\u4f5c\u3002"
           }
         }
       }
@@ -1588,7 +1638,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "有 IPv6：%@"
+            "value": "\u6709 IPv6\uff1a%@"
           }
         }
       }
@@ -1598,7 +1648,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "空闲"
+            "value": "\u7a7a\u95f2"
           }
         }
       }
@@ -1608,7 +1658,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "导入配对文件"
+            "value": "\u5bfc\u5165\u914d\u5bf9\u6587\u4ef6"
           }
         }
       }
@@ -1618,7 +1668,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在 Qeno 的设置引导中开启本机连接，或选择外部连接。"
+            "value": "\u5728 Qeno \u7684\u8bbe\u7f6e\u5f15\u5bfc\u4e2d\u5f00\u542f\u672c\u673a\u8fde\u63a5\uff0c\u6216\u9009\u62e9\u5916\u90e8\u8fde\u63a5\u3002"
           }
         }
       }
@@ -1628,7 +1678,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用中"
+            "value": "\u4f7f\u7528\u4e2d"
           }
         }
       }
@@ -1639,7 +1689,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用与安装 Qeno 相同的工具和 Apple ID 安装 **Qeno Runner** (poki-runner-unsigned.ipa)。"
+            "value": "\u4f7f\u7528\u4e0e\u5b89\u88c5 Qeno \u76f8\u540c\u7684\u5de5\u5177\u548c Apple ID \u5b89\u88c5 **Qeno Runner** (poki-runner-unsigned.ipa)\u3002"
           }
         }
       }
@@ -1649,7 +1699,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "安装 Qeno 模块"
+            "value": "\u5b89\u88c5 Qeno \u6a21\u5757"
           }
         }
       }
@@ -1659,7 +1709,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "安装 Qeno 插件"
+            "value": "\u5b89\u88c5 Qeno \u63d2\u4ef6"
           }
         }
       }
@@ -1669,18 +1719,18 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "安装 Qeno Runner"
+            "value": "\u5b89\u88c5 Qeno Runner"
           }
         }
       }
     },
-    "Install Qeno Runner (poki-runner-unsigned.ipa) with the same signing tool and Apple ID as Qeno, then trust its developer in Settings → General → VPN & Device Management.": {
+    "Install Qeno Runner (poki-runner-unsigned.ipa) with the same signing tool and Apple ID as Qeno, then trust its developer in Settings \u2192 General \u2192 VPN & Device Management.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "用与 Qeno 相同的签名工具和 Apple ID 安装 Qeno Runner（poki-runner-unsigned.ipa），然后在“设置 › 通用 › VPN 与设备管理”中信任它的开发者。"
+            "value": "\u7528\u4e0e Qeno \u76f8\u540c\u7684\u7b7e\u540d\u5de5\u5177\u548c Apple ID \u5b89\u88c5 Qeno Runner\uff08poki-runner-unsigned.ipa\uff09\uff0c\u7136\u540e\u5728\u201c\u8bbe\u7f6e \u203a \u901a\u7528 \u203a VPN \u4e0e\u8bbe\u5907\u7ba1\u7406\u201d\u4e2d\u4fe1\u4efb\u5b83\u7684\u5f00\u53d1\u8005\u3002"
           }
         }
       }
@@ -1690,7 +1740,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已安装"
+            "value": "\u5df2\u5b89\u88c5"
           }
         }
       }
@@ -1700,17 +1750,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "配对文件无效：%@"
+            "value": "\u914d\u5bf9\u6587\u4ef6\u65e0\u6548\uff1a%@"
           }
         }
       }
     },
-    "I’ll ask before anything you can’t undo.": {
+    "I\u2019ll ask before anything you can\u2019t undo.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "执行不可撤销的操作前，我会先向你确认。"
+            "value": "\u6267\u884c\u4e0d\u53ef\u64a4\u9500\u7684\u64cd\u4f5c\u524d\uff0c\u6211\u4f1a\u5148\u5411\u4f60\u786e\u8ba4\u3002"
           }
         }
       }
@@ -1721,7 +1771,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请勿在 tun 地址列表中包含 IPv6。"
+            "value": "\u8bf7\u52ff\u5728 tun \u5730\u5740\u5217\u8868\u4e2d\u5305\u542b IPv6\u3002"
           }
         }
       }
@@ -1731,7 +1781,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "保持 Qeno 后台运行"
+            "value": "\u4fdd\u6301 Qeno \u540e\u53f0\u8fd0\u884c"
           }
         }
       }
@@ -1742,7 +1792,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "保持 Shadowrocket 处于连接状态。"
+            "value": "\u4fdd\u6301 Shadowrocket \u5904\u4e8e\u8fde\u63a5\u72b6\u6001\u3002"
           }
         }
       }
@@ -1752,7 +1802,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "保持现有 VPN 连接。Qeno 使用它的回环，不开启自己的 VPN。"
+            "value": "\u4fdd\u6301\u73b0\u6709 VPN \u8fde\u63a5\u3002Qeno \u4f7f\u7528\u5b83\u7684\u56de\u73af\uff0c\u4e0d\u5f00\u542f\u81ea\u5df1\u7684 VPN\u3002"
+          }
+        }
+      }
+    },
+    "Keep your usual keyboards. Then switch to the Qeno keyboard once in any text field, so Qeno knows it is there.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u4fdd\u7559\u4f60\u5e38\u7528\u7684\u952e\u76d8\u3002\u7136\u540e\u5728\u4efb\u610f\u8f93\u5165\u6846\u4e2d\u5207\u6362\u5230 Qeno \u952e\u76d8\u4e00\u6b21\uff0c\u8ba9 Qeno \u77e5\u9053\u5b83\u5df2\u5c31\u7eea\u3002"
           }
         }
       }
@@ -1762,7 +1822,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "让 Qeno 在后台保持连接，并在锁定屏幕上显示实时活动。"
+            "value": "\u8ba9 Qeno \u5728\u540e\u53f0\u4fdd\u6301\u8fde\u63a5\uff0c\u5e76\u5728\u9501\u5b9a\u5c4f\u5e55\u4e0a\u663e\u793a\u5b9e\u65f6\u6d3b\u52a8\u3002"
           }
         }
       }
@@ -1772,17 +1832,27 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "密钥已添加"
+            "value": "\u5bc6\u94a5\u5df2\u6dfb\u52a0"
           }
         }
       }
     },
-    "Keys stay in this iPhone’s Keychain. Qeno sends each key only to its own provider.": {
+    "Keyboard": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "密钥仅保存在本机钥匙串中，且仅发送给对应服务商。"
+            "value": "\u952e\u76d8"
+          }
+        }
+      }
+    },
+    "Keys stay in this iPhone\u2019s Keychain. Qeno sends each key only to its own provider.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u5bc6\u94a5\u4ec5\u4fdd\u5b58\u5728\u672c\u673a\u94a5\u5319\u4e32\u4e2d\uff0c\u4e14\u4ec5\u53d1\u9001\u7ed9\u5bf9\u5e94\u670d\u52a1\u5546\u3002"
           }
         }
       }
@@ -1792,7 +1862,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "本机连接"
+            "value": "\u672c\u673a\u8fde\u63a5"
           }
         }
       }
@@ -1802,7 +1872,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "日志"
+            "value": "\u65e5\u5fd7"
           }
         }
       }
@@ -1812,7 +1882,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "上次运行"
+            "value": "\u4e0a\u6b21\u8fd0\u884c"
           }
         }
       }
@@ -1822,7 +1892,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "上次响应耗时 %lld 毫秒"
+            "value": "\u4e0a\u6b21\u54cd\u5e94\u8017\u65f6 %lld \u6beb\u79d2"
           }
         }
       }
@@ -1832,7 +1902,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "上一步"
+            "value": "\u4e0a\u4e00\u6b65"
           }
         }
       }
@@ -1842,17 +1912,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "让智能体执行正在等你批准的这一步。"
+            "value": "\u8ba9\u667a\u80fd\u4f53\u6267\u884c\u6b63\u5728\u7b49\u4f60\u6279\u51c6\u7684\u8fd9\u4e00\u6b65\u3002"
           }
         }
       }
     },
-    "Listening…": {
+    "Listening\u2026": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在倾听…"
+            "value": "\u6b63\u5728\u503e\u542c\u2026"
           }
         }
       }
@@ -1862,7 +1932,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "实时活动已关闭"
+            "value": "\u5b9e\u65f6\u6d3b\u52a8\u5df2\u5173\u95ed"
           }
         }
       }
@@ -1873,7 +1943,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 的实时活动已关闭（设置 › Qeno › 实时活动）。"
+            "value": "Qeno \u7684\u5b9e\u65f6\u6d3b\u52a8\u5df2\u5173\u95ed\uff08\u8bbe\u7f6e \u203a Qeno \u203a \u5b9e\u65f6\u6d3b\u52a8\uff09\u3002"
           }
         }
       }
@@ -1883,7 +1953,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 的“实时活动”已关闭。开启后即可查看智能体操作并批准敏感操作。"
+            "value": "Qeno \u7684\u201c\u5b9e\u65f6\u6d3b\u52a8\u201d\u5df2\u5173\u95ed\u3002\u5f00\u542f\u540e\u5373\u53ef\u67e5\u770b\u667a\u80fd\u4f53\u64cd\u4f5c\u5e76\u6279\u51c6\u654f\u611f\u64cd\u4f5c\u3002"
           }
         }
       }
@@ -1893,7 +1963,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已开启实时活动"
+            "value": "\u5df2\u5f00\u542f\u5b9e\u65f6\u6d3b\u52a8"
           }
         }
       }
@@ -1903,7 +1973,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "实时活动"
+            "value": "\u5b9e\u65f6\u6d3b\u52a8"
           }
         }
       }
@@ -1913,7 +1983,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "实时活动预览"
+            "value": "\u5b9e\u65f6\u6d3b\u52a8\u9884\u89c8"
           }
         }
       }
@@ -1923,7 +1993,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "实时活动已关闭"
+            "value": "\u5b9e\u65f6\u6d3b\u52a8\u5df2\u5173\u95ed"
           }
         }
       }
@@ -1933,7 +2003,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "本机 VPN 已连接。上方的检查会确认开发者服务能否访问。"
+            "value": "\u672c\u673a VPN \u5df2\u8fde\u63a5\u3002\u4e0a\u65b9\u7684\u68c0\u67e5\u4f1a\u786e\u8ba4\u5f00\u53d1\u8005\u670d\u52a1\u80fd\u5426\u8bbf\u95ee\u3002"
           }
         }
       }
@@ -1943,7 +2013,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "位置"
+            "value": "\u4f4d\u7f6e"
           }
         }
       }
@@ -1953,7 +2023,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 的定位服务已关闭，离开 App 后 iOS 会很快将其挂起。"
+            "value": "Qeno \u7684\u5b9a\u4f4d\u670d\u52a1\u5df2\u5173\u95ed\uff0c\u79bb\u5f00 App \u540e iOS \u4f1a\u5f88\u5feb\u5c06\u5176\u6302\u8d77\u3002"
           }
         }
       }
@@ -1963,7 +2033,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已允许访问位置信息。Qeno 会在后台保持运行，且绝不记录你的位置。"
+            "value": "\u5df2\u5141\u8bb8\u8bbf\u95ee\u4f4d\u7f6e\u4fe1\u606f\u3002Qeno \u4f1a\u5728\u540e\u53f0\u4fdd\u6301\u8fd0\u884c\uff0c\u4e14\u7edd\u4e0d\u8bb0\u5f55\u4f60\u7684\u4f4d\u7f6e\u3002"
           }
         }
       }
@@ -1973,7 +2043,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "日志"
+            "value": "\u65e5\u5fd7"
           }
         }
       }
@@ -1983,7 +2053,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "日志、连接检查、后台保活、网络地址与实时活动预览。"
+            "value": "\u65e5\u5fd7\u3001\u8fde\u63a5\u68c0\u67e5\u3001\u540e\u53f0\u4fdd\u6d3b\u3001\u7f51\u7edc\u5730\u5740\u4e0e\u5b9e\u65f6\u6d3b\u52a8\u9884\u89c8\u3002"
           }
         }
       }
@@ -1993,7 +2063,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在 10.7.0.1 查找此 iPhone。"
+            "value": "\u6b63\u5728 10.7.0.1 \u67e5\u627e\u6b64 iPhone\u3002"
           }
         }
       }
@@ -2003,7 +2073,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "回环"
+            "value": "\u56de\u73af"
           }
         }
       }
@@ -2013,7 +2083,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "回环已关闭"
+            "value": "\u56de\u73af\u5df2\u5173\u95ed"
           }
         }
       }
@@ -2023,7 +2093,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "回环已开启"
+            "value": "\u56de\u73af\u5df2\u5f00\u542f"
           }
         }
       }
@@ -2034,7 +2104,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "确保该插件已启用且 Loon 的 VPN 已开启。"
+            "value": "\u786e\u4fdd\u8be5\u63d2\u4ef6\u5df2\u542f\u7528\u4e14 Loon \u7684 VPN \u5df2\u5f00\u542f\u3002"
           }
         }
       }
@@ -2044,7 +2114,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "给 Qeno 发消息"
+            "value": "\u7ed9 Qeno \u53d1\u6d88\u606f"
           }
         }
       }
@@ -2054,7 +2124,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "信息"
+            "value": "\u4fe1\u606f"
           }
         }
       }
@@ -2064,7 +2134,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "模型"
+            "value": "\u6a21\u578b"
           }
         }
       }
@@ -2074,7 +2144,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "更多"
+            "value": "\u66f4\u591a"
           }
         }
       }
@@ -2085,7 +2155,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "装载开发者磁盘映像超时。每次重启后 Qeno 需要联网一次以获取 Apple 的签名，请检查无线局域网或蜂窝网络。Qeno 会自动重试。"
+            "value": "\u88c5\u8f7d\u5f00\u53d1\u8005\u78c1\u76d8\u6620\u50cf\u8d85\u65f6\u3002\u6bcf\u6b21\u91cd\u542f\u540e Qeno \u9700\u8981\u8054\u7f51\u4e00\u6b21\u4ee5\u83b7\u53d6 Apple \u7684\u7b7e\u540d\uff0c\u8bf7\u68c0\u67e5\u65e0\u7ebf\u5c40\u57df\u7f51\u6216\u8702\u7a9d\u7f51\u7edc\u3002Qeno \u4f1a\u81ea\u52a8\u91cd\u8bd5\u3002"
           }
         }
       }
@@ -2095,7 +2165,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "静音"
+            "value": "\u9759\u97f3"
           }
         }
       }
@@ -2105,7 +2175,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "名称"
+            "value": "\u540d\u79f0"
           }
         }
       }
@@ -2115,7 +2185,47 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "名称，例如 Claude"
+            "value": "\u540d\u79f0\uff0c\u4f8b\u5982 Claude"
+          }
+        }
+      }
+    },
+    "Native services": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u539f\u751f\u670d\u52a1"
+          }
+        }
+      }
+    },
+    "Native services controls the phone through its paired accessibility, screenshot and input services, with no automation session and no banner. The XCTest session is the earlier way, with iOS\u2019s automation banner.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u539f\u751f\u670d\u52a1\u901a\u8fc7\u5df2\u914d\u5bf9\u7684\u8f85\u52a9\u529f\u80fd\u3001\u622a\u5c4f\u548c\u8f93\u5165\u670d\u52a1\u63a7\u5236\u624b\u673a\uff0c\u6ca1\u6709\u81ea\u52a8\u5316\u4f1a\u8bdd\uff0c\u4e5f\u6ca1\u6709\u6a2a\u5e45\u3002XCTest \u4f1a\u8bdd\u662f\u65e9\u671f\u7684\u65b9\u5f0f\uff0c\u4f1a\u663e\u793a iOS \u7684\u81ea\u52a8\u5316\u6a2a\u5e45\u3002"
+          }
+        }
+      }
+    },
+    "Native services controls the phone without an XCTest automation session or its banner. Change it under Setup \u203a Advanced \u203a Testing Options.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u539f\u751f\u670d\u52a1\u65e0\u9700 XCTest \u81ea\u52a8\u5316\u4f1a\u8bdd\u53ca\u5176\u6a2a\u5e45\u5373\u53ef\u63a7\u5236\u624b\u673a\u3002\u53ef\u5728\u201c\u8bbe\u7f6e \u203a \u9ad8\u7ea7 \u203a \u6d4b\u8bd5\u9009\u9879\u201d\u4e2d\u66f4\u6539\u3002"
+          }
+        }
+      }
+    },
+    "Needs Full Access": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u9700\u8981\u5b8c\u5168\u8bbf\u95ee"
           }
         }
       }
@@ -2125,7 +2235,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "需要 Wi-Fi"
+            "value": "\u9700\u8981 Wi-Fi"
           }
         }
       }
@@ -2135,7 +2245,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "需要处理"
+            "value": "\u9700\u8981\u5904\u7406"
           }
         }
       }
@@ -2146,7 +2256,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "需要回环"
+            "value": "\u9700\u8981\u56de\u73af"
           }
         }
       }
@@ -2156,7 +2266,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "永不"
+            "value": "\u6c38\u4e0d"
           }
         }
       }
@@ -2166,7 +2276,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "新对话"
+            "value": "\u65b0\u5bf9\u8bdd"
           }
         }
       }
@@ -2176,7 +2286,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此通道最新版本"
+            "value": "\u6b64\u901a\u9053\u6700\u65b0\u7248\u672c"
           }
         }
       }
@@ -2186,7 +2296,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无应答"
+            "value": "\u65e0\u5e94\u7b54"
           }
         }
       }
@@ -2196,7 +2306,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此接口无 IPv6"
+            "value": "\u6b64\u63a5\u53e3\u65e0 IPv6"
           }
         }
       }
@@ -2207,7 +2317,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无地址"
+            "value": "\u65e0\u5730\u5740"
           }
         }
       }
@@ -2217,7 +2327,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无需电脑。"
+            "value": "\u65e0\u9700\u7535\u8111\u3002"
           }
         }
       }
@@ -2227,7 +2337,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无需额外 App"
+            "value": "\u65e0\u9700\u989d\u5916 App"
           }
         }
       }
@@ -2237,7 +2347,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无需额外 App。Qeno 只连接此 iPhone，你平常的网络流量和 DNS 仍走原来的路线。"
+            "value": "\u65e0\u9700\u989d\u5916 App\u3002Qeno \u53ea\u8fde\u63a5\u6b64 iPhone\uff0c\u4f60\u5e73\u5e38\u7684\u7f51\u7edc\u6d41\u91cf\u548c DNS \u4ecd\u8d70\u539f\u6765\u7684\u8def\u7ebf\u3002"
           }
         }
       }
@@ -2247,7 +2357,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "没有接口拥有 10.7.0.x 地址。请检查代理 App 是否开启，以及回环模块是否启用。"
+            "value": "\u6ca1\u6709\u63a5\u53e3\u62e5\u6709 10.7.0.x \u5730\u5740\u3002\u8bf7\u68c0\u67e5\u4ee3\u7406 App \u662f\u5426\u5f00\u542f\uff0c\u4ee5\u53ca\u56de\u73af\u6a21\u5757\u662f\u5426\u542f\u7528\u3002"
           }
         }
       }
@@ -2258,7 +2368,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "没有代理 App？请安装专为此设计的免费回环 App LocalDevVPN。"
+            "value": "\u6ca1\u6709\u4ee3\u7406 App\uff1f\u8bf7\u5b89\u88c5\u4e13\u4e3a\u6b64\u8bbe\u8ba1\u7684\u514d\u8d39\u56de\u73af App LocalDevVPN\u3002"
           }
         }
       }
@@ -2269,7 +2379,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无"
+            "value": "\u65e0"
+          }
+        }
+      }
+    },
+    "Not Added": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u672a\u6dfb\u52a0"
           }
         }
       }
@@ -2279,7 +2399,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "未找到"
+            "value": "\u672a\u627e\u5230"
           }
         }
       }
@@ -2289,7 +2409,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "未设置"
+            "value": "\u672a\u8bbe\u7f6e"
+          }
+        }
+      }
+    },
+    "Not Used Last Time": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u4e0a\u6b21\u672a\u4f7f\u7528"
           }
         }
       }
@@ -2299,7 +2429,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "未获批准，已跳过此步骤"
+            "value": "\u672a\u83b7\u6279\u51c6\uff0c\u5df2\u8df3\u8fc7\u6b64\u6b65\u9aa4"
           }
         }
       }
@@ -2309,7 +2439,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "尚未开启"
+            "value": "\u5c1a\u672a\u5f00\u542f"
           }
         }
       }
@@ -2320,7 +2450,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "未启动"
+            "value": "\u672a\u542f\u52a8"
           }
         }
       }
@@ -2330,7 +2460,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "10.7.0.1 没有应答。请开启代理 App（含 Qeno 模块）或 LocalDevVPN。"
+            "value": "10.7.0.1 \u6ca1\u6709\u5e94\u7b54\u3002\u8bf7\u5f00\u542f\u4ee3\u7406 App\uff08\u542b Qeno \u6a21\u5757\uff09\u6216 LocalDevVPN\u3002"
+          }
+        }
+      }
+    },
+    "Notification Settings": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u901a\u77e5\u8bbe\u7f6e"
           }
         }
       }
@@ -2340,7 +2480,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "通知"
+            "value": "\u901a\u77e5"
           }
         }
       }
@@ -2350,7 +2490,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "或接入现有的 Agent"
+            "value": "\u6216\u63a5\u5165\u73b0\u6709\u7684 Agent"
           }
         }
       }
@@ -2360,7 +2500,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "其他方式"
+            "value": "\u5176\u4ed6\u65b9\u5f0f"
           }
         }
       }
@@ -2370,7 +2510,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "关闭"
+            "value": "\u5173\u95ed"
           }
         }
       }
@@ -2380,7 +2520,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "离线"
+            "value": "\u79bb\u7ebf"
           }
         }
       }
@@ -2390,7 +2530,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开启"
+            "value": "\u5f00\u542f"
           }
         }
       }
@@ -2400,7 +2540,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "好的，正在打开“信息”。"
+            "value": "\u597d\u7684\uff0c\u6b63\u5728\u6253\u5f00\u201c\u4fe1\u606f\u201d\u3002"
           }
         }
       }
@@ -2410,7 +2550,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在线"
+            "value": "\u5728\u7ebf"
           }
         }
       }
@@ -2420,51 +2560,61 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开 %@"
+            "value": "\u6253\u5f00 %@"
           }
         }
       }
     },
-    "Open **Settings › Developer**. It appears once Developer Mode is on.": {
+    "Open **Settings \u203a Developer**. It appears once Developer Mode is on.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开“**设置 › 开发者**”。开启开发者模式后会显示此选项。"
+            "value": "\u6253\u5f00\u201c**\u8bbe\u7f6e \u203a \u5f00\u53d1\u8005**\u201d\u3002\u5f00\u542f\u5f00\u53d1\u8005\u6a21\u5f0f\u540e\u4f1a\u663e\u793a\u6b64\u9009\u9879\u3002"
           }
         }
       }
     },
-    "Open **Settings › General › VPN & Device Management**, tap your Apple ID, then tap **Trust**.": {
+    "Open **Settings \u203a General \u203a Keyboard \u203a Keyboards \u203a Add New Keyboard** and choose **Qeno**.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u6253\u5f00**\u8bbe\u7f6e \u203a \u901a\u7528 \u203a \u952e\u76d8 \u203a \u952e\u76d8 \u203a \u6dfb\u52a0\u65b0\u952e\u76d8**\uff0c\u9009\u62e9 **Qeno**\u3002"
+          }
+        }
+      }
+    },
+    "Open **Settings \u203a General \u203a VPN & Device Management**, tap your Apple ID, then tap **Trust**.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开“**设置 › 通用 › VPN 与设备管理**”，轻点你的 Apple ID，然后轻点“**信任**”。"
+            "value": "\u6253\u5f00\u201c**\u8bbe\u7f6e \u203a \u901a\u7528 \u203a VPN \u4e0e\u8bbe\u5907\u7ba1\u7406**\u201d\uff0c\u8f7b\u70b9\u4f60\u7684 Apple ID\uff0c\u7136\u540e\u8f7b\u70b9\u201c**\u4fe1\u4efb**\u201d\u3002"
           }
         }
       }
     },
-    "Open **Settings › Privacy & Security › Developer Mode**.": {
+    "Open **Settings \u203a Privacy & Security \u203a Developer Mode**.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开“**设置 › 隐私与安全性 › 开发者模式**”。"
+            "value": "\u6253\u5f00\u201c**\u8bbe\u7f6e \u203a \u9690\u79c1\u4e0e\u5b89\u5168 \u203a \u5f00\u53d1\u8005\u6a21\u5f0f**\u201d\u3002"
           }
         }
       }
     },
-    "Open **Settings › Privacy & Security › Developer Mode**. It appears once Qeno Runner is installed.": {
+    "Open **Settings \u203a Privacy & Security \u203a Developer Mode**. It appears once Qeno Runner is installed.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开“**设置 › 隐私与安全性 › 开发者模式**”。安装 Qeno Runner 后会显示此选项。"
+            "value": "\u6253\u5f00\u201c**\u8bbe\u7f6e \u203a \u9690\u79c1\u4e0e\u5b89\u5168\u6027 \u203a \u5f00\u53d1\u8005\u6a21\u5f0f**\u201d\u3002\u5b89\u88c5 Qeno Runner \u540e\u4f1a\u663e\u793a\u6b64\u9009\u9879\u3002"
           }
         }
       }
@@ -2474,7 +2624,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开“信息”"
+            "value": "\u6253\u5f00\u201c\u4fe1\u606f\u201d"
           }
         }
       }
@@ -2485,7 +2635,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开 Qeno，重新下载开发者磁盘映像。"
+            "value": "\u6253\u5f00 Qeno\uff0c\u91cd\u65b0\u4e0b\u8f7d\u5f00\u53d1\u8005\u78c1\u76d8\u6620\u50cf\u3002"
           }
         }
       }
@@ -2496,7 +2646,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开 Qeno，让它下载一次开发者磁盘映像（约 20 MB）。"
+            "value": "\u6253\u5f00 Qeno\uff0c\u8ba9\u5b83\u4e0b\u8f7d\u4e00\u6b21\u5f00\u53d1\u8005\u78c1\u76d8\u6620\u50cf\uff08\u7ea6 20 MB\uff09\u3002"
           }
         }
       }
@@ -2506,7 +2656,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开“设置”"
+            "value": "\u6253\u5f00\u201c\u8bbe\u7f6e\u201d"
           }
         }
       }
@@ -2516,18 +2666,18 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开设置引导"
+            "value": "\u6253\u5f00\u8bbe\u7f6e\u5f15\u5bfc"
           }
         }
       }
     },
-    "Open Setup › Loopback and check the loopback, then pair this iPhone again in Setup › Pairing with the loopback on.": {
+    "Open Setup \u203a Loopback and check the loopback, then pair this iPhone again in Setup \u203a Pairing with the loopback on.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开“设置引导 › 回环”检查回环，然后在回环开着时到“设置引导 › 配对”重新配对这台 iPhone。"
+            "value": "\u6253\u5f00\u201c\u8bbe\u7f6e\u5f15\u5bfc \u203a \u56de\u73af\u201d\u68c0\u67e5\u56de\u73af\uff0c\u7136\u540e\u5728\u56de\u73af\u5f00\u7740\u65f6\u5230\u201c\u8bbe\u7f6e\u5f15\u5bfc \u203a \u914d\u5bf9\u201d\u91cd\u65b0\u914d\u5bf9\u8fd9\u53f0 iPhone\u3002"
           }
         }
       }
@@ -2538,7 +2688,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开 Shadowrocket。"
+            "value": "\u6253\u5f00 Shadowrocket\u3002"
           }
         }
       }
@@ -2548,7 +2698,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开并轻点“连接”，然后回到 Qeno。它可能会断开其他 VPN App。"
+            "value": "\u6253\u5f00\u5e76\u8f7b\u70b9\u201c\u8fde\u63a5\u201d\uff0c\u7136\u540e\u56de\u5230 Qeno\u3002\u5b83\u53ef\u80fd\u4f1a\u65ad\u5f00\u5176\u4ed6 VPN App\u3002"
           }
         }
       }
@@ -2559,7 +2709,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开并轻点“连接”。它会占用系统 VPN 通道，开启期间会替换其他 VPN。"
+            "value": "\u6253\u5f00\u5e76\u8f7b\u70b9\u201c\u8fde\u63a5\u201d\u3002\u5b83\u4f1a\u5360\u7528\u7cfb\u7edf VPN \u901a\u9053\uff0c\u5f00\u542f\u671f\u95f4\u4f1a\u66ff\u6362\u5176\u4ed6 VPN\u3002"
           }
         }
       }
@@ -2569,7 +2719,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开登录页面"
+            "value": "\u6253\u5f00\u767b\u5f55\u9875\u9762"
           }
         }
       }
@@ -2579,7 +2729,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开与妈妈的对话"
+            "value": "\u6253\u5f00\u4e0e\u5988\u5988\u7684\u5bf9\u8bdd"
           }
         }
       }
@@ -2589,17 +2739,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "OpenAI 返回错误（%lld）：%@"
+            "value": "OpenAI \u8fd4\u56de\u9519\u8bef\uff08%lld\uff09\uff1a%@"
           }
         }
       }
     },
-    "OpenAI did not accept the key. Check it in Qeno › Model.": {
+    "OpenAI did not accept the key. Check it in Qeno \u203a Model.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "OpenAI 密钥无效。请前往“Qeno”›“模型”检查。"
+            "value": "OpenAI \u5bc6\u94a5\u65e0\u6548\u3002\u8bf7\u524d\u5f80\u201cQeno\u201d\u203a\u201c\u6a21\u578b\u201d\u68c0\u67e5\u3002"
           }
         }
       }
@@ -2609,7 +2759,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法从 OpenAI 获取登录码（%lld）。"
+            "value": "\u65e0\u6cd5\u4ece OpenAI \u83b7\u53d6\u767b\u5f55\u7801\uff08%lld\uff09\u3002"
           }
         }
       }
@@ -2619,7 +2769,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "未收到 OpenAI 的登录响应。"
+            "value": "\u672a\u6536\u5230 OpenAI \u7684\u767b\u5f55\u54cd\u5e94\u3002"
           }
         }
       }
@@ -2629,7 +2779,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此账号未启用验证码登录，请改用浏览器登录。"
+            "value": "\u6b64\u8d26\u53f7\u672a\u542f\u7528\u9a8c\u8bc1\u7801\u767b\u5f55\uff0c\u8bf7\u6539\u7528\u6d4f\u89c8\u5668\u767b\u5f55\u3002"
           }
         }
       }
@@ -2639,7 +2789,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "OpenAI 拒绝了此登录码（%lld）。"
+            "value": "OpenAI \u62d2\u7edd\u4e86\u6b64\u767b\u5f55\u7801\uff08%lld\uff09\u3002"
           }
         }
       }
@@ -2649,7 +2799,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请求过于频繁，请稍后再试。"
+            "value": "\u8bf7\u6c42\u8fc7\u4e8e\u9891\u7e41\uff0c\u8bf7\u7a0d\u540e\u518d\u8bd5\u3002"
           }
         }
       }
@@ -2659,7 +2809,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法解析 OpenAI 的登录码响应。"
+            "value": "\u65e0\u6cd5\u89e3\u6790 OpenAI \u7684\u767b\u5f55\u7801\u54cd\u5e94\u3002"
           }
         }
       }
@@ -2670,7 +2820,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在打开隧道"
+            "value": "\u6b63\u5728\u6253\u5f00\u96a7\u9053"
           }
         }
       }
@@ -2680,7 +2830,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "可选"
+            "value": "\u53ef\u9009"
           }
         }
       }
@@ -2690,7 +2840,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "可选。不连 Mac 也想续签时，可以在这里登录 Apple 账号，让 Qeno 自己续签。"
+            "value": "\u53ef\u9009\u3002\u4e0d\u8fde Mac \u4e5f\u60f3\u7eed\u7b7e\u65f6\uff0c\u53ef\u4ee5\u5728\u8fd9\u91cc\u767b\u5f55 Apple \u8d26\u53f7\uff0c\u8ba9 Qeno \u81ea\u5df1\u7eed\u7b7e\u3002"
           }
         }
       }
@@ -2700,7 +2850,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "代理回环接口"
+            "value": "\u4ee3\u7406\u56de\u73af\u63a5\u53e3"
           }
         }
       }
@@ -2710,7 +2860,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新配对"
+            "value": "\u91cd\u65b0\u914d\u5bf9"
           }
         }
       }
@@ -2720,7 +2870,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "配对此 iPhone"
+            "value": "\u914d\u5bf9\u6b64 iPhone"
           }
         }
       }
@@ -2731,7 +2881,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请在 Qeno 的设置引导中重新配对。"
+            "value": "\u8bf7\u5728 Qeno \u7684\u8bbe\u7f6e\u5f15\u5bfc\u4e2d\u91cd\u65b0\u914d\u5bf9\u3002"
           }
         }
       }
@@ -2741,7 +2891,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在“设置”中配对"
+            "value": "\u5728\u201c\u8bbe\u7f6e\u201d\u4e2d\u914d\u5bf9"
           }
         }
       }
@@ -2751,7 +2901,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新配对此 iPhone"
+            "value": "\u91cd\u65b0\u914d\u5bf9\u6b64 iPhone"
           }
         }
       }
@@ -2762,7 +2912,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请先配对此 iPhone（设置引导）。"
+            "value": "\u8bf7\u5148\u914d\u5bf9\u6b64 iPhone\uff08\u8bbe\u7f6e\u5f15\u5bfc\uff09\u3002"
           }
         }
       }
@@ -2772,7 +2922,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已配对"
+            "value": "\u5df2\u914d\u5bf9"
           }
         }
       }
@@ -2782,7 +2932,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已配对。Runner 下次启动时会再次检查。"
+            "value": "\u5df2\u914d\u5bf9\u3002Runner \u4e0b\u6b21\u542f\u52a8\u65f6\u4f1a\u518d\u6b21\u68c0\u67e5\u3002"
           }
         }
       }
@@ -2792,7 +2942,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已配对。iPhone 于 %@ 接受了配对。"
+            "value": "\u5df2\u914d\u5bf9\u3002iPhone \u4e8e %@ \u63a5\u53d7\u4e86\u914d\u5bf9\u3002"
           }
         }
       }
@@ -2802,7 +2952,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "配对"
+            "value": "\u914d\u5bf9"
           }
         }
       }
@@ -2812,7 +2962,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "配对码"
+            "value": "\u914d\u5bf9\u7801"
           }
         }
       }
@@ -2822,7 +2972,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "配对码 %@"
+            "value": "\u914d\u5bf9\u7801 %@"
+          }
+        }
+      }
+    },
+    "Paste": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u7c98\u8d34"
           }
         }
       }
@@ -2832,7 +2992,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "暂停"
+            "value": "\u6682\u505c"
           }
         }
       }
@@ -2842,7 +3002,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已为你暂停"
+            "value": "\u5df2\u4e3a\u4f60\u6682\u505c"
           }
         }
       }
@@ -2852,7 +3012,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "10.7.0.1 端口"
+            "value": "10.7.0.1 \u7aef\u53e3"
           }
         }
       }
@@ -2863,7 +3023,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在准备"
+            "value": "\u6b63\u5728\u51c6\u5907"
           }
         }
       }
@@ -2873,7 +3033,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "地址二维码"
+            "value": "\u5730\u5740\u4e8c\u7ef4\u7801"
           }
         }
       }
@@ -2893,18 +3053,28 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 已关闭"
+            "value": "Qeno \u5df2\u5173\u95ed"
           }
         }
       }
     },
-    "Qeno Runner did not start. In Settings → Developer, turn on UI Automation; in Settings → General → VPN & Device Management, trust the developer of Qeno Runner.": {
+    "Qeno Keyboard": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qeno \u952e\u76d8"
+          }
+        }
+      }
+    },
+    "Qeno Runner did not start. In Settings \u2192 Developer, turn on UI Automation; in Settings \u2192 General \u2192 VPN & Device Management, trust the developer of Qeno Runner.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno Runner 没有启动。请在“设置 › 开发者”中开启 UI 自动化，并在“设置 › 通用 › VPN 与设备管理”中信任 Qeno Runner 的开发者。"
+            "value": "Qeno Runner \u6ca1\u6709\u542f\u52a8\u3002\u8bf7\u5728\u201c\u8bbe\u7f6e \u203a \u5f00\u53d1\u8005\u201d\u4e2d\u5f00\u542f UI \u81ea\u52a8\u5316\uff0c\u5e76\u5728\u201c\u8bbe\u7f6e \u203a \u901a\u7528 \u203a VPN \u4e0e\u8bbe\u5907\u7ba1\u7406\u201d\u4e2d\u4fe1\u4efb Qeno Runner \u7684\u5f00\u53d1\u8005\u3002"
           }
         }
       }
@@ -2914,7 +3084,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已安装并信任 Qeno Runner"
+            "value": "\u5df2\u5b89\u88c5\u5e76\u4fe1\u4efb Qeno Runner"
           }
         }
       }
@@ -2925,7 +3095,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "停止后 Qeno Runner 仍在运行。请在 App 切换器中将它划掉，自动化横幅会随之消失。"
+            "value": "\u505c\u6b62\u540e Qeno Runner \u4ecd\u5728\u8fd0\u884c\u3002\u8bf7\u5728 App \u5207\u6362\u5668\u4e2d\u5c06\u5b83\u5212\u6389\uff0c\u81ea\u52a8\u5316\u6a2a\u5e45\u4f1a\u968f\u4e4b\u6d88\u5931\u3002"
           }
         }
       }
@@ -2935,7 +3105,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "这台 iPhone 连上 Mac 时，Qeno Setup 会为 Qeno 续签。"
+            "value": "\u8fd9\u53f0 iPhone \u8fde\u4e0a Mac \u65f6\uff0cQeno Setup \u4f1a\u4e3a Qeno \u7eed\u7b7e\u3002"
           }
         }
       }
@@ -2945,7 +3115,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 版本"
+            "value": "Qeno \u7248\u672c"
           }
         }
       }
@@ -2955,18 +3125,18 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "代理付款、删除、发消息、打电话、输入密码或在钱包里操作之前，Qeno 会先问你：在实时活动、通知或 Qeno 里批准。关掉后，这些操作都不再询问。更改在下次打开 Qeno 时生效。"
+            "value": "\u4ee3\u7406\u4ed8\u6b3e\u3001\u5220\u9664\u3001\u53d1\u6d88\u606f\u3001\u6253\u7535\u8bdd\u3001\u8f93\u5165\u5bc6\u7801\u6216\u5728\u94b1\u5305\u91cc\u64cd\u4f5c\u4e4b\u524d\uff0cQeno \u4f1a\u5148\u95ee\u4f60\uff1a\u5728\u5b9e\u65f6\u6d3b\u52a8\u3001\u901a\u77e5\u6216 Qeno \u91cc\u6279\u51c6\u3002\u5173\u6389\u540e\uff0c\u8fd9\u4e9b\u64cd\u4f5c\u90fd\u4e0d\u518d\u8be2\u95ee\u3002\u66f4\u6539\u5728\u4e0b\u6b21\u6253\u5f00 Qeno \u65f6\u751f\u6548\u3002"
           }
         }
       }
     },
-    "Qeno can't reach this iPhone. Check in this order: Setup › Loopback (your proxy app or LocalDevVPN is connected, with 10.7.0.1 set), then Setup › Pairing (pair again with the loopback on), then Developer Mode in Settings → Privacy & Security.": {
+    "Qeno can't reach this iPhone. Check in this order: Setup \u203a Loopback (your proxy app or LocalDevVPN is connected, with 10.7.0.1 set), then Setup \u203a Pairing (pair again with the loopback on), then Developer Mode in Settings \u2192 Privacy & Security.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 连不上这台 iPhone。请按顺序检查：“设置引导 › 回环”（代理 App 或 LocalDevVPN 已连接，并已设好 10.7.0.1），然后“设置引导 › 配对”（在回环开着时重新配对），最后是“设置 › 隐私与安全性”里的开发者模式。"
+            "value": "Qeno \u8fde\u4e0d\u4e0a\u8fd9\u53f0 iPhone\u3002\u8bf7\u6309\u987a\u5e8f\u68c0\u67e5\uff1a\u201c\u8bbe\u7f6e\u5f15\u5bfc \u203a \u56de\u73af\u201d\uff08\u4ee3\u7406 App \u6216 LocalDevVPN \u5df2\u8fde\u63a5\uff0c\u5e76\u5df2\u8bbe\u597d 10.7.0.1\uff09\uff0c\u7136\u540e\u201c\u8bbe\u7f6e\u5f15\u5bfc \u203a \u914d\u5bf9\u201d\uff08\u5728\u56de\u73af\u5f00\u7740\u65f6\u91cd\u65b0\u914d\u5bf9\uff09\uff0c\u6700\u540e\u662f\u201c\u8bbe\u7f6e \u203a \u9690\u79c1\u4e0e\u5b89\u5168\u6027\u201d\u91cc\u7684\u5f00\u53d1\u8005\u6a21\u5f0f\u3002"
           }
         }
       }
@@ -2976,7 +3146,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 无法访问麦克风。请在“设置”›“隐私与安全性”›“麦克风”中开启权限。"
+            "value": "Qeno \u65e0\u6cd5\u8bbf\u95ee\u9ea6\u514b\u98ce\u3002\u8bf7\u5728\u201c\u8bbe\u7f6e\u201d\u203a\u201c\u9690\u79c1\u4e0e\u5b89\u5168\u6027\u201d\u203a\u201c\u9ea6\u514b\u98ce\u201d\u4e2d\u5f00\u542f\u6743\u9650\u3002"
           }
         }
       }
@@ -2986,17 +3156,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 无法访问钥匙串，因此尚无中转密钥。请使用签名工具重新安装 Qeno，然后重新打开设置。"
+            "value": "Qeno \u65e0\u6cd5\u8bbf\u95ee\u94a5\u5319\u4e32\uff0c\u56e0\u6b64\u5c1a\u65e0\u4e2d\u8f6c\u5bc6\u94a5\u3002\u8bf7\u4f7f\u7528\u7b7e\u540d\u5de5\u5177\u91cd\u65b0\u5b89\u88c5 Qeno\uff0c\u7136\u540e\u91cd\u65b0\u6253\u5f00\u8bbe\u7f6e\u3002"
           }
         }
       }
     },
-    "Qeno can’t stay on in the background": {
+    "Qeno can\u2019t stay on in the background": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 无法在后台保持运行"
+            "value": "Qeno \u65e0\u6cd5\u5728\u540e\u53f0\u4fdd\u6301\u8fd0\u884c"
           }
         }
       }
@@ -3006,17 +3176,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法连接 %@：%@"
+            "value": "\u65e0\u6cd5\u8fde\u63a5 %@\uff1a%@"
           }
         }
       }
     },
-    "Qeno couldn’t read its relay key from the keychain (%@).": {
+    "Qeno couldn\u2019t read its relay key from the keychain (%@).": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 无法从钥匙串读取中转密钥（%@）。"
+            "value": "Qeno \u65e0\u6cd5\u4ece\u94a5\u5319\u4e32\u8bfb\u53d6\u4e2d\u8f6c\u5bc6\u94a5\uff08%@\uff09\u3002"
           }
         }
       }
@@ -3026,7 +3196,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 没有默认中转。请用 Qeno 仓库中的 deploy/cf-relay/deploy.sh 把中转部署到你自己的 Cloudflare 账户，再输入它输出的地址。截图和轻点只经过这个中转。"
+            "value": "Qeno \u6ca1\u6709\u9ed8\u8ba4\u4e2d\u8f6c\u3002\u8bf7\u7528 Qeno \u4ed3\u5e93\u4e2d\u7684 deploy/cf-relay/deploy.sh \u628a\u4e2d\u8f6c\u90e8\u7f72\u5230\u4f60\u81ea\u5df1\u7684 Cloudflare \u8d26\u6237\uff0c\u518d\u8f93\u5165\u5b83\u8f93\u51fa\u7684\u5730\u5740\u3002\u622a\u56fe\u548c\u8f7b\u70b9\u53ea\u7ecf\u8fc7\u8fd9\u4e2a\u4e2d\u8f6c\u3002"
           }
         }
       }
@@ -3036,7 +3206,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 已离线。请检查此 iPhone 的网络连接，Qeno 会自动重新连接。"
+            "value": "Qeno \u5df2\u79bb\u7ebf\u3002\u8bf7\u68c0\u67e5\u6b64 iPhone \u7684\u7f51\u7edc\u8fde\u63a5\uff0cQeno \u4f1a\u81ea\u52a8\u91cd\u65b0\u8fde\u63a5\u3002"
           }
         }
       }
@@ -3046,7 +3216,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "密钥已保存。%@ 对话功能将在后续更新中推出，目前请选择 Anthropic 或 OpenAI。"
+            "value": "\u5bc6\u94a5\u5df2\u4fdd\u5b58\u3002%@ \u5bf9\u8bdd\u529f\u80fd\u5c06\u5728\u540e\u7eed\u66f4\u65b0\u4e2d\u63a8\u51fa\uff0c\u76ee\u524d\u8bf7\u9009\u62e9 Anthropic \u6216 OpenAI\u3002"
           }
         }
       }
@@ -3056,7 +3226,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 日志"
+            "value": "Qeno \u65e5\u5fd7"
           }
         }
       }
@@ -3066,7 +3236,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 会在 GitHub 上查找所选通道的最新版本。"
+            "value": "Qeno \u4f1a\u5728 GitHub \u4e0a\u67e5\u627e\u6240\u9009\u901a\u9053\u7684\u6700\u65b0\u7248\u672c\u3002"
           }
         }
       }
@@ -3076,7 +3246,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 需要你处理"
+            "value": "Qeno \u9700\u8981\u4f60\u5904\u7406"
           }
         }
       }
@@ -3087,7 +3257,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "手机每次重启后，Qeno 需要联网一次，为开发者磁盘映像获取 Apple 的签名。请检查无线局域网或蜂窝网络，Qeno 会自动重试。"
+            "value": "\u624b\u673a\u6bcf\u6b21\u91cd\u542f\u540e\uff0cQeno \u9700\u8981\u8054\u7f51\u4e00\u6b21\uff0c\u4e3a\u5f00\u53d1\u8005\u78c1\u76d8\u6620\u50cf\u83b7\u53d6 Apple \u7684\u7b7e\u540d\u3002\u8bf7\u68c0\u67e5\u65e0\u7ebf\u5c40\u57df\u7f51\u6216\u8702\u7a9d\u7f51\u7edc\uff0cQeno \u4f1a\u81ea\u52a8\u91cd\u8bd5\u3002"
           }
         }
       }
@@ -3097,7 +3267,18 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 需要你批准"
+            "value": "Qeno \u9700\u8981\u4f60\u6279\u51c6"
+          }
+        }
+      }
+    },
+    "Qeno opens the main Settings page. Go to **Privacy & Security \u203a Developer Mode** and tap **Pair with Qeno**.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qeno \u5c06\u6253\u5f00\u201c\u8bbe\u7f6e\u201d\u9996\u9875\u3002\u524d\u5f80\u201c**\u9690\u79c1\u4e0e\u5b89\u5168 \u203a \u5f00\u53d1\u8005\u6a21\u5f0f**\u201d\u5e76\u8f7b\u70b9\u201c**Pair with Qeno\uff08\u4e0e Qeno \u914d\u5bf9\uff09**\u201d\u3002"
           }
         }
       }
@@ -3107,7 +3288,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 会在锁定屏幕上显示操作步骤、配对码和批准请求。"
+            "value": "Qeno \u4f1a\u5728\u9501\u5b9a\u5c4f\u5e55\u4e0a\u663e\u793a\u64cd\u4f5c\u6b65\u9aa4\u3001\u914d\u5bf9\u7801\u548c\u6279\u51c6\u8bf7\u6c42\u3002"
           }
         }
       }
@@ -3117,7 +3298,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "智能体下次发出请求时，Qeno 会重新启动它。"
+            "value": "\u667a\u80fd\u4f53\u4e0b\u6b21\u53d1\u51fa\u8bf7\u6c42\u65f6\uff0cQeno \u4f1a\u91cd\u65b0\u542f\u52a8\u5b83\u3002"
           }
         }
       }
@@ -3127,28 +3308,58 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 之后 Qeno 将无法打开。请把这台 iPhone 连上 Mac，让 agent 为它续签。"
+            "value": "%@ \u4e4b\u540e Qeno \u5c06\u65e0\u6cd5\u6253\u5f00\u3002\u8bf7\u628a\u8fd9\u53f0 iPhone \u8fde\u4e0a Mac\uff0c\u8ba9 agent \u4e3a\u5b83\u7eed\u7b7e\u3002"
           }
         }
       }
     },
-    "Qeno uses your ChatGPT plan, the way Codex does. The sign-in stays in this iPhone’s Keychain.": {
+    "Qeno types through its own keyboard and never touches the clipboard. When the keyboard can\u2019t be used, plain text is typed with key presses, and other text is not entered.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 与 Codex 一样，共享你的 ChatGPT 订阅额度。登录信息仅保存在此 iPhone 的钥匙串中。"
+            "value": "Qeno \u901a\u8fc7\u81ea\u5df1\u7684\u952e\u76d8\u8f93\u5165\uff0c\u7edd\u4e0d\u4f7f\u7528\u526a\u8d34\u677f\u3002\u952e\u76d8\u65e0\u6cd5\u4f7f\u7528\u65f6\uff0c\u666e\u901a\u6587\u5b57\u7528\u6309\u952e\u8f93\u5165\uff0c\u5176\u4ed6\u6587\u5b57\u4e0d\u4f1a\u8f93\u5165\u3002"
           }
         }
       }
     },
-    "Qeno will open Settings. Go to **Privacy & Security › Developer Mode** and tap **Pair with Qeno**.": {
+    "Qeno types through its own keyboard panel, at a person\u2019s pace. The panel has no keys: it shows while Qeno types, and Take Over stops it.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qeno \u901a\u8fc7\u81ea\u5df1\u7684\u952e\u76d8\u9762\u677f\u4ee5\u5e38\u4eba\u7684\u901f\u5ea6\u8f93\u5165\u3002\u9762\u677f\u6ca1\u6709\u6309\u952e\uff1aQeno \u8f93\u5165\u65f6\u663e\u793a\uff0c\u8f7b\u70b9\u201c\u63a5\u7ba1\u201d\u5373\u53ef\u505c\u6b62\u3002"
+          }
+        }
+      }
+    },
+    "Qeno types with key presses and pastes what the keys can\u2019t type, such as Chinese and emoji. Your clipboard is put back afterwards. The Qeno keyboard is not used.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qeno \u7528\u6309\u952e\u8f93\u5165\uff0c\u6309\u952e\u65e0\u6cd5\u8f93\u5165\u7684\u5185\u5bb9\uff08\u5982\u4e2d\u6587\u548c\u8868\u60c5\u7b26\u53f7\uff09\u901a\u8fc7\u7c98\u8d34\u8f93\u5165\uff0c\u4e4b\u540e\u4f1a\u6062\u590d\u4f60\u7684\u526a\u8d34\u677f\u3002\u4e0d\u4f7f\u7528 Qeno \u952e\u76d8\u3002"
+          }
+        }
+      }
+    },
+    "Qeno uses your ChatGPT plan, the way Codex does. The sign-in stays in this iPhone\u2019s Keychain.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qeno \u4e0e Codex \u4e00\u6837\uff0c\u5171\u4eab\u4f60\u7684 ChatGPT \u8ba2\u9605\u989d\u5ea6\u3002\u767b\u5f55\u4fe1\u606f\u4ec5\u4fdd\u5b58\u5728\u6b64 iPhone \u7684\u94a5\u5319\u4e32\u4e2d\u3002"
+          }
+        }
+      }
+    },
+    "Qeno will open Settings. Go to **Privacy & Security \u203a Developer Mode** and tap **Pair with Qeno**.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 将打开“设置”。前往“**隐私与安全性 › 开发者模式**”并轻点“**与 Qeno 配对**”。"
+            "value": "Qeno \u5c06\u6253\u5f00\u201c\u8bbe\u7f6e\u201d\u3002\u524d\u5f80\u201c**\u9690\u79c1\u4e0e\u5b89\u5168\u6027 \u203a \u5f00\u53d1\u8005\u6a21\u5f0f**\u201d\u5e76\u8f7b\u70b9\u201c**\u4e0e Qeno \u914d\u5bf9**\u201d\u3002"
           }
         }
       }
@@ -3158,17 +3369,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 详情"
+            "value": "Qeno \u8be6\u60c5"
           }
         }
       }
     },
-    "Qeno’s signing ends soon": {
+    "Qeno\u2019s signing ends soon": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 的签名快到期了"
+            "value": "Qeno \u7684\u7b7e\u540d\u5feb\u5230\u671f\u4e86"
           }
         }
       }
@@ -3178,7 +3389,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "中转地址"
+            "value": "\u4e2d\u8f6c\u5730\u5740"
           }
         }
       }
@@ -3198,17 +3409,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "就绪"
+            "value": "\u5c31\u7eea"
           }
         }
       }
     },
-    "Ready for the agent’s next step.": {
+    "Ready for the agent\u2019s next step.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在等待智能体的下一步。"
+            "value": "\u6b63\u5728\u7b49\u5f85\u667a\u80fd\u4f53\u7684\u4e0b\u4e00\u6b65\u3002"
           }
         }
       }
@@ -3219,7 +3430,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "反射 RemotePairing"
+            "value": "\u53cd\u5c04 RemotePairing"
           }
         }
       }
@@ -3230,7 +3441,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "反射任意端口"
+            "value": "\u53cd\u5c04\u4efb\u610f\u7aef\u53e3"
           }
         }
       }
@@ -3241,7 +3452,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "反射 lockdown"
+            "value": "\u53cd\u5c04 lockdown"
           }
         }
       }
@@ -3252,7 +3463,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "被拒绝"
+            "value": "\u88ab\u62d2\u7edd"
           }
         }
       }
@@ -3262,7 +3473,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "拒绝正在等你批准的这一步。"
+            "value": "\u62d2\u7edd\u6b63\u5728\u7b49\u4f60\u6279\u51c6\u7684\u8fd9\u4e00\u6b65\u3002"
           }
         }
       }
@@ -3272,7 +3483,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "中转"
+            "value": "\u4e2d\u8f6c"
           }
         }
       }
@@ -3282,7 +3493,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "中转地址"
+            "value": "\u4e2d\u8f6c\u5730\u5740"
           }
         }
       }
@@ -3292,7 +3503,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "松开以结束对话。"
+            "value": "\u677e\u5f00\u4ee5\u7ed3\u675f\u5bf9\u8bdd\u3002"
           }
         }
       }
@@ -3302,7 +3513,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "松开发送，上滑取消。"
+            "value": "\u677e\u5f00\u53d1\u9001\uff0c\u4e0a\u6ed1\u53d6\u6d88\u3002"
           }
         }
       }
@@ -3312,7 +3523,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "删除密钥"
+            "value": "\u5220\u9664\u5bc6\u94a5"
           }
         }
       }
@@ -3323,7 +3534,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重启手机，然后重新打开 Qeno。"
+            "value": "\u91cd\u542f\u624b\u673a\uff0c\u7136\u540e\u91cd\u65b0\u6253\u5f00 Qeno\u3002"
           }
         }
       }
@@ -3333,7 +3544,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "继续"
+            "value": "\u7ee7\u7eed"
           }
         }
       }
@@ -3343,7 +3554,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "撤销访问权限"
+            "value": "\u64a4\u9500\u8bbf\u95ee\u6743\u9650"
           }
         }
       }
@@ -3353,7 +3564,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "运行检查"
+            "value": "\u8fd0\u884c\u68c0\u67e5"
           }
         }
       }
@@ -3363,7 +3574,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在 Mac 上运行 bin/voice-bridge.mjs 并输入生成的地址。OpenAI 密钥保存在 Mac 本地，手机仅获取有效期 1 分钟的临时凭证，不保存密钥，音频将由手机直连发送至 OpenAI。"
+            "value": "\u5728 Mac \u4e0a\u8fd0\u884c bin/voice-bridge.mjs \u5e76\u8f93\u5165\u751f\u6210\u7684\u5730\u5740\u3002OpenAI \u5bc6\u94a5\u4fdd\u5b58\u5728 Mac \u672c\u5730\uff0c\u624b\u673a\u4ec5\u83b7\u53d6\u6709\u6548\u671f 1 \u5206\u949f\u7684\u4e34\u65f6\u51ed\u8bc1\uff0c\u4e0d\u4fdd\u5b58\u5bc6\u94a5\uff0c\u97f3\u9891\u5c06\u7531\u624b\u673a\u76f4\u8fde\u53d1\u9001\u81f3 OpenAI\u3002"
           }
         }
       }
@@ -3383,7 +3594,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "记录 Runner 启停、智能体步骤、批准状态及连接变化。密码栏中输入的内容绝不会记入日志。"
+            "value": "\u8bb0\u5f55 Runner \u542f\u505c\u3001\u667a\u80fd\u4f53\u6b65\u9aa4\u3001\u6279\u51c6\u72b6\u6001\u53ca\u8fde\u63a5\u53d8\u5316\u3002\u5bc6\u7801\u680f\u4e2d\u8f93\u5165\u7684\u5185\u5bb9\u7edd\u4e0d\u4f1a\u8bb0\u5165\u65e5\u5fd7\u3002"
           }
         }
       }
@@ -3394,17 +3605,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "运行中"
+            "value": "\u8fd0\u884c\u4e2d"
           }
         }
       }
     },
-    "Running…": {
+    "Running\u2026": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在运行…"
+            "value": "\u6b63\u5728\u8fd0\u884c\u2026"
           }
         }
       }
@@ -3414,7 +3625,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "状态"
+            "value": "\u72b6\u6001"
           }
         }
       }
@@ -3424,7 +3635,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "保存"
+            "value": "\u4fdd\u5b58"
           }
         }
       }
@@ -3434,7 +3645,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "保存地址"
+            "value": "\u4fdd\u5b58\u5730\u5740"
           }
         }
       }
@@ -3444,17 +3655,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "发送"
+            "value": "\u53d1\u9001"
           }
         }
       }
     },
-    "Send “On my way” to Mom": {
+    "Send \u201cOn my way\u201d to Mom": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "给妈妈发送“在路上了”"
+            "value": "\u7ed9\u5988\u5988\u53d1\u9001\u201c\u5728\u8def\u4e0a\u4e86\u201d"
           }
         }
       }
@@ -3464,7 +3675,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已发送给妈妈。还需要其他帮助吗？"
+            "value": "\u5df2\u53d1\u9001\u7ed9\u5988\u5988\u3002\u8fd8\u9700\u8981\u5176\u4ed6\u5e2e\u52a9\u5417\uff1f"
           }
         }
       }
@@ -3474,7 +3685,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "设置 Qeno"
+            "value": "\u8bbe\u7f6e Qeno"
           }
         }
       }
@@ -3484,27 +3695,27 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "设置此 iPhone"
+            "value": "\u8bbe\u7f6e\u6b64 iPhone"
           }
         }
       }
     },
-    "Set the voice bridge first: tap here, or Qeno › Voice and Speech.": {
+    "Set the voice bridge first: tap here, or Qeno \u203a Voice and Speech.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请先配置语音桥接：轻点此处，或前往“Qeno”›“语音与朗读”。"
+            "value": "\u8bf7\u5148\u914d\u7f6e\u8bed\u97f3\u6865\u63a5\uff1a\u8f7b\u70b9\u6b64\u5904\uff0c\u6216\u524d\u5f80\u201cQeno\u201d\u203a\u201c\u8bed\u97f3\u4e0e\u6717\u8bfb\u201d\u3002"
           }
         }
       }
     },
-    "Set your relay address first: each agent’s address is on your relay.": {
+    "Set your relay address first: each agent\u2019s address is on your relay.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请先设置中转地址：每个智能体的地址都在你的中转上。"
+            "value": "\u8bf7\u5148\u8bbe\u7f6e\u4e2d\u8f6c\u5730\u5740\uff1a\u6bcf\u4e2a\u667a\u80fd\u4f53\u7684\u5730\u5740\u90fd\u5728\u4f60\u7684\u4e2d\u8f6c\u4e0a\u3002"
           }
         }
       }
@@ -3514,7 +3725,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "设置"
+            "value": "\u8bbe\u7f6e"
           }
         }
       }
@@ -3524,7 +3735,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "设置引导"
+            "value": "\u8bbe\u7f6e\u5f15\u5bfc"
           }
         }
       }
@@ -3534,7 +3745,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "共享"
+            "value": "\u5171\u4eab"
           }
         }
       }
@@ -3544,7 +3755,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "登录"
+            "value": "\u767b\u5f55"
           }
         }
       }
@@ -3554,7 +3765,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用 ChatGPT 登录"
+            "value": "\u4f7f\u7528 ChatGPT \u767b\u5f55"
           }
         }
       }
@@ -3564,7 +3775,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "退出登录"
+            "value": "\u9000\u51fa\u767b\u5f55"
           }
         }
       }
@@ -3574,7 +3785,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请重新登录 ChatGPT：轻点头像，再选择“模型”。"
+            "value": "\u8bf7\u91cd\u65b0\u767b\u5f55 ChatGPT\uff1a\u8f7b\u70b9\u5934\u50cf\uff0c\u518d\u9009\u62e9\u201c\u6a21\u578b\u201d\u3002"
           }
         }
       }
@@ -3584,7 +3795,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请先登录 ChatGPT：轻点头像，再选择“模型”。"
+            "value": "\u8bf7\u5148\u767b\u5f55 ChatGPT\uff1a\u8f7b\u70b9\u5934\u50cf\uff0c\u518d\u9009\u62e9\u201c\u6a21\u578b\u201d\u3002"
           }
         }
       }
@@ -3594,7 +3805,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "登录码 %@"
+            "value": "\u767b\u5f55\u7801 %@"
           }
         }
       }
@@ -3604,7 +3815,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "登录已取消。"
+            "value": "\u767b\u5f55\u5df2\u53d6\u6d88\u3002"
           }
         }
       }
@@ -3614,7 +3825,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已登录"
+            "value": "\u5df2\u767b\u5f55"
           }
         }
       }
@@ -3624,7 +3835,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "签名"
+            "value": "\u7b7e\u540d"
           }
         }
       }
@@ -3634,7 +3845,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "签名选项"
+            "value": "\u7b7e\u540d\u9009\u9879"
           }
         }
       }
@@ -3645,7 +3856,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "静音音频"
+            "value": "\u9759\u97f3\u97f3\u9891"
           }
         }
       }
@@ -3656,7 +3867,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "休眠"
+            "value": "\u4f11\u7720"
           }
         }
       }
@@ -3666,7 +3877,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开始保活测试"
+            "value": "\u5f00\u59cb\u4fdd\u6d3b\u6d4b\u8bd5"
           }
         }
       }
@@ -3676,7 +3887,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "立即启动"
+            "value": "\u7acb\u5373\u542f\u52a8"
           }
         }
       }
@@ -3686,7 +3897,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开始配对"
+            "value": "\u5f00\u59cb\u914d\u5bf9"
           }
         }
       }
@@ -3697,7 +3908,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在启动"
+            "value": "\u6b63\u5728\u542f\u52a8"
           }
         }
       }
@@ -3707,7 +3918,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "状态"
+            "value": "\u72b6\u6001"
           }
         }
       }
@@ -3717,7 +3928,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "第 %lld 步"
+            "value": "\u7b2c %lld \u6b65"
           }
         }
       }
@@ -3727,7 +3938,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "第 %lld 步（“%@”）"
+            "value": "\u7b2c %lld \u6b65\uff08\u201c%@\u201d\uff09"
           }
         }
       }
@@ -3737,7 +3948,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "第 3/4 步（“信息”）"
+            "value": "\u7b2c 3/4 \u6b65\uff08\u201c\u4fe1\u606f\u201d\uff09"
           }
         }
       }
@@ -3747,7 +3958,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "智能体的操作步骤会显示在此处和锁定屏幕上。"
+            "value": "\u667a\u80fd\u4f53\u7684\u64cd\u4f5c\u6b65\u9aa4\u4f1a\u663e\u793a\u5728\u6b64\u5904\u548c\u9501\u5b9a\u5c4f\u5e55\u4e0a\u3002"
           }
         }
       }
@@ -3757,7 +3968,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "停止"
+            "value": "\u505c\u6b62"
           }
         }
       }
@@ -3767,7 +3978,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "更改本机连接前，请先关闭 Qeno 并完成配对。"
+            "value": "\u66f4\u6539\u672c\u673a\u8fde\u63a5\u524d\uff0c\u8bf7\u5148\u5173\u95ed Qeno \u5e76\u5b8c\u6210\u914d\u5bf9\u3002"
           }
         }
       }
@@ -3777,7 +3988,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "停止 Runner"
+            "value": "\u505c\u6b62 Runner"
           }
         }
       }
@@ -3787,7 +3998,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "闲置多久后停止"
+            "value": "\u95f2\u7f6e\u591a\u4e45\u540e\u505c\u6b62"
           }
         }
       }
@@ -3797,7 +4008,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "停止 Runner"
+            "value": "\u505c\u6b62 Runner"
           }
         }
       }
@@ -3807,7 +4018,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打断播报"
+            "value": "\u6253\u65ad\u64ad\u62a5"
           }
         }
       }
@@ -3817,7 +4028,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打断播报仅停止语音回复，当前正在执行的操作仍会完成并向你反馈结果。"
+            "value": "\u6253\u65ad\u64ad\u62a5\u4ec5\u505c\u6b62\u8bed\u97f3\u56de\u590d\uff0c\u5f53\u524d\u6b63\u5728\u6267\u884c\u7684\u64cd\u4f5c\u4ecd\u4f1a\u5b8c\u6210\u5e76\u5411\u4f60\u53cd\u9988\u7ed3\u679c\u3002"
           }
         }
       }
@@ -3827,7 +4038,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已停止"
+            "value": "\u5df2\u505c\u6b62"
           }
         }
       }
@@ -3837,7 +4048,37 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已停止。"
+            "value": "\u5df2\u505c\u6b62\u3002"
+          }
+        }
+      }
+    },
+    "Switch Back When Finished": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u5b8c\u6210\u540e\u5207\u6362\u56de\u539f\u952e\u76d8"
+          }
+        }
+      }
+    },
+    "Switch to It Automatically": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u81ea\u52a8\u5207\u6362\u5230 Qeno \u952e\u76d8"
+          }
+        }
+      }
+    },
+    "System Pinyin Keyboard for Chinese": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u7528\u7cfb\u7edf\u62fc\u97f3\u952e\u76d8\u8f93\u5165\u4e2d\u6587"
           }
         }
       }
@@ -3847,7 +4088,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此 iPhone"
+            "value": "\u6b64 iPhone"
           }
         }
       }
@@ -3857,7 +4098,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "与 Qeno 语音对话"
+            "value": "\u4e0e Qeno \u8bed\u97f3\u5bf9\u8bdd"
           }
         }
       }
@@ -3868,7 +4109,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "轻点“**与 Qeno 配对**”，并输入此处或锁定屏幕上显示的配对码。"
+            "value": "\u8f7b\u70b9\u201c**\u4e0e Qeno \u914d\u5bf9**\u201d\uff0c\u5e76\u8f93\u5165\u6b64\u5904\u6216\u9501\u5b9a\u5c4f\u5e55\u4e0a\u663e\u793a\u7684\u914d\u5bf9\u7801\u3002"
+          }
+        }
+      }
+    },
+    "Tap **Qeno** in that list and turn on **Allow Full Access**.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u5728\u5217\u8868\u4e2d\u8f7b\u70b9 **Qeno**\uff0c\u6253\u5f00**\u5141\u8bb8\u5b8c\u5168\u8bbf\u95ee**\u3002"
           }
         }
       }
@@ -3879,7 +4130,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "轻点“安装模块”，然后在 Surge 中确认。"
+            "value": "\u8f7b\u70b9\u201c\u5b89\u88c5\u6a21\u5757\u201d\uff0c\u7136\u540e\u5728 Surge \u4e2d\u786e\u8ba4\u3002"
           }
         }
       }
@@ -3890,7 +4141,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "轻点“安装插件”，然后在 Loon 中确认。"
+            "value": "\u8f7b\u70b9\u201c\u5b89\u88c5\u63d2\u4ef6\u201d\uff0c\u7136\u540e\u5728 Loon \u4e2d\u786e\u8ba4\u3002"
           }
         }
       }
@@ -3900,7 +4151,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "轻点“发送”"
+            "value": "\u8f7b\u70b9\u201c\u53d1\u9001\u201d"
           }
         }
       }
@@ -3910,7 +4161,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "轻点“开始”，离开 App 一段时间后再返回。日志会记录挂起时段及连接断开的时间。"
+            "value": "\u8f7b\u70b9\u201c\u5f00\u59cb\u201d\uff0c\u79bb\u5f00 App \u4e00\u6bb5\u65f6\u95f4\u540e\u518d\u8fd4\u56de\u3002\u65e5\u5fd7\u4f1a\u8bb0\u5f55\u6302\u8d77\u65f6\u6bb5\u53ca\u8fde\u63a5\u65ad\u5f00\u7684\u65f6\u95f4\u3002"
           }
         }
       }
@@ -3920,17 +4171,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "轻点与妈妈的对话"
+            "value": "\u8f7b\u70b9\u4e0e\u5988\u5988\u7684\u5bf9\u8bdd"
           }
         }
       }
     },
-    "Tap “Send”": {
+    "Tap \u201cSend\u201d": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "轻点“发送”"
+            "value": "\u8f7b\u70b9\u201c\u53d1\u9001\u201d"
           }
         }
       }
@@ -3940,27 +4191,47 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "替你在这台 iPhone 上点按和打字"
+            "value": "\u66ff\u4f60\u5728\u8fd9\u53f0 iPhone \u4e0a\u70b9\u6309\u548c\u6253\u5b57"
           }
         }
       }
     },
-    "Text Mom\nI’m on my way…": {
+    "Testing Options": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "告诉妈妈\n我在路上了…"
+            "value": "\u6d4b\u8bd5\u9009\u9879"
           }
         }
       }
     },
-    "Text Mom “On my way”": {
+    "Text Entry": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "给妈妈发消息“在路上了”"
+            "value": "\u6587\u5b57\u8f93\u5165\u65b9\u5f0f"
+          }
+        }
+      }
+    },
+    "Text Mom\nI\u2019m on my way\u2026": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u544a\u8bc9\u5988\u5988\n\u6211\u5728\u8def\u4e0a\u4e86\u2026"
+          }
+        }
+      }
+    },
+    "Text Mom \u201cOn my way\u201d": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u7ed9\u5988\u5988\u53d1\u6d88\u606f\u201c\u5728\u8def\u4e0a\u4e86\u201d"
           }
         }
       }
@@ -3970,7 +4241,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "这不是中转地址。请输入 deploy.sh 输出的地址，例如 https://poki-relay.you.workers.dev。"
+            "value": "\u8fd9\u4e0d\u662f\u4e2d\u8f6c\u5730\u5740\u3002\u8bf7\u8f93\u5165 deploy.sh \u8f93\u51fa\u7684\u5730\u5740\uff0c\u4f8b\u5982 https://poki-relay.you.workers.dev\u3002"
           }
         }
       }
@@ -3980,7 +4251,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "语音桥接地址格式有误。正确格式示例：http://192.168.1.10:47830/voice/ 后接一串字符。"
+            "value": "\u8bed\u97f3\u6865\u63a5\u5730\u5740\u683c\u5f0f\u6709\u8bef\u3002\u6b63\u786e\u683c\u5f0f\u793a\u4f8b\uff1ahttp://192.168.1.10:47830/voice/ \u540e\u63a5\u4e00\u4e32\u5b57\u7b26\u3002"
           }
         }
       }
@@ -3990,7 +4261,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "实时活动未能启动：%@"
+            "value": "\u5b9e\u65f6\u6d3b\u52a8\u672a\u80fd\u542f\u52a8\uff1a%@"
           }
         }
       }
@@ -4000,7 +4271,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "回复已截断。"
+            "value": "\u56de\u590d\u5df2\u622a\u65ad\u3002"
           }
         }
       }
@@ -4010,7 +4281,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "批准超时，已跳过此步骤"
+            "value": "\u6279\u51c6\u8d85\u65f6\uff0c\u5df2\u8df3\u8fc7\u6b64\u6b65\u9aa4"
           }
         }
       }
@@ -4020,7 +4291,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "内置连接只能在真机上运行。下方列出外部连接方式。"
+            "value": "\u5185\u7f6e\u8fde\u63a5\u53ea\u80fd\u5728\u771f\u673a\u4e0a\u8fd0\u884c\u3002\u4e0b\u65b9\u5217\u51fa\u5916\u90e8\u8fde\u63a5\u65b9\u5f0f\u3002"
           }
         }
       }
@@ -4030,7 +4301,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "内置连接只能在真机上运行。请使用上方的代理 App。"
+            "value": "\u5185\u7f6e\u8fde\u63a5\u53ea\u80fd\u5728\u771f\u673a\u4e0a\u8fd0\u884c\u3002\u8bf7\u4f7f\u7528\u4e0a\u65b9\u7684\u4ee3\u7406 App\u3002"
           }
         }
       }
@@ -4041,7 +4312,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开发者磁盘映像未能安装，Qeno 会自动重新下载。"
+            "value": "\u5f00\u53d1\u8005\u78c1\u76d8\u6620\u50cf\u672a\u80fd\u5b89\u88c5\uff0cQeno \u4f1a\u81ea\u52a8\u91cd\u65b0\u4e0b\u8f7d\u3002"
           }
         }
       }
@@ -4052,7 +4323,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开发者磁盘映像尚未下载（设置引导 › 配对），只需下载一次。"
+            "value": "\u5f00\u53d1\u8005\u78c1\u76d8\u6620\u50cf\u5c1a\u672a\u4e0b\u8f7d\uff08\u8bbe\u7f6e\u5f15\u5bfc \u203a \u914d\u5bf9\uff09\uff0c\u53ea\u9700\u4e0b\u8f7d\u4e00\u6b21\u3002"
           }
         }
       }
@@ -4062,7 +4333,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "iPhone 重新启动后首次启动 Qeno Runner 时，iOS 会要求输入锁屏密码以允许自动化操作。只需输入一次，Qeno 无法读取该密码。"
+            "value": "iPhone \u91cd\u65b0\u542f\u52a8\u540e\u9996\u6b21\u542f\u52a8 Qeno Runner \u65f6\uff0ciOS \u4f1a\u8981\u6c42\u8f93\u5165\u9501\u5c4f\u5bc6\u7801\u4ee5\u5141\u8bb8\u81ea\u52a8\u5316\u64cd\u4f5c\u3002\u53ea\u9700\u8f93\u5165\u4e00\u6b21\uff0cQeno \u65e0\u6cd5\u8bfb\u53d6\u8be5\u5bc6\u7801\u3002"
           }
         }
       }
@@ -4072,7 +4343,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "替智能体执行轻点和输入的辅助 App。由 Qeno 自动启动，无需手动打开。"
+            "value": "\u66ff\u667a\u80fd\u4f53\u6267\u884c\u8f7b\u70b9\u548c\u8f93\u5165\u7684\u8f85\u52a9 App\u3002\u7531 Qeno \u81ea\u52a8\u542f\u52a8\uff0c\u65e0\u9700\u624b\u52a8\u6253\u5f00\u3002"
           }
         }
       }
@@ -4082,7 +4353,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "密钥无法保存至钥匙串，请重试。"
+            "value": "\u5bc6\u94a5\u65e0\u6cd5\u4fdd\u5b58\u81f3\u94a5\u5319\u4e32\uff0c\u8bf7\u91cd\u8bd5\u3002"
           }
         }
       }
@@ -4092,7 +4363,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法将登录信息保存到钥匙串，请重试。"
+            "value": "\u65e0\u6cd5\u5c06\u767b\u5f55\u4fe1\u606f\u4fdd\u5b58\u5230\u94a5\u5319\u4e32\uff0c\u8bf7\u91cd\u8bd5\u3002"
           }
         }
       }
@@ -4102,7 +4373,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "最新画面"
+            "value": "\u6700\u65b0\u753b\u9762"
           }
         }
       }
@@ -4112,7 +4383,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "本机 VPN 在 15 秒内没有连上。请重试，或选择外部连接。"
+            "value": "\u672c\u673a VPN \u5728 15 \u79d2\u5185\u6ca1\u6709\u8fde\u4e0a\u3002\u8bf7\u91cd\u8bd5\uff0c\u6216\u9009\u62e9\u5916\u90e8\u8fde\u63a5\u3002"
           }
         }
       }
@@ -4122,7 +4393,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "本机 VPN 需要真机，无法在模拟器中测试它的网络连接。"
+            "value": "\u672c\u673a VPN \u9700\u8981\u771f\u673a\uff0c\u65e0\u6cd5\u5728\u6a21\u62df\u5668\u4e2d\u6d4b\u8bd5\u5b83\u7684\u7f51\u7edc\u8fde\u63a5\u3002"
           }
         }
       }
@@ -4132,7 +4403,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "本机连接已关闭。开启 Qeno 即可重新连接，或在设置引导中选择外部连接。"
+            "value": "\u672c\u673a\u8fde\u63a5\u5df2\u5173\u95ed\u3002\u5f00\u542f Qeno \u5373\u53ef\u91cd\u65b0\u8fde\u63a5\uff0c\u6216\u5728\u8bbe\u7f6e\u5f15\u5bfc\u4e2d\u9009\u62e9\u5916\u90e8\u8fde\u63a5\u3002"
           }
         }
       }
@@ -4142,18 +4413,18 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "本机连接仍在停止中，请稍后再试。"
+            "value": "\u672c\u673a\u8fde\u63a5\u4ecd\u5728\u505c\u6b62\u4e2d\uff0c\u8bf7\u7a0d\u540e\u518d\u8bd5\u3002"
           }
         }
       }
     },
-    "The local interface is present, but this iPhone does not answer at 10.7.0.1. Reconnect the local connection and check Wi-Fi. If it still does not answer, pair again in Setup › Pairing, then check Developer Mode.": {
+    "The local interface is present, but this iPhone does not answer at 10.7.0.1. Reconnect the local connection and check Wi-Fi. If it still does not answer, pair again in Setup \u203a Pairing, then check Developer Mode.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "本机接口已存在，但此 iPhone 在 10.7.0.1 没有应答。请重新连接本机连接并检查无线局域网；仍没有应答时，到“设置引导 › 配对”重新配对，然后再检查开发者模式。"
+            "value": "\u672c\u673a\u63a5\u53e3\u5df2\u5b58\u5728\uff0c\u4f46\u6b64 iPhone \u5728 10.7.0.1 \u6ca1\u6709\u5e94\u7b54\u3002\u8bf7\u91cd\u65b0\u8fde\u63a5\u672c\u673a\u8fde\u63a5\u5e76\u68c0\u67e5\u65e0\u7ebf\u5c40\u57df\u7f51\uff1b\u4ecd\u6ca1\u6709\u5e94\u7b54\u65f6\uff0c\u5230\u201c\u8bbe\u7f6e\u5f15\u5bfc \u203a \u914d\u5bf9\u201d\u91cd\u65b0\u914d\u5bf9\uff0c\u7136\u540e\u518d\u68c0\u67e5\u5f00\u53d1\u8005\u6a21\u5f0f\u3002"
           }
         }
       }
@@ -4163,7 +4434,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "本机接口已存在，但此 iPhone 的开发者服务没有应答。请检查开发者模式和无线局域网，然后重新连接本机连接。"
+            "value": "\u672c\u673a\u63a5\u53e3\u5df2\u5b58\u5728\uff0c\u4f46\u6b64 iPhone \u7684\u5f00\u53d1\u8005\u670d\u52a1\u6ca1\u6709\u5e94\u7b54\u3002\u8bf7\u68c0\u67e5\u5f00\u53d1\u8005\u6a21\u5f0f\u548c\u65e0\u7ebf\u5c40\u57df\u7f51\uff0c\u7136\u540e\u91cd\u65b0\u8fde\u63a5\u672c\u673a\u8fde\u63a5\u3002"
           }
         }
       }
@@ -4173,17 +4444,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "模型无法处理此请求。"
+            "value": "\u6a21\u578b\u65e0\u6cd5\u5904\u7406\u6b64\u8bf7\u6c42\u3002"
           }
         }
       }
     },
-    "The phone no longer accepts Qeno’s pairing (%@). Pair again in Setup; it takes a minute.": {
+    "The phone no longer accepts Qeno\u2019s pairing (%@). Pair again in Setup; it takes a minute.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此 iPhone 不再接受 Qeno 的配对（%@）。请在设置引导中重新配对，只需一分钟。"
+            "value": "\u6b64 iPhone \u4e0d\u518d\u63a5\u53d7 Qeno \u7684\u914d\u5bf9\uff08%@\uff09\u3002\u8bf7\u5728\u8bbe\u7f6e\u5f15\u5bfc\u4e2d\u91cd\u65b0\u914d\u5bf9\uff0c\u53ea\u9700\u4e00\u5206\u949f\u3002"
           }
         }
       }
@@ -4193,7 +4464,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此 iPhone 不再接受当前配对：%@"
+            "value": "\u6b64 iPhone \u4e0d\u518d\u63a5\u53d7\u5f53\u524d\u914d\u5bf9\uff1a%@"
           }
         }
       }
@@ -4204,7 +4475,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "手机拒绝了配对。"
+            "value": "\u624b\u673a\u62d2\u7edd\u4e86\u914d\u5bf9\u3002"
           }
         }
       }
@@ -4214,7 +4485,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "当 Qeno 打开或在后台运行时，中转服务器会将请求转发至此 iPhone。服务器不存储任何数据；设备离线时，客户端会收到明确的错误提示。"
+            "value": "\u5f53 Qeno \u6253\u5f00\u6216\u5728\u540e\u53f0\u8fd0\u884c\u65f6\uff0c\u4e2d\u8f6c\u670d\u52a1\u5668\u4f1a\u5c06\u8bf7\u6c42\u8f6c\u53d1\u81f3\u6b64 iPhone\u3002\u670d\u52a1\u5668\u4e0d\u5b58\u50a8\u4efb\u4f55\u6570\u636e\uff1b\u8bbe\u5907\u79bb\u7ebf\u65f6\uff0c\u5ba2\u6237\u7aef\u4f1a\u6536\u5230\u660e\u786e\u7684\u9519\u8bef\u63d0\u793a\u3002"
           }
         }
       }
@@ -4224,7 +4495,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "智能体发出请求时，Runner 会自动启动。"
+            "value": "\u667a\u80fd\u4f53\u53d1\u51fa\u8bf7\u6c42\u65f6\uff0cRunner \u4f1a\u81ea\u52a8\u542f\u52a8\u3002"
           }
         }
       }
@@ -4234,7 +4505,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Runner 已停止"
+            "value": "Runner \u5df2\u505c\u6b62"
           }
         }
       }
@@ -4244,27 +4515,37 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "登录码已过期，请重试。"
+            "value": "\u767b\u5f55\u7801\u5df2\u8fc7\u671f\uff0c\u8bf7\u91cd\u8bd5\u3002"
           }
         }
       }
     },
-    "This Anthropic key can’t use %@.": {
+    "The system Pinyin keyboard is slower and reads the screen while it types.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此 Anthropic 密钥不支持调用 %@。"
+            "value": "\u7cfb\u7edf\u62fc\u97f3\u952e\u76d8\u8f83\u6162\uff0c\u5e76\u4e14\u8f93\u5165\u65f6\u4f1a\u8bfb\u53d6\u5c4f\u5e55\u3002"
           }
         }
       }
     },
-    "This OpenAI key can’t use %@.": {
+    "This Anthropic key can\u2019t use %@.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此 OpenAI 密钥无权调用 %@。"
+            "value": "\u6b64 Anthropic \u5bc6\u94a5\u4e0d\u652f\u6301\u8c03\u7528 %@\u3002"
+          }
+        }
+      }
+    },
+    "This OpenAI key can\u2019t use %@.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u6b64 OpenAI \u5bc6\u94a5\u65e0\u6743\u8c03\u7528 %@\u3002"
           }
         }
       }
@@ -4274,7 +4555,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此 OpenAI 密钥额度不足，请前往 platform.openai.com 查看账单。"
+            "value": "\u6b64 OpenAI \u5bc6\u94a5\u989d\u5ea6\u4e0d\u8db3\uff0c\u8bf7\u524d\u5f80 platform.openai.com \u67e5\u770b\u8d26\u5355\u3002"
           }
         }
       }
@@ -4284,7 +4565,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此版本没有本机 VPN。请选择外部连接，或安装带本机 VPN 且签名受支持的版本。"
+            "value": "\u6b64\u7248\u672c\u6ca1\u6709\u672c\u673a VPN\u3002\u8bf7\u9009\u62e9\u5916\u90e8\u8fde\u63a5\uff0c\u6216\u5b89\u88c5\u5e26\u672c\u673a VPN \u4e14\u7b7e\u540d\u53d7\u652f\u6301\u7684\u7248\u672c\u3002"
           }
         }
       }
@@ -4294,7 +4575,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此版本使用外部连接。如需内置连接，请安装带本机 VPN 的版本，并使用支持网络扩展的签名。"
+            "value": "\u6b64\u7248\u672c\u4f7f\u7528\u5916\u90e8\u8fde\u63a5\u3002\u5982\u9700\u5185\u7f6e\u8fde\u63a5\uff0c\u8bf7\u5b89\u88c5\u5e26\u672c\u673a VPN \u7684\u7248\u672c\uff0c\u5e76\u4f7f\u7528\u652f\u6301\u7f51\u7edc\u6269\u5c55\u7684\u7b7e\u540d\u3002"
           }
         }
       }
@@ -4304,7 +4585,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "恢复 iPhone、还原“位置与隐私”或 iPhone 忘记 Qeno 后会出现这种情况。重新配对即可，旧密钥会被替换。"
+            "value": "\u6062\u590d iPhone\u3001\u8fd8\u539f\u201c\u4f4d\u7f6e\u4e0e\u9690\u79c1\u201d\u6216 iPhone \u5fd8\u8bb0 Qeno \u540e\u4f1a\u51fa\u73b0\u8fd9\u79cd\u60c5\u51b5\u3002\u91cd\u65b0\u914d\u5bf9\u5373\u53ef\uff0c\u65e7\u5bc6\u94a5\u4f1a\u88ab\u66ff\u6362\u3002"
           }
         }
       }
@@ -4315,7 +4596,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此 iOS 版本需要更新的开发者磁盘映像。请打开 Qeno 的设置引导下载最新映像，或更新 Qeno。"
+            "value": "\u6b64 iOS \u7248\u672c\u9700\u8981\u66f4\u65b0\u7684\u5f00\u53d1\u8005\u78c1\u76d8\u6620\u50cf\u3002\u8bf7\u6253\u5f00 Qeno \u7684\u8bbe\u7f6e\u5f15\u5bfc\u4e0b\u8f7d\u6700\u65b0\u6620\u50cf\uff0c\u6216\u66f4\u65b0 Qeno\u3002"
           }
         }
       }
@@ -4325,7 +4606,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此 iPhone"
+            "value": "\u6b64 iPhone"
           }
         }
       }
@@ -4335,7 +4616,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此 iPhone 在 10.7.0.1 应答（%lld 毫秒）。"
+            "value": "\u6b64 iPhone \u5728 10.7.0.1 \u5e94\u7b54\uff08%lld \u6beb\u79d2\uff09\u3002"
           }
         }
       }
@@ -4345,7 +4626,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此 iPhone 还没有应答。请开启 Qeno 的本机连接，或在设置引导中选择外部连接。"
+            "value": "\u6b64 iPhone \u8fd8\u6ca1\u6709\u5e94\u7b54\u3002\u8bf7\u5f00\u542f Qeno \u7684\u672c\u673a\u8fde\u63a5\uff0c\u6216\u5728\u8bbe\u7f6e\u5f15\u5bfc\u4e2d\u9009\u62e9\u5916\u90e8\u8fde\u63a5\u3002"
           }
         }
       }
@@ -4355,7 +4636,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此 iPhone 已可供 Qeno 使用"
+            "value": "\u6b64 iPhone \u5df2\u53ef\u4f9b Qeno \u4f7f\u7528"
           }
         }
       }
@@ -4366,7 +4647,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "超时"
+            "value": "\u8d85\u65f6"
           }
         }
       }
@@ -4376,7 +4657,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "今天"
+            "value": "\u4eca\u5929"
           }
         }
       }
@@ -4386,7 +4667,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重试"
+            "value": "\u91cd\u8bd5"
           }
         }
       }
@@ -4396,7 +4677,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "隧道已开，无应答"
+            "value": "\u96a7\u9053\u5df2\u5f00\uff0c\u65e0\u5e94\u7b54"
           }
         }
       }
@@ -4406,7 +4687,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开"
+            "value": "\u6253\u5f00"
           }
         }
       }
@@ -4416,7 +4697,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开启开发者模式"
+            "value": "\u5f00\u542f\u5f00\u53d1\u8005\u6a21\u5f0f"
           }
         }
       }
@@ -4426,7 +4707,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开启回环"
+            "value": "\u5f00\u542f\u56de\u73af"
           }
         }
       }
@@ -4437,7 +4718,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开启“**启用 UI 自动化**”。"
+            "value": "\u5f00\u542f\u201c**\u542f\u7528 UI \u81ea\u52a8\u5316**\u201d\u3002"
           }
         }
       }
@@ -4448,29 +4729,29 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开启“开发者模式”，然后轻点“**重新启动**”。"
+            "value": "\u5f00\u542f\u201c\u5f00\u53d1\u8005\u6a21\u5f0f\u201d\uff0c\u7136\u540e\u8f7b\u70b9\u201c**\u91cd\u65b0\u542f\u52a8**\u201d\u3002"
           }
         }
       }
     },
-    "Turn on Developer Mode: Settings → Privacy & Security → Developer Mode, then restart the phone.": {
+    "Turn on Developer Mode: Settings \u2192 Privacy & Security \u2192 Developer Mode, then restart the phone.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开启开发者模式：设置 › 隐私与安全性 › 开发者模式，然后重启手机。"
+            "value": "\u5f00\u542f\u5f00\u53d1\u8005\u6a21\u5f0f\uff1a\u8bbe\u7f6e \u203a \u9690\u79c1\u4e0e\u5b89\u5168 \u203a \u5f00\u53d1\u8005\u6a21\u5f0f\uff0c\u7136\u540e\u91cd\u542f\u624b\u673a\u3002"
           }
         }
       }
     },
-    "Turn on Developer Mode: Settings → Privacy & Security → Developer Mode, then restart the phone. If it is on: in Settings → General → VPN & Device Management, trust the developer of Qeno Runner.": {
+    "Turn on Developer Mode: Settings \u2192 Privacy & Security \u2192 Developer Mode, then restart the phone. If it is on: in Settings \u2192 General \u2192 VPN & Device Management, trust the developer of Qeno Runner.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开启开发者模式：设置 › 隐私与安全性 › 开发者模式，然后重启手机。如果已开启：在“设置 › 通用 › VPN 与设备管理”中信任 Qeno Runner 的开发者。"
+            "value": "\u5f00\u542f\u5f00\u53d1\u8005\u6a21\u5f0f\uff1a\u8bbe\u7f6e \u203a \u9690\u79c1\u4e0e\u5b89\u5168\u6027 \u203a \u5f00\u53d1\u8005\u6a21\u5f0f\uff0c\u7136\u540e\u91cd\u542f\u624b\u673a\u3002\u5982\u679c\u5df2\u5f00\u542f\uff1a\u5728\u201c\u8bbe\u7f6e \u203a \u901a\u7528 \u203a VPN \u4e0e\u8bbe\u5907\u7ba1\u7406\u201d\u4e2d\u4fe1\u4efb Qeno Runner \u7684\u5f00\u53d1\u8005\u3002"
           }
         }
       }
@@ -4481,7 +4762,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开启增强模式（回环仅在增强模式下可用）。"
+            "value": "\u5f00\u542f\u589e\u5f3a\u6a21\u5f0f\uff08\u56de\u73af\u4ec5\u5728\u589e\u5f3a\u6a21\u5f0f\u4e0b\u53ef\u7528\uff09\u3002"
           }
         }
       }
@@ -4491,7 +4772,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开启后，智能体即可使用此 iPhone。"
+            "value": "\u5f00\u542f\u540e\uff0c\u667a\u80fd\u4f53\u5373\u53ef\u4f7f\u7528\u6b64 iPhone\u3002"
           }
         }
       }
@@ -4502,18 +4783,18 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开启 Qeno Device Loopback 模块。"
+            "value": "\u5f00\u542f Qeno Device Loopback \u6a21\u5757\u3002"
           }
         }
       }
     },
-    "Turn on the loopback in your proxy app: the Qeno module in Surge or Loon, loopback_address in sing-box, or Shadowrocket's Settings → Other → \"Include route 10.7.0.1/32\". Then connect to Wi-Fi.": {
+    "Turn on the loopback in your proxy app: the Qeno module in Surge or Loon, loopback_address in sing-box, or Shadowrocket's Settings \u2192 Other \u2192 \"Include route 10.7.0.1/32\". Then connect to Wi-Fi.": {
       "extractionState": "manual",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在代理 App 中开启回环：Surge 或 Loon 的 Qeno 模块，sing-box 的 loopback_address，或 Shadowrocket 的“设置 › 其他 › 包含路由 10.7.0.1/32”。然后连接无线局域网。"
+            "value": "\u5728\u4ee3\u7406 App \u4e2d\u5f00\u542f\u56de\u73af\uff1aSurge \u6216 Loon \u7684 Qeno \u6a21\u5757\uff0csing-box \u7684 loopback_address\uff0c\u6216 Shadowrocket \u7684\u201c\u8bbe\u7f6e \u203a \u5176\u4ed6 \u203a \u5305\u542b\u8def\u7531 10.7.0.1/32\u201d\u3002\u7136\u540e\u8fde\u63a5\u65e0\u7ebf\u5c40\u57df\u7f51\u3002"
           }
         }
       }
@@ -4523,7 +4804,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在代理 App 中启用 Qeno 模块，或连接 LocalDevVPN。"
+            "value": "\u5728\u4ee3\u7406 App \u4e2d\u542f\u7528 Qeno \u6a21\u5757\uff0c\u6216\u8fde\u63a5 LocalDevVPN\u3002"
           }
         }
       }
@@ -4533,27 +4814,37 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在“设置”的“与 Qeno 配对”页面输入"
+            "value": "\u5728\u201c\u8bbe\u7f6e\u201d\u7684\u201c\u4e0e Qeno \u914d\u5bf9\u201d\u9875\u9762\u8f93\u5165"
           }
         }
       }
     },
-    "Type “On my way”": {
+    "Type \u201cOn my way\u201d": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "输入“在路上了”"
+            "value": "\u8f93\u5165\u201c\u5728\u8def\u4e0a\u4e86\u201d"
           }
         }
       }
     },
-    "Typing “On my way”": {
+    "Typing": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在输入“在路上了”"
+            "value": "\u8f93\u5165"
+          }
+        }
+      }
+    },
+    "Typing \u201cOn my way\u201d": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u6b63\u5728\u8f93\u5165\u201c\u5728\u8def\u4e0a\u4e86\u201d"
           }
         }
       }
@@ -4563,7 +4854,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已开启 UI 自动化"
+            "value": "\u5df2\u5f00\u542f UI \u81ea\u52a8\u5316"
           }
         }
       }
@@ -4573,7 +4864,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用你的代理 App"
+            "value": "\u4f7f\u7528\u4f60\u7684\u4ee3\u7406 App"
           }
         }
       }
@@ -4583,7 +4874,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已是最新"
+            "value": "\u5df2\u662f\u6700\u65b0"
           }
         }
       }
@@ -4593,7 +4884,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "有可用更新"
+            "value": "\u6709\u53ef\u7528\u66f4\u65b0"
           }
         }
       }
@@ -4604,7 +4895,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请把 iOS 更新到 17.4 或更高版本。"
+            "value": "\u8bf7\u628a iOS \u66f4\u65b0\u5230 17.4 \u6216\u66f4\u9ad8\u7248\u672c\u3002"
+          }
+        }
+      }
+    },
+    "Updates": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u66f4\u65b0"
           }
         }
       }
@@ -4614,7 +4915,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用 Qeno 的本机连接，或你已有的兼容 VPN App。"
+            "value": "\u4f7f\u7528 Qeno \u7684\u672c\u673a\u8fde\u63a5\uff0c\u6216\u4f60\u5df2\u6709\u7684\u517c\u5bb9 VPN App\u3002"
           }
         }
       }
@@ -4624,7 +4925,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "改用验证码登录"
+            "value": "\u6539\u7528\u9a8c\u8bc1\u7801\u767b\u5f55"
           }
         }
       }
@@ -4634,7 +4935,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用当前 VPN"
+            "value": "\u4f7f\u7528\u5f53\u524d VPN"
           }
         }
       }
@@ -4644,7 +4945,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "语音"
+            "value": "\u8bed\u97f3"
           }
         }
       }
@@ -4654,17 +4955,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "版本"
+            "value": "\u7248\u672c"
           }
         }
       }
     },
-    "Via Relay ›": {
+    "Via Relay \u203a": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "通过中转 ›"
+            "value": "\u901a\u8fc7\u4e2d\u8f6c \u203a"
           }
         }
       }
@@ -4674,7 +4975,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "语音"
+            "value": "\u8bed\u97f3"
           }
         }
       }
@@ -4684,7 +4985,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "语音与朗读"
+            "value": "\u8bed\u97f3\u4e0e\u6717\u8bfb"
           }
         }
       }
@@ -4694,7 +4995,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "语音桥接"
+            "value": "\u8bed\u97f3\u6865\u63a5"
           }
         }
       }
@@ -4705,7 +5006,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "等待中"
+            "value": "\u7b49\u5f85\u4e2d"
           }
         }
       }
@@ -4715,7 +5016,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "等待批准"
+            "value": "\u7b49\u5f85\u6279\u51c6"
           }
         }
       }
@@ -4725,7 +5026,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在等待“设置”。请在“设置”中轻点“与 Qeno 配对”。"
+            "value": "\u6b63\u5728\u7b49\u5f85\u201c\u8bbe\u7f6e\u201d\u3002\u8bf7\u5728\u201c\u8bbe\u7f6e\u201d\u4e2d\u8f7b\u70b9\u201c\u4e0e Qeno \u914d\u5bf9\u201d\u3002"
           }
         }
       }
@@ -4735,7 +5036,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在等待智能体"
+            "value": "\u6b63\u5728\u7b49\u5f85\u667a\u80fd\u4f53"
           }
         }
       }
@@ -4745,7 +5046,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在等待网络连接"
+            "value": "\u6b63\u5728\u7b49\u5f85\u7f51\u7edc\u8fde\u63a5"
           }
         }
       }
@@ -4755,7 +5056,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "等待在灵动岛批准"
+            "value": "\u7b49\u5f85\u5728\u7075\u52a8\u5c9b\u6279\u51c6"
           }
         }
       }
@@ -4765,7 +5066,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "等待你批准"
+            "value": "\u7b49\u5f85\u4f60\u6279\u51c6"
           }
         }
       }
@@ -4775,17 +5076,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用免费 Apple ID 自签名的 App 会在 7 天后过期，且最多同时安装 3 个（Qeno 和 Qeno Runner 占 2 个）。用免费 Apple ID 签名时，请安装外部连接版，并使用 LocalDevVPN 或兼容的 VPN App。"
+            "value": "\u4f7f\u7528\u514d\u8d39 Apple ID \u81ea\u7b7e\u540d\u7684 App \u4f1a\u5728 7 \u5929\u540e\u8fc7\u671f\uff0c\u4e14\u6700\u591a\u540c\u65f6\u5b89\u88c5 3 \u4e2a\uff08Qeno \u548c Qeno Runner \u5360 2 \u4e2a\uff09\u3002\u7528\u514d\u8d39 Apple ID \u7b7e\u540d\u65f6\uff0c\u8bf7\u5b89\u88c5\u5916\u90e8\u8fde\u63a5\u7248\uff0c\u5e76\u4f7f\u7528 LocalDevVPN \u6216\u517c\u5bb9\u7684 VPN App\u3002"
           }
         }
       }
     },
-    "With a free Apple ID, self-signed apps expire after 7 days and are limited to 3 at a time; Qeno and Qeno Runner use 2. Free accounts also can’t sign a VPN, so Loopback requires your proxy app or LocalDevVPN.": {
+    "With a free Apple ID, self-signed apps expire after 7 days and are limited to 3 at a time; Qeno and Qeno Runner use 2. Free accounts also can\u2019t sign a VPN, so Loopback requires your proxy app or LocalDevVPN.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用免费 Apple ID 自签名的 App 会在 7 天后过期，且最多同时安装 3 个（Qeno 和 Qeno Runner 占 2 个）。免费账户也无法签名 VPN，因此需要通过代理 App 或 LocalDevVPN 提供回环。"
+            "value": "\u4f7f\u7528\u514d\u8d39 Apple ID \u81ea\u7b7e\u540d\u7684 App \u4f1a\u5728 7 \u5929\u540e\u8fc7\u671f\uff0c\u4e14\u6700\u591a\u540c\u65f6\u5b89\u88c5 3 \u4e2a\uff08Qeno \u548c Qeno Runner \u5360 2 \u4e2a\uff09\u3002\u514d\u8d39\u8d26\u6237\u4e5f\u65e0\u6cd5\u7b7e\u540d VPN\uff0c\u56e0\u6b64\u9700\u8981\u901a\u8fc7\u4ee3\u7406 App \u6216 LocalDevVPN \u63d0\u4f9b\u56de\u73af\u3002"
           }
         }
       }
@@ -4795,7 +5096,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在执行"
+            "value": "\u6b63\u5728\u6267\u884c"
           }
         }
       }
@@ -4805,7 +5106,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "你的 API 密钥"
+            "value": "\u4f60\u7684 API \u5bc6\u94a5"
           }
         }
       }
@@ -4815,7 +5116,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "你的 Mac"
+            "value": "\u4f60\u7684 Mac"
           }
         }
       }
@@ -4825,7 +5126,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "你的智能体可以使用这台 iPhone。"
+            "value": "\u4f60\u7684\u667a\u80fd\u4f53\u53ef\u4ee5\u4f7f\u7528\u8fd9\u53f0 iPhone\u3002"
           }
         }
       }
@@ -4835,7 +5136,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "由电脑端负责推理，Qeno 仅执行点击与输入操作。"
+            "value": "\u7531\u7535\u8111\u7aef\u8d1f\u8d23\u63a8\u7406\uff0cQeno \u4ec5\u6267\u884c\u70b9\u51fb\u4e0e\u8f93\u5165\u64cd\u4f5c\u3002"
           }
         }
       }
@@ -4845,7 +5146,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "你的代理 App 或 LocalDevVPN"
+            "value": "\u4f60\u7684\u4ee3\u7406 App \u6216 LocalDevVPN"
           }
         }
       }
@@ -4855,7 +5156,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "代理 App 的隧道已开启，但 10.7.0.1 没有被反射。请开启 Qeno 模块或路由，然后重新连接代理。"
+            "value": "\u4ee3\u7406 App \u7684\u96a7\u9053\u5df2\u5f00\u542f\uff0c\u4f46 10.7.0.1 \u6ca1\u6709\u88ab\u53cd\u5c04\u3002\u8bf7\u5f00\u542f Qeno \u6a21\u5757\u6216\u8def\u7531\uff0c\u7136\u540e\u91cd\u65b0\u8fde\u63a5\u4ee3\u7406\u3002"
           }
         }
       }
@@ -4866,27 +5167,27 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "失败：画面无变化"
+            "value": "\u5931\u8d25\uff1a\u753b\u9762\u65e0\u53d8\u5316"
           }
         }
       }
     },
-    "http://your-mac.local:47830/voice/…": {
+    "http://your-mac.local:47830/voice/\u2026": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "http://your-mac.local:47830/voice/…"
+            "value": "http://your-mac.local:47830/voice/\u2026"
           }
         }
       }
     },
-    "https://…/v1": {
+    "https://\u2026/v1": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://…/v1"
+            "value": "https://\u2026/v1"
           }
         }
       }
@@ -4896,7 +5197,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno Runner 被强制退出或 iPhone 重新启动后，iOS 会先要求输入锁屏密码，再允许 UI 自动化。只需输入一次，Qeno 会自动继续。"
+            "value": "Qeno Runner \u88ab\u5f3a\u5236\u9000\u51fa\u6216 iPhone \u91cd\u65b0\u542f\u52a8\u540e\uff0ciOS \u4f1a\u5148\u8981\u6c42\u8f93\u5165\u9501\u5c4f\u5bc6\u7801\uff0c\u518d\u5141\u8bb8 UI \u81ea\u52a8\u5316\u3002\u53ea\u9700\u8f93\u5165\u4e00\u6b21\uff0cQeno \u4f1a\u81ea\u52a8\u7ee7\u7eed\u3002"
           }
         }
       }
@@ -4906,7 +5207,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 重启后，或距上次输入密码超过 8 小时，iOS 会要求输入密码以允许 UI 自动化。输入一次即可，Qeno 会自己继续。"
+            "value": "Qeno \u91cd\u542f\u540e\uff0c\u6216\u8ddd\u4e0a\u6b21\u8f93\u5165\u5bc6\u7801\u8d85\u8fc7 8 \u5c0f\u65f6\uff0ciOS \u4f1a\u8981\u6c42\u8f93\u5165\u5bc6\u7801\u4ee5\u5141\u8bb8 UI \u81ea\u52a8\u5316\u3002\u8f93\u5165\u4e00\u6b21\u5373\u53ef\uff0cQeno \u4f1a\u81ea\u5df1\u7ee7\u7eed\u3002"
           }
         }
       }
@@ -4916,27 +5217,27 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "iOS 要求 App 声明特定用途才能在后台持续运行。Qeno 会以最低精度使用定位服务，并在运行期间显示定位指示器。"
+            "value": "iOS \u8981\u6c42 App \u58f0\u660e\u7279\u5b9a\u7528\u9014\u624d\u80fd\u5728\u540e\u53f0\u6301\u7eed\u8fd0\u884c\u3002Qeno \u4f1a\u4ee5\u6700\u4f4e\u7cbe\u5ea6\u4f7f\u7528\u5b9a\u4f4d\u670d\u52a1\uff0c\u5e76\u5728\u8fd0\u884c\u671f\u95f4\u663e\u793a\u5b9a\u4f4d\u6307\u793a\u5668\u3002"
           }
         }
       }
     },
-    "iOS shows the automation banner only while Qeno’s automation session is open. Qeno opens it when an agent asks and closes it when idle.": {
+    "iOS shows the automation banner only while Qeno\u2019s automation session is open. Qeno opens it when an agent asks and closes it when idle.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "仅当 Qeno 的自动化会话打开时，iOS 才会显示自动化横幅。Qeno 会在智能体请求时打开它，并在闲置时关闭。"
+            "value": "\u4ec5\u5f53 Qeno \u7684\u81ea\u52a8\u5316\u4f1a\u8bdd\u6253\u5f00\u65f6\uff0ciOS \u624d\u4f1a\u663e\u793a\u81ea\u52a8\u5316\u6a2a\u5e45\u3002Qeno \u4f1a\u5728\u667a\u80fd\u4f53\u8bf7\u6c42\u65f6\u6253\u5f00\u5b83\uff0c\u5e76\u5728\u95f2\u7f6e\u65f6\u5173\u95ed\u3002"
           }
         }
       }
     },
-    "iOS shows the automation banner only while the runner is active. Qeno starts it when needed and stops it when idle. Don’t close Qeno Runner while an agent is working.": {
+    "iOS shows the automation banner only while the runner is active. Qeno starts it when needed and stops it when idle. Don\u2019t close Qeno Runner while an agent is working.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "仅当 Runner 运行时，iOS 才会显示自动化横幅。Qeno 会在智能体请求时启动它，并在闲置时停止。智能体工作期间请勿关闭 Qeno Runner。"
+            "value": "\u4ec5\u5f53 Runner \u8fd0\u884c\u65f6\uff0ciOS \u624d\u4f1a\u663e\u793a\u81ea\u52a8\u5316\u6a2a\u5e45\u3002Qeno \u4f1a\u5728\u667a\u80fd\u4f53\u8bf7\u6c42\u65f6\u542f\u52a8\u5b83\uff0c\u5e76\u5728\u95f2\u7f6e\u65f6\u505c\u6b62\u3002\u667a\u80fd\u4f53\u5de5\u4f5c\u671f\u95f4\u8bf7\u52ff\u5173\u95ed Qeno Runner\u3002"
           }
         }
       }
@@ -4946,7 +5247,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "iOS 会把它显示为 VPN。开启后可能断开其他 VPN App。如需保留兼容的 VPN，请改选“外部 App”。"
+            "value": "iOS \u4f1a\u628a\u5b83\u663e\u793a\u4e3a VPN\u3002\u5f00\u542f\u540e\u53ef\u80fd\u65ad\u5f00\u5176\u4ed6 VPN App\u3002\u5982\u9700\u4fdd\u7559\u517c\u5bb9\u7684 VPN\uff0c\u8bf7\u6539\u9009\u201c\u5916\u90e8 App\u201d\u3002"
           }
         }
       }
@@ -4956,7 +5257,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "iOS 会把它显示为 VPN。开启后可能断开其他 VPN App。如需保留兼容的 VPN，请改用上方的代理 App。"
+            "value": "iOS \u4f1a\u628a\u5b83\u663e\u793a\u4e3a VPN\u3002\u5f00\u542f\u540e\u53ef\u80fd\u65ad\u5f00\u5176\u4ed6 VPN App\u3002\u5982\u9700\u4fdd\u7559\u517c\u5bb9\u7684 VPN\uff0c\u8bf7\u6539\u7528\u4e0a\u65b9\u7684\u4ee3\u7406 App\u3002"
           }
         }
       }
@@ -4966,7 +5267,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "pi 中未找到 %2$@ 的模型 %1$@。"
+            "value": "pi \u4e2d\u672a\u627e\u5230 %2$@ \u7684\u6a21\u578b %1$@\u3002"
           }
         }
       }
@@ -4977,7 +5278,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "发送信息"
+            "value": "\u53d1\u9001\u4fe1\u606f"
           }
         }
       }
@@ -4987,7 +5288,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld 个步骤"
+            "value": "%lld \u4e2a\u6b65\u9aa4"
           }
         }
       }
@@ -4997,17 +5298,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请求失败。"
+            "value": "\u8bf7\u6c42\u5931\u8d25\u3002"
           }
         }
       }
     },
-    "“Text Mom I’m on my way.”": {
+    "\u201cText Mom I\u2019m on my way.\u201d": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "“告诉妈妈我在路上了。”"
+            "value": "\u201c\u544a\u8bc9\u5988\u5988\u6211\u5728\u8def\u4e0a\u4e86\u3002\u201d"
           }
         }
       }
