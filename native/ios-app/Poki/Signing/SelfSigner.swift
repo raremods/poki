@@ -413,7 +413,6 @@ final class SelfSigner {
     /// The upgrade's progress while it installs, for `install`'s watch.
     private var installFraction: Double?
     private var steppedAside = false
->>>>>>> 0a2d41b41640ef56da981d1278ed8860919aab2c
 
     /// Qeno to the Home Screen, as the person swiping up would: iOS finishes the upgrade only once the
     /// app it replaces is no longer in front. Once per install.
