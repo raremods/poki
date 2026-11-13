@@ -9,7 +9,7 @@ on:
     inputs:
       version: { type: string, required: true }
       build: { type: string, required: true }
-      # Which connection options to build: external (the one Poki Setup installs) and/or local.
+      # Which connection options to build: external (the one Qeno Setup installs) and/or local.
       editions: { type: string, required: false, default: external }
 
 permissions:

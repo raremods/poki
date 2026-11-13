@@ -24,16 +24,20 @@ final class PiLoop {
     var messages: [AgentMessage] { agent.state.messages }
 
     init(provider: ModelProvider, model: Model, tools: [ToolSpec], carrying messages: [AgentMessage] = [],
-         sessionID: String = UUID().uuidString.lowercased(),
          perform: @escaping @MainActor (ToolCall) async -> PokiCore.ToolAnswer) {
         self.provider = provider
         self.model = model
         let gate = self.gate
         let agentTools = tools.map { spec in
-            AgentTool(label: spec.name, name: spec.name, description: spec.description, parameters: spec.schema.mapValues { AnyCodable($0) }) { id, params, _, _ in
+            AgentTool(label: spec.name, name: spec.name, description: spec.description, parameters: spec.schema.mapValues { AnyCodable($0) }) { id, params, signal, _ in
                 if gate.stopped { return Self.result(PokiCore.ToolAnswer(text: "Task stopped. Action not executed.", jpeg: nil, isError: true)) }
                 let arguments = (try? JSONEncoder().encode(params)).map { String(decoding: $0, as: UTF8.self) } ?? "{}"
-                return Self.result(await perform(ToolCall(id: id, name: spec.name, arguments: arguments)))
+                // pi runs its loop in tasks of its own, so stop() reaches the call under way only through
+                // `signal`: cancelling the call stops a `do` before its next action.
+                let call = Task { @MainActor in await perform(ToolCall(id: id, name: spec.name, arguments: arguments)) }
+                let forget = signal?.onCancel { call.cancel() }
+                defer { forget?() }
+                return Self.result(await call.value)
             }
         }
         // agent/pi-session.mjs: low thinking, one tool call at a time.
@@ -42,40 +46,18 @@ final class PiLoop {
             // Stable Go session affinity for all model and tool-continuation requests.
             sessionId: provider == .opencodeGo ? sessionID : nil,
             identity: provider == .opencodeGo
-                ? ClientIdentity(userAgent: .custom("qeno-ios/0.2.9"),
+                ? ClientIdentity(userAgent: .custom("qeno-ios/0.4.1"),
                                  attribution: .value(ClientAttribution(name: "Qeno", url: "https://github.com/raremods/poki")))
                 : nil,
             getApiKey: { _ in await ModelCredential.apiKey(for: provider) },
-            // Go's Anthropic and Gemini adapters also require Console Bearer auth.
-            // Resolve the key for EACH request so credential changes never leave stale headers.
-            getModelAuth: { model in
-                guard provider == .opencodeGo else { return nil }
-                guard let key = await ModelCredential.apiKey(for: provider) else {
-                    return AgentModelAuth(error: "OpenCode Go API key is missing.")
-                }
-                return Self.openCodeGoAuth(model: model, apiKey: key)
-            },
             toolExecution: .sequential
         ))
     }
 
-    /// Authentication is resolved on every turn via AgentModelAuth. PiSwift's Anthropic
-    /// adapter uses x-api-key unless a Bearer header is supplied; Console needs Bearer.
-    /// The Google adapter still appends its SDK query parameter, but also needs Bearer.
-    nonisolated static func openCodeGoAuth(model: Model, apiKey: String) -> AgentModelAuth {
-        let headers: ProviderHeaders?
-        switch model.api {
-        case .anthropicMessages, .googleGenerativeAI:
-            headers = ["Authorization": "Bearer \(apiKey)"]
-        default:
-            headers = nil // OpenAI adapters already send Authorization: Bearer.
-        }
-        return AgentModelAuth(apiKey: apiKey, headers: headers)
-    }
-
-    /// The owner's message under this task's instructions, then pi's loop until the model answers
-    /// without tools, `stop()` or `maxTurns` model turns. `onText` gets each finished text block.
-    func run(_ text: String, instructions: String, maxTurns: Int, onText: @escaping @MainActor (String) -> Void) async -> Outcome {
+    /// The owner's message (with the JPEGs of its photos and PDFs) under this task's instructions, then
+    /// pi's loop until the model answers without tools, `stop()` or `maxTurns` model turns. `onText`
+    /// gets each finished text block.
+    func run(_ text: String, images: [Data] = [], instructions: String, maxTurns: Int, onText: @escaping @MainActor (String) -> Void) async -> Outcome {
         gate.reset()
         use(instructions)
         let turns = Counter()
@@ -99,7 +81,7 @@ final class PiLoop {
         }
         defer { unsubscribe() }
         do {
-            try await agent.prompt(text)
+            try await agent.prompt(text, images: images.map { ImageContent(data: $0.base64EncodedString(), mimeType: "image/jpeg") })
         } catch {
             failure.set(error.localizedDescription)
         }
@@ -140,10 +122,18 @@ final class PiLoop {
     /// The provider's message for the owner. pi never puts the key in it; a sign-in that ran out says so.
     private static func words(_ message: String, provider: ModelProvider) -> String {
         if message.contains("No API key") || message.contains("missingApiKey") || message.isEmpty && !ModelKeys.hasKey(provider) {
-            return provider.signsIn ? String(localized: "Sign in to ChatGPT again: tap my picture, then Model.")
-                                    : String(localized: "Add your \(provider.name) key: tap my picture, then Model.")
+            return provider.signsIn ? String(localized: "Sign in to ChatGPT again. Open Settings, then Models.")
+                                    : String(localized: "Add your \(provider.name) key. Open Settings, then Models.")
         }
-        return String(localized: "\(provider.name): \(message.isEmpty ? String(localized: "the request failed.") : message)")
+        // The provider's stream ended on an error event with nothing in it (the library prints the
+        // missing fields as "undefined"): said plainly, with what is left of it when there is any.
+        if message.contains("Error Code undefined") || message.hasSuffix(": undefined") {
+            let rest = message.replacingOccurrences(of: "Error Code undefined:", with: "").replacingOccurrences(of: "undefined", with: "")
+                .trimmingCharacters(in: CharacterSet(charactersIn: " :"))
+            let said = String(localized: "\(provider.name) ended the answer with an error and gave no reason. This is usually brief on their side. Tap Try Again.")
+            return rest.isEmpty ? said : said + " (" + rest + ")"
+        }
+        return String(localized: "\(provider.name), \(message.isEmpty ? String(localized: "the request failed.") : message)")
     }
 }
 

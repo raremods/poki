@@ -1,4 +1,4 @@
-# The Live Activity's screenshots: builds the Poki app for the iOS Simulator and photographs every
+# The Live Activity's screenshots: builds the Qeno app for the iOS Simulator and photographs every
 # phase of the Live Activity, both as the app's own preview (the widget's views at the system's sizes)
 # and as a real Live Activity on the simulator's Dynamic Island and Lock Screen, including the expanded
 # island an alert opens.

@@ -16,11 +16,11 @@ private final class ProxyDocument: KeyboardDocument {
     func moveCursor(by offset: Int) { controller.textDocumentProxy.adjustTextPosition(byCharacterOffset: offset) }
 }
 
-/// Poki's keyboard: a panel with no keys that types what Poki sends it (KeyboardLink), the way any
+/// Qeno's keyboard: a panel with no keys that types what Qeno sends it (KeyboardLink), the way any
 /// keyboard puts text into a field. It never reads the pasteboard and has no network code.
 ///
 /// It stays out of the owner's way: it leaves for the next keyboard a few seconds after it comes up
-/// with nothing to type, a while after it last typed, and at once when Poki says the task is over or
+/// with nothing to type, a while after it last typed, and at once when Qeno says the task is over or
 /// the owner takes over.
 final class KeyboardViewController: UIInputViewController {
     private let model = PanelModel()
@@ -39,7 +39,7 @@ final class KeyboardViewController: UIInputViewController {
     private var leaveWork: DispatchWorkItem?
     private static var listening = false
 
-    /// With nothing to type: long enough for Poki's request to arrive after the field was tapped.
+    /// With nothing to type: long enough for Qeno's request to arrive after the field was tapped.
     private static let idleSeconds = 4.0
     /// After typing: the next field of the same task usually follows within this.
     private static let lingerSeconds = 45.0
@@ -91,7 +91,7 @@ final class KeyboardViewController: UIInputViewController {
 
     @objc private func linkChanged() { check() }
 
-    /// About a system keyboard's height, so the app's layout does not jump when Poki's comes up.
+    /// About a system keyboard's height, so the app's layout does not jump when Qeno's comes up.
     private var preferredHeight: CGFloat {
         if traitCollection.userInterfaceIdiom == .pad { return 320 }
         return traitCollection.verticalSizeClass == .compact ? 180 : 260
@@ -149,7 +149,7 @@ final class KeyboardViewController: UIInputViewController {
         check()
     }
 
-    // MARK: Poki's requests
+    // MARK: Qeno's requests
 
     private var directory: URL? { hasFullAccess ? KeyboardLink.directory : nil }
 
@@ -168,7 +168,7 @@ final class KeyboardViewController: UIInputViewController {
     private func check() {
         guard visible, let directory else { return }
         if typist != nil {
-            // Poki gave up on this request (its time ran out, or the task was stopped).
+            // Qeno gave up on this request (its time ran out, or the task was stopped).
             if !cancelled, let cancel = KeyboardLink.read([String: String].self, KeyboardLink.cancelFile, in: directory), cancel["id"] == status.session {
                 cancelled = true
                 typist?.stop()
@@ -195,7 +195,7 @@ final class KeyboardViewController: UIInputViewController {
             scheduleLeave(after: Self.idleSeconds)
             return
         }
-        // Poki hears that the keyboard has the text before a character goes in. If it cannot be
+        // Qeno hears that the keyboard has the text before a character goes in. If it cannot be
         // told, nothing is typed: it would not know, and might type the text another way as well.
         guard writeStatus() else { return }
         let typist = KeyboardTypist()
@@ -210,7 +210,7 @@ final class KeyboardViewController: UIInputViewController {
                 guard let self else { return }
                 self.model.progress = Double(typed) / Double(total)
                 self.status.typed = typed
-                // Often enough for Poki to see that the keyboard is alive.
+                // Often enough for Qeno to see that the keyboard is alive.
                 if Date().timeIntervalSince(self.lastStatusWrite) > 0.4 { self.writeStatus() }
             })
             self.finish(outcome)
@@ -232,7 +232,7 @@ final class KeyboardViewController: UIInputViewController {
             status.phase = .done
         } else {
             status.phase = .stopped
-            status.note = cancelled ? "Poki cancelled the typing" : "the keyboard was closed or changed while typing"
+            status.note = cancelled ? "Qeno cancelled the typing" : "the keyboard was closed or changed while typing"
         }
         writeStatus()
         refreshMode()

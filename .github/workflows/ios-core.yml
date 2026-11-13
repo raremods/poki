@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch idevice and apply Poki's patches
+      - name: Fetch idevice and apply Qeno's patches
         run: native/launcher/fetch-idevice.sh
       - name: Rust targets
         run: rustup target add aarch64-apple-ios aarch64-apple-ios-sim
@@ -105,7 +105,7 @@ jobs:
           echo "UDID=$UDID" >> "$GITHUB_ENV"
           # A phone in use has long dismissed the keyboard's slide-to-type introduction. On a fresh
           # simulator it loops an animation over the keyboard and WDA's tree reads time out while it
-          # shows (Poki stays answerable: accessibilityDeadline, the text-from-picture fallback), so it
+          # shows (Qeno stays answerable: accessibilityDeadline, the text-from-picture fallback), so it
           # is set as shown before the first boot, as on a used phone.
           prefs="$HOME/Library/Developer/CoreSimulator/Devices/$UDID/data/Library/Preferences"
           mkdir -p "$prefs"

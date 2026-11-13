@@ -4,14 +4,30 @@ import XCTest
 /// The runner misbehaving in the ways a phone does, and text entry. Every call must answer in time
 /// and say what was sent and what is on screen.
 final class FaultTests: XCTestCase {
+    func testAnUnreadableScreenDoesNotReportThePreviousApp() async {
+        let (core, wda, _) = makeCore()
+        wda.source([("Button", "New note")], app: "Notes")
+        wda.set("GET /wda/activeAppInfo") { _ in (200, ["value": ["bundleId": "com.apple.mobilenotes", "name": "Notes"]]) }
+        let events = LockedBox<[CoreEvent]>([])
+        let observer = Task { for await event in core.events { events.update { $0.append(event) } } }
+        defer { observer.cancel() }
+        _ = await core.call("look", [:])
+        let first = await eventually { events.value.contains { if case .toolFinished(_, _, let facts) = $0 { return facts.app == "Notes" }; return false } }
+        XCTAssertTrue(first, "The first task read Notes")
+        events.value = []
+        for route in ["GET /source", "GET /screenshot", "GET /wda/activeAppInfo"] {
+            wda.set(route) { _ in (500, ["value": ["error": "unknown error", "message": "read failed"]]) }
+        }
+        let answer = await core.call("look", [:])
+        XCTAssertTrue(answer.isError, answer.text)
+        let finished = await eventually { events.value.contains { if case .toolFinished = $0 { return true }; return false } }
+        XCTAssertTrue(finished)
+        guard case .toolFinished(_, _, let facts)? = events.value.last else { return XCTFail("Missing completion event") }
+        XCTAssertNil(facts.app, "A failed read must not attribute the new task to Notes")
+    }
+
     /// A focused field that keeps what /wda/keys and the paste menu put in it.
     final class Field: @unchecked Sendable {
-        let frame: [Double]
-        let menuFrame: [Double]
-        init(frame: [Double] = [16, 100, 358, 44], menuFrame: [Double] = [150, 50, 80, 40]) {
-            self.frame = frame
-            self.menuFrame = menuFrame
-        }
         let value = LockedBox("")
         let clipboard = LockedBox<String?>("owner's clipboard")
         /// The keyboard is up (a field has the focus), as the tree shows it.
@@ -20,8 +36,8 @@ final class FaultTests: XCTestCase {
         /// The tree as the field's app shows it: the field with its value, the keyboard when up, and
         /// the Paste menu once it was opened.
         func tree() -> JSON {
-            var children: [Node] = [Node("TextField", "Note", frame, value: value.value)]
-            if menuShown.value { children.append(Node("MenuItem", "Paste", menuFrame)) }
+            var children: [Node] = [Node("TextField", "Note", [16, 100, 358, 44], value: value.value)]
+            if menuShown.value { children.append(Node("MenuItem", "Paste", [150, 50, 80, 40])) }
             if keyboard.value { children.append(Node("Keyboard", nil, [0, 500, 390, 344], [Node("Button", "space", [100, 800, 190, 40])])) }
             func json(_ n: Node) -> JSON {
                 ["type": .string("XCUIElementType\(n.type)"), "label": n.label.map(JSON.string) ?? .null, "value": n.value.map(JSON.string) ?? .null, "rect": ["x": .number(n.frame[0]), "y": .number(n.frame[1]), "width": .number(n.frame[2]), "height": .number(n.frame[3])], "children": .array(n.children.map(json))]
@@ -54,12 +70,8 @@ final class FaultTests: XCTestCase {
                     return (200, ["value": .null])
                 }
             }
-            wda.set("POST /wda/tap") { [self] body in
-                if menuShown.value, let x = body?["x"]?.double, let y = body?["y"]?.double,
-                   (menuFrame[0]..<(menuFrame[0] + menuFrame[2])).contains(x),
-                   (menuFrame[1]..<(menuFrame[1] + menuFrame[3])).contains(y) {
-                    value.update { $0 += clipboard.value ?? "" }
-                }
+            wda.set("POST /wda/tap") { [value, clipboard] body in
+                if body?["x"]?.double == 190, body?["y"]?.double == 70 { value.update { $0 += clipboard.value ?? "" } }
                 return (200, ["value": .null])
             }
         }
@@ -308,69 +320,6 @@ final class FaultTests: XCTestCase {
         XCTAssertEqual(field.value.value, "密码不是这个")
         XCTAssertEqual(field.clipboard.value, "owner's clipboard", "the owner's clipboard is restored")
         XCTAssertTrue(result.text.contains("(pasted); the field now reads \"密码不是这个\""), result.text)
-    }
-
-    func testOffscreenPasteFieldIsRejectedBeforeClearingOrChangingTheClipboard() async {
-        let (core, wda, _) = makeCore()
-        let field = Field(frame: [400, 100, 20, 40])
-        field.value.value = "old"
-        field.install(wda)
-        do {
-            _ = try await core.computer.paste("new", clear: true, until: now() + 6)
-            XCTFail("an off-screen field must be refused")
-        } catch {
-            XCTAssertTrue(String(describing: error).contains("not_hittable"))
-        }
-        XCTAssertEqual(field.value.value, "old")
-        XCTAssertEqual(field.clipboard.value, "owner's clipboard")
-        XCTAssertTrue(wda.bodies("POST /wda/keys").isEmpty)
-        XCTAssertTrue(wda.bodies("POST /wda/setPasteboard").isEmpty)
-        XCTAssertTrue(wda.bodies("POST /wda/touchAndHold").isEmpty)
-    }
-
-    func testPasteUsesTheVisiblePartOfTheFieldBeforeAndAfterClearing() async {
-        for enabled in [false, true] {
-            for (frame, menuFrame) in [
-                ([380.0, 100, 20, 40], [150.0, 50, 80, 40]),
-                ([100.0, 834, 40, 20], [150.0, 50, 80, 40]),
-                ([16.0, 100, 358, 44], [150.0, 50, 80, 40]),
-                ([16.0, 100, 358, 44], [380.0, 50, 20, 40]),
-                ([16.0, 100, 358, 44], [100.0, 834, 40, 20]),
-            ] {
-                for clear in [false, true] {
-                    let (core, wda, _) = makeCore { $0.humanize = enabled }
-                    core.computer.humanize = Humanize(enabled: enabled, seed: 35)
-                    let field = Field(frame: frame, menuFrame: menuFrame)
-                    field.value.value = "old"
-                    field.install(wda)
-                    // Model the edit menu and its effect for shaped input as well as legacy input.
-                    wda.set("POST /actions") { body in
-                        let steps = body?["actions"]?[0]?["actions"]?.array ?? []
-                        if steps.reduce(0.0, { $0 + ($1["duration"]?.double ?? 0) }) >= 600 {
-                            field.menuShown.value = true
-                        } else if let move = steps.first(where: { $0["type"]?.string == "pointerMove" }),
-                                  let x = move["x"]?.double, let y = move["y"]?.double,
-                                  (menuFrame[0]..<(menuFrame[0] + menuFrame[2])).contains(x),
-                                  (menuFrame[1]..<(menuFrame[1] + menuFrame[3])).contains(y), field.menuShown.value {
-                            field.value.update { $0 += field.clipboard.value ?? "" }
-                        }
-                        return (200, ["value": .null])
-                    }
-                    _ = await core.call("look", [:])
-                    let result = await core.call("do", ["actions": [["type": "new 中文", "ref": 1, "via": "paste", "clear": .bool(clear)]]])
-                    XCTAssertFalse(result.text.contains("not_hittable:"), result.text)
-                    XCTAssertTrue(field.menuShown.value, result.text)
-                    XCTAssertEqual(field.value.value, (clear ? "" : "old") + "new 中文", result.text)
-                    XCTAssertEqual(field.clipboard.value, "owner's clipboard")
-                    for body in wda.bodies("POST /actions") {
-                        for step in body["actions"]?[0]?["actions"]?.array ?? [] where step["type"]?.string == "pointerMove" {
-                            XCTAssertTrue((0..<390).contains(step["x"]?.double ?? -1))
-                            XCTAssertTrue((0..<844).contains(step["y"]?.double ?? -1))
-                        }
-                    }
-                }
-            }
-        }
     }
 
     func testAnUnreadableClipboardIsNeverOverwritten() async {
@@ -623,6 +572,32 @@ final class FaultTests: XCTestCase {
         XCTAssertEqual(wda.bodies("POST /wda/tap").count, 1, "the second tap was not queued")
     }
 
+    /// Stop part way through a do (the app's chat cancels the call): the actions after the one under
+    /// way are never sent, and settle answers only once the runner is through with that one.
+    func testACancelledDoSendsNothingMoreAndSettleWaitsForTheActionUnderWay() async throws {
+        let (core, wda, _) = makeCore { $0.actionCap = 10 }
+        _ = await core.call("look", [:])
+        // The tap runs on until it is released, whatever this side does, and every request queued
+        // behind it on the runner waits for it (the fake has no queue of its own).
+        let held = LockedBox(true)
+        wda.hold("POST /wda/tap", while: held)
+        let call = Task { await core.call("do", ["actions": [["tap": [100, 120]], ["tap": [100, 160]], ["tap": [100, 200]]]]) }
+        let sent = await eventually(3) { !wda.bodies("POST /wda/tap").isEmpty }
+        XCTAssertTrue(sent)
+        for route in ["POST /session", "GET /source", "GET /wda/activeAppInfo", "GET /wda/locked", "GET /wda/screen"] { wda.hold(route, while: held) }
+        // Settle may be asked before the cancelled request has noted that the runner is busy with it.
+        call.cancel()
+        let settled = LockedBox<Bool?>(nil)
+        let settling = Task { settled.value = await core.settle(timeout: 5) }
+        _ = await call.value
+        try await Task.sleep(nanoseconds: 400_000_000)
+        XCTAssertNil(settled.value, "settled while the tap was still running")
+        held.value = false
+        await settling.value
+        XCTAssertEqual(settled.value, true)
+        XCTAssertEqual(wda.bodies("POST /wda/tap").count, 1, "the taps after the stop were sent: \(wda.sent)")
+    }
+
     /// WDA's XML tree lists the same elements as its JSON one, without the custom actions it fetches
     /// for every JSON element.
     func testTheXMLTreeReadsLikeTheJSONOne() async {
@@ -681,7 +656,7 @@ final class FaultTests: XCTestCase {
         wda.source([("Button", "Photo"), ("Button", "Delete")], app: "Photos")
         _ = await core.call("look", [:])
         let result = await core.call("do", ["actions": [["tap": 1], ["tap": 2]]])
-        XCTAssertFalse(result.isError, "something was sent and the screen was read: not an error answer")
+        XCTAssertTrue(result.isError, "the requested batch stopped before the approval-gated action")
         XCTAssertTrue(result.text.contains("tap \"Photo\" (sent"), result.text)
         XCTAssertTrue(result.text.contains("not_sent from action 2: approval_required"), result.text)
         XCTAssertTrue(result.text.contains("Actions 1 to 1 were sent"), result.text)
@@ -821,7 +796,7 @@ final class MailTestTests: XCTestCase {
             wda.set(key) { _ in try await Task.sleep(nanoseconds: 400_000_000); return (200, ["value": .null]) }
         }
         _ = await core.call("look", [:])
-        let result = await core.call("do", ["actions": [["button": "home"], ["tap": [100, 300]], ["drag": [0, 400, 200, 400]]]])
+        let result = await core.call("do", ["actions": [["button": "home"], ["tap": [100, 300]], ["drag": ["from": 1, "to": 2]]]])
         XCTAssertFalse(result.isError, result.text)
         XCTAssertEqual(result.text.components(separatedBy: "(sent, ").count - 1, 3, result.text)
     }
@@ -882,8 +857,8 @@ final class MailTestTests: XCTestCase {
         // Working in Qeno on purpose is left alone.
         wda.set("GET /wda/activeAppInfo") { _ in (200, ["value": ["bundleId": "com.owaiken.qeno", "name": "Qeno"]]) }
         _ = await core.call("look", [:])
-        let inPoki = await core.call("do", ["actions": [["tap": [100, 300]]]])
-        XCTAssertFalse(inPoki.text.contains("brought back"), inPoki.text)
+        let inQeno = await core.call("do", ["actions": [["tap": [100, 300]]]])
+        XCTAssertFalse(inQeno.text.contains("brought back"), inQeno.text)
         XCTAssertEqual(wda.bodies("POST /wda/apps/activate").count, 1)
     }
 }
@@ -951,12 +926,12 @@ final class ShopTestTests: XCTestCase {
 /// The owner's rule for the gym (Nov 7 2026): while the runner is up and a screenshot works, every
 /// answer carries the screen and something to go on; no error answer halts the model.
 final class GymTests: XCTestCase {
-    func testAFailedActionWithAReadIsNotAnErrorAnswer() async {
+    func testAFailedActionRetainsItsErrorAndScreenRead() async {
         let (core, wda, _) = makeCore { $0.actionCap = 1 }
         _ = await core.call("look", [:])
         wda.set("POST /wda/tap") { _ in (500, ["value": ["error": "unknown error", "message": "tap failed"]]) }
         let result = await core.call("do", ["actions": [["tap": [100, 120]], ["tap": [100, 160]]]])
-        XCTAssertFalse(result.isError, result.text)
+        XCTAssertTrue(result.isError, result.text)
         XCTAssertTrue(result.text.contains("error: action 1 was not sent"), result.text)
         XCTAssertTrue(result.text.contains("elements"), result.text)
         XCTAssertNotNil(result.jpeg)

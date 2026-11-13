@@ -3,7 +3,7 @@
 # sort above it). The PR runs promotion-gate.yml (the Gym for a beta, the wait for a stable); merging
 # it publishes the same IPA under the new name (publish-promotion.yml). Nothing is rebuilt.
 #
-# The PR is opened as the Poki Release Bot GitHub App (secrets POKI_BOT_APP_ID and
+# The PR is opened as the Qeno Release Bot GitHub App (secrets POKI_BOT_APP_ID and
 # POKI_BOT_PRIVATE_KEY): a PR opened with the workflow's own token would start no checks.
 name: Propose promotion
 
@@ -78,14 +78,14 @@ jobs:
             echo
             if [ "$channel" = beta ]; then
               echo "- Gate: the Gym on this commit, with no more failures than the last beta (promotion-gate.yml)."
-              echo "- Also moves \`native/ios-app/VERSION\` on (see the diff), so later alphas sort above this beta in Poki Setup."
+              echo "- Also moves \`native/ios-app/VERSION\` on (see the diff), so later alphas sort above this beta in Qeno Setup."
               echo "- Merging publishes the prerelease and creates \`release/X.Y\` on the first beta of a version."
             else
               echo "- Gate: the beta has been out for the wait in \`.github/channels.json\` (\`soak_days\`). Add the \`soak-override\` label to skip it."
               [ -n "$SKIP" ] && echo "- The wait was skipped when proposing: $SKIP"
-              echo "- Merging publishes the full release (not marked Latest, which stays on Poki MCP's v* release), after approval in the \`stable\` environment."
+              echo "- Merging publishes the full release (not marked Latest, which stays on Qeno MCP's v* release), after approval in the \`stable\` environment."
             fi
             echo
             echo "Requested by @$ACTOR."
           } > body.md
-          gh pr create --base main --head "$branch" --title "Promote Poki v${VERSION} to ${channel^}" --body-file body.md --label promotion
+          gh pr create --base main --head "$branch" --title "Promote Qeno v${VERSION} to ${channel^}" --body-file body.md --label promotion

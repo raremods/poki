@@ -116,7 +116,7 @@ final class KeyboardTypist {
         var moved: Bool
     }
 
-    /// Set to stop before the next step (the owner took over, the panel went away, Poki cancelled).
+    /// Set to stop before the next step (the owner took over, the panel went away, Qeno cancelled).
     private(set) var stopped = false
     func stop() { stopped = true }
 

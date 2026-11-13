@@ -6,7 +6,7 @@
 #
 # The build number is the commit count of main, so it only goes up while main is never rewritten.
 # Tag: app-<VERSION>-prealpha.<count>; release: the rolling app-prealpha-latest, mirrored to the old
-# ios-prealpha-latest for Poki Setup 0.2.2 and earlier (docs/release-channels.md).
+# ios-prealpha-latest for Qeno Setup 0.2.2 and earlier (docs/release-channels.md).
 name: Pre-alpha
 
 on:
@@ -44,7 +44,7 @@ jobs:
           BUILD="$(git rev-list --count HEAD)"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "build=$BUILD" >> "$GITHUB_OUTPUT"
-          echo "Poki $VERSION ($BUILD) from $(git log -1 --format='%h %s')"
+          echo "Qeno $VERSION ($BUILD) from $(git log -1 --format='%h %s')"
 
       - id: build
         uses: ./.github/actions/build-ipa
@@ -85,5 +85,5 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "## Poki v${{ steps.v.outputs.version }} (${{ steps.v.outputs.build }}) Pre-alpha" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Qeno v${{ steps.v.outputs.version }} (${{ steps.v.outputs.build }}) Pre-alpha" >> "$GITHUB_STEP_SUMMARY"
           echo "Rust library from cache: ${{ steps.build.outputs.rust-hit || 'false' }}" >> "$GITHUB_STEP_SUMMARY"

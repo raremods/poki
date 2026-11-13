@@ -81,6 +81,9 @@ final class SelfSigner {
 
     /// The phone's own services (10.7.0.1 and the pairing file), when the loopback answers.
     var phone: () -> [String: Any]? = { nil }
+    /// Why `phone()` has nothing (ESP-448).
+    var whyUnreachable: () -> Unreachable = { .loopback }
+    enum Unreachable { case unpaired, loopback, cellular }
     /// No task is running, so Qeno may be ended by an install.
     var isIdle: () -> Bool = { false }
     /// Why an install waits, for the message under the button.
@@ -88,6 +91,36 @@ final class SelfSigner {
     /// Before an install the owner asked for: Qeno winds down (automation session, Live Activity)
     /// so it exits cleanly when iOS replaces it, and comes back on after.
     var beforeInstall: () -> Void = {}
+
+    enum InstallFinish: Equatable {
+        case idle, installing, waitingForExit
+        case needsReopen(installed: Bool)
+    }
+    private(set) var installFinish = InstallFinish.idle
+    private var finishTimer: Timer?
+    private var foregroundObserver: NSObjectProtocol?
+
+    var installMessage: String? {
+        switch installFinish {
+        case .idle: nil
+        case .installing: String(localized: "Installing the update. Do not close Qeno in the app switcher. Features are unavailable until you reopen Qeno.")
+            + "\n\n" + String(localized: "You can return to the Home Screen and wait. Qeno closes by itself when the update is installed. Open Qeno again afterwards. If nothing changes, update Qeno from Qeno Setup on your computer.")
+        case .waitingForExit: String(localized: "The update is installed. Waiting for Qeno to close. Features are unavailable until you reopen Qeno.")
+        case .needsReopen(let installed): installed
+            ? String(localized: "The update is installed. Swipe up on Qeno in the app switcher to close it, then open Qeno again. Features are unavailable until you reopen Qeno.")
+            : String(localized: "To finish the update, swipe up on Qeno in the app switcher to close it, then open Qeno again. If the update is still available, try again. Features are unavailable until you reopen Qeno.")
+        }
+    }
+
+    var needsReopen: Bool {
+        if case .needsReopen = installFinish { return true }
+        return false
+    }
+
+    isolated deinit {
+        finishTimer?.invalidate()
+        if let foregroundObserver { NotificationCenter.default.removeObserver(foregroundObserver) }
+    }
 
     private var started = false
     private var timer: Timer?
@@ -98,9 +131,9 @@ final class SelfSigner {
     var daysLeft: Double? { expiry.map { $0.timeIntervalSinceNow / 86_400 } }
     /// The build Install would put on: an update when one is ready, else a refresh.
     var next: Prepared? { ready["update"] ?? ready["refresh"] }
-    /// The channel has a newer Poki than the installed one.
+    /// The channel has a newer Qeno than the installed one.
     var updateAvailable: Bool { latest.map(isNewer) ?? false }
-    /// A newer Poki is on the channel, but no signed copy of it is ready to install yet. Compared by
+    /// A newer Qeno is on the channel, but no signed copy of it is ready to install yet. Compared by
     /// version and build, not tag: the rolling releases (app-prealpha-latest, ios-prealpha-latest)
     /// keep one tag for every build, so a copy prepared from an earlier build has the same tag.
     var updateNotReady: Bool {
@@ -112,7 +145,7 @@ final class SelfSigner {
     var updateBlocker: String? {
         guard updateNotReady else { return nil }
         if !signedIn { return String(localized: "To download updates by itself, Qeno needs your Apple Account: sign in under Signing Options. Or update Qeno from Qeno Setup on your Mac.") }
-        if phone() == nil { return String(localized: "Qeno can't reach this iPhone. Turn on the loopback, then try again.") }
+        if phone() == nil { return unreachable }
         return nil
     }
     var channelTitle: String { status?.channels.first { $0.id == status?.channel }?.title ?? status?.channel ?? "" }
@@ -212,7 +245,7 @@ final class SelfSigner {
                 found[kind] = p
             }
         }
-        // A build that is already on, or older than what is on (Poki Setup installed a newer one
+        // A build that is already on, or older than what is on (Qeno Setup installed a newer one
         // meanwhile), has nothing left to give.
         if let u = found["update"], !isNewer(version: u.version, build: u.build) { found["update"] = nil }
         if let r = found["refresh"], let expiry, r.expires <= expiry.addingTimeInterval(3600) { found["refresh"] = nil }
@@ -222,7 +255,7 @@ final class SelfSigner {
     /// Prepares what is due, by itself: an update when the channel has a newer Qeno, a refresh when
     /// the installed profile is close to expiring. Never installs.
     func maintain() {
-        guard signedIn, working == nil, phone() != nil else { return }
+        guard installFinish == .idle, signedIn, working == nil, phone() != nil else { return }
         Task {
             lastCheck = Date()
             if let rel = try? await SignerBridge.decode(Release.self, ["op": "check_update"]) {
@@ -253,7 +286,7 @@ final class SelfSigner {
     }
 
     /// Download and Install Update, in one tap: gets the newest build and signs it, then installs it.
-    /// install() still checks that Poki is idle: with a task running it waits and says why, and the
+    /// install() still checks that Qeno is idle: with a task running it waits and says why, and the
     /// downloaded build stays ready for Install Update.
     func downloadAndInstallUpdate() async {
         if updateNotReady { await prepare(kind: "update") }
@@ -274,7 +307,7 @@ final class SelfSigner {
 
     func prepare(kind: String) async {
         guard var request = phone() else {
-            lastError = String(localized: "Qeno can't reach this iPhone. Turn on the loopback, then try again.")
+            lastError = unreachable
             return
         }
         request["op"] = "prepare"
@@ -288,12 +321,13 @@ final class SelfSigner {
             self.ready[kind] = p
             self.log.add("signing", "prepared \(kind): \(p.version) (\(p.build)), profile until \(p.expires)")
             self.notify(title: kind == "update" ? String(localized: "Qeno Update Ready") : String(localized: "Qeno Refresh Ready"),
-                        body: String(localized: "Open Setup and tap Install when Qeno isn't running a task."), id: Self.readyNotice)
+                        body: String(localized: "Open Settings > Connection > Signing & Updates and install the prepared build when Qeno isn't running a task."))
         }
     }
 
     /// Installs the prepared build. iOS ends Qeno when it lands; a notification brings it back.
     func install() async {
+        guard installFinish == .idle else { return }
         guard let p = next else { log.add("signing", "install tapped, but no build is ready"); return }
         log.add("signing", "install tapped: \(p.kind) \(p.version) (\(p.build))")
         guard isIdle() else {
@@ -303,36 +337,35 @@ final class SelfSigner {
             return
         }
         guard var request = phone() else {
-            lastError = String(localized: "Qeno can't reach this iPhone. Turn on the loopback, then try again.")
+            lastError = unreachable
             log.add("signing", "install: no loopback or pairing file")
             return
         }
         request["op"] = "install"
         request["manifest"] = Self.home.appendingPathComponent("ready/\(p.kind)/manifest.json").path
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [Self.reopenNotice])
+        let reopen = "nz.zheha.poki.signing.reopen"
+        scheduleReopenNotice(id: reopen)
+        installFinish = .installing
+        foregroundObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.exitWaitEnded() }
+        }
         beforeInstall()
         steppedAside = false
-        closing = false
         installFraction = nil
-        installStepSince = nil
-        asideSince = nil
-        // iOS holds the last part of an upgrade until the app it replaces is gone: stepping aside
-        // to the Home Screen is not enough (seen on the phone: the install waited until Qeno was
-        // swiped away). So once the new copy is almost in, or has stalled there, Qeno exits by
-        // itself, and a notice set at that moment reopens it.
+        // iOS holds the last part of an upgrade until the app it replaces leaves the screen: Qeno
+        // steps aside to the Home Screen by itself once the new copy is almost in (or has stalled
+        // there), keeping a background task so the request can finish; iOS then ends Qeno, and the
+        // notice above reopens it.
         let background = UIApplication.shared.beginBackgroundTask(withName: "Qeno update")
         let watch = Task { @MainActor [weak self] in
-            var last: (fraction: Double?, since: Date)?
+            var last: (fraction: Double, since: Date)?
             while !Task.isCancelled, let self, self.working != nil {
-                try? await Task.sleep(for: .milliseconds(500))
-                guard let began = self.installStepSince else { continue }
-                let f = self.installFraction
-                if last == nil || last?.fraction != f { last = (f, Date()) }
-                let still = Date().timeIntervalSince(last!.since)
-                if Self.shouldClose(fraction: f, still: still, sinceInstallBegan: Date().timeIntervalSince(began), sinceAside: self.asideSince.map { Date().timeIntervalSince($0) }) {
-                    self.closeToFinish()
-                    break
-                }
+                try? await Task.sleep(for: .seconds(1))
+                guard let f = self.installFraction else { continue }
+                if last?.fraction != f { last = (f, Date()) }
+                if f >= 0.9 || (f >= 0.4 && Date().timeIntervalSince(last!.since) > 5) { self.stepAside(); break }
             }
         }
         await run("Installing") {
@@ -342,23 +375,37 @@ final class SelfSigner {
         }
         watch.cancel()
         UIApplication.shared.endBackgroundTask(background)
-        // Still here: the install failed before Qeno closed for it.
-        if lastError != nil, !closing {
-            finishNotice = false
-            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [Self.reopenNotice])
-            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Self.finishNoticeID])
+        if lastError != nil {
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [reopen])
+            requireReopen()
+        } else {
+            installFinish = .waitingForExit
+            finishTimer = Timer.scheduledTimer(withTimeInterval: 15, repeats: false) { [weak self] _ in
+                Task { @MainActor in self?.exitWaitEnded() }
+            }
+            if !steppedAside { stepAside() }
+            working = installMessage
         }
     }
 
     // MARK: Helpers
 
+    private var unreachable: String {
+        switch whyUnreachable() {
+        case .unpaired: String(localized: "Pair this iPhone first (Setup).")
+        case .cellular: LoopbackMonitor.needsWiFi
+        case .loopback: String(localized: "Qeno can't reach this iPhone. Turn on the loopback, then try again.")
+        }
+    }
+
     private func run(_ title: String?, _ work: () async throws -> Void) async {
         working = title
         fraction = nil
         lastError = nil
-        defer { working = nil; fraction = nil }
+        defer { working = installMessage; fraction = nil }
         do { try await work() } catch {
-            lastError = error.localizedDescription
+            let code = (error as? SignerError)?.code ?? ""
+            lastError = whyUnreachable() == .cellular && ["loopback", "handshake", "unreachable"].contains(code) ? LoopbackMonitor.needsWiFi : error.localizedDescription
             log.add("signing", "\(title ?? "signer"): \(error.localizedDescription)")
         }
     }
@@ -366,51 +413,7 @@ final class SelfSigner {
     /// The upgrade's progress while it installs, for `install`'s watch.
     private var installFraction: Double?
     private var steppedAside = false
-    /// When the install itself began (the build is on the phone).
-    private var installStepSince: Date?
-    /// When the owner sent Poki to the Home Screen from the alert.
-    private var asideSince: Date?
-    private var closing = false
-
-    static let readyNotice = "nz.zheha.poki.signing.ready"
-    static let finishNoticeID = "nz.zheha.poki.signing.finish"
-    static let reopenNotice = "nz.zheha.poki.signing.reopen"
-    static let expiringNotice = "nz.zheha.poki.signing.expiring"
-
-    /// Whether Poki exits now for iOS to finish the upgrade: the new copy is almost in, or the
-    /// install has stood still (iOS is waiting for Poki to go), sooner once Poki is off the screen.
-    nonisolated static func shouldClose(fraction: Double?, still: Double, sinceInstallBegan: Double, sinceAside: Double?) -> Bool {
-        if let fraction, fraction >= 0.9 { return true }
-        if let sinceAside { return sinceAside >= 8 || (still >= 3 && sinceAside >= 1) }
-        if let fraction, fraction >= 0.4 { return still >= 5 }
-        // No progress reported at all, or stuck early.
-        return still >= 15 && sinceInstallBegan >= 15
-    }
-
-    /// Poki exits so iOS can finish the upgrade. The notice that reopens it is set now, counted
-    /// from the exit, so it does not arrive while the install is still going.
-    private func closeToFinish() {
-        guard !closing else { return }
-        closing = true
-        finishNotice = false
-        log.add("signing", "closing Poki so iOS can finish the install")
-        let center = UNUserNotificationCenter.current()
-        center.removeDeliveredNotifications(withIdentifiers: [Self.finishNoticeID, Self.readyNotice, Self.expiringNotice])
-        notify(title: String(localized: "Qeno Was Updated"), body: String(localized: "Tap to open Qeno again."), id: Self.reopenNotice, after: 15)
-        UIApplication.shared.perform(NSSelectorFromString("suspend"))
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { exit(0) }
-    }
-
-    /// The update notices still in Notification Centre are taken away: called when Poki opens.
-    func clearNotices() {
-        let center = UNUserNotificationCenter.current()
-        center.removeDeliveredNotifications(withIdentifiers: [Self.readyNotice, Self.finishNoticeID, Self.reopenNotice, Self.expiringNotice])
-        // Notices from builds that gave each one its own id.
-        center.getDeliveredNotifications { delivered in
-            let old = delivered.filter { $0.request.content.userInfo["poki_link"] as? String == "poki://setup" }.map(\.request.identifier)
-            if !old.isEmpty { center.removeDeliveredNotifications(withIdentifiers: old) }
-        }
-    }
+>>>>>>> 0a2d41b41640ef56da981d1278ed8860919aab2c
 
     /// Qeno to the Home Screen, as the person swiping up would: iOS finishes the upgrade only once the
     /// app it replaces is no longer in front. Once per install.
@@ -421,10 +424,9 @@ final class SelfSigner {
         working = String(localized: "Finishing the update: Qeno will close to finish it")
         // The last step: the owner is told Qeno will close (the alert's OK steps aside, and iOS ends
         // Qeno by itself otherwise); the notice says it again in case the alert was missed.
-        installStepSince = Date()
         finishNotice = true
         notify(title: String(localized: "Qeno Will Close to Finish the Update"),
-               body: String(localized: "Qeno will close by itself. Open it again once the update is in."), id: Self.finishNoticeID)
+               body: String(localized: "Qeno will close by itself. Open it again once the update is in."))
     }
     /// The last install step's alert: Qeno has to exit for the update to finish.
     var finishNotice = false
@@ -432,13 +434,31 @@ final class SelfSigner {
     func finishNoticeAnswered() {
         guard finishNotice else { return }
         finishNotice = false
-        asideSince = Date()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            guard let self, !self.needsReopen else { return }
             UIApplication.shared.perform(NSSelectorFromString("suspend"))
         }
     }
 
+    /// iOS has not ended Qeno after the install. Until the install returns, Qeno carries the upload
+    /// and the upgrade request, so nothing asks the owner to close it before then.
+    private func exitWaitEnded() {
+        guard installFinish == .waitingForExit else { return }
+        requireReopen()
+    }
+
+    private func requireReopen() {
+        guard installFinish != .idle, !needsReopen else { return }
+        installFinish = .needsReopen(installed: installFinish == .waitingForExit)
+        finishTimer?.invalidate()
+        finishNotice = false
+        fraction = nil
+        working = installMessage
+        log.add("signing", "old process still running: showing instructions to reopen Qeno")
+    }
+
     private func show(_ progress: [String: Any]) {
+        guard !needsReopen else { return }
         switch progress["kind"] as? String {
         case "step":
             working = progress["title"] as? String ?? working; fraction = nil
@@ -448,16 +468,14 @@ final class SelfSigner {
             if progress["id"] as? String == "install" { stepAside() }
         case "part":
             fraction = progress["fraction"] as? Double
-            if progress["id"] as? String == "install" { installFraction = fraction; stepAside() }
+            if progress["id"] as? String == "install" { installFraction = fraction }
             if let d = progress["detail"] as? String { working = d }
         case "note", "waiting": if let t = progress["text"] as? String { working = t }
         default: break
         }
     }
 
-    private func notify(title: String, body: String, id: String, after seconds: TimeInterval? = nil) {
-        // One notice of each kind at a time: a newer one takes the older one's place.
-        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [id])
+    private func notify(title: String, body: String, id: String = UUID().uuidString, after seconds: TimeInterval? = nil) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
@@ -466,6 +484,9 @@ final class SelfSigner {
         UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: id, content: content, trigger: trigger))
     }
 
+    private func scheduleReopenNotice(id: String) {
+        notify(title: String(localized: "Qeno Was Updated"), body: String(localized: "Tap to open Qeno again."), id: id, after: 20)
+    }
 
     /// Once a day in the last two days: the build is ready (or can't be made) and nothing installed it.
     private func remindIfExpiring() {
@@ -475,7 +496,7 @@ final class SelfSigner {
         UserDefaults.standard.set(Date(), forKey: key)
         let when = expiry.map { $0.formatted(date: .abbreviated, time: .shortened) } ?? ""
         notify(title: String(localized: "Qeno Expires Soon"),
-               body: next != nil ? String(localized: "A refreshed Qeno is ready. Open Setup and tap Install before \(when).") : String(localized: "Open Setup to refresh Qeno before \(when)."), id: Self.expiringNotice)
+               body: next != nil ? String(localized: "A refreshed Qeno is ready. Open Setup and tap Install before \(when).") : String(localized: "Open Setup to refresh Qeno before \(when)."))
     }
 
     /// `-pokiSigningDays 1`: a simulator has no profile, so a screenshot gives Qeno one that ends then.

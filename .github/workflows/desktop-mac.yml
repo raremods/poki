@@ -1,4 +1,4 @@
-# Builds the native macOS Poki Setup (SwiftUI shell + Rust bridge), checks it end to end as far as
+# Builds the native macOS Qeno Setup (SwiftUI shell + Rust bridge), checks it end to end as far as
 # a Mac without an iPhone allows, and saves the DMG plus screenshots of every page.
 # Branch pushes build on the fork only. A commit message with [universal], a tag or a manual run builds for Intel too.
 name: desktop-mac
@@ -133,7 +133,7 @@ jobs:
           (cd desktop && cargo build --release -p poki-setup-cli)
           WF=$(gh api repos/${{ github.repository }}/actions/workflows --jq '.workflows[]|select(.name=="iOS app")|.id')
           RUN=$(gh api "repos/${{ github.repository }}/actions/workflows/$WF/runs?branch=dev/ios-integration-sync&status=success&per_page=1" --jq '.workflow_runs[0].id')
-          echo "Poki IPA from iOS app run $RUN"
+          echo "Qeno IPA from iOS app run $RUN"
           gh run download "$RUN" -R ${{ github.repository }} -n Poki-unsigned -D ipa
           desktop/mac/scripts/sign-check.sh desktop/target/release/poki-setup ipa/Poki-external-unsigned.ipa ipa/Qeno-signing.zip
       - name: Screenshots

@@ -9,13 +9,16 @@ Qeno automates the phone in its own process: it opens the XCTest automation sess
 (`Qeno/Native/InProcess.m`, answered to PokiCore by `Qeno/Runtime/InProcessWDA.swift`), so Qeno is
 the only app to install. The older Runner path (WebDriverAgent as a second bundle, built by
 `.github/workflows/ios-runner.yml`; `docs/single-bundle.md` is the earlier study) stays in the code
-and is chosen per launch with `-automationPath runner`.
+and is chosen per launch with `-automationPath runner`, or in General › Testing Options, which also
+has the in-process probes and the Background Hold experiment (752 had them in Diagnostics).
 
-Diagnostics also contains a third, experimental **Native services** path. It uses the paired
-accessibility, screenshot and HID services shared with the Mac/Linux bridge, without opening an
-XCTest session or showing its automation banner. The normal PokiCore control and approval logic is
-unchanged. Its state, screenshot and input lanes remain connected independently while active; the
-Diagnostics path comparison records tap, type, swipe and parallel tree/screenshot timings against
+A third path, **Native services**, is the default from iOS 27; earlier iOS versions default to the
+XCTest session above, and Testing Options (Settings › Advanced) switches between the two. It uses the
+paired accessibility, screenshot and HID services shared with the Mac/Linux bridge, without opening an
+XCTest session or showing its automation banner. Those services stream the screen and take touches
+only from iOS 27 (#1 on iOS 18.6.2 and #18 on iOS 26.6 could not tap). The normal PokiCore control
+and approval logic is unchanged. Its state, screenshot and input lanes remain connected independently
+while active; the Diagnostics path comparison records tap, type, swipe and parallel tree/screenshot timings against
 the in-process path. Changing paths takes effect on the next app launch.
 
 ## Layout
@@ -38,9 +41,11 @@ PokiCore (Swift, `native/ios/PokiCore`) and PokiLauncher (Rust with a C ABI, `na
 
 ## Build
 
-GitHub Actions (`.github/workflows/ios-app.yml`) builds `Qeno-unsigned.ipa` on demand, for
-`ios-v*` release tags and for `ios-alpha-*` / `ios-prealpha-*` tags (see `docs/release-channels.md`), runs it on the iOS Simulator and uploads a screenshot of every screen in light and
-dark mode (artifact `simulator-smoke`, folder `shots`). Locally on a Mac with Xcode 26 or later:
+GitHub Actions (`.github/workflows/ios-app.yml`) builds and tests the app on demand or as a reusable
+workflow, runs it on the iOS Simulator, and uploads screenshots in light and dark mode
+(artifact `simulator-smoke`, folder `shots`). [Release workflows](../../docs/release-channels.md)
+publish Pre-alpha automatically. Alpha, Beta, Stable, and installer uploads require the repository
+owner's approval. Locally on a Mac with Xcode 26 or later:
 
 ```sh
 native/ios-app/scripts/make-assets.sh
@@ -50,7 +55,7 @@ open native/ios-app/Qeno.xcodeproj
 
 `native/ios-app/scripts/app-tests.sh SIMULATOR_UDID` builds `PokiTests` and runs it inside Qeno on a booted simulator (the in-process transport's clipboard and session answers).
 
-`-pokiScreen home|setup|connect|debug|activity|steps|status|connector|details|model|voice` opens that screen at launch (home is the chat, setup its full-screen flow, connect the Settings sheet, debug Diagnostics inside it, details Qeno's details, steps its history); `-pokiChat empty|working|approved` and `-pokiVoice ready|listening|working` show the ESP-171 boards' sample chat and voice faces; `-pokiSetupStep N` opens setup at step N, and `-pokiSample B|C` fills the status, history and Live Activity with sample steps and an approval, and `-pokiSample PIN` shows a sample pairing code, for screenshots only; on a simulator `-pokiLoopback cellular` forces the cellular-only loopback hint, `-pokiLoopback working` a loopback that answers, and `-pokiSigningDays 1` a signing that ends in a day.
+`-pokiScreen home|setup|connect|debug|activity|steps|status|connector|details|model|voice|session|hands|rules|health|memory|appearance|voiceSettings|conversations|updates` opens that screen at launch (the app opens on the chat; home is the chat with the conversations drawer open, details Settings, hands and setup its Connection page, rules and health the Approvals and Advanced pages, connect the Agents page, memory, appearance, voiceSettings (Dictation & Mute), conversations (Archived Conversations) and updates (Signing & Updates) their pages, debug Diagnostics under Advanced, steps the Activity Log, session an outside agent's session); `-pokiChat empty|working|approval|handoff|approved|failed` shows the sample chat scenes (the greeting, a task under way, a step waiting for approval, a hand-over, a finished task, a failed one) and `-pokiVoice ready|listening|working` the voice faces; `-pokiSetupStep N` opens setup at step N, `-pokiSettingsEnd YES` opens Settings scrolled to its end, and `-pokiSample B|C` fills the status, history and Live Activity with sample steps and an approval, and `-pokiSample PIN` shows a sample pairing code, for screenshots only; on a simulator `-pokiLoopback cellular` forces the cellular-only loopback hint, `-pokiLoopback working` a loopback that answers, and `-pokiSigningDays 1` a signing that ends in a day.
 
 Qeno is in English and Simplified Chinese and follows the iPhone's language. The app's screens use the String Catalog `Shared/Localizable.xcstrings`, the Live Activity its own table `Shared/LiveActivity.xcstrings` (see `Shared/ActivityWords.swift`), and the permission prompts `Qeno/InfoPlist.xcstrings`. Qeno's own status words stay in English inside the app (the code compares them and the agent reads them) and are looked up where they reach the screen; the launcher's fix sentences have entries too. Steps an agent reports, logs and diagnostics output stay as they come. Add `-AppleLanguages '(zh-Hans)'` to a launch to see Chinese without changing the simulator's language.
 

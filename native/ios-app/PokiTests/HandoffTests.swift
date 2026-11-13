@@ -1,10 +1,10 @@
 import CryptoKit
 import XCTest
-@testable import Poki
+@testable import Qeno
 
-/// The installer on the Mac (bin/install-iphone.mjs) and Poki talk through Documents/PokiSetup/.
-/// These run Poki's side with what the installer writes: a hello it can read, a model key sealed to
-/// the phone's key, and Poki turning on by itself after a Poki Setup install.
+/// The installer on the Mac (bin/install-iphone.mjs) and Qeno talk through Documents/PokiSetup/.
+/// These run Qeno's side with what the installer writes: a hello it can read, a model key sealed to
+/// the phone's key, and Qeno turning on by itself after a Qeno Setup install.
 @MainActor
 final class HandoffTests: XCTestCase {
     private var saved: (provider: Any?, wantsOn: Any?, openai: String?)!
@@ -93,8 +93,8 @@ final class HandoffTests: XCTestCase {
         XCTAssertEqual((try hello()["loopback"] as? [String: Any])?["working"] as? Bool, true)
     }
 
-    /// Installed by Poki Setup (its signing key waits in the container) and never turned on or off: Poki
-    /// turns on by itself. Without Poki Setup's install, a new Poki waits for the owner.
+    /// Installed by Qeno Setup (its signing key waits in the container) and never turned on or off: Qeno
+    /// turns on by itself. Without Qeno Setup's install, a new Qeno waits for the owner.
     func testAPokiSetupInstallTurnsPokiOnByItself() throws {
         UserDefaults.standard.removeObject(forKey: "wantsOn")
         XCTAssertFalse(AppModel(launcher: FakeLauncher(), pairer: FakePairing()).wantsOn)
@@ -105,6 +105,6 @@ final class HandoffTests: XCTestCase {
         XCTAssertTrue(AppModel(launcher: FakeLauncher(), pairer: FakePairing()).wantsOn)
 
         UserDefaults.standard.set(false, forKey: "wantsOn")
-        XCTAssertFalse(AppModel(launcher: FakeLauncher(), pairer: FakePairing()).wantsOn, "an owner who turned Poki off keeps it off")
+        XCTAssertFalse(AppModel(launcher: FakeLauncher(), pairer: FakePairing()).wantsOn, "an owner who turned Qeno off keeps it off")
     }
 }

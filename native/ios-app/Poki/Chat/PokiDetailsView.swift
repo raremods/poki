@@ -1,107 +1,736 @@
+import PokiCore
 import SwiftUI
 
-// The details screen opens from the header like iMessage's contact info (GetStream/swiftui-iMessage-clone,
-// commit df114b4, iMessageClone/MessageList/View/Header/MessageListHeaderModifier.swift: a sheet from the
-// header button). Its content is the ESP-171 board "M Qeno details".
+// Settings (ESP-469; before it Qeno's profile, ESP-326 board "09 Qeno") opens from the bottom of the
+// conversations. It replaced the earlier details screen and its "More Settings" layer. Every part of Qeno a
+// person looks for by name is a row of its own on this page (Connection, Models, Dictation & Mute,
+// Approvals, Agents, Memory, Archived Conversations, Signing & Updates, Notifications, Appearance), and
+// what only a few need is on one page, Advanced, by where it came from. Nothing has two ways in: the
+// approval method is changed on Qeno's card in the chat only. The rows are PokiSettingsKit's.
 
-/// Qeno's picture, name and what it does; Pause, Voice and History; the model; the status (the Qeno
-/// switch, relay, runner, last run and anything in the way); and voice, notifications and all settings.
+/// Settings: Qeno on top, as a group of rows like the groups under it (the owner, 2026-11-13: not a
+/// card of its own): the bear and its name, where Qeno stands, and the Activity Log. Then any problem
+/// that keeps Qeno from working, and the parts of Qeno in three groups of rows.
 struct PokiDetailsView: View {
     @Environment(AppModel.self) private var model
     @Environment(ChatModel.self) private var chat
     @Environment(\.dismiss) private var dismiss
-    var openVoice: () -> Void
     var openSetup: () -> Void
-    /// Opens a run in Chats (from the Activity Log).
+    /// Opens a run in the chat (from the Activity Log).
     var openSession: (String) -> Void = { _ in }
     /// The Qeno tab's pages: Accounts, History, Voice, Agents and the rest are pushed here, never shown
     /// as overlays; Chats opens them by setting this path.
     @Binding var path: NavigationPath
-    var inTab = true
+    /// Bumped when the chosen model changes, so the Models row's value redraws (ModelKeys is not observable).
+    @State private var modelVersion = 0
+
+    private var isSample: Bool { UserDefaults.standard.bool(forKey: "pokiDetailsSample") }
+    private static let lastRow = "details.lastRow"
 
     var body: some View {
+        let power = isSample ? PowerTile.pause : PowerTile.card(model: model)
+        let status = isSample ? PokiStatus(.ready) : PokiStatusCopy.card(PokiStatus.current(model: model, chat: chat), power: power)
         NavigationStack(path: $path) {
+            ScrollViewReader { scroll in
             List {
                 Section {
+                    // The first two rows only show: Connection's Automation switch turns Qeno on and pauses it.
+                    PokiNameRow(mood: status.mood)
+                    SettingsRow(title: "Status", symbol: "dot.radiowaves.left.and.right", value: PokiStatusCopy.word(status), dot: status.mood.dot)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityIdentifier("details.status")
+                    NavigationLink(value: DetailsRoute.history) {
+                        SettingsRow(title: "Activity Log", symbol: "clock")
+                    }
+                    .accessibilityIdentifier("details.activity")
+                }
+
+                if !isSample {
                     let issues = Issue.current(model)
-                    Toggle("Qeno", isOn: Binding(get: { model.sessionOn }, set: { $0 ? model.startSession() : model.stopSession() }))
-                    // The in-process path has no Qeno Runner (ESP-152): its row is hidden, the code kept.
-                    HealthRow(title: "Relay", health: Health.relay(model))
-                    if model.automationPath == .runner { HealthRow(title: "Runner", health: Health.runner(model)) }
-                    if model.recentSteps.last != nil {
-                        NavigationLink(value: DetailsRoute.history) { LabeledContent("Last Action", value: lastRun) }
-                    }
-                    if model.sessionOn && !model.runnerPaused || chat.running {
-                        Button("Pause") { chat.stop(); model.pauseRunner() }
-                    } else if model.sessionOn {
-                        Button("Resume") { model.wakeRunner() }
-                    }
-                    ForEach(issues) { issue in
-                        IssueRow(issue: issue, openSetup: openSetup)
-                    }
-                } header: {
-                    Text("Status")
-                }
-
-                Section {
-                    NavigationLink(value: DetailsRoute.model) {
-                        let provider = ModelKeys.selectedProvider
-                        let hasKey = ModelKeys.hasKey(provider)
-                        LabeledContent {
-                            Text(hasKey ? ModelKeys.selectedModelName : String(localized: "Add Key")).foregroundStyle(hasKey ? Color.secondary : Color.orange)
-                        } label: {
-                            Label { Text("Accounts") } icon: { ProviderTile(provider: provider, size: 29) }
+                    if !issues.isEmpty {
+                        Section {
+                            ForEach(issues) { issue in
+                                DetailsIssueRow(issue: issue, openSetup: { path.append(DetailsRoute.connection) })
+                            }
                         }
+                        .accessibilityIdentifier("details.issues")
                     }
-                    .id(ModelKeys.saved)
-                    NavigationLink(value: DetailsRoute.voice) { Label("Voice", systemImage: "waveform") }
-                    NavigationLink(value: DetailsRoute.history) { Label("Activity Log", systemImage: "list.bullet.rectangle") }
                 }
 
+                // What Qeno works with.
                 Section {
-                    NavigationLink(value: DetailsRoute.settings) { Label("Agents and Relay", systemImage: "point.3.connected.trianglepath.dotted") }
-                    NavigationLink(value: SettingsRoute.memory) { Label("Memory", systemImage: "brain") }
-                    NavigationLink(value: SettingsRoute.character) { Label("Character", systemImage: "face.smiling") }
-                    NavigationLink(value: SettingsRoute.appIcon) { Label("App Icon", systemImage: "app.dashed") }
-                    NavigationLink(value: DetailsRoute.setup) {
-                        LabeledContent {
-                            Text(model.setupComplete ? String(localized: "Done") : String(localized: "\(SetupStep.shown.filter { !model.isDone($0) }.count) Needed"))
-                                .foregroundStyle(model.setupComplete ? Color.secondary : Color.orange)
-                        } label: { Label("Setup", systemImage: "checklist") }
+                    NavigationLink(value: DetailsRoute.connection) {
+                        SettingsRow(title: "Connection", symbol: "iphone.gen3", value: connectionValue, warns: !setupDone)
                     }
+                    .accessibilityIdentifier("details.hands")
+                    NavigationLink(value: DetailsRoute.model) {
+                        SettingsRow(title: "Models", symbol: "sparkles", value: brainValue, warns: !hasModel)
+                            .id(modelVersion)
+                    }
+                    .accessibilityIdentifier("details.accountsAndModels")
+                    // Named for what is on it: the dictation button and Qeno's voice. Live voice starts in the chat.
+                    NavigationLink(value: DetailsRoute.voice) {
+                        SettingsRow(title: "Dictation & Mute", symbol: "mic")
+                    }
+                    .accessibilityIdentifier("details.voice")
+                    // What always asks, what each method does and the sensitivity. The method in use shows
+                    // here; it is changed on Qeno's card in the chat.
+                    NavigationLink(value: DetailsRoute.approvals) {
+                        SettingsRow(title: "Approvals", symbol: "checkmark.shield", value: model.approvalMode.title)
+                    }
+                    .accessibilityIdentifier("moreSettings.approvals")
+                }
+
+                // Who else uses it, and what it keeps.
+                Section {
+                    NavigationLink(value: DetailsRoute.agents) {
+                        SettingsRow(title: "Agents", symbol: "chevron.left.forwardslash.chevron.right", value: agentsValue)
+                    }
+                    .accessibilityIdentifier("moreSettings.agentsAndRelay")
+                    NavigationLink(value: SettingsRoute.memory) {
+                        SettingsRow(title: "Memory", symbol: "bookmark", value: "\(isSample ? 10 : RoutineStore.shared.routines.count)")
+                    }
+                    .accessibilityIdentifier("moreSettings.memory")
+                    NavigationLink(value: DetailsRoute.conversations) {
+                        SettingsRow(title: "Archived Conversations", symbol: "archivebox", value: isSample ? "3" : archivedValue)
+                    }
+                    .accessibilityIdentifier("details.searchConversations")
+                }
+
+                // The app itself.
+                Section {
+                    NavigationLink(value: DetailsRoute.updates) {
+                        SettingsRow(title: "Signing & Updates", symbol: "signature", value: updatesValue, warns: updateWaits)
+                    }
+                    .accessibilityIdentifier("moreSettings.updates")
+                    Button {
+                        if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
+                            UIApplication.shared.open(url)
+                        }
+                    } label: {
+                        SettingsRow(title: "Notifications", symbol: "bell.badge", accessory: .leaves)
+                    }
+                    .accessibilityIdentifier("moreSettings.notifications")
+                    NavigationLink(value: DetailsRoute.appearance) {
+                        SettingsRow(title: "Appearance", symbol: "circle.lefthalf.filled", value: String(localized: appearance.title))
+                    }
+                    .accessibilityIdentifier("details.appearance")
+                    NavigationLink(value: SettingsRoute.character) {
+                        SettingsRow(title: "Character", symbol: "face.smiling")
+                    }
+                    .accessibilityIdentifier("details.character")
+                    NavigationLink(value: SettingsRoute.appIcon) {
+                        SettingsRow(title: "App Icon", symbol: "app.dashed")
+                    }
+                    .accessibilityIdentifier("details.appIcon")
+                    // The Language row goes here, under Appearance, when the interface language gets its page.
+                    NavigationLink(value: DetailsRoute.advanced) {
+                        SettingsRow(title: "Advanced", symbol: "slider.horizontal.3")
+                    }
+                    .accessibilityIdentifier("details.health")
+                    .id(Self.lastRow)
+                } footer: {
+                    Text(verbatim: "Qeno \(model.signer.installedVersion) (\(model.signer.installedBuild))")
+                        .monospacedDigit()
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 12)
                 }
             }
-            .listStyle(.insetGrouped)
-            .navigationTitle(Text(verbatim: "Qeno"))
-            .navigationBarTitleDisplayMode(.large)
-            .navigationDestination(for: DetailsRoute.self) { route in
-                switch route {
-                case .model: ModelSettingsView()
-                case .history: ActionLogView(openSession: openSession)
-                case .voice: VoiceView(embedded: true)
-                case .settings: SettingsHome(push: { path.append($0) }, openSetup: openSetup)
-                case .setup: SetupChecklist()
+            .settingsPage()
+            // `-pokiSettingsEnd YES` opens the page at its end, for the build's screenshot of the rows
+            // below the first screen.
+            .task {
+                guard UserDefaults.standard.bool(forKey: "pokiSettingsEnd") else { return }
+                try? await Task.sleep(for: .seconds(0.6))
+                scroll.scrollTo(Self.lastRow, anchor: .center)
+            }
+            }
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close", systemImage: "xmark") { dismiss() }
+                        .accessibilityIdentifier("details.done")
                 }
+            }
+            // Every page under Settings takes the same ground and the same round icons.
+            .navigationDestination(for: DetailsRoute.self) { route in
+                Group { switch route {
+                case .model:
+                    ModelSettingsView()
+                case .voiceKey:
+                    ModelSettingsView(opensVoiceKey: true)
+                case .history:
+                    ActionLogView(openSession: { id in dismiss(); openSession(id) })
+                case .conversations:
+                    ConversationsSettingsView(openSession: { id in dismiss(); openSession(id) })
+                case .voice:
+                    VoiceView(embedded: true)
+                case .connection:
+                    ConnectionView()
+                case .advanced:
+                    AdvancedSettingsView()
+                case .agents:
+                    AgentsAndRelayView(path: $path)
+                case .updates:
+                    Form { SigningSection() }
+                        .navigationTitle("Signing & Updates")
+                        .navigationBarTitleDisplayMode(.inline)
+                case .approvals:
+                    ApprovalsSettingsView()
+                case .appearance:
+                    AppearanceView()
+                } }
+                .settingsPage()
             }
             .navigationDestination(for: SetupStep.self) { SetupStepPage(step: $0) }
             .navigationDestination(for: SettingsRoute.self) { route in
                 SettingsDestination(route: route, push: { path.append($0) }, pop: { if !path.isEmpty { path.removeLast() } })
+                    .settingsPage()
             }
+            .onReceive(NotificationCenter.default.publisher(for: ModelKeys.changed)) { _ in modelVersion += 1 }
         }
     }
 
-    /// "Messages, 1:24": the app of the last run and how long it took.
-    private var lastRun: String {
-        let steps = model.recentSteps
-        guard let first = steps.first, let last = steps.last else { return "" }
-        let seconds = Int(last.at.timeIntervalSince(first.at))
-        let time = String(format: "%d:%02d", seconds / 60, seconds % 60)
-        return model.currentApp.map { "\($0), \(time)" } ?? time
+    private var hasModel: Bool { isSample || ModelKeys.hasUsableKey }
+    private var brainValue: String {
+        if isSample { return "GPT-6.1 Terra" }
+        return hasModel ? ModelKeys.selectedModelName : String(localized: "Add")
     }
 
+    private var setupDone: Bool { isSample || model.setupComplete }
+    /// Setup first, then whether Qeno is on.
+    private var connectionValue: String {
+        if isSample { return String(localized: "On") }
+        if !model.setupComplete {
+            let steps = SetupStep.shown
+            return String(localized: "\(steps.filter(model.isDone).count) of \(steps.count)")
+        }
+        if !model.sessionOn { return String(localized: "Off") }
+        return model.ownerPaused ? String(localized: "Paused") : String(localized: "On")
+    }
+
+    private var agentsValue: String {
+        if isSample { return String(localized: "\(2) Connected") }
+        if model.relayAddress == nil || !model.relayEnabled { return String(localized: "Off") }
+        if model.relayStatus.isOffline { return Health.relay(model).word }
+        let count = model.identity.secrets.count
+        return count == 0 ? String(localized: "None yet") : String(localized: "\(count) Connected")
+    }
+
+    private var archivedValue: String? {
+        let count = SessionStore.shared.archivedSessions.count
+        return count == 0 ? nil : "\(count)"
+    }
+
+    private var updateWaits: Bool { !isSample && (model.signer.updateNotReady || model.signer.next?.kind == "update") }
+    /// The version is the page's last line, so the row only speaks up when an update waits.
+    private var updatesValue: String? { updateWaits ? String(localized: "Update Available") : nil }
+
+    @AppStorage(Appearance.key) private var appearanceChoice = Appearance.automatic.rawValue
+    private var appearance: Appearance { Appearance(rawValue: appearanceChoice) ?? .automatic }
 }
 
-enum DetailsRoute: Hashable { case model, history, voice, settings, setup }
+enum DetailsRoute: Hashable {
+    case model, history, conversations, voice, connection, advanced, agents, updates, approvals, appearance
+    /// Models, with the OpenAI key's form open (or Live Voice, when the key is there but turned off):
+    /// where Talk with Qeno without a key leads.
+    case voiceKey
+}
+
+/// Settings > Archived Conversations: the archived conversations, each one line as in the drawer, to open, bring
+/// back or delete; and a search through every conversation, archived or not.
+private struct ConversationsSettingsView: View {
+    var openSession: (String) -> Void
+    @State private var query = ""
+    private var store: SessionStore { SessionStore.shared }
+
+    private var matches: [SavedSession] {
+        let words = query.trimmingCharacters(in: .whitespaces)
+        return store.ordered.filter { session in
+            [session.name, session.title, session.lastLine, session.client ?? ""].contains { $0.localizedCaseInsensitiveContains(words) }
+        }
+    }
+
+    var body: some View {
+        List {
+            if query.trimmingCharacters(in: .whitespaces).isEmpty {
+                let archived = store.archivedSessions
+                Section {
+                    ForEach(archived) { session in
+                        Button { openSession(session.id) } label: {
+                            ConversationTitle(session: session)
+                                .frame(maxWidth: .infinity, minHeight: 32, alignment: .leading)
+                                .contentShape(.rect)
+                        }
+                        .buttonStyle(.plain)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button("Delete", systemImage: "trash", role: .destructive) { store.delete(session.id) }
+                            Button("Unarchive", systemImage: "tray.and.arrow.up") { store.unarchive(session.id) }.tint(Tint.blue)
+                        }
+                        .contextMenu {
+                            Button("Unarchive", systemImage: "tray.and.arrow.up") { store.unarchive(session.id) }
+                            Button("Delete", systemImage: "trash", role: .destructive) { store.delete(session.id) }
+                        }
+                        .accessibilityIdentifier("archived.row")
+                    }
+                } header: {
+                    Text("Archived Conversations").textCase(nil)
+                }
+                if archived.isEmpty {
+                    ContentUnavailableView("No Archived Conversations", systemImage: "archivebox",
+                                           description: Text("Conversations you archive appear here."))
+                        .listRowBackground(Color.clear)
+                }
+            } else {
+                ForEach(matches) { session in
+                    Button { openSession(session.id) } label: {
+                        HStack(spacing: 12) {
+                            SessionAvatar(session: session, size: 36)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(verbatim: session.name).foregroundStyle(Color(.label))
+                                Text(verbatim: session.lastLine).font(.subheadline)
+                                    .foregroundStyle(Color(.secondaryLabel)).lineLimit(2)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
+                }
+                if matches.isEmpty {
+                    ContentUnavailableView.search(text: query)
+                }
+            }
+        }
+        .navigationTitle("Archived Conversations")
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $query, prompt: Text("Search"))
+    }
+}
+
+/// The first row of Settings: Qeno's face where the rows under it have their icon, and Qeno's name.
+private struct PokiNameRow: View {
+    var mood: PokiMood
+    @ScaledMetric(relativeTo: .body) private var face = 34.0
+    @AppStorage(QenoCharacter.storageKey) private var selectedRaw = QenoCharacter.white.rawValue
+
+    var body: some View {
+        HStack(spacing: 14) {
+            CharacterFace(character: QenoCharacter(rawValue: selectedRaw) ?? .white, size: face)
+            .frame(width: face, height: face)
+            .background(mood == .paused ? Tint.night : Tint.portrait, in: .circle)
+            .clipShape(.circle)
+            .overlay(Circle().strokeBorder(Tint.ring, lineWidth: 1))
+            // As the rows' icons: the face does not make the row taller.
+            .padding(.vertical, -4)
+            .accessibilityHidden(true)
+            Text(verbatim: "Qeno").font(.body.weight(.semibold)).foregroundStyle(Color(.label))
+                .accessibilityAddTraits(.isHeader)
+            Spacer(minLength: 8)
+        }
+        .padding(.vertical, 6)
+        .animation(.easeInOut(duration: 0.3), value: mood)
+    }
+}
+
+/// A plain button that dims while pressed, for tiles that draw their own surface.
+struct PressedDimStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.6 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+// MARK: Connection
+
+/// Connection: whether Qeno may act on this iPhone and each thing the phone needs for it (the setup
+/// items, each opening its own page), with the guide that walks through them and the first run.
+struct ConnectionView: View {
+    @Environment(AppModel.self) private var model
+    @Environment(ChatModel.self) private var chat
+    @State private var guiding = false
+
+    private var on: Bool { model.sessionOn && !model.ownerPaused }
+
+    var body: some View {
+        List {
+            Section {
+                Toggle(isOn: Binding(get: { on }, set: set)) {
+                    SettingsRow(title: "Automation", symbol: "hand.tap")
+                }
+                .accessibilityIdentifier("hands.on")
+            } footer: {
+                // Paused is not a lock: an agent's request, or a task you send, starts Qeno again.
+                Text(on ? "Qeno can tap, type, and scroll on this iPhone."
+                     : model.sessionOn ? "Qeno is paused. It resumes automatically upon a new task or agent request."
+                     : "Qeno is off. Agents can’t reach this iPhone.")
+            }
+
+            Section {
+                ForEach(SetupStep.shown) { step in
+                    let done = model.isDone(step)
+                    NavigationLink(value: step) {
+                        SettingsRow(title: step.rowTitle, symbol: step.symbol, value: done ? nil : String(localized: "Turn On"),
+                                    warns: !done, accessory: done ? .done : nil)
+                    }
+                }
+                Button { guiding = true } label: {
+                    SettingsRow(title: model.setupComplete ? "Set Up Again" : "Continue Setup", symbol: "checklist")
+                }
+                .accessibilityIdentifier("moreSettings.setup")
+                FirstRunAgain(row: true)
+            } header: {
+                SettingsHeader("This iPhone")
+            } footer: {
+                Text("Qeno uses Apple’s developer tools on this iPhone. Keep all of these on.")
+            }
+        }
+        .navigationTitle("Connection")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear { model.loopback.resume() }
+        .sheet(isPresented: $guiding) {
+            SetupGuide(start: SetupStep.shown.first { !model.isDone($0) })
+        }
+    }
+
+    private func set(_ on: Bool) {
+        if !on {
+            chat.stop()
+            model.pauseByOwner()
+        } else if model.sessionOn {
+            model.wakeRunner()
+        } else {
+            model.startSession()
+        }
+    }
+}
+
+// MARK: Advanced
+
+/// Advanced, the one page of it: what only a few need, by the page it came from. Connection's automation
+/// banner or runner, Voice's bridge on a Mac, Memory's run log for the maintainers, and the tools under
+/// the hood (diagnostics, the log, testing options).
+struct AdvancedSettingsView: View {
+    @Environment(AppModel.self) private var model
+    @State private var runLog: URL?
+
+    var body: some View {
+        @Bindable var model = model
+        let voice = model.voice
+        List {
+            if model.automationPath == .inProcess {
+                Section {
+                    Toggle(isOn: $model.closeSessionWhenIdle) { SettingsRow(title: "Hide Banner When Idle", symbol: "rectangle.on.rectangle.slash") }
+                } header: {
+                    SettingsHeader("Connection")
+                } footer: {
+                    Text("Ends the automation session, and iOS’s banner with it, when the agent stops. Being tested. If the agent can’t see the screen after this, turn it off and open Qeno again.")
+                }
+            }
+            // Main's Runner section. The in-process path has no Qeno Runner to start or stop (ESP-152).
+            if model.automationPath == .runner {
+                Section {
+                    LabeledContent("Runner", value: Health.runner(model).word)
+                    Picker("Stop When Idle For", selection: $model.idleStopSeconds) {
+                        ForEach(SettingsHome.idleChoices, id: \.0) { Text($0.1).tag($0.0) }
+                    }
+                    if model.runnerPaused {
+                        Button("Start Now") { model.wakeRunner() }
+                    } else {
+                        Button("Stop Runner", role: .destructive) { model.pauseRunner() }.disabled(!model.approvals.isEmpty)
+                    }
+                } header: {
+                    SettingsHeader("Connection")
+                } footer: {
+                    Text("iOS shows the automation banner only while the runner is active. Qeno starts it when needed and stops it when idle. Don’t close Qeno Runner while an agent is working.")
+                }
+            }
+
+            // Shown as Voice's own Advanced was: with a bridge set, an answer timed, or no OpenAI key.
+            if voice.lastTurnMS != nil || voice.bridge != nil || VoiceDirect.apiKey == nil {
+                Section {
+                    VoiceAdvancedRows()
+                } header: {
+                    SettingsHeader("Voice")
+                }
+            }
+
+            Section {
+                if let runLog {
+                    ShareLink(item: runLog) { SettingsRow(title: "Share Run Log for Maintainers", symbol: "square.and.arrow.up") }
+                }
+            } header: {
+                SettingsHeader("Memory")
+            } footer: {
+                Text("The run log lists each routine run, where it stopped and how long it took, with no typed text. It helps the Qeno maintainers make routines more reliable.")
+            }
+
+            Section {
+                NavigationLink(value: SettingsRoute.diagnostics) {
+                    SettingsRow(title: "Diagnostics", symbol: "stethoscope")
+                }
+                .accessibilityIdentifier("moreSettings.diagnostics")
+
+                NavigationLink(value: SettingsRoute.log) {
+                    SettingsRow(title: "Log", symbol: "doc.text")
+                }
+                .accessibilityIdentifier("moreSettings.log")
+
+                NavigationLink { TestingOptionsView().settingsPage() } label: {
+                    SettingsRow(title: "Testing Options", symbol: "testtube.2")
+                }
+                .accessibilityIdentifier("moreSettings.testingOptions")
+            } header: {
+                SettingsHeader("Debugging")
+            }
+        }
+        .navigationTitle("Advanced")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            // The run log is written to tmp for the share sheet, as Memory did it.
+            let file = FileManager.default.temporaryDirectory.appendingPathComponent("poki-agent-debug.json")
+            if (try? RoutineStore.shared.debugBundle().write(to: file, options: .atomic)) != nil { runLog = file }
+        }
+    }
+}
+
+// MARK: Appearance
+
+/// The app's light or dark look, or the iPhone's own (`PokiApp` applies it to every window).
+enum Appearance: String, CaseIterable, Identifiable {
+    case automatic = "", light, dark
+    static let key = "appearance"
+
+    var id: String { rawValue }
+    var title: LocalizedStringResource {
+        switch self {
+        case .automatic: "Automatic"
+        case .light: "Light"
+        case .dark: "Dark"
+        }
+    }
+    var style: UIUserInterfaceStyle {
+        switch self {
+        case .automatic: .unspecified
+        case .light: .light
+        case .dark: .dark
+        }
+    }
+}
+
+/// Settings › Appearance: Automatic, Light or Dark.
+struct AppearanceView: View {
+    @AppStorage(Appearance.key) private var choice = Appearance.automatic.rawValue
+
+    var body: some View {
+        List {
+            Section {
+                ForEach(Appearance.allCases) { option in
+                    Button { choice = option.rawValue } label: {
+                        HStack {
+                            Text(option.title).foregroundStyle(Color(.label))
+                            Spacer()
+                            if option.rawValue == choice {
+                                Image(systemName: "checkmark").font(.body.weight(.semibold)).foregroundStyle(Tint.blueText)
+                            }
+                        }
+                        .contentShape(.rect)
+                    }
+                    .accessibilityAddTraits(option.rawValue == choice ? .isSelected : [])
+                    .accessibilityIdentifier("appearance.\(option == .automatic ? "automatic" : option.rawValue)")
+                }
+            } footer: {
+                Text("Automatic follows the iPhone’s appearance setting.")
+            }
+        }
+        .navigationTitle("Appearance")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+/// Approvals (ESP-469 board "03 审批"): what always needs you, how Qeno asks before a sensitive step, and
+/// how much your chat model may approve by itself. The way of asking is chosen on Qeno's card only (the
+/// owner: one setting in one place); this page says which is in use and what it does. The sensitivity's
+/// four levels are segments in their own order, least asking first.
+struct ApprovalsSettingsView: View {
+    @Environment(AppModel.self) private var model
+    /// The way of asking says itself in one line; Learn More opens the whole of it.
+    @State private var more = false
+
+    var body: some View {
+        @Bindable var model = model
+        List {
+            Section {
+                HStack(alignment: .firstTextBaseline, spacing: 10) {
+                    Image(systemName: "lock.fill").foregroundStyle(Tint.amberInk).accessibilityHidden(true)
+                    Text("Payments, deletions and actions in Wallet always need your confirmation.")
+                        .font(.subheadline.weight(.medium)).foregroundStyle(Tint.amberInk)
+                }
+                .padding(.vertical, 4)
+                .listRowBackground(Tint.amberSoft)
+            }
+
+            Section {
+                LabeledContent("Approval Method", value: model.approvalMode.title)
+                    .accessibilityIdentifier("approvals.mode.current")
+            } footer: {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Change it on Qeno’s card: tap Qeno’s picture at the top of the chat.")
+                    switch model.approvalMode {
+                    case .reply: Text("Qeno asks in the chat and proceeds after you reply.")
+                    case .confirm: Text("Tap Allow or Don’t Allow in the Live Activity, a notification, or Qeno.")
+                    case .off: Text("Optional steps run automatically without asking.")
+                    }
+                    if more {
+                        switch model.approvalMode {
+                        case .reply: Text("With Message Reply, Qeno asks you in the chat and your yes lets the step through. Away from Qeno you can answer from the notification. Outside agents have no chat, so their steps ask with Allow and Don’t Allow.")
+                        case .confirm: Text("With Confirmation, you tap Allow or Don’t Allow on the Live Activity, in a notification, or here in Qeno.")
+                        case .off: Text("Optional steps continue without asking. Payments, deletions and actions in Wallet still need your confirmation.")
+                        }
+                        Text("Sensitive steps are paying, deleting, sending a message, placing a call, typing a password and anything in Wallet.")
+                        Text("Changes apply right away, starting from Qeno’s next step.")
+                    } else {
+                        Button("Learn More") { withAnimation(.snappy) { more = true } }
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(Tint.blueText)
+                            .buttonStyle(.borderless)
+                            .padding(.top, 2)
+                            .accessibilityIdentifier("approvals.learnMore")
+                    }
+                }
+            }
+            .accessibilityIdentifier("approvals.mode")
+
+            if model.approvalMode != .off {
+                Section {
+                    Picker("Sensitivity", selection: $model.classifierLevel) {
+                        ForEach(ApprovalClassifier.Level.allCases) { Text($0.title).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                    .accessibilityIdentifier("approvals.sensitivity")
+                } header: {
+                    Text("Sensitivity").textCase(nil)
+                } footer: {
+                    switch model.classifierLevel {
+                    case .permissive: Text("Permissive. Your chat model approves a step in Qeno’s own chat unless it clearly has nothing to do with what you asked, or you said no.")
+                    case .balanced: Text("Balanced. Your chat model approves a step in Qeno’s own chat when it directly serves what you asked for. You are asked about the rest.")
+                    case .strict: Text("Strict. Your chat model approves a step in Qeno’s own chat only when you asked for that exact action. You are asked about the rest.")
+                    case .everything: Text("Ask All. Nothing is approved automatically. Each request needs your answer.")
+                    }
+                }
+            }
+        }
+        .navigationTitle("Approvals")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+/// Agents: the MCP relay outside agents come through (its switch and address), then the agents that control
+/// this iPhone through Qeno (list, add, revoke, each one's QR code and address).
+struct AgentsAndRelayView: View {
+    @Environment(AppModel.self) private var model
+    @Binding var path: NavigationPath
+
+    private var relayLine: String {
+        if model.relayAddress == nil { return String(localized: "Set an address first") }
+        if !model.relayEnabled { return String(localized: "Off, agents can’t reach this iPhone") }
+        if !model.sessionOn { return String(localized: "Waiting for Qeno, turn Qeno on and agents can connect") }
+        return Health.relay(model).word
+    }
+
+    var body: some View {
+        @Bindable var model = model
+        List {
+            Section {
+                Toggle(isOn: Binding(get: { model.relayEnabled && model.relayAddress != nil }, set: { model.setRelayEnabled($0) })) {
+                    SettingsLabel {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("MCP Relay")
+                            Text(relayLine)
+                                .font(.footnote.weight(.regular)).foregroundStyle(Color(.secondaryLabel))
+                        }
+                    } icon: {
+                        Image(systemName: "antenna.radiowaves.left.and.right")
+                    }
+                }
+                .disabled(model.relayAddress == nil || !model.sessionOn)
+
+                NavigationLink(value: SettingsRoute.relay) {
+                    LabeledContent {
+                        Text(model.relayAddress.map { $0.origin.host() ?? $0.origin.absoluteString } ?? String(localized: "Not Set"))
+                            .foregroundStyle(model.relayAddress == nil ? Color.orange : Color.secondary)
+                    } label: {
+                        SettingsLabel("Address", systemImage: "network")
+                    }
+                }
+            } header: {
+                SettingsHeader("MCP Relay")
+            } footer: {
+                Text("The relay forwards agents’ requests to this iPhone while Qeno is open or in the background. It stores nothing.")
+            }
+
+            Section {
+                ForEach(model.identity.secrets) { secret in
+                    let last = SessionStore.shared.sessions(for: secret, among: model.identity.secrets).first
+                    NavigationLink(value: SettingsRoute.connector(secret)) {
+                        LabeledContent {
+                            Text(last.map { ChatTime.row($0.updated) } ?? String(localized: "Not Used Yet"))
+                        } label: {
+                            // An agent's own badge is its picture; only the generic symbol takes the round ground.
+                            if let client = secret.agent ?? last?.client {
+                                HStack(spacing: 12) {
+                                    AgentBadge(name: client, size: 30)
+                                    Text(verbatim: secret.name)
+                                }
+                            } else {
+                                SettingsLabel { Text(verbatim: secret.name) } icon: { Image(systemName: "point.3.connected.trianglepath.dotted") }
+                            }
+                        }
+                    }
+                    .swipeActions { Button("Revoke", role: .destructive) { model.revoke(secret) } }
+                    // 752's Agents and Relay had it too: a long press revokes.
+                    .contextMenu { Button("Revoke Access", systemImage: "xmark.circle", role: .destructive) { model.revoke(secret) } }
+                }
+                Button(action: add) {
+                    SettingsLabel { Text("Add Agent") } icon: { Image(systemName: "plus") }
+                }
+                .disabled(model.relayAddress == nil)
+            } header: {
+                SettingsHeader("Agents")
+            } footer: {
+                Text(model.relayAddress == nil
+                     ? "Set your relay first. Each agent gets its own MCP address on it."
+                     : "Each agent gets its own MCP address. Add it as a remote MCP server in Claude, Codex or any MCP client. It takes the agent’s name and icon when the agent first connects, unless you renamed it. Swipe to revoke.")
+            }
+        }
+        .navigationTitle("Agents")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func add() {
+        guard model.relayAddress != nil else { return }
+        let secret = model.addConnector(name: "")
+        path.append(SettingsRoute.connector(secret))
+    }
+}
+
+extension SetupStep {
+    /// Short row title on Connection's list of what this iPhone needs.
+    var rowTitle: LocalizedStringKey {
+        switch self {
+        case .developerMode: "Developer Mode"
+        case .loopback: "Local Connection"
+        case .pairing: "Pair This iPhone"
+        case .automation: "UI Automation"
+        case .background: "Stay On in Background"
+        case .runner: "Qeno Runner"
+        }
+    }
+}
 
 // MARK: Rows
 
@@ -115,8 +744,10 @@ struct GroupCard: ViewModifier {
 extension View {
     func groupCard() -> some View { modifier(GroupCard()) }
     /// The 0.5 pt separator under a row, from the leading edge of the text.
-    func rowDivider(_ show: Bool = true) -> some View {
-        overlay(alignment: .bottom) { if show { ChatColor.separator.frame(height: 0.5) } }
+    func rowDivider(_ show: Bool = true, leading: CGFloat = 16) -> some View {
+        overlay(alignment: .bottom) {
+            if show { ChatColor.separator.frame(height: 0.5).padding(.leading, leading) }
+        }
     }
 }
 
@@ -140,94 +771,38 @@ struct Chevron: View {
     var body: some View { Text(verbatim: "›").font(.system(size: 17, weight: .semibold)).foregroundStyle(Color(.tertiaryLabel)) }
 }
 
-private struct ChevronRow: View {
-    var title: LocalizedStringKey
-    var divider = true
-    var action: () -> Void
-    var body: some View {
-        Button(action: action) {
-            HStack {
-                Text(title).font(.system(size: 17)).foregroundStyle(Color(.label))
-                Spacer()
-                Chevron()
-            }
-            .padding(.vertical, 11).padding(.horizontal, 16).frame(minHeight: 44).contentShape(.rect)
-        }
-        .buttonStyle(.plain)
-        .rowDivider(divider)
-    }
-}
-
-private struct ValueRow: View {
-    var title: LocalizedStringKey
-    var health: Health
-    var divider = true
-    var body: some View {
-        HStack {
-            Text(title).font(.system(size: 17)).foregroundStyle(Color(.label))
-            Spacer()
-            HStack(spacing: 4) {
-                Text(verbatim: "●").foregroundStyle(Self.dot(health.color))
-                Text(health.word)
-            }
-            .font(.system(size: 17)).foregroundStyle(ChatColor.secondary)
-        }
-        .padding(.vertical, 11).padding(.horizontal, 16).frame(minHeight: 44)
-        .rowDivider(divider)
-        .accessibilityElement(children: .combine)
-    }
-
-    /// Health's dots are drawn for the blue page; on white, green is iOS green, red iOS red, and the
-    /// white and faded ones grey (#C7C7CC on the board).
-    static func dot(_ color: Color) -> Color {
-        if color == Site.ok { return ChatColor.green }
-        if color == Site.bad { return Color(.systemRed) }
-        return Color(.systemGray3)
-    }
-}
-
-private struct HealthRow: View {
-    var title: LocalizedStringKey
-    var health: Health
-    var body: some View {
-        LabeledContent(title) {
-            Label { Text(health.word) } icon: { Image(systemName: "circle.fill").font(.system(size: 9)).foregroundStyle(ValueRow.dot(health.color)) }
-        }
-    }
-}
-
-private struct IssueRow: View {
+private struct DetailsIssueRow: View {
     @Environment(AppModel.self) private var model
     var issue: Issue
     var openSetup: () -> Void
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Label(issue.title, systemImage: "exclamationmark.triangle.fill").font(.subheadline.weight(.semibold))
+            Label(issue.title, systemImage: "exclamationmark.triangle.fill")
+                .font(.subheadline.weight(.semibold))
                 .symbolRenderingMode(.multicolor)
-            Text(issue.text).font(.subheadline).foregroundStyle(Color(.secondaryLabel))
+            Text(issue.text)
+                .font(.subheadline)
+                .foregroundStyle(Color(.secondaryLabel))
             if let button = issue.button {
-                Button(button) { issue.act(model, openSetup: openSetup) }.font(.subheadline.weight(.semibold)).buttonStyle(.borderless)
+                Button(button) { issue.act(model, openSetup: openSetup) }
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Site.blue)
+                    .buttonStyle(.borderless)
             }
         }
-        .padding(.vertical, 2)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
-private struct ActionTile: View {
-    var title: LocalizedStringKey
-    var symbol: String
-    var action: () -> Void
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
-                Image(systemName: symbol).font(.system(size: 18, weight: .medium)).frame(width: 22, height: 22)
-                Text(title).font(.system(size: 12))
-            }
-            .foregroundStyle(Site.blue)
-            .frame(maxWidth: .infinity).padding(.vertical, 10)
-            .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 12, style: .continuous))
-        }
-        .buttonStyle(.plain)
+/// The first tile on Qeno's details: main's Pause and Resume pair, and Turn On while Qeno is off.
+/// Standing by (right after Turn On, or after the idle minute) is Resume, as on main.
+enum PowerTile: Equatable {
+    case pause, resume, turnOn
+
+    @MainActor init(model: AppModel, running: Bool) {
+        if model.sessionOn && !model.runnerPaused || running { self = .pause }
+        else if model.sessionOn { self = .resume }
+        else { self = .turnOn }
     }
 }
 
@@ -245,13 +820,13 @@ struct ProviderTile: View {
         }
         .foregroundStyle(.white)
         .frame(width: size, height: size)
-        .background(Color(hex: provider.tile), in: .rect(cornerRadius: size * 0.225, style: .continuous))
+        .background(Color(hex: provider.tile), in: .circle)
         .accessibilityHidden(true)
     }
 }
 
 extension ModelProvider {
-    /// The provider's own logo in the asset catalog (Poki/ProviderIcons).
+    /// The provider's own logo in the asset catalog (Qeno/ProviderIcons).
     var logo: String? {
         switch self {
         case .anthropic: "Provider-anthropic"
@@ -259,7 +834,6 @@ extension ModelProvider {
         case .gemini: "Provider-googlegemini"
         case .deepseek: "Provider-deepseek"
         case .openrouter: "Provider-openrouter"
-        case .opencodeGo: nil // Neutral server icon; do not borrow another provider's trademark.
         case .custom: nil
         }
     }

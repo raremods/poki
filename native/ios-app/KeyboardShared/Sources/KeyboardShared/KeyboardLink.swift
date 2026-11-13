@@ -1,11 +1,11 @@
 import Foundation
 
-/// How Poki and its keyboard talk: small files in their App Group, and a Darwin notification that
+/// How Qeno and its keyboard talk: small files in their App Group, and a Darwin notification that
 /// says "look now".
 ///
 /// No lock is ever held (iOS ends a process that is suspended holding a file lock in a shared
 /// container), and neither side waits for the other on its main thread. A typing request is one
-/// file that exactly one side takes, by renaming it: the keyboard to accept it, or Poki to withdraw
+/// file that exactly one side takes, by renaming it: the keyboard to accept it, or Qeno to withdraw
 /// it. A rename is atomic, so a request the app gave up on can never be typed later, and a request
 /// the keyboard took is never typed a second time by another method. The keyboard alone writes
 /// `status.json`, replaced whole each time.
@@ -44,7 +44,7 @@ enum KeyboardLink {
         var note: String?
     }
 
-    /// Poki asks the keyboard to leave (the task is over); taken like a request.
+    /// Qeno asks the keyboard to leave (the task is over); taken like a request.
     struct Release: Codable, Equatable {
         var expires: Date
     }
@@ -83,7 +83,7 @@ enum KeyboardLink {
             let temporary = directory.appendingPathComponent(".\(name).\(UUID().uuidString)")
             try data.write(to: temporary)
             #if canImport(Darwin)
-            // Readable while the phone is locked after its first unlock: Poki works in the background.
+            // Readable while the phone is locked after its first unlock: Qeno works in the background.
             try? FileManager.default.setAttributes([.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication], ofItemAtPath: temporary.path)
             #endif
             guard rename(temporary.path, directory.appendingPathComponent(name).path) == 0 else {
