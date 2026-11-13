@@ -74,10 +74,13 @@ struct PokiKeyboardPage: View {
 
 /// Setup › Advanced › Typing: how text is entered, and the keyboard's switches.
 struct TypingSettingsSection: View {
-    @AppStorage(NativeServicesWDA.typingMethodKey) private var method = "keyboard"
+    // The stored typing keys. Upstream 0.4.1 deleted NativeServicesWDA, which used to own these
+    // constants; the string values are kept verbatim so existing users keep their typing method
+    // and Pinyin choice.
+    @AppStorage("poki.typing.method") private var method = "keyboard"
     @AppStorage(PokiKeyboardTyping.autoSwitchKey) private var autoSwitch = true
     @AppStorage(PokiKeyboardTyping.switchBackKey) private var switchBack = true
-    @AppStorage(NativeServicesWDA.systemPinyinKey) private var systemPinyin = false
+    @AppStorage("poki.typing.systemPinyin") private var systemPinyin = false
     @AppStorage("poki.experimental.userRoutines") private var userRoutines = false
     @State private var showLearning = false
 

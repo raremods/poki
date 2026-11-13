@@ -4,6 +4,7 @@
 #ifndef POKI_LAUNCHER_H
 #define POKI_LAUNCHER_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -12,7 +13,6 @@ extern "C" {
 
 typedef struct PokiLauncher PokiLauncher;
 typedef struct PokiPairing PokiPairing;
-typedef struct PokiNativeClient PokiNativeClient;
 typedef void (*poki_event_cb)(void *context, const char *event_json);
 
 // config_json: {"device_address": "10.7.0.1", "pairing_file": "...", "host_name": "Qeno",
@@ -27,6 +27,12 @@ void poki_launcher_stop(PokiLauncher *launcher);
 char *poki_launcher_status(PokiLauncher *launcher);
 void poki_launcher_free(PokiLauncher *launcher);
 void poki_string_free(char *text);
+// The phone's remote pairing port, as found in Bonjour (_remotepairing._tcp): iOS moves the service
+// off 49152 when it starts it again. Every later connection goes there. 0 means 49152.
+void poki_set_remote_pairing_port(uint16_t port);
+// true while the app looks for a moved remote pairing port in Bonjour: only then is a refused
+// connection reported as a moved port (code "pairing_port"). false: handled as before.
+void poki_set_pairing_port_search(bool searching);
 
 // config_json: {"host_name": "Qeno", "out_path": "...", "identity_path": "..."}
 // Events: {"event": "advertise", "service_type": "_remotepairing-pairable-host._tcp", "instance": "...",
@@ -34,12 +40,6 @@ void poki_string_free(char *text);
 //   {"event": "paired", "path": "..."}, {"event": "failed", "detail": "..."}
 PokiPairing *poki_pair_start(const char *config_json, poki_event_cb cb, void *context);
 void poki_pair_cancel(PokiPairing *pairing);
-
-// Experimental banner-free device services. One client keeps its paired tunnel and HID media
-// session warm. Calls run in order and each callback receives one JSON result.
-PokiNativeClient *poki_native_client_new(const char *config_json);
-int32_t poki_native_client_call(PokiNativeClient *client, const char *request_json, poki_event_cb cb, void *context);
-void poki_native_client_free(PokiNativeClient *client);
 
 // Qeno keeps its own signing (native/launcher/src/signer.rs, Qeno Setup's core). The vault is the
 // app's Keychain: get returns a malloc'd base64 string (freed by the library) or NULL; set and

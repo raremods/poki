@@ -50,8 +50,6 @@ public struct RoutineStep: Codable, Equatable, Sendable {
     public var app: String?
     /// A type into a password field: the text was not kept, so a run stops here for the agent.
     public var secret: Bool?
-    /// An observed user correction/checkpoint; never replayed unattended.
-    public var userDemonstrated: Bool? = nil
 }
 
 public struct RoutineStop: Codable, Equatable, Sendable {
@@ -138,7 +136,7 @@ public final class RoutineStore: @unchecked Sendable {
         if let backupDirectory { lastBackupHash = try? String(contentsOf: backupDirectory.appendingPathComponent(".last-written"), encoding: .utf8) }
     }
 
-    /// The shared memory of the app (Application Support/Poki/agent-memory.json, and its backup copy
+    /// The shared memory of the app (Application Support/Qeno/agent-memory.json, and its backup copy
     /// in Documents/AgentBackup). The app may replace it before PokiCore starts.
     public static var shared: RoutineStore = {
         let fm = FileManager.default
@@ -459,9 +457,6 @@ extension Computer {
 
     /// The task's recorded steps as a routine (nil and why, when they cannot make one).
     func routine(named name: String, description: String, read: [String], expect: [String]?, by: String) -> (Routine?, String) {
-        if traceHasUserGap && !config.userRoutineLearning() {
-            return (nil, "This task includes a user intervention. User-assisted routine creation is disabled; save an evidence-backed note instead.")
-        }
         let recorded = trace
         guard !recorded.isEmpty else { return (nil, "nothing was recorded in this task yet: a routine is made of the do actions sent since the task began (the first look or do after a finish)") }
         var params: [String: String] = [:]
@@ -476,6 +471,7 @@ extension Computer {
             }
             steps.append(s)
         }
+        steps = Self.withoutRefocusTaps(steps)
         // The end check: what the last screen shows that was not there before the last step (its
         // headings and texts, three at most), else what the step went to.
         var checks = expect ?? []
@@ -498,6 +494,21 @@ extension Computer {
         if steps.contains(where: { $0.secret == true }) { notes.append("a password typed in it was not kept: a run stops there for you to type it") }
         if routine.expect.isEmpty { notes.append("no end check could be chosen from the last screen; give expect: [\"text\"] to add one") }
         return (routine, notes.joined(separator: "; "))
+    }
+
+    /// The steps without a tap on a text field that comes right after typing into it and right before
+    /// Return: the field still has the focus there, so the tap does nothing a run needs, and a run would
+    /// repeat it every time (ESP-465: the model tapped the message field before Send in 3 of 6 sends).
+    static func withoutRefocusTaps(_ steps: [RoutineStep]) -> [RoutineStep] {
+        steps.indices.compactMap { i in
+            let step = steps[i]
+            guard step.action["tap"] != nil, let target = step.target, fieldTypes.contains(target.type),
+                  i > 0, steps[i - 1].action["type"] != nil, i + 1 < steps.count, isReturn(steps[i + 1].action) else { return step }
+            // The field typed into: the type's own target, else the tap that came before the type.
+            let typedInto = steps[i - 1].target ?? (i > 1 && steps[i - 2].action["tap"] != nil ? steps[i - 2].target : nil)
+            if let typedInto, typedInto.type != target.type || typedInto.label != target.label || typedInto.identifier != target.identifier { return step }
+            return nil
+        }
     }
 
     /// `{run: "name"}` or `{run: {name, with: {text_1: "…"}}}`: the routine's steps in order, each when
@@ -532,7 +543,7 @@ extension Computer {
         // The app the next step lands in: a launch is not read until a later step reads the screen.
         var front = lastForeground
         // Another app in front: the routine's app is launched first.
-        if let app = routine.app, lastForeground?.bundleID != app, routine.steps.first?.action["launch"] == nil, !config.isPoki(Foreground(bundleID: app, name: nil)) {
+        if let app = routine.app, lastForeground?.bundleID != app, routine.steps.first?.action["launch"] == nil, !config.isQeno(Foreground(bundleID: app, name: nil)) {
             do {
                 _ = try await perform(["launch": .string(app)], until: until)
                 log.append("launched \(app)")
@@ -542,15 +553,6 @@ extension Computer {
 
         var previous: String?
         for (index, step) in routine.steps.enumerated() {
-            if step.userDemonstrated == true {
-                let h = Handoff(id: UUID().uuidString, kind: "other",
-                    text: "This routine includes a user-demonstrated correction or navigation. Complete this step yourself, then tap Done. Poki will read the result before continuing.",
-                    requested: Date(), ownerOnly: true)
-                handoff.value = h
-                beginUserIntervention(h)
-                emit(.handoffRequested(id: h.id, kind: h.kind, text: h.text, app: lastForeground?.describe))
-                throw stop(index, "user-demonstrated checkpoint: waiting for the owner; this step was not replayed")
-            }
             if step.secret == true { throw stop(index, "it types into a password field, which a routine never keeps: type it yourself") }
             var action = step.action
             // The text with its parameters filled in.
@@ -609,9 +611,9 @@ extension Computer {
                 action = Self.replacingTarget(action, with: Self.runRef)
                 front = lastForeground
                 scan = SensitiveScan(front: lastForeground, secureOnScreen: lastAll.contains(where: \.isSecure))
-            } else if config.sensitive.enabled, ["tap", "long_press", "type", "key", "drag"].contains(where: { action[$0] != nil }) {
-                // A step recorded without an element (a point, a key) is judged on the screen read now;
-                // unread, it is a screen not read yet.
+            } else if config.sensitive.enabled, ActionKind(action)?.movesScreen == true {
+                // A step recorded without an element (a point, a key, a swipe) is judged on the screen read
+                // now; unread, it is a screen not read yet.
                 scan = SensitiveScan(front: front, read: false, secureOnScreen: false)
                 if let tree = try? await runner.tree(timeout: min(config.readTimeout, max(0.3, until - now() - 0.1)), format: config.treeFormat) {
                     lastAll = tree.elements
@@ -631,10 +633,6 @@ extension Computer {
             catch let failure as ActionFailure {
                 refs[Self.runRef] = nil
                 throw stop(index, failure.message, failure.delivery)
-            } catch let takeover as RunnerError where takeover.code == Runner.takeoverCode {
-                refs[Self.runRef] = nil
-                _ = stop(index, "the owner took over", .unknown)
-                throw takeover
             } catch {
                 refs[Self.runRef] = nil
                 throw stop(index, "\(error)", .unknown)
@@ -701,9 +699,7 @@ extension Computer {
 
     /// A new task: its recording starts empty.
     func beginRecording() {
-        guard !handoffWaiting, intervention == nil else { return }
         trace = []
-        traceHasUserGap = false
         routineRanWhole = false
     }
 

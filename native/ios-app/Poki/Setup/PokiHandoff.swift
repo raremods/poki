@@ -1,14 +1,14 @@
 import CryptoKit
 import Foundation
 
-/// What Poki and the installer on the Mac (`bin/install-iphone.mjs`) tell each other through Poki's
-/// container, Documents/PokiSetup/, which Poki Setup or Xcode's devicectl reach over USB:
-/// - `poki-hello.json` (`poki.hello/1`), written by Poki whenever it runs: its version (a new one is
-///   the installer's sign that Poki is open), the public half of a key this phone made for a model
+/// What Qeno and the installer on the Mac (`bin/install-iphone.mjs`) tell each other through Qeno's
+/// container, Documents/PokiSetup/, which Qeno Setup or Xcode's devicectl reach over USB:
+/// - `poki-hello.json` (`poki.hello/1`), written by Qeno whenever it runs: its version (a new one is
+///   the installer's sign that Qeno is open), the public half of a key this phone made for a model
 ///   key, the key it last took, and whether the local connection answers, with one sentence for the
 ///   person when it does not. Nothing in it is secret.
 /// - `model-key.json` (`poki.model-key/1`), written by the installer: a model key sealed to that public
-///   key (`ModelKeySeal`). Poki takes it once, deletes it and makes a new key pair.
+///   key (`ModelKeySeal`). Qeno takes it once, deletes it and makes a new key pair.
 enum PokiHandoff {
     static var folder: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("PokiSetup", isDirectory: true)
@@ -58,13 +58,13 @@ enum PokiHandoff {
         let id = ModelKeySeal.keyID(key.publicKey)
         do {
             let opened = try ModelKeySeal.open(data, publicKey: key.publicKey, bundleID: bundleID, agree: key.agree)
-            guard let provider = ModelProvider(rawValue: opened.provider), provider.wired, !provider.signsIn else { return "a sealed key for \(opened.provider), which Poki cannot use, was dropped" }
+            guard let provider = ModelProvider(rawValue: opened.provider), provider.wired, !provider.signsIn else { return "a sealed key for \(opened.provider), which Qeno cannot use, was dropped" }
             try ModelKeys.save(opened.secret, for: provider)
             ModelKeys.selectedProvider = provider
             Keychain.delete(keyAccount)
             let imported = Imported(key_id: id, provider: provider.rawValue, at: ISO8601DateFormatter().string(from: Date()))
             UserDefaults.standard.set(try? JSONEncoder().encode(imported), forKey: importedKey)
-            return "took the \(provider.rawValue) key Poki Setup sealed to this phone"
+            return "took the \(provider.rawValue) key Qeno Setup sealed to this phone"
         } catch {
             return "a sealed model key did not open (\(error)); it was dropped"
         }
@@ -86,6 +86,9 @@ enum PokiHandoff {
         var hello: [String: Any] = ["schema": "poki.hello/1", "model_key": offer, "loopback": loopback]
         hello["version"] = info?["CFBundleShortVersionString"] as? String ?? "?"
         hello["build"] = info?["CFBundleVersion"] as? String ?? "?"
+        if let update = PokiUpdateInfo.read(app: .main, channelFile: AppFiles.support.appendingPathComponent("signer/state/channel.json"), requestFile: folder.appendingPathComponent("update-request.json")) {
+            hello["update"] = update
+        }
         if let imported, let data = try? JSONEncoder().encode(imported), let object = try? JSONSerialization.jsonObject(with: data) { hello["imported"] = object }
         guard let content = try? JSONSerialization.data(withJSONObject: hello, options: [.sortedKeys]), content != lastWritten else { return }
         hello["at"] = ISO8601DateFormatter().string(from: Date())

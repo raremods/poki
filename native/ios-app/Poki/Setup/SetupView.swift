@@ -51,10 +51,11 @@ struct SetupView: View {
         .onChange(of: checkedByPhone) { was, now in
             if !was, now, step != .loopback { advanceSoon() }
         }
-        // The loopback moves on when it comes on while this page is open, and when the first check after
-        // opening finds it already on (a proxy app set up before Qeno: the page opened on `checking`).
-        .onChange(of: model.loopback.state) { was, now in
-            if step == .loopback, !was.isWorking, model.loopback.isWorking { advanceSoon() }
+        // The loopback moves on when it comes on while this page is open, when the first check after
+        // opening finds it already on (a proxy app set up before Qeno: the page opened on `checking`),
+        // and when Qeno's own session opens without it (ESP-448).
+        .onChange(of: model.isDone(.loopback)) { was, now in
+            if step == .loopback, !was, now { advanceSoon() }
         }
         .onAppear { model.loopback.resume(); reconnectBuiltIn() }
         .onChange(of: step) { _, now in if now == .loopback { reconnectBuiltIn() } }
@@ -176,15 +177,17 @@ extension SetupStep {
 /// Opens Settings with the step in the Live Activity.
 @MainActor func openSettings(_ model: AppModel, for step: SetupStep?) {
     if let step { model.guide(step) }
-    // openSettingsURLString opens Poki's permissions, not the system settings named by these
-    // steps. Open the Settings root instead; private pane URLs do not reliably reach their pane.
-    // Location and Live Activities still belong on Poki's own permissions page.
-    let destination: String
+    if let url = settingsURL(for: step) { UIApplication.shared.open(url) }
+}
+
+func settingsURL(for step: SetupStep?) -> URL? {
+    // 系统配置步骤打开设置首页；后台权限等步骤仍打开 Qeno 的 App 权限页。
     switch step {
-    case .runner?, .developerMode?, .pairing?, .automation?: destination = "App-prefs:"
-    default: destination = UIApplication.openSettingsURLString
+    case .runner?, .developerMode?, .pairing?, .automation?:
+        return URL(string: "App-prefs:")
+    default:
+        return URL(string: UIApplication.openSettingsURLString)
     }
-    if let url = URL(string: destination) { UIApplication.shared.open(url) }
 }
 
 private struct InstructionsCard: View {
@@ -289,19 +292,25 @@ private struct LoopbackPage: View {
 
     var body: some View {
         let monitor = model.loopback
+        let localReady = model.hasOpenInProcessSession && !monitor.isWorking
+        let detail = LocalizedStringKey(monitor.detail)
         Section {
             LabeledContent {
-                if monitor.state == .checking { ProgressView() }
+                if monitor.state == .checking && !localReady { ProgressView() }
             } label: {
                 Label {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(headline(monitor))
-                        Text(monitor.isWorking || monitor.state == .noAnswer ? LocalizedStringKey(monitor.detail) : "Checking 10.7.0.1 every few seconds…")
+                        Text(localReady ? "Local automation ready" : headline(monitor))
+                        Text(localReady && monitor.state != .checking ? "The network loopback is unavailable." : detail)
                             .font(.footnote).foregroundStyle(Color(.secondaryLabel))
                     }
                 } icon: {
-                    Image(systemName: monitor.isWorking ? "checkmark.circle.fill" : monitor.state == .noAnswer ? "exclamationmark.triangle.fill" : "circle.dashed")
-                        .foregroundStyle(monitor.isWorking ? Color.green : monitor.state == .noAnswer ? Color.orange : Color.secondary)
+                    if localReady {
+                        Image(systemName: "iphone").foregroundStyle(.secondary)
+                    } else {
+                        Image(systemName: monitor.isWorking ? "checkmark.circle.fill" : monitor.state == .noAnswer ? "exclamationmark.triangle.fill" : "circle.dashed")
+                            .foregroundStyle(monitor.isWorking ? Color.green : monitor.state == .noAnswer ? Color.orange : Color.secondary)
+                    }
                 }
             }
         } header: {
@@ -314,14 +323,15 @@ private struct LoopbackPage: View {
 
         // The external app is the way (ESP-168): every app's steps can be read at any time.
         Section {
+            // The free one first: a new person usually has no proxy app.
+            NavigationLink { LocalDevVPNPage() } label: { proxyLabel("LocalDevVPN", id: "localdevvpn", installed: false, sub: "Free on the App Store") }
             ForEach(ProxyApps.all) { app in
                 NavigationLink { ProxyAppPage(app: app) } label: { proxyLabel(app.name, id: app.id, installed: app.isInstalled) }
             }
-            NavigationLink { LocalDevVPNPage() } label: { proxyLabel("LocalDevVPN", id: "localdevvpn", installed: false, sub: "Free on the App Store") }
         } header: {
             Text("Use Your Proxy App")
         } footer: {
-            if let chosen = model.setup.proxyApp, !monitor.isWorking, model.setup.loopback == .proxy {
+            if let chosen = model.setup.proxyApp, !monitor.isWorking, !localReady, model.setup.loopback == .proxy {
                 let name = ProxyApps.all.first { $0.id == chosen }?.name ?? "LocalDevVPN"
                 Text("\(name) is chosen, but nothing answers at 10.7.0.1 right now. Open \(name), make sure it is connected with the loopback on, then come back; this page updates by itself.")
             }
@@ -395,7 +405,8 @@ private struct LoopbackPage: View {
         switch monitor.state {
         case .working: "Loopback Is On"
         case .noAnswer: "Tunnel On, No Answer"
-        default: "Not On Yet"
+        case .checking: "Checking…"
+        case .off: "Off"
         }
     }
 }
@@ -429,7 +440,7 @@ private struct ProxyAppPage: View {
                     Button("Open \(app.name)") { choose(); openApp() }
                 case .snippet(let line):
                     Text(verbatim: line).font(.system(.footnote, design: .monospaced)).textSelection(.enabled)
-                    Button(copied ? "Copied" : "Copy") {
+                    Button(copied ? "Copied" : "Copy", systemImage: copied ? "checkmark" : "doc.on.doc") {
                         choose(); UIPasteboard.general.string = line; copied = true
                     }
                     Button("Open \(app.name)") { openApp() }
@@ -477,7 +488,7 @@ private struct LoopbackStatusRow: View {
     var body: some View {
         let working = model.loopback.isWorking
         LabeledContent("Loopback") {
-            Text(working ? "Working" : model.loopback.state == .noAnswer ? "No Answer" : "Checking…")
+            Text(model.loopback.text)
                 .foregroundStyle(working ? Color.green : Color.secondary)
         }
         .onAppear { model.loopback.resume() }
@@ -538,7 +549,7 @@ private struct PairingPage: View {
                 Label("Tap **Pair with Qeno** and enter the code shown here and on the Lock Screen.", systemImage: "2.circle")
             }
             Section {
-                Button("Open Settings") { openSettings(model, for: .pairing) }
+                Button("Open Settings", systemImage: "gear") { openSettings(model, for: .pairing) }
                 Button("Cancel Pairing", role: .destructive) { model.cancelPairing() }
             }
         case .failed(let why)?:
@@ -586,11 +597,11 @@ private struct PairingPage: View {
         }
         Section {
             if PairingScanner.available {
-                Button("Scan Pairing Code") { scanning = true }
+                Button("Scan Pairing Code", systemImage: "qrcode.viewfinder") { scanning = true }
             }
-            Button("Import Pairing File") { importing = true }
+            Button("Import Pairing File", systemImage: "doc.badge.plus") { importing = true }
             if SetupStep.onDevicePairing && model.pairing == nil && model.pairingTrouble == nil && model.pairingPath != nil {
-                Button("Pair Again") { Self.pair(model) }
+                Button("Pair Again", systemImage: "arrow.triangle.2.circlepath") { Self.pair(model) }
             }
         } header: {
             Text("Other Ways")
@@ -634,12 +645,12 @@ private struct BackgroundPage: View {
                 Label("Location", systemImage: "location")
             }
             if model.background.denied {
-                Button("Open Settings") { openSettings(model, for: .background) }
+                Button("Open Settings", systemImage: "gear") { openSettings(model, for: .background) }
             } else if !model.background.allowed {
                 Button("Allow Location Access") { model.background.requestPermission() }
             } else if !model.background.always {
                 Button("Change to Always Allow") { model.background.requestPermission() }
-                Button("Open Settings") { openSettings(model, for: .background) }
+                Button("Open Settings", systemImage: "gear") { openSettings(model, for: .background) }
             }
         } footer: {
             Text(model.background.always ? "Qeno stays active in the background without the location indicator, and never records your location."
@@ -655,7 +666,7 @@ private struct BackgroundPage: View {
                 Label("Live Activities", systemImage: "platter.filled.bottom.iphone")
             }
             if !model.activitiesEnabled {
-                Button("Open Settings") { openSettings(model, for: .background) }
+                Button("Open Settings", systemImage: "gear") { openSettings(model, for: .background) }
             }
         } footer: {
             Text(model.activitiesEnabled ? "Qeno shows steps, pairing codes and approvals on the Lock Screen." : "Turn them on to see the agent’s steps and approve sensitive actions.")
@@ -680,7 +691,7 @@ struct SetupChecklist: View {
                 ForEach(SetupStep.shown) { step in
                     NavigationLink(value: step) { SetupStepRow(step: step) }
                 }
-                // Poki's own keyboard, which it types through on this path. It does not hold Poki
+                // Qeno's own keyboard, which it types through on this path. It does not hold Qeno
                 // back: without it, plain text is still typed with key presses.
                 if AutomationPath.current == .nativeServices {
                     NavigationLink { PokiKeyboardPage() } label: { PokiKeyboardSetupRow() }
@@ -690,7 +701,7 @@ struct SetupChecklist: View {
             }
             SigningSection()
             Section {
-                Button("Setup Guide") { guiding = true }
+                Button { guiding = true } label: { Label("Setup Guide", systemImage: "list.number") }
             } footer: {
                 Text("Walks through every item in order. You can close it at any time and pick up from this list.")
             }
@@ -710,7 +721,9 @@ struct SetupStepRow: View {
     var body: some View {
         let done = model.isDone(step)
         LabeledContent {
-            if done {
+            if step == .loopback && !model.loopback.isWorking && model.hasOpenInProcessSession {
+                Text("Local automation ready").foregroundStyle(.secondary)
+            } else if done {
                 Image(systemName: "checkmark.circle.fill").foregroundStyle(.green).accessibilityLabel(Text("Done"))
             } else {
                 Text(problem).foregroundStyle(.orange)
@@ -764,7 +777,7 @@ struct SetupStepPage: View {
                 }
             }
             Section {
-                Button("Open Settings") { openSettings(model, for: step) }
+                Button("Open Settings", systemImage: "gear") { openSettings(model, for: step) }
                 Toggle(confirmTitle, isOn: confirmBinding)
             } footer: {
                 Text("iOS doesn’t let Qeno check this one, so turn the switch on once it’s done.")

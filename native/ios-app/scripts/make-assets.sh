@@ -4,7 +4,9 @@
 # checked in, so the one source image stays the only copy. Run before xcodegen. The two alternate
 # app icons (AppIcon-Blue, AppIcon-Red) come from docs/images/qeno-icon-blue.png and
 # docs/images/qeno-icon-red.png the same way; project-base.yml lists them in
-# ASSETCATALOG_COMPILER_ALTERNATE_APP_ICON_NAMES so Xcode includes them.
+# ASSETCATALOG_COMPILER_ALTERNATE_APP_ICON_NAMES so Xcode includes them. The icon is the
+# same picture in light and dark: it is listed again for the dark appearance, because iOS makes its own darker
+# version of an icon that has no dark entry.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"
@@ -25,18 +27,22 @@ APP="$HERE/Poki/Assets.xcassets"
 catalog "$APP"
 mkdir -p "$APP/AppIcon.appiconset"
 swift "$COMPOSE" "$ICON" "$APP/AppIcon.appiconset/icon-1024.png" 1024 1.0 "$ICON_BG"
-echo '{"images":[{"filename":"icon-1024.png","idiom":"universal","platform":"ios","size":"1024x1024"}],"info":{"version":1,"author":"poki"}}' > "$APP/AppIcon.appiconset/Contents.json"
+echo '{"images":[{"filename":"icon-1024.png","idiom":"universal","platform":"ios","size":"1024x1024"},{"appearances":[{"appearance":"luminosity","value":"dark"}],"filename":"icon-1024.png","idiom":"universal","platform":"ios","size":"1024x1024"}],"info":{"version":1,"author":"poki"}}' > "$APP/AppIcon.appiconset/Contents.json"
 # Alternate app icons (Settings > App Icon): the blue icon and the red panda. Same format as the
 # primary AppIcon; the background colour is covered by the full-bleed source image.
 mkdir -p "$APP/AppIcon-Blue.appiconset"
 swift "$COMPOSE" "$ROOT/docs/images/qeno-icon-blue.png" "$APP/AppIcon-Blue.appiconset/icon-1024.png" 1024 1.0 "$ICON_BG"
-echo '{"images":[{"filename":"icon-1024.png","idiom":"universal","platform":"ios","size":"1024x1024"}],"info":{"version":1,"author":"poki"}}' > "$APP/AppIcon-Blue.appiconset/Contents.json"
+echo '{"images":[{"filename":"icon-1024.png","idiom":"universal","platform":"ios","size":"1024x1024"},{"appearances":[{"appearance":"luminosity","value":"dark"}],"filename":"icon-1024.png","idiom":"universal","platform":"ios","size":"1024x1024"}],"info":{"version":1,"author":"poki"}}' > "$APP/AppIcon-Blue.appiconset/Contents.json"
 mkdir -p "$APP/AppIcon-Red.appiconset"
 swift "$COMPOSE" "$ROOT/docs/images/qeno-icon-red.png" "$APP/AppIcon-Red.appiconset/icon-1024.png" 1024 1.0 "$ICON_BG"
-echo '{"images":[{"filename":"icon-1024.png","idiom":"universal","platform":"ios","size":"1024x1024"}],"info":{"version":1,"author":"poki"}}' > "$APP/AppIcon-Red.appiconset/Contents.json"
+echo '{"images":[{"filename":"icon-1024.png","idiom":"universal","platform":"ios","size":"1024x1024"},{"appearances":[{"appearance":"luminosity","value":"dark"}],"filename":"icon-1024.png","idiom":"universal","platform":"ios","size":"1024x1024"}],"info":{"version":1,"author":"poki"}}' > "$APP/AppIcon-Red.appiconset/Contents.json"
 mkdir -p "$APP/AccentColor.colorset"
 echo '{"colors":[{"idiom":"universal","color":{"color-space":"srgb","components":{"red":"0x20","green":"0x84","blue":"0xFD","alpha":"1.000"}}}],"info":{"version":1,"author":"poki"}}' > "$APP/AccentColor.colorset/Contents.json"
 bear "$APP"
+# The app icon as a picture for the app's own pages (the conversations' header), small: 64 points at 3x.
+mkdir -p "$APP/PokiIcon.imageset"
+sips -Z 192 "$ICON" --out "$APP/PokiIcon.imageset/icon@3x.png" >/dev/null
+echo '{"images":[{"filename":"icon@3x.png","idiom":"universal","scale":"3x"}],"info":{"version":1,"author":"poki"}}' > "$APP/PokiIcon.imageset/Contents.json"
 # Provider logos (Poki/ProviderIcons, see its README) as vector template images.
 logos() {
   for svg in "$HERE"/Poki/ProviderIcons/*.svg; do
@@ -54,10 +60,25 @@ for png in "$HERE"/Poki/ProxyIcons/*.png; do
   cp "$png" "$APP/$name.imageset/icon@3x.png"
   echo '{"images":[{"filename":"icon@3x.png","idiom":"universal","scale":"3x"}],"info":{"version":1,"author":"poki"}}' > "$APP/$name.imageset/Contents.json"
 done
+# Apps' own App Store icons (Poki/AppIcons) are not in the catalogue: the build copies the PNGs into
+# the app and AppIconStore reads them there, so a stale catalogue cannot drop one.
+
+# The Live Activity's bears (Poki/ActivityBears, see its README), one per pose, for the app's preview
+# and the widget. In a catalogue, so the Live Activity's archive names them instead of carrying them.
+bears() {
+  for png in "$HERE"/Poki/ActivityBears/*.png; do
+    name="$(basename "$png" .png)"
+    mkdir -p "$1/$name.imageset"
+    cp "$png" "$1/$name.imageset/bear@3x.png"
+    echo '{"images":[{"filename":"bear@3x.png","idiom":"universal","scale":"3x"}],"info":{"version":1,"author":"poki"}}' > "$1/$name.imageset/Contents.json"
+  done
+}
+bears "$APP"
 
 WIDGET="$HERE/PokiWidgets/Assets.xcassets"
 catalog "$WIDGET"
 bear "$WIDGET"
+bears "$WIDGET"
 # The calling agent's logo on the Live Activity.
 logos "$WIDGET"
 echo "assets in $APP and $WIDGET"

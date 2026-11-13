@@ -25,7 +25,7 @@ settings:
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
     SWIFT_VERSION: "5.0"
-    # iPhone and iPad; on iPad (windows, Stage Manager) and on the iPhone Duo's inner display Poki
+    # iPhone and iPad; on iPad (windows, Stage Manager) and on the iPhone Duo's inner display Qeno
     # sits beside the app it drives, so iPad takes every orientation and any window size.
     TARGETED_DEVICE_FAMILY: "1,2"
     DEBUG_INFORMATION_FORMAT: dwarf
@@ -37,9 +37,6 @@ targets:
     sources:
       - path: Poki
       - path: Shared
-      # The mailbox the app and the Poki keyboard share (tested on its own: KeyboardShared/Package.swift).
-      - path: KeyboardShared/Sources/KeyboardShared
-        group: KeyboardShared
       # The gym scorecard (native/ios-gym/check), run in-process by the Debug probe's `gym` mode.
       - path: ../ios-gym/check/GymScorecard.swift
         group: Poki/Debug
@@ -50,16 +47,17 @@ targets:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         PokiAppGroup: $(POKI_APP_GROUP)
-        # English and Simplified Chinese (Shared/Localizable.xcstrings, Poki/InfoPlist.xcstrings); Poki
+        # English, Simplified Chinese and Traditional Chinese (Shared/Localizable.xcstrings, Qeno/InfoPlist.xcstrings); Qeno
         # follows the iPhone's language.
         CFBundleDevelopmentRegion: en
-        CFBundleLocalizations: [en, zh-Hans]
+        CFBundleLocalizations: [en, zh-Hans, zh-Hant]
         # Every page is the website's blue (or the night blue): white status bar text throughout.
         UIStatusBarStyle: UIStatusBarStyleLightContent
+        # Display links may run at the display's full rate (120 a second on ProMotion iPhones): the
+        # home page's suggestion rows move once a frame.
+        CADisableMinimumFrameDurationOnPhone: true
         UIViewControllerBasedStatusBarAppearance: false
-        UILaunchScreen:
-          UIColorName: AccentColor
-          UIImageName: Bear
+        UILaunchStoryboardName: LaunchScreen
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         UIApplicationSceneManifest:
@@ -69,11 +67,11 @@ targets:
         # Geist (SIL OFL 1.1, Shared/Fonts) for the Live Activity, in both bundles: the widget
         # extension draws the island and falls back to SF Pro without its own copy.
         UIAppFonts: [Geist-Regular.ttf, Geist-Medium.ttf, Geist-SemiBold.ttf, Geist-Bold.ttf, Geist-Black.ttf]
-        # While Poki is on, background location (with the blue location pill) keeps the app, and with it
-        # the relay connection and the launcher, running; silent audio is the fallback. Poki never reads
+        # While Qeno is on, background location (with the blue location pill) keeps the app, and with it
+        # the relay connection and the launcher, running; silent audio is the fallback. Qeno never reads
         # or sends the location itself.
         UIBackgroundModes: [location, audio, processing]
-        # iOS 26: the continued processing task that keeps Poki up while it is on (ContinuedRun). The
+        # iOS 26: the continued processing task that keeps Qeno up while it is on (ContinuedRun). The
         # signer rewrites the com.owaiken.qeno prefix to the signed bundle id.
         BGTaskSchedulerPermittedIdentifiers: ["$(POKI_BUNDLE_ID).run.*"]
         # Documents/AgentBackup holds the agent's memory backup, which Qeno Setup copies off and puts back.
@@ -84,15 +82,16 @@ targets:
           - CFBundleURLName: com.owaiken.qeno
             CFBundleURLSchemes: [qeno]
         NSLocalNetworkUsageDescription: Qeno connects to this iPhone's own developer services to pair with it and to run the automation, and to the voice bridge on your Mac.
-        NSCameraUsageDescription: Qeno uses the camera only to scan the pairing code Qeno Setup shows on your computer.
+        NSCameraUsageDescription: Qeno uses the camera to take photos you send in a message, and to scan the pairing code Qeno Setup shows on your computer.
         NSMicrophoneUsageDescription: Qeno listens while you talk to it in Voice, and sends that audio to OpenAI to understand what you ask.
         NSSpeechRecognitionUsageDescription: Without an OpenAI key, Qeno turns what you say in Voice into text on this iPhone and sends the text to your chosen model.
         # The voice bridge runs on the person's Mac on the local network, over plain HTTP.
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
-        NSBonjourServices: [_remotepairing-pairable-host._tcp, _remotepairing-manual-pairing._tcp]
+        # _remotepairing._tcp: Qeno reads this iPhone's own remote pairing port from it (iOS moves the port).
+        NSBonjourServices: [_remotepairing-pairable-host._tcp, _remotepairing-manual-pairing._tcp, _remotepairing._tcp]
         LSApplicationQueriesSchemes: [karing, surge, loon, shadowrocket, sing-box, stash, quantumult-x, clashmi]
-        # A pairing file sent by AirDrop, Files or Qeno Setup opens in Poki (Setup > Pair This iPhone).
+        # A pairing file sent by AirDrop, Files or Qeno Setup opens in Qeno (Setup > Pair This iPhone).
         CFBundleDocumentTypes:
           - CFBundleTypeName: Pairing File
             LSHandlerRank: Alternate
@@ -110,7 +109,6 @@ targets:
         com.apple.security.application-groups: [$(POKI_APP_GROUP)]
     dependencies:
       - target: PokiWidgets
-      - target: PokiKeyboard
       - package: PokiCore
       - package: WebRTC
       - package: PiSwift
@@ -126,7 +124,7 @@ targets:
         # before this project (see .github/workflows/ios-app.yml).
         SWIFT_OBJC_BRIDGING_HEADER: Poki/Runtime/Poki-Bridging-Header.h
         HEADER_SEARCH_PATHS: $(SRCROOT)/../launcher/include $(SRCROOT)/Poki/Native
-        # The XCTest libraries of the mounted developer disk image, loaded at run time (Poki/Native).
+        # The XCTest libraries of the mounted developer disk image, loaded at run time (Qeno/Native).
         LD_RUNPATH_SEARCH_PATHS: $(inherited) @executable_path/Frameworks /System/Developer/usr/lib /System/Developer/Library/PrivateFrameworks /System/Developer/Library/Frameworks
         LIBRARY_SEARCH_PATHS: $(SRCROOT)/../launcher/target/aarch64-apple-ios/release
         "LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]": $(SRCROOT)/../launcher/target/aarch64-apple-ios-sim/release
@@ -174,14 +172,12 @@ targets:
     dependencies:
       - target: Poki
       - package: PokiCore
-      - package: PiSwift
-        product: PiSwiftAI
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(POKI_BUNDLE_ID).tests
         GENERATE_INFOPLIST_FILE: YES
-        # @testable import Poki re-reads the app's bridging header, which includes the launcher's C
-        # header and Poki/Native's headers.
+        # @testable import Qeno re-reads the app's bridging header, which includes the launcher's C
+        # header and Qeno/Native's headers.
         HEADER_SEARCH_PATHS: $(SRCROOT)/../launcher/include $(SRCROOT)/Poki/Native
   PokiWidgets:
     type: app-extension
@@ -197,7 +193,7 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         PokiAppGroup: $(POKI_APP_GROUP)
         CFBundleDevelopmentRegion: en
-        CFBundleLocalizations: [en, zh-Hans]
+        CFBundleLocalizations: [en, zh-Hans, zh-Hant]
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
         UIAppFonts: [Geist-Regular.ttf, Geist-Medium.ttf, Geist-SemiBold.ttf, Geist-Bold.ttf, Geist-Black.ttf]

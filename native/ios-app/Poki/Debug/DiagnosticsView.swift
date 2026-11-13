@@ -14,7 +14,7 @@ struct DiagnosticsView: View {
             Section {
                 if let loop = loopbackInterface(addresses) {
                     Text(verbatim: "\(loop.interface)  \(loop.address)").font(.body.monospaced().weight(.semibold))
-                    Text(loop.ipv6.isEmpty ? "No IPv6 on this interface" : "IPv6 present: \(loop.ipv6.joined(separator: ", "))")
+                    Text(loop.ipv6.isEmpty ? "No IPv6 on this interface" : "IPv6 present, \(loop.ipv6.joined(separator: ", "))")
                         .font(.footnote.monospaced()).foregroundStyle(loop.ipv6.isEmpty ? Color.secondary : Color.red)
                 } else {
                     Text("No interface has a 10.7.0.x address. Check that your proxy app is on and its loopback module is enabled.")
@@ -55,7 +55,7 @@ struct DiagnosticsView: View {
         let label = r.label.replacingOccurrences(of: " (10.7.0.1)", with: "")
         let outcome = r.outcome.prefix(1).uppercased() + r.outcome.dropFirst()
         func local(_ s: String) -> String { Bundle.main.localizedString(forKey: s, value: s, table: nil) }
-        return String(localized: "\(local(label)): \(local(outcome))")
+        return String(localized: "\(local(label)), \(local(outcome))")
     }
 
     private func run() async {
@@ -94,34 +94,45 @@ struct LogView: View {
     }
 }
 
-/// Setup › Advanced › Testing Options: switches being tried, all in one place. Ask Before Sensitive
-/// Steps is in Agents › Approvals.
+/// Qeno › General › Testing Options: switches being tried, all in one place, and 752's Diagnostics
+/// tools for testers: the automation path switch with its probes, and the background hold experiment.
+/// Ask Before Sensitive Steps and the Auto-Classifier are in Qeno › Approvals.
 struct TestingOptionsView: View {
     @Environment(AppModel.self) private var model
-    @AppStorage(NativeServicesWDA.inputWithoutScreenSharingKey) private var bareInput = false
+    @StateObject private var hold = Hold()
     var body: some View {
         @Bindable var model = model
         Form {
-            AutomationMethodSection()
             Section {
                 Toggle("ask_poki Tool", isOn: $model.askPokiTool)
-                Toggle("Auto-Classifier", isOn: $model.approvalClassifier)
-                if model.approvalClassifier {
-                    Picker("Permissiveness", selection: $model.classifierLevel) {
-                        ForEach(ApprovalClassifier.Level.allCases) { Text($0.title).tag($0) }
-                    }
-                }
             } header: {
                 Text("Agents")
             } footer: {
-                Text("Both off by default. ask_poki lets outside agents hand a repetitive task to Qeno's own agent. The auto-classifier answers approvals in your place: it asks your chat model, out of sight, whether what you said asks for the step, and allows or refuses it with nothing for you to tap; a yes from you in the chat or a live call lets a refused step through next time. With no chat model set up it refuses every sensitive step. Changes take effect the next time Qeno opens.")
+                Text("Off by default. ask_poki lets outside agents hand a repetitive task to Qeno's own agent. Changes take effect the next time Qeno opens. The Auto-Classifier is in Settings › Approvals.")
             }
+            // The in-process path's switch and probes (ESP-173, ESP-175).
+            InProcessSection()
             Section {
-                Toggle("Input Without Screen Sharing", isOn: $bareInput)
+                LabeledContent("Port on 10.7.0.1") {
+                    TextField(text: $hold.port, prompt: Text(verbatim: "49152")) { Text("Port on 10.7.0.1") }
+                        .keyboardType(.numberPad).multilineTextAlignment(.trailing).monospacedDigit()
+                }
+                Picker("Experiment", selection: $hold.experiment) {
+                    ForEach(Hold.Experiment.allCases) { Text(LocalizedStringKey($0.rawValue)).tag($0) }
+                }
+                .disabled(hold.holding)
+                Button("Start Hold") { hold.start() }.disabled(hold.holding)
+                Button("Stop", role: .destructive) { hold.stop() }.disabled(!hold.holding)
+                if !hold.log.isEmpty {
+                    VStack(alignment: .leading, spacing: 4) {
+                        ForEach(hold.log.indices, id: \.self) { i in Text(verbatim: hold.log[i]).font(.caption2.monospaced()) }
+                    }
+                    .textSelection(.enabled)
+                }
             } header: {
-                Text("Touches and Keys")
+                Text("Background Hold")
             } footer: {
-                Text("Qeno sends touches and keys over a screen-sharing session, and iOS turns the camera off in every app while one is open, so Poki opens it only for an action and closes it 5 seconds after the last one. With this on, Poki opens no session at all. If taps and typing still work, the camera is never affected; if they stop working, turn it off. Takes effect the next time Qeno turns on.")
+                Text("Tap Start, leave the app for a while, then return. The log records suspension gaps and connection closures.")
             }
             Section {
                 NavigationLink("Live Activity Preview") { ActivityPreview() }

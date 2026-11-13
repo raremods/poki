@@ -1,5 +1,5 @@
-# Checks, on a simulator, Poki Runner's own host executable (native/ios-runner/host/main.m) in place of
-# Xcode's XCTRunner: started as a test (as Poki starts it) WebDriverAgent must still come up; opened by
+# Checks, on a simulator, Qeno Runner's own host executable (native/ios-runner/host/main.m) in place of
+# Xcode's XCTRunner: started as a test (as Qeno starts it) WebDriverAgent must still come up; opened by
 # hand it must show its screen and start no test. Also prints where XCTest's runner app delegate lives.
 name: Runner host check
 
@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Apply Poki's runner patch
+      - name: Apply Qeno's runner patch
         run: cd native/ios-runner/WebDriverAgent && git apply < "$GITHUB_WORKSPACE/native/ios-runner/patches/wda-poki-runner.patch" && git diff --stat
       - name: Boot a simulator
         run: |
@@ -35,7 +35,7 @@ jobs:
             -scheme WebDriverAgentRunner -destination "id=$UDID" -derivedDataPath build/wda \
             CODE_SIGNING_ALLOWED=NO | grep -E "error:|BUILD (SUCCEEDED|FAILED)|\*\* " || true
           test -d "$PRODUCTS/$RUNNER"
-      - name: Brand as Poki (as the device build does)
+      - name: Brand as Qeno (as the device build does)
         run: BRAND_PLATFORM=iphonesimulator native/ios-runner/branding/brand.sh "$PRODUCTS/$RUNNER" docs/images/qeno-icon.png docs/images/runner/AppIcon-1024.png > /dev/null
       - name: Where XCTRunner's pieces live
         run: |
@@ -50,7 +50,7 @@ jobs:
           for f in $(find "$PLAT/Library" -name '*.framework' -maxdepth 3) ; do
             b="$f/$(basename "$f" .framework)"; [ -f "$b" ] && nm -gU "$b" 2>/dev/null | grep -q 'XCTRunnerAppDelegate' && echo "XCTRunnerAppDelegate in $f"
           done; true
-      - name: Tell the test Poki started it (POKI_LAUNCHER=1, as the launcher does)
+      - name: Tell the test Qeno started it (POKI_LAUNCHER=1, as the launcher does)
         run: |
           python3 - "$(ls build/wda/Build/Products/*.xctestrun | head -1)" <<'PY'
           import plistlib, sys
@@ -83,7 +83,7 @@ jobs:
           sleep 8; xcrun simctl io "$UDID" screenshot shots/as-test-opened.png || true
           pkill -f test-without-building || true; sleep 5; tail -30 poki.log
           echo "POKI_HOST_TEST=$ok" >> "$GITHUB_ENV"
-      - name: Poki host opened by hand
+      - name: Qeno host opened by hand
         run: |
           APP="$PRODUCTS/$RUNNER"; ID="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")"
           xcrun simctl terminate "$UDID" "$ID" || true

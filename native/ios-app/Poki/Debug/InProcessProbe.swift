@@ -31,20 +31,6 @@ final class InProcessProbe: ObservableObject {
     @Published var delay = "8"
     weak var field: UITextField?
 
-    static func isChineseInputLanguage(_ language: String?) -> Bool {
-        guard let language else { return false }
-        let tag = language.lowercased().replacingOccurrences(of: "_", with: "-")
-        return tag == "zh" || tag.hasPrefix("zh-")
-    }
-
-    /// This evidence is valid only for our focused diagnostics field, never
-    /// inferred from the installed keyboards or reused for another app.
-    var focusedInputLanguage: String? {
-        guard UIApplication.shared.applicationState == .active,
-              let field, field.isFirstResponder else { return nil }
-        return field.textInputMode?.primaryLanguage
-    }
-
     let queue = DispatchQueue(label: "poki.inprocess.probe", qos: .userInitiated)
     private var record: [[String: Any]] = []
 
@@ -68,7 +54,8 @@ final class InProcessProbe: ObservableObject {
             case "tools": await toolsCycle(model: model, app: defaults.string(forKey: "pokiProbeApp") ?? "local.pokimcp.fixture")
             case "gym": await gymScorecard(model: model)
             case "chat": await chatCycle(model: model)
-            case "bench": await benchmark(rounds: defaults.integer(forKey: "pokiBenchRounds") > 0 ? defaults.integer(forKey: "pokiBenchRounds") : 5)
+            case "web": await WebDemo.run()
+            case "bench": await benchmark(model: model, rounds: defaults.integer(forKey: "pokiBenchRounds") > 0 ? defaults.integer(forKey: "pokiBenchRounds") : 5)
             default: await prepareOnly()
             }
         }
@@ -313,8 +300,8 @@ final class InProcessProbe: ObservableObject {
         ModelKeys.customURL = defaults.string(forKey: "pokiProbeModelURL") ?? "http://127.0.0.1:8765/v1"
         ModelKeys.customModel = defaults.string(forKey: "pokiProbeModel") ?? "poki-mock"
         ModelKeys.selectedProvider = .custom
-        AskPoki.refresh()
-        guard let chat = AskPoki.chat else { note("no chat", ["step": "chat_missing"]); return }
+        AskQeno.refresh()
+        guard let chat = AskQeno.chat else { note("no chat", ["step": "chat_missing"]); return }
         chat.newConversation()
         let task = defaults.string(forKey: "pokiProbeTask") ?? "Open the Qeno fixture app and tell me what it shows."
         let t0 = ProcessInfo.processInfo.systemUptime
@@ -408,27 +395,64 @@ final class InProcessProbe: ObservableObject {
     }
 }
 
-/// Testing Options: which way Poki controls the phone. Takes effect when Poki starts again.
-struct AutomationMethodSection: View {
-    @AppStorage("automationPath") private var path = AutomationPath.nativeServices.rawValue
+/// General › Testing Options: the automation path switch and the probes (752 had them in Settings ›
+/// Diagnostics; ESP-152 removed them on a line where they had no caller).
+struct InProcessSection: View {
+    @ObservedObject var probe = InProcessProbe.shared
+    @Environment(AppModel.self) private var model
+    @AppStorage("automationPath") private var path = AutomationPath.inProcess.rawValue
     private let running = AutomationPath.current
 
     var body: some View {
         Section {
-            Picker("Method", selection: $path) {
-                Text("XCTest session").tag(AutomationPath.inProcess.rawValue)
-                Text("Native services").tag(AutomationPath.nativeServices.rawValue)
+            Picker("Agents' actions go through", selection: $path) {
+                Text("Qeno Runner").tag(AutomationPath.runner.rawValue)
+                Text("Qeno itself").tag(AutomationPath.inProcess.rawValue)
             }
             if path != running.rawValue {
                 Text("Takes effect when Qeno starts again.").font(.caption).foregroundStyle(.orange)
             }
+            ProbeField(probe: probe).frame(height: 44)
+            HStack {
+                Button("Port 8100") { Task { await probe.portCheck() } }
+                Button("Separate session") { Task { await probe.separateTrial() } }
+            }.disabled(probe.running)
+            Button("Compare both paths (5 rounds)") { Task { await probe.benchmark(model: model, rounds: 5) } }.disabled(probe.running)
+            HStack {
+                Button("Prepare") { Task { await probe.prepareOnly() } }
+                Spacer()
+                Button("Read") { Task { await probe.readOnly() } }
+                Spacer()
+                Button("Self test") { Task { await probe.selfTest() } }
+            }
+            .buttonStyle(.borderless).disabled(probe.running)
+            HStack {
+                TextField("x", text: $probe.x).keyboardType(.numberPad)
+                TextField("y", text: $probe.y).keyboardType(.numberPad)
+                TextField("s", text: $probe.delay).keyboardType(.numberPad)
+                Button("Later") { Task { await probe.later() } }.buttonStyle(.borderless).disabled(probe.running)
+            }
+            .monospacedDigit()
+            ForEach(probe.lines.indices.reversed(), id: \.self) { i in Text(probe.lines[i]).font(.caption2.monospaced()).textSelection(.enabled) }
         } header: {
-            Text("Automation")
+            Text("In-process automation")
         } footer: {
-            Text("Native services controls the phone through its paired accessibility, screenshot and input services, with no automation session and no banner. The XCTest session is the earlier way, with iOS’s automation banner.")
-        }
-        .onAppear {
-            if path == AutomationPath.runner.rawValue { path = AutomationPath.nativeServices.rawValue }
+            Text("Taps and types from Qeno itself, without Qeno Runner. Self test taps the field above and types into it. Later waits, then taps the point (x, y) and types, in whatever app is in front.")
         }
     }
+}
+
+private struct ProbeField: UIViewRepresentable {
+    let probe: InProcessProbe
+    func makeUIView(context: Context) -> UITextField {
+        let field = UITextField()
+        field.placeholder = "In-process test field"
+        field.borderStyle = .roundedRect
+        field.autocorrectionType = .no
+        field.spellCheckingType = .no
+        field.accessibilityIdentifier = "inprocess-field"
+        probe.field = field
+        return field
+    }
+    func updateUIView(_ view: UITextField, context: Context) { probe.field = view }
 }

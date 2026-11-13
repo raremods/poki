@@ -1,6 +1,6 @@
-# Builds Poki's on-phone runner (WebDriverAgentRunner from the vendored Appium WebDriverAgent,
-# branded as Poki) as an unsigned IPA. It is signed when it is installed (with the person's signing tool
-# and Apple ID, the same as Poki). There is no other build path: the Mac in use has no Xcode.
+# Builds Qeno's on-phone runner (WebDriverAgentRunner from the vendored Appium WebDriverAgent,
+# branded as Qeno) as an unsigned IPA. It is signed when it is installed (with the person's signing tool
+# and Apple ID, the same as Qeno). There is no other build path: the Mac in use has no Xcode.
 name: iOS runner
 
 on:
@@ -30,7 +30,7 @@ jobs:
       - name: Show the toolchain
         run: xcodebuild -version && xcrun --sdk iphoneos --show-sdk-version
 
-      - name: Apply Poki's runner patch (opened by hand it sends people to Poki; its screen while in use)
+      - name: Apply Qeno's runner patch (opened by hand it sends people to Qeno; its screen while in use)
         run: cd native/ios-runner/WebDriverAgent && git apply < "$GITHUB_WORKSPACE/native/ios-runner/patches/wda-poki-runner.patch" && git diff --stat
 
       - name: Build for testing (iOS device SDK, unsigned)
@@ -45,13 +45,13 @@ jobs:
             ARCHS=arm64 DEBUG_INFORMATION_FORMAT=dwarf | tee build/xcodebuild.log | grep -E "^(error|warning: .*error)|BUILD (SUCCEEDED|FAILED)|\*\* " || true
           test -d "$PRODUCTS/$RUNNER"
 
-      - name: Brand as Poki
+      - name: Brand as Qeno
         run: native/ios-runner/branding/brand.sh "$PRODUCTS/$RUNNER" docs/images/qeno-icon.png docs/images/runner/AppIcon-1024.png
 
-      - name: PokiRunnerHost (opened by hand, the runner starts no test and sends people to Poki)
+      - name: PokiRunnerHost (opened by hand, the runner starts no test and sends people to Qeno)
         run: native/ios-runner/host/install.sh "$PRODUCTS/$RUNNER" iphoneos
 
-      - name: Version (the same version and build number as Poki in a release)
+      - name: Version (the same version and build number as Qeno in a release)
         run: |
           set -euo pipefail
           VERSION="${{ inputs.version }}"; BUILD="${{ inputs.build }}"
@@ -59,7 +59,7 @@ jobs:
           [ -n "$BUILD" ] || BUILD="${{ github.run_number }}"
           /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$PRODUCTS/$RUNNER/Info.plist"
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD" "$PRODUCTS/$RUNNER/Info.plist"
-          echo "Poki Runner $VERSION ($BUILD)"
+          echo "Qeno Runner $VERSION ($BUILD)"
 
       - name: Package the IPA
         run: |

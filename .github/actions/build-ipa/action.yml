@@ -1,9 +1,9 @@
-# Builds Poki's unsigned IPA(s) for the phone: the steps ios-ipa.yml and prealpha.yml share.
+# Builds Qeno's unsigned IPA(s) for the phone: the steps ios-ipa.yml and prealpha.yml share.
 # The Rust library and Xcode's build folder come from caches. A run on main can read and write
 # them; a run from a tag or a new branch can only read main's, which is why release builds run on
 # main (prealpha.yml) and not from a tag. Produces out/ with the IPA(s), Qeno-signing.zip and SHA256SUMS.
-name: Build Poki IPA
-description: Unsigned Poki IPA for the phone, with the Rust library and Xcode build folder cached
+name: Build Qeno IPA
+description: Unsigned Qeno IPA for the phone, with the Rust library and Xcode build folder cached
 
 inputs:
   version:
@@ -92,12 +92,12 @@ runs:
         VERSION="${RELEASE_VERSION:-$(tr -d ' \n' < native/ios-app/VERSION)}"
         BUILD="${RELEASE_BUILD:-$GITHUB_RUN_NUMBER}"
         for edition in ${POKI_EDITIONS:-external}; do
-          project=Poki
+          project=Qeno
           ipa=Poki-unsigned.ipa
           if [ "$edition" = external ]; then project=PokiExternal; ipa=Poki-external-unsigned.ipa; fi
           echo "::group::$edition edition"
           xcodebuild build \
-            -project "native/ios-app/$project.xcodeproj" -scheme Poki -configuration Release \
+            -project "native/ios-app/$project.xcodeproj" -scheme Qeno -configuration Release \
             -destination generic/platform=iOS -derivedDataPath "build/app-$edition" \
             CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ARCHS=arm64 \
             MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD" \

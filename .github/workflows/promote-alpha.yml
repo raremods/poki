@@ -48,7 +48,7 @@ jobs:
           # The pre-alpha run that built this commit; its artifact is the file to promote.
           run="$(gh run list --workflow prealpha.yml --commit "$sha" --status success --json databaseId --jq '.[0].databaseId')"
           [ -n "$run" ] || { echo "::error::no successful Pre-alpha run built $sha (artifacts are kept 90 days)"; exit 1; }
-          if gh api "repos/$GH_REPO/git/refs/tags/app-$version-alpha.$build" >/dev/null 2>&1; then
+          if gh api "repos/$GH_REPO/git/ref/tags/app-$version-alpha.$build" >/dev/null 2>&1; then
             echo "::error::app-$version-alpha.$build already exists"; exit 1
           fi
           echo "Promoting $WANT ($sha), Pre-alpha run $run"
@@ -56,7 +56,7 @@ jobs:
           echo "## Promote $WANT to Alpha" >> "$GITHUB_STEP_SUMMARY"
 
   # The alpha tests on the pre-alpha's commit: PokiCore and loopback tests, the in-process field,
-  # apps and idle-cycle checks, the simulator smoke test, and Poki's agent end to end with a
+  # apps and idle-cycle checks, the simulator smoke test, and Qeno's agent end to end with a
   # scripted model. Three macOS jobs.
   ios-tests:
     needs: resolve
@@ -66,7 +66,7 @@ jobs:
       build: ${{ needs.resolve.outputs.build }}
       ref: ${{ needs.resolve.outputs.sha }}
 
-  # Poki Setup's core (release picking, pairing, signing) on Linux.
+  # Qeno Setup's core (release picking, pairing, signing) on Linux.
   desktop-tests:
     needs: resolve
     runs-on: ubuntu-24.04
@@ -83,6 +83,7 @@ jobs:
   publish:
     needs: [resolve, ios-tests, desktop-tests]
     runs-on: ubuntu-latest
+    environment: alpha
     permissions:
       contents: write
       actions: read

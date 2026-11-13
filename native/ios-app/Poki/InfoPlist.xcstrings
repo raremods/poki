@@ -3,7 +3,7 @@
   "strings": {
     "CFBundleDisplayName": {
       "comment": "Info.plist",
-      "extractionState": "extracted_with_value",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -12,6 +12,12 @@
           }
         },
         "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qeno"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "Qeno"
@@ -21,90 +27,120 @@
     },
     "NSCameraUsageDescription": {
       "comment": "Info.plist",
-      "extractionState": "extracted_with_value",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
-            "state": "new",
-            "value": "Qeno uses the camera only to scan the pairing code Qeno Setup shows on your computer."
+            "state": "translated",
+            "value": "Qeno uses the camera to take photos you send in a message, and to scan the pairing code from Qeno Setup on your computer."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 只用相机扫描电脑上 Qeno Setup 显示的配对码。"
+            "value": "Qeno \u4f7f\u7528\u76f8\u673a\u62cd\u6444\u4f60\u5728\u6d88\u606f\u91cc\u53d1\u9001\u7684\u7167\u7247\uff0c\u4ee5\u53ca\u626b\u63cf\u7535\u8111\u4e0a Qeno Setup \u663e\u793a\u7684\u914d\u5bf9\u7801\u3002"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qeno \u4f7f\u7528\u76f8\u6a5f\u62cd\u651d\u4f60\u5728\u8a0a\u606f\u88e1\u50b3\u9001\u7684\u7167\u7247\uff0c\u4ee5\u53ca\u6383\u63cf\u96fb\u8166\u4e0a Qeno Setup \u986f\u793a\u7684\u914d\u5c0d\u78bc\u3002"
           }
         }
       }
     },
     "NSLocalNetworkUsageDescription": {
       "comment": "Info.plist",
-      "extractionState": "extracted_with_value",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
-            "state": "new",
-            "value": "Qeno connects to this iPhone's own developer services to pair with it and to run the automation, and to the voice bridge on your Mac."
+            "state": "translated",
+            "value": "Qeno connects to developer services on this iPhone for pairing and automation, and to the voice bridge on your Mac."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 会连接此 iPhone 自身的开发者服务，用于配对和运行自动化，也会连接你 Mac 上的语音中转。"
+            "value": "Qeno \u4f1a\u8fde\u63a5\u6b64 iPhone \u7684\u5f00\u53d1\u8005\u670d\u52a1\u4ee5\u5b8c\u6210\u914d\u5bf9\u548c\u81ea\u52a8\u5316\uff0c\u5e76\u8fde\u63a5 Mac \u4e0a\u7684\u8bed\u97f3\u6865\u63a5\u3002"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qeno \u6703\u9023\u7dda\u6b64 iPhone \u7684\u958b\u767c\u8005\u670d\u52d9\u4ee5\u5b8c\u6210\u914d\u5c0d\u8207\u81ea\u52d5\u5316\uff0c\u4e26\u9023\u7dda Mac \u4e0a\u7684\u8a9e\u97f3\u6a4b\u63a5\u3002"
           }
         }
       }
     },
     "NSLocationAlwaysAndWhenInUseUsageDescription": {
       "comment": "Info.plist",
-      "extractionState": "extracted_with_value",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
-            "state": "new",
-            "value": "Qeno keeps running in the background while it is on, so agents can reach this iPhone. Qeno does not record or send your location."
+            "state": "translated",
+            "value": "Qeno stays active in the background while on so agents can reach this iPhone. Qeno never records or sends your location."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 开启时会在后台保持运行，让智能体能连上此 iPhone。Qeno 不会记录或发送你的位置。"
+            "value": "Qeno \u5f00\u542f\u65f6\u4f1a\u5728\u540e\u53f0\u4fdd\u6301\u8fd0\u884c\uff0c\u4ee5\u4fbf\u667a\u80fd\u4f53\u8fde\u63a5\u6b64 iPhone\u3002Qeno \u4e0d\u4f1a\u8bb0\u5f55\u6216\u53d1\u9001\u4f60\u7684\u4f4d\u7f6e\u3002"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qeno \u958b\u555f\u6642\u6703\u5728\u80cc\u666f\u4fdd\u6301\u57f7\u884c\uff0c\u4ee5\u4fbf\u667a\u6167\u9ad4\u9023\u7dda\u6b64 iPhone\u3002Qeno \u4e0d\u6703\u8a18\u9304\u6216\u50b3\u9001\u4f60\u7684\u4f4d\u7f6e\u3002"
           }
         }
       }
     },
     "NSLocationWhenInUseUsageDescription": {
       "comment": "Info.plist",
-      "extractionState": "extracted_with_value",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
-            "state": "new",
-            "value": "Qeno keeps running in the background while it is on, so agents can reach this iPhone. Qeno does not record or send your location."
+            "state": "translated",
+            "value": "Qeno stays active in the background while on so agents can reach this iPhone. Qeno never records or sends your location."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qeno 开启时会在后台保持运行，让智能体能连上此 iPhone。Qeno 不会记录或发送你的位置。"
+            "value": "Qeno \u5f00\u542f\u65f6\u4f1a\u5728\u540e\u53f0\u4fdd\u6301\u8fd0\u884c\uff0c\u4ee5\u4fbf\u667a\u80fd\u4f53\u8fde\u63a5\u6b64 iPhone\u3002Qeno \u4e0d\u4f1a\u8bb0\u5f55\u6216\u53d1\u9001\u4f60\u7684\u4f4d\u7f6e\u3002"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qeno \u958b\u555f\u6642\u6703\u5728\u80cc\u666f\u4fdd\u6301\u57f7\u884c\uff0c\u4ee5\u4fbf\u667a\u6167\u9ad4\u9023\u7dda\u6b64 iPhone\u3002Qeno \u4e0d\u6703\u8a18\u9304\u6216\u50b3\u9001\u4f60\u7684\u4f4d\u7f6e\u3002"
           }
         }
       }
     },
     "NSMicrophoneUsageDescription": {
       "comment": "Info.plist",
-      "extractionState": "extracted_with_value",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
-            "state": "new",
-            "value": "Qeno listens while you talk to it in Voice, and sends that audio to OpenAI to understand what you ask."
+            "state": "translated",
+            "value": "Qeno listens when you talk in Voice and sends the audio to OpenAI to understand your request."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "你在“语音”里和 Qeno 说话时，Qeno 会收音，并把音频发给 OpenAI 来理解你的要求。"
+            "value": "\u4f60\u5728\u201c\u8bed\u97f3\u201d\u4e2d\u4e0e Qeno \u4ea4\u8c08\u65f6\uff0cQeno \u4f1a\u6536\u97f3\u5e76\u5c06\u97f3\u9891\u53d1\u7ed9 OpenAI \u4ee5\u7406\u89e3\u4f60\u7684\u8bf7\u6c42\u3002"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u4f60\u5728\u300c\u8a9e\u97f3\u300d\u4e2d\u8207 Qeno \u4ea4\u8ac7\u6642\uff0cQeno \u6703\u6536\u97f3\u4e26\u5c07\u97f3\u8a0a\u50b3\u9001\u7d66 OpenAI \u4ee5\u7406\u89e3\u4f60\u7684\u8acb\u6c42\u3002"
           }
         }
       }

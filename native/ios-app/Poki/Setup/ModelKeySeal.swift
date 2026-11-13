@@ -3,8 +3,8 @@ import Foundation
 
 /// A model key the installer on the Mac sealed to a key this phone made (`poki.model-key/1`, written
 /// by `src/install/model-key.mjs`): ephemeral P-256 ECDH, HKDF-SHA256, AES-256-GCM. The additional data
-/// binds the schema, the phone key's id, the provider, Poki's bundle id and an expiry, so the file
-/// opens only in this Poki, for that provider, before it expires. Only CryptoKit and Foundation, so
+/// binds the schema, the phone key's id, the provider, Qeno's bundle id and an expiry, so the file
+/// opens only in this Qeno, for that provider, before it expires. Only CryptoKit and Foundation, so
 /// the same file builds on a Mac for the installer's interop test.
 enum ModelKeySeal {
     static let schema = "poki.model-key/1"

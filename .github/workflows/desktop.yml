@@ -1,4 +1,4 @@
-# Builds Poki Setup (desktop/) for Windows (NSIS setup.exe) with the Tauri shell, after the core tests.
+# Builds Qeno Setup (desktop/) for Windows (NSIS setup.exe) with the Tauri shell, after the core tests.
 # The macOS app is native SwiftUI and builds in desktop-mac.yml. Runs on demand, on a desktop-vX.Y.Z
 # tag, or on dev/desktop-* branch pushes on the fork only.
 name: desktop
@@ -49,6 +49,7 @@ jobs:
           - name: Windows (x64)
             os: windows-2022
     runs-on: ${{ matrix.os }}
+    environment: stable
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
