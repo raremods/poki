@@ -108,11 +108,11 @@ final class SelfSigner {
         guard let u = ready["update"] else { return true }
         return u.version != latest.version || u.build != latest.build
     }
-    /// Why Poki cannot download the update by itself, when it cannot. Nil when it can.
+    /// Why Qeno cannot download the update by itself, when it cannot. Nil when it can.
     var updateBlocker: String? {
         guard updateNotReady else { return nil }
-        if !signedIn { return String(localized: "To download updates by itself, Poki needs your Apple Account: sign in under Signing Options. Or update Poki from Poki Setup on your Mac.") }
-        if phone() == nil { return String(localized: "Poki can't reach this iPhone. Turn on the loopback, then try again.") }
+        if !signedIn { return String(localized: "To download updates by itself, Qeno needs your Apple Account: sign in under Signing Options. Or update Qeno from Qeno Setup on your Mac.") }
+        if phone() == nil { return String(localized: "Qeno can't reach this iPhone. Turn on the loopback, then try again.") }
         return nil
     }
     var channelTitle: String { status?.channels.first { $0.id == status?.channel }?.title ?? status?.channel ?? "" }

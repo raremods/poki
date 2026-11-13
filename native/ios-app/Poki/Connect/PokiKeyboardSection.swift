@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-/// What Poki knows of its keyboard: iOS lists it as added, and it has answered (which takes Full Access).
+/// What Qeno knows of its keyboard: iOS lists it as added, and it has answered (which takes Full Access).
 struct PokiKeyboardState {
     var added = PokiKeyboardTyping.added
     var answered = PokiKeyboardTyping.lastStatus != nil
@@ -28,14 +28,14 @@ struct PokiKeyboardSetupRow: View {
                 Text(state.word).foregroundStyle(.orange)
             }
         } label: {
-            Label("Add the Poki Keyboard", systemImage: "keyboard")
+            Label("Add the Qeno Keyboard", systemImage: "keyboard")
         }
         .onAppear { state = PokiKeyboardState() }
         .onChange(of: scenePhase) { _, phase in if phase == .active { state = PokiKeyboardState() } }
     }
 }
 
-/// Setup › Add the Poki Keyboard: what it is for, how to add it, and whether it has answered.
+/// Setup › Add the Qeno Keyboard: what it is for, how to add it, and whether it has answered.
 struct PokiKeyboardPage: View {
     @State private var state = PokiKeyboardState()
     @Environment(\.scenePhase) private var scenePhase
@@ -50,22 +50,22 @@ struct PokiKeyboardPage: View {
                     LabeledContent("Not Used Last Time") { Text(verbatim: last).foregroundStyle(.secondary) }
                 }
             } footer: {
-                Text("Poki types through its own keyboard panel, at a person’s pace. The panel has no keys: it shows while Poki types, and Take Over stops it.")
+                Text("Qeno types through its own keyboard panel, at a person’s pace. The panel has no keys: it shows while Qeno types, and Take Over stops it.")
             }
             Section {
-                Text("Open **Settings › General › Keyboard › Keyboards › Add New Keyboard** and choose **Poki**.")
-                Text("Tap **Poki** in that list and turn on **Allow Full Access**.")
-                Text("Keep your usual keyboards. Then switch to the Poki keyboard once in any text field, so Poki knows it is there.")
+                Text("Open **Settings › General › Keyboard › Keyboards › Add New Keyboard** and choose **Qeno**.")
+                Text("Tap **Qeno** in that list and turn on **Allow Full Access**.")
+                Text("Keep your usual keyboards. Then switch to the Qeno keyboard once in any text field, so Qeno knows it is there.")
                 Button("Open Settings") {
                     if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
                 }
             } header: {
                 Text("How to Add It")
             } footer: {
-                Text("Full Access lets the panel talk to Poki on this iPhone. It has no network access and never uses the clipboard.")
+                Text("Full Access lets the panel talk to Qeno on this iPhone. It has no network access and never uses the clipboard.")
             }
         }
-        .navigationTitle("Poki Keyboard")
+        .navigationTitle("Qeno Keyboard")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { state = PokiKeyboardState() }
         .onChange(of: scenePhase) { _, phase in if phase == .active { state = PokiKeyboardState() } }
@@ -84,7 +84,7 @@ struct TypingSettingsSection: View {
     var body: some View {
         Section {
             Picker("Text Entry", selection: $method) {
-                Text("Poki Keyboard").tag("keyboard")
+                Text("Qeno Keyboard").tag("keyboard")
                 Text("Paste").tag("paste")
             }
             if method != "paste" {
@@ -101,9 +101,9 @@ struct TypingSettingsSection: View {
         } footer: {
             VStack(alignment: .leading, spacing: 6) {
                 if method == "paste" {
-                    Text("Poki types with key presses and pastes what the keys can’t type, such as Chinese and emoji. Your clipboard is put back afterwards. The Poki keyboard is not used.")
+                    Text("Qeno types with key presses and pastes what the keys can’t type, such as Chinese and emoji. Your clipboard is put back afterwards. The Qeno keyboard is not used.")
                 } else {
-                    Text("Poki types through its own keyboard and never touches the clipboard. When the keyboard can’t be used, plain text is typed with key presses, and other text is not entered.")
+                    Text("Qeno types through its own keyboard and never touches the clipboard. When the keyboard can’t be used, plain text is typed with key presses, and other text is not entered.")
                     if systemPinyin { Text("The system Pinyin keyboard is slower and reads the screen while it types.") }
                 }
                 if showLearning {

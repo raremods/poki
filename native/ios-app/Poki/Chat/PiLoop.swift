@@ -42,8 +42,8 @@ final class PiLoop {
             // Stable Go session affinity for all model and tool-continuation requests.
             sessionId: provider == .opencodeGo ? sessionID : nil,
             identity: provider == .opencodeGo
-                ? ClientIdentity(userAgent: .custom("poki-ios/0.2.8"),
-                                 attribution: .value(ClientAttribution(name: "Poki", url: "https://github.com/JosssphZhou/poki")))
+                ? ClientIdentity(userAgent: .custom("qeno-ios/0.2.9"),
+                                 attribution: .value(ClientAttribution(name: "Qeno", url: "https://github.com/raremods/poki")))
                 : nil,
             getApiKey: { _ in await ModelCredential.apiKey(for: provider) },
             // Go's Anthropic and Gemini adapters also require Console Bearer auth.

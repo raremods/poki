@@ -39,7 +39,7 @@ private final class NativeServicesBridge: @unchecked Sendable {
     init() {
         let config: [String: Any] = [
             "device_address": "10.7.0.1", "pairing_file": AppFiles.pairingFile.path,
-            "host_name": "Poki",
+            "host_name": "Qeno",
             "input_without_media": UserDefaults.standard.bool(forKey: NativeServicesWDA.inputWithoutScreenSharingKey),
         ]
         guard let data = try? JSONSerialization.data(withJSONObject: config) else { handle = nil; return }
@@ -89,18 +89,18 @@ final class NativeServicesWDA: HTTPTransport, @unchecked Sendable {
     private var focused: [String: Any]?
     private var cachedTree: (at: Date, tree: Tree)?
     private var treeTask: Task<Tree, Error>?
-    /// Testing Options: touches and keys go out with no screen-sharing session at all. Read when Poki turns on.
+    /// Testing Options: touches and keys go out with no screen-sharing session at all. Read when Qeno turns on.
     static let inputWithoutScreenSharingKey = "poki.native.inputWithoutScreenSharing"
 
     init(screen: CGSize) { self.screen = screen }
 
-    /// PokiCore asks Poki's keyboard first (`keyboard: true` on /wda/keys) and types the old way when
+    /// PokiCore asks Qeno's keyboard first (`keyboard: true` on /wda/keys) and types the old way when
     /// the keyboard declines.
     var typesThroughKeyboard: Bool { !Self.pasteAllowed }
 
-    /// How text is entered (Setup › Advanced › Typing): "keyboard", the default, is Poki's keyboard
+    /// How text is entered (Setup › Advanced › Typing): "keyboard", the default, is Qeno's keyboard
     /// with key presses behind it and never the clipboard; "paste" is key presses with a paste for
-    /// what the keys cannot type, and no Poki keyboard.
+    /// what the keys cannot type, and no Qeno keyboard.
     static let typingMethodKey = "poki.typing.method"
     static var pasteAllowed: Bool { UserDefaults.standard.string(forKey: typingMethodKey) == "paste" }
     private static let pasteOff = "Pasting is off: the owner can choose Paste under Setup › Advanced › Typing."
@@ -214,7 +214,7 @@ final class NativeServicesWDA: HTTPTransport, @unchecked Sendable {
             // Checked before anything is sent, so no part of the text goes in.
             if !Self.pasteAllowed, requests.contains(where: { $0["op"] as? String == "type_text" }) {
                 let why = UserDefaults.standard.string(forKey: PokiKeyboardTyping.lastDeclineKey).map { " (\($0))" } ?? ""
-                throw Self.failure("Nothing was typed. This text has characters that key presses cannot type, and Poki's keyboard was not used\(why). \(Self.pasteOff)")
+                throw Self.failure("Nothing was typed. This text has characters that key presses cannot type, and Qeno's keyboard was not used\(why). \(Self.pasteOff)")
             }
             for request in requests {
                 let answer = try await input.call(request)
@@ -246,7 +246,7 @@ final class NativeServicesWDA: HTTPTransport, @unchecked Sendable {
         }
     }
 
-    /// One whole text through Poki's keyboard. `declined` when the keyboard never had the text, so
+    /// One whole text through Qeno's keyboard. `declined` when the keyboard never had the text, so
     /// PokiCore types it the old way; anything else is the keyboard's own account of what it typed.
     private func typeThroughKeyboard(_ text: String, body: JSON?, timeout: Double) async throws -> JSON {
         let keyboard = PokiKeyboardTyping { [input] request in try await input.call(request) }

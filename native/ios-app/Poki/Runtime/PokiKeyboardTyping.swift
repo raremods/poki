@@ -1,6 +1,6 @@
 import Foundation
 
-/// Typing through Poki's keyboard (PokiKeyboard, over KeyboardLink): the text reaches the app the
+/// Typing through Qeno's keyboard (PokiKeyboard, over KeyboardLink): the text reaches the app the
 /// way any keyboard's does, and the keyboard itself says what the field holds afterwards, so nothing
 /// on the screen is read while typing.
 ///
@@ -83,7 +83,7 @@ final class PokiKeyboardTyping {
     // MARK: Typing
 
     func type(_ text: String, _ options: Options) async throws -> Answer {
-        guard Self.available else { return .declined("the Poki keyboard is not added in Settings") }
+        guard Self.available else { return .declined("the Qeno keyboard is not added in Settings") }
         guard let directory = KeyboardLink.directory else { return .declined("the App Group is not available") }
         guard !text.isEmpty, text.count <= 2000 else { return .declined("the text is empty or over 2000 characters") }
         let started = Date()
@@ -106,14 +106,14 @@ final class PokiKeyboardTyping {
             }
             if !accepted {
                 if KeyboardLink.withdraw(KeyboardLink.requestFile, in: directory) {
-                    return .declined(switching ? "it did not come up when Poki switched keyboards (the field may take no other keyboard)"
+                    return .declined(switching ? "it did not come up when Qeno switched keyboards (the field may take no other keyboard)"
                         : !options.maySwitch ? "it was not the keyboard in use, and no text field was known to have the focus"
                         : !Self.setting(Self.autoSwitchKey) ? "it was not the keyboard in use, and switching to it is turned off"
                         : "it was not the keyboard in use, and switching to it failed in this app a few minutes ago")
                 }
                 // It took the request in this very moment.
                 guard try await acknowledged(id, in: directory, within: 1.5) else {
-                    throw Self.failure("The Poki keyboard took the text but did not answer. Look at the field before typing again; nothing was typed another way.")
+                    throw Self.failure("The Qeno keyboard took the text but did not answer. Look at the field before typing again; nothing was typed another way.")
                 }
             }
             return try await follow(id, text: text, in: directory)
@@ -160,18 +160,18 @@ final class PokiKeyboardTyping {
                     throw Self.takeover("The owner took over after \(status.typed) of \(status.total) characters.")
                 case .stopped:
                     // Nothing went in: the text may still be typed another way.
-                    if status.typed == 0 { return .declined(status.note ?? "the Poki keyboard stopped before typing") }
-                    throw Self.failure("The Poki keyboard typed \(status.typed) of \(status.total) characters, then stopped: \(status.note ?? "no reason given"). Look at the field before typing the rest; nothing was typed again.")
+                    if status.typed == 0 { return .declined(status.note ?? "the Qeno keyboard stopped before typing") }
+                    throw Self.failure("The Qeno keyboard typed \(status.typed) of \(status.total) characters, then stopped: \(status.note ?? "no reason given"). Look at the field before typing the rest; nothing was typed again.")
                 case .typing, .idle:
                     if Date().timeIntervalSince(status.updated) > 6 {
-                        throw Self.failure("The Poki keyboard stopped answering after \(status.typed) of \(status.total) characters. Look at the field before typing the rest; nothing was typed again.")
+                        throw Self.failure("The Qeno keyboard stopped answering after \(status.typed) of \(status.total) characters. Look at the field before typing the rest; nothing was typed again.")
                     }
                 }
             }
             guard Date() < deadline else {
                 KeyboardLink.write(["id": id], KeyboardLink.cancelFile, in: directory)
                 KeyboardLink.signal()
-                throw Self.failure("The Poki keyboard did not finish in time. Look at the field before typing the rest; nothing was typed again.")
+                throw Self.failure("The Qeno keyboard did not finish in time. Look at the field before typing the rest; nothing was typed again.")
             }
             try await Task.sleep(nanoseconds: 30_000_000)
         }
@@ -179,16 +179,16 @@ final class PokiKeyboardTyping {
 
     // MARK: Switching to the keyboard
 
-    /// How many presses of the shortcut reached Poki's keyboard last time (its place after the
+    /// How many presses of the shortcut reached Qeno's keyboard last time (its place after the
     /// owner's usual keyboard).
     static let switchPressesKey = "poki.keyboard.switchPresses"
     /// Why the keyboard was last not used, for Settings and the answer.
     static let lastDeclineKey = "poki.keyboard.lastDecline"
 
-    /// Brings Poki's keyboard up from another keyboard with the hardware-keyboard shortcut for the
+    /// Brings Qeno's keyboard up from another keyboard with the hardware-keyboard shortcut for the
     /// next input source (Control-Space), one source at a time, until the keyboard itself answers.
     /// Nothing on the screen is read or tapped: the app sees a keyboard change, as when its owner
-    /// changes keyboards. When Poki's keyboard never answers (the field takes no third-party
+    /// changes keyboards. When Qeno's keyboard never answers (the field takes no third-party
     /// keyboard, or nothing has the focus), one more press completes the circle, back to the keyboard
     /// the owner had.
     ///

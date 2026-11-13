@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// What the panel shows. The keyboard has no keys: Poki types through it, and the owner types on
+/// What the panel shows. The keyboard has no keys: Qeno types through it, and the owner types on
 /// their own keyboard.
 @MainActor
 final class PanelModel: ObservableObject {
@@ -12,7 +12,7 @@ final class PanelModel: ObservableObject {
     var switchKeyboard: () -> Void = {}
 }
 
-/// The keyboard's whole face: a line saying what Poki is doing and one button, on the system's own
+/// The keyboard's whole face: a line saying what Qeno is doing and one button, on the system's own
 /// keyboard backdrop. Native controls only (a ProgressView, a glass button on iOS 26 and a bordered
 /// one before it), in the system's fonts and colours, so it follows light and dark with the keyboard.
 struct KeyboardPanel: View {
@@ -61,11 +61,11 @@ struct KeyboardPanel: View {
 /// The panel's few words, in English or Simplified Chinese after the iPhone's language.
 enum Words {
     static let chinese = Locale.preferredLanguages.first?.hasPrefix("zh") ?? false
-    static var typing: String { chinese ? "Poki 正在输入…" : "Poki is typing…" }
+    static var typing: String { chinese ? "Qeno 正在输入…" : "Qeno is typing…" }
     static var takeOver: String { chinese ? "我来输入" : "Take Over" }
-    static var idleTitle: String { chinese ? "Poki 键盘" : "Poki Keyboard" }
-    static var idleDetail: String { chinese ? "Poki 工作时通过这里输入。要自己输入，请切换到你的键盘。" : "Poki types through here while it works. To type yourself, switch to your own keyboard." }
-    static var fullAccess: String { chinese ? "请在“设置”里为 Poki 键盘打开“允许完全访问”，它才能收到 Poki 要输入的文字。" : "Turn on Allow Full Access for the Poki keyboard in Settings, so it can receive the text Poki types." }
+    static var idleTitle: String { chinese ? "Qeno 键盘" : "Qeno Keyboard" }
+    static var idleDetail: String { chinese ? "Qeno 工作时通过这里输入。要自己输入，请切换到你的键盘。" : "Qeno types through here while it works. To type yourself, switch to your own keyboard." }
+    static var fullAccess: String { chinese ? "请在“设置”里为 Qeno 键盘打开“允许完全访问”，它才能收到 Qeno 要输入的文字。" : "Turn on Allow Full Access for the Qeno keyboard in Settings, so it can receive the text Qeno types." }
     static var switchKeyboard: String { chinese ? "切换键盘" : "Switch Keyboard" }
     static var nextKeyboard: String { chinese ? "下一个键盘" : "Next Keyboard" }
 }
