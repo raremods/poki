@@ -92,12 +92,12 @@ runs:
         VERSION="${RELEASE_VERSION:-$(tr -d ' \n' < native/ios-app/VERSION)}"
         BUILD="${RELEASE_BUILD:-$GITHUB_RUN_NUMBER}"
         for edition in ${POKI_EDITIONS:-external}; do
-          project=Qeno
+          project=Poki
           ipa=Poki-unsigned.ipa
           if [ "$edition" = external ]; then project=PokiExternal; ipa=Poki-external-unsigned.ipa; fi
           echo "::group::$edition edition"
           xcodebuild build \
-            -project "native/ios-app/$project.xcodeproj" -scheme Qeno -configuration Release \
+            -project "native/ios-app/$project.xcodeproj" -scheme Poki -configuration Release \
             -destination generic/platform=iOS -derivedDataPath "build/app-$edition" \
             CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ARCHS=arm64 \
             MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD" \
