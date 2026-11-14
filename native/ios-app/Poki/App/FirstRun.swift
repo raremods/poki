@@ -1,4 +1,5 @@
 import AVFoundation
+import PokiCore
 import Speech
 import SwiftUI
 
@@ -53,7 +54,7 @@ struct FirstRunGuide: View {
     @Binding var link: SetupStep?
     var done: () -> Void
 
-    enum Page: Int, CaseIterable { case hello, phone, model, voice, ready }
+    enum Page: Int, CaseIterable { case hello, phone, model, voice, teach, try, ready }
 
     @State private var page = Page.hello
     @State private var path = NavigationPath()
@@ -80,6 +81,8 @@ struct FirstRunGuide: View {
         case .phone: .onYourPhone
         case .model: .thinking
         case .voice: .listening
+        case .teach: .thinking
+        case .try: .ready
         case .ready: ready ? .done : .ready
         }
     }
@@ -90,6 +93,8 @@ struct FirstRunGuide: View {
         case .phone: String(localized: "Set Up This iPhone")
         case .model: String(localized: "Pick a Model")
         case .voice: String(localized: "Talk Instead of Typing")
+        case .teach: String(localized: "Teach Qeno")
+        case .try: String(localized: "What to Try")
         case .ready: ready ? String(localized: "All Set") : String(localized: "Nearly There")
         }
     }
@@ -104,9 +109,13 @@ struct FirstRunGuide: View {
             return String(localized: "I think with a model from your own account. Sign in or add a key. You can change it any time.")
         case .voice:
             return String(localized: "To hear you, I need the microphone and speech recognition.")
+        case .teach:
+            return String(localized: "Notes are the facts I read before every task. Teach me once, and I remember.")
+        case .try:
+            return String(localized: "Ask like you would a person: who, where, and what.")
         case .ready:
             return ready
-                ? String(localized: "Try “Order my usual coffee”. Type it, or say it.")
+                ? String(localized: "Try “Order my usual coffee”. Type it, or say it. Your notes live on this iPhone; add more in Settings › Memory.")
                 : String(localized: "Look around now. Once the switches are on, I can use this iPhone. They are in Settings › Automation › Setup.")
         }
     }
@@ -216,9 +225,44 @@ struct FirstRunGuide: View {
                 .buttonStyle(PressedDimStyle())
             }
             .id(hasModel)
+        case .teach:
+            TeachNoteCard()
+        case .try:
+            FirstRunCard {
+                ForEach(Array(Self.tryExamples.enumerated()), id: \.offset) { index, example in
+                    if index > 0 { Divider().padding(.leading, 58) }
+                    Button { pick(example) } label: { tryRow(example) }
+                        .buttonStyle(PressedDimStyle())
+                        .accessibilityIdentifier("firstRun.try.\(index)")
+                }
+            }
         default:
             EmptyView()
         }
+    }
+
+    /// The three things to try, as the home page's suggestions say them.
+    private static let tryExamples: [(symbol: String, text: String)] = [
+        (symbol: "message", text: String(localized: "Text Mom I’m on my way")),
+        (symbol: "car", text: String(localized: "Book a ride home")),
+        (symbol: "cup.and.saucer", text: String(localized: "Order my usual coffee")),
+    ]
+
+    private func tryRow(_ example: (symbol: String, text: String)) -> some View {
+        HStack(spacing: 14) {
+            SettingsIcon(symbol: example.symbol, size: 30)
+            Text(verbatim: example.text).font(.body).foregroundStyle(Color(.label)).multilineTextAlignment(.leading)
+            Spacer(minLength: 8)
+            Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Color(.tertiaryLabel))
+        }
+        .padding(.horizontal, 14).frame(minHeight: 56).contentShape(.rect)
+    }
+
+    /// A try picked: its words go in the message field, and the welcome pages are done.
+    private func pick(_ example: (symbol: String, text: String)) {
+        MessageFieldAsk.shared.ask(text: example.text)
+        FirstRun.finish()
+        done()
     }
 
     /// The providers named on the page; the rest are behind More Providers.
@@ -294,6 +338,8 @@ struct FirstRunGuide: View {
             if let nextStep { "Continue with Step \(nextStep.number)" } else { "Continue" }
         case .model: hasModel ? "Continue" : "Add an Account"
         case .voice: voiceAllowed ? "Continue" : "Allow Microphone"
+        case .teach: "Continue"
+        case .try: "Continue"
         case .ready: "Start"
         }
     }
@@ -303,7 +349,7 @@ struct FirstRunGuide: View {
         case .phone: nextStep != nil
         case .model: !hasModel
         case .voice: !voiceAllowed
-        case .hello, .ready: false
+        case .hello, .teach, .try, .ready: false
         }
     }
 
@@ -322,6 +368,8 @@ struct FirstRunGuide: View {
                 voiceAllowed = await Dictation.allowed()
                 go(next)
             }
+        case .teach: go(next)
+        case .try: go(next)
         case .ready:
             FirstRun.finish()
             done()
@@ -365,6 +413,49 @@ struct FirstRunAgain: View {
         .buttonStyle(.plain)
         .accessibilityIdentifier("setup.firstRun")
         .fullScreenCover(isPresented: $welcoming) { FirstRunGuide(link: .constant(nil), done: { welcoming = false }) }
+    }
+}
+
+/// The teach page's card: one note, written here and saved to the memory Qeno reads before every
+/// task. Saving is optional; the page never blocks on it.
+private struct TeachNoteCard: View {
+    @State private var text = ""
+    @State private var saved: String?
+    @FocusState private var focused: Bool
+
+    var body: some View {
+        FirstRunCard {
+            if let saved {
+                HStack(spacing: 14) {
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(Tint.green)
+                    Text(verbatim: saved).font(.body).foregroundStyle(Color(.label)).multilineTextAlignment(.leading)
+                    Spacer(minLength: 8)
+                }
+                .padding(.horizontal, 14).frame(minHeight: 56).contentShape(.rect)
+            } else {
+                HStack(spacing: 14) {
+                    TextField("e.g., Mom is “Mama” in Contacts", text: $text)
+                        .font(.body)
+                        .submitLabel(.done)
+                        .focused($focused)
+                        .onSubmit(add)
+                    Button { add() } label: {
+                        Text("Add").font(.subheadline.weight(.semibold)).foregroundStyle(Tint.blueText)
+                    }
+                    .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("firstRun.teach.add")
+                }
+                .padding(.horizontal, 14).frame(minHeight: 56).contentShape(.rect)
+            }
+        }
+    }
+
+    private func add() {
+        guard let note = RoutineStore.shared.remember(text, by: "owner") else { return }
+        saved = note.text
+        text = ""
+        focused = false
     }
 }
 

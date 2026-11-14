@@ -79,6 +79,9 @@ targets:
         BGTaskSchedulerPermittedIdentifiers: ["$(POKI_BUNDLE_ID).run.*"]
         # Documents/AgentBackup holds the agent's memory backup, which Qeno Setup copies off and puts back.
         UIFileSharingEnabled: true
+        # The App Store upload check (ITMS-90737) wants the document configuration declared: Qeno
+        # opens documents in place.
+        LSSupportsOpeningDocumentsInPlace: true
         NSLocationWhenInUseUsageDescription: Qeno keeps running in the background while it is on, so agents can reach this iPhone. Qeno does not record or send your location.
         NSLocationAlwaysAndWhenInUseUsageDescription: Qeno keeps running in the background while it is on, so agents can reach this iPhone. Qeno does not record or send your location.
         CFBundleURLTypes:

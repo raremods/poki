@@ -1,5 +1,6 @@
 import AVFoundation
 import PhotosUI
+import PokiCore
 import SwiftUI
 
 /// The chat is the app. Before your first message it is the home page: the fog-blue ground, Qeno's
@@ -44,6 +45,10 @@ struct ChatView: View {
     @State private var draft = UserDefaults.standard.string(forKey: "pokiDraft") ?? ""
     /// The message field has the keyboard.
     @State private var writing = false
+    /// The "Remember this for next time" card, after a task that went well while Qeno knows
+    /// nothing about its owner yet.
+    @State private var showRemember = false
+    @State private var rememberText = ""
     /// Taps on New Conversation on the home page, for the message field (`ComposerInputView.restarts`).
     @State private var restarts = 0
     /// The page's height, for how far your first words rise.
@@ -175,9 +180,21 @@ struct ChatView: View {
         .animation(.snappy, value: chat.demoAsk?.id)
         .toolbar(.hidden, for: .navigationBar)
         .onChange(of: chat.running) { was, now in
-            if was, !now, endedWell { DoneLinger.shared.celebrate() }
+            if was, !now, endedWell {
+                DoneLinger.shared.celebrate()
+                // Nothing saved about the owner yet, and the card was not dismissed: offer one note.
+                if RoutineStore.shared.notes.isEmpty, !UserDefaults.standard.bool(forKey: "qenoRememberDismissed") {
+                    showRemember = true
+                }
+            } else if !was, now {
+                showRemember = false
+            }
         }
-        .onChange(of: MessageFieldAsk.shared.pending, initial: true) { if MessageFieldAsk.shared.take() { writing = true } }
+        .onChange(of: MessageFieldAsk.shared.pending, initial: true) {
+            guard MessageFieldAsk.shared.pending else { return }
+            if let text = MessageFieldAsk.shared.takeText() { draft = text }
+            writing = true
+        }
     }
 
     /// How far your first words rise: from the message field to their place under the top bar.
@@ -202,7 +219,25 @@ struct ChatView: View {
         } else if let text = model.handoffText {
             TurnCard(text: Self.local(text), done: model.handoffDoneInApp)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
+        } else if showRemember {
+            RememberNoteCard(text: $rememberText, save: saveRemember, dismiss: dismissRemember)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
         }
+    }
+
+    /// The remember card's note, saved to the memory Qeno reads before every task. Once any note
+    /// exists the card never shows again.
+    private func saveRemember() {
+        guard RoutineStore.shared.remember(rememberText, by: "owner") != nil else { return }
+        rememberText = ""
+        showRemember = false
+    }
+
+    /// The remember card, put away for good.
+    private func dismissRemember() {
+        UserDefaults.standard.set(true, forKey: "qenoRememberDismissed")
+        rememberText = ""
+        showRemember = false
     }
 
     /// The app's own hand-over wordings in the phone's language; the model's own words as they are.
