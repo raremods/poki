@@ -693,9 +693,7 @@ struct SetupChecklist: View {
                 }
                 // Qeno's own keyboard, which it types through on this path. It does not hold Qeno
                 // back: without it, plain text is still typed with key presses.
-                if AutomationPath.current == .nativeServices {
-                    NavigationLink { PokiKeyboardPage() } label: { PokiKeyboardSetupRow() }
-                }
+                NavigationLink { PokiKeyboardPage() } label: { PokiKeyboardSetupRow() }
             } footer: {
                 Text(model.setupComplete ? "Everything Qeno needs is in place." : "Qeno needs every item ticked before an agent or the chat can use this iPhone. Items tick themselves when the phone can check them.")
             }
