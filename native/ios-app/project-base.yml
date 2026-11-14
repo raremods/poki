@@ -112,6 +112,7 @@ targets:
         com.apple.security.application-groups: [$(POKI_APP_GROUP)]
     dependencies:
       - target: PokiWidgets
+      - target: PokiKeyboard
       - package: PokiCore
       - package: WebRTC
       - package: PiSwift
