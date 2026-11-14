@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The light behind the chat (ESP-376, the owner's pick "fog blue"), two layers one over the other.
+/// The light behind the chat (ESP-376, the owner's pick "mint-to-violet aura"), two layers one over the other.
 /// The conversation's ground is always there: a clean pale page with a faint brand-blue glow behind
 /// the message field, under a quarter of the screen high, still unless Qeno is at work. Over it, on the
 /// home page, lies the home's light: paper white above, blue rising from the bottom edge, breathing
@@ -133,16 +133,16 @@ struct LightMesh {
     /// The home page (sections 1 and 4), breathing as `HomeBreath` says.
     static let home = LightMesh(
         rows: [[0, 0, 0, 0], [0.42, 0.44, 0.41, 0.43], [0.56, 0.60, 0.55, 0.59], [0.76, 0.80, 0.75, 0.81], [1, 1, 1, 1]], darkDrop: 0.02,
-        light: [0xF5F7FA, 0xF5F7FA, 0xF5F7FA, 0xF5F7FA,
-                0xF5F7FA, 0xF5F7FA, 0xF5F7FA, 0xF5F7FA,
-                0xE4F0FC, 0xEDF3FB, 0xEAEEFB, 0xF0F2FA,
-                0xA6D6FA, 0xB2D1FD, 0xB6C4FB, 0xC6CCF8,
-                0x4AB2F7, 0x3A8CFE, 0x4878F6, 0x6C80F0],
+        light: [0xF7FAF8, 0xF7FAF8, 0xF7FAF8, 0xF7FAF8,
+                0xF2FAF6, 0xF2FAF6, 0xF2FAF6, 0xF2FAF6,
+                0xD8F3E6, 0xDFF2EA, 0xE2EEF8, 0xE9E8FA,
+                0x93E2C2, 0x8ED4D8, 0x9ABCEC, 0xB3A8F5,
+                0x2EC4A5, 0x47A7C2, 0x5985E0, 0x6C63FF],
         dark: [0x05070D, 0x05070D, 0x05070D, 0x05070D,
                0x05070D, 0x05070D, 0x05070D, 0x05070D,
-               0x06101F, 0x071226, 0x08102A, 0x070C1C,
-               0x0B3C8A, 0x0C4FC0, 0x173FB0, 0x14286E,
-               0x1260D8, 0x1A6FF0, 0x2056E0, 0x2440B8],
+               0x071A16, 0x081A18, 0x0A1424, 0x0D1024,
+               0x0B3D33, 0x0C3A40, 0x12294F, 0x1B1E56,
+               0x0E7A66, 0x1A6E8C, 0x2A4F9E, 0x4A45B5],
         period: HomeBreath.period, motion: HomeBreath.motion, glow: HomeBreath.glow)
 
     /// The conversation (section 10): the home's bottom colours taken 85 % of the way back to the
@@ -151,16 +151,16 @@ struct LightMesh {
     /// seconds, each starting a quarter turn after the last so the glow does not sway as one piece.
     static let chat = LightMesh(
         rows: [[0, 0, 0, 0], [0.75, 0.76, 0.75, 0.76], [0.84, 0.86, 0.83, 0.85], [0.93, 0.94, 0.92, 0.94], [1, 1, 1, 1]], darkDrop: 0,
-        light: [0xF5F8FC, 0xF5F8FC, 0xF5F8FC, 0xF5F8FC,
-                0xF5F8FC, 0xF5F8FC, 0xF5F8FC, 0xF5F8FC,
-                0xE8F3FC, 0xE7F0FC, 0xE8EEFC, 0xEBEFFB,
-                0xDFEFFB, 0xDDEAFC, 0xDFE8FB, 0xE4E9FA,
-                0xDBEEFB, 0xD9E8FC, 0xDBE5FB, 0xE0E6FA],
+        light: [0xF7FAF8, 0xF7FAF8, 0xF7FAF8, 0xF7FAF8,
+                0xF7FAF8, 0xF7FAF8, 0xF7FAF8, 0xF7FAF8,
+                0xE4F7ED, 0xE6F4EE, 0xE8EEF8, 0xEBE9FA,
+                0xD8F2E4, 0xDAEEEF, 0xDEE9F7, 0xE4E4F9,
+                0xD2EEE2, 0xD4E9EC, 0xD8E4F6, 0xDFDFF8],
         dark: [0x05070D, 0x05070D, 0x05070D, 0x05070D,
                0x05070D, 0x05070D, 0x05070D, 0x05070D,
-               0x060E1C, 0x070F1E, 0x070D1D, 0x070B1A,
-               0x071227, 0x08142A, 0x081128, 0x090E23,
-               0x07142B, 0x08172F, 0x09132D, 0x0A1027],
+               0x071410, 0x071512, 0x08101C, 0x080E1C,
+               0x081A15, 0x091A19, 0x0A1424, 0x0B1022,
+               0x0A1E19, 0x0A1E1F, 0x0C1828, 0x0D1226],
         period: 14,
         motion: [(9, 0), (10, Double.pi / 2), (13, .pi), (14, 3 * .pi / 2)].flatMap { index, phase in
             [PointMotion(index: index, axis: .x, amplitude: 0.03, phase: phase - .pi / 2),
@@ -313,7 +313,7 @@ enum SoftLight {
 private struct EdgeLight: View {
     var dark: Bool
     var body: some View {
-        let colour = dark ? Color(hex: 0x9FD0FF) : .white
+        let colour = dark ? Color(hex: 0xB8F5DF) : .white
         EllipticalGradient(stops: SoftLight.stops(colour, strength: dark ? 0.45 : 0.40), center: .center,
                            startRadiusFraction: 0, endRadiusFraction: 0.5)
             .frame(width: 332 * 2.4, height: 33 * 2.4)

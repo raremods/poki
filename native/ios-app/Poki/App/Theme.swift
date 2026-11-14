@@ -37,8 +37,8 @@ enum Tint {
     static let ring = Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 1, alpha: 0.18) : .clear })
     /// The soft shadow under a blue block in light (the prototype's 0 6 18, blue at 22 %); none in dark.
     static let blueShadow = Color(UIColor { $0.userInterfaceStyle == .dark ? .clear : UIColor(hex: 0x0177FD).withAlphaComponent(0.22) })
-    /// The conversation's page (ESP-376): a cool paper white in light, a blue-black in dark.
-    static let page = Color(light: 0xF5F8FC, dark: 0x05070D)
+    /// The conversation's page (ESP-376): a paper white with a mint hint in light, a blue-black in dark.
+    static let page = Color(light: 0xF7FAF8, dark: 0x05070D)
     /// The conversations drawer, in the home light's own colours and still: a pale blue white in light,
     /// the deep blue of the home page's dark middle in dark.
     static let sidebar = Color(light: 0xEFF4FC, dark: 0x081329)
