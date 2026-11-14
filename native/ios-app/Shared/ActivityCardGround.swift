@@ -1,5 +1,5 @@
-// The Lock Screen card's fog-blue ground (ESP-344 定稿规格, sections 6 and 12): a mesh in the home
-// page's blues, a soft light behind the bear, light and dark.
+// The Lock Screen card's aura ground (ESP-344 定稿规格, sections 6 and 12): a mesh in mint to
+// violet, a soft light behind the bear, light and dark.
 // Source: this repository's local branch proto/esp-344-island-glow (31df16b7), Shared/ActivityTrial.swift
 // and Shared/ActivityTrialViews.swift, the prototype pane's trial code, with its switches taken out.
 import SwiftUI
@@ -31,15 +31,15 @@ struct CardSkin {
     static let haloRadius = 0.64
 
     static let light = CardSkin(
-        rows: [(0, [0x3E96FC, 0x0A70F2, 0x0A64E6, 0x2757DC]),
-               (0.52, [0x429FFA, 0x086EF0, 0x0C62E2, 0x2B56DA]),
-               (1, [0x4AB2F7, 0x0F76F4, 0x1266E6, 0x345CDE])],
-        halo: (0xE2EEFF, 0.42), rim: 0x0854CE, tint: 0x0A6CEE)
+        rows: [(0, [0xB2F2D7, 0x75DEBE, 0x5CB2C8, 0x7E76FF]),
+               (0.52, [0xA8F0D1, 0x62D9B5, 0x46A8C0, 0x6C63FF]),
+               (1, [0x97D8BC, 0x58C3A3, 0x3F97AD, 0x6159E6])],
+        halo: (0xD8FFF2, 0.42), rim: 0x2B5AA8, tint: 0x4E6FE8)
     static let dark = CardSkin(
-        rows: [(0, [0x0B3C8A, 0x0C4FC0, 0x173FB0, 0x14286E]),
-               (0.55, [0x0E4DB0, 0x1260D8, 0x1B4BC8, 0x1C3493]),
-               (1, [0x1260D8, 0x1A6FF0, 0x2056E0, 0x2440B8])],
-        halo: (0x3C8DFF, 0.46), rim: 0x062468, tint: 0x0E4FBE)
+        rows: [(0, [0x0E5A4C, 0x0F7A64, 0x2A4A8A, 0x3D3A9E]),
+               (0.55, [0x0E6B57, 0x128A72, 0x33559E, 0x4A45B5]),
+               (1, [0x0A5A4A, 0x0F7A64, 0x2E4C90, 0x423DA8])],
+        halo: (0x5EEAD4, 0.46), rim: 0x0A2E28, tint: 0x2E8A72)
 
     static func skin(dark: Bool) -> CardSkin { dark ? .dark : .light }
 
@@ -49,7 +49,7 @@ struct CardSkin {
     var across: [Gradient.Stop] { zip(Self.across, rows[1].colours).map { Gradient.Stop(color: Color(hex: $1), location: Double($0)) } }
 }
 
-/// Qeno's brand band: the card's lowest row of blues, left to right, where its light is brightest. The
+/// Qeno's brand band: the card's lowest row, left to right, where its light is brightest. The
 /// island's glow while you talk with Qeno and the talk's marks in the app draw it.
 enum BrandBand {
     static var colours: [Color] { CardSkin.light.rows[CardSkin.light.rows.count - 1].colours.map { Color(hex: $0) } }
