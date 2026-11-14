@@ -445,6 +445,51 @@ struct ApprovalAskCard: View {
     }
 }
 
+/// After a task that went well, while Qeno knows nothing about its owner yet: one line to teach it,
+/// saved as a note it reads before every task. Shown once, until a note exists or it is dismissed.
+struct RememberNoteCard: View {
+    @Binding var text: String
+    var save: () -> Void
+    var dismiss: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .center, spacing: 12) {
+                PokiAvatar(size: 48, mood: .thinking)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Remember this for next time").font(.headline).foregroundStyle(Color(.label))
+                    Text("I read it before every task.").font(.subheadline).foregroundStyle(Color(.secondaryLabel))
+                }
+                Spacer(minLength: 8)
+                Button { dismiss() } label: {
+                    Image(systemName: "xmark").font(.footnote.weight(.semibold)).foregroundStyle(Color(.secondaryLabel))
+                        .frame(width: 30, height: 30)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("Dismiss"))
+            }
+            HStack(spacing: 10) {
+                TextField("e.g., Mom is “Mama” in Contacts", text: $text)
+                    .font(.body)
+                    .submitLabel(.done)
+                    .onSubmit(save)
+                Button { save() } label: {
+                    Text("Save").font(.subheadline.weight(.semibold)).foregroundStyle(Tint.blueText)
+                }
+                .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("rememberNote.save")
+            }
+            .padding(.horizontal, 14)
+            .frame(minHeight: 48)
+            .background(Color(.tertiarySystemGroupedBackground), in: .rect(cornerRadius: 14, style: .continuous))
+        }
+        .padding(18)
+        // It floats over the conversation and asks for an answer: the control layer, so glass.
+        .glassSurface(in: RoundedRectangle(cornerRadius: 30, style: .continuous), fallback: .card)
+    }
+}
+
 /// The two answers side by side, the second 1.35 times the first: the board's Don’t Allow and Hold to Allow.
 private struct AnswerRow: Layout {
     var spacing: CGFloat = 8
