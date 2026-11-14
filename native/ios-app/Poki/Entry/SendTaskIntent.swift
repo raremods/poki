@@ -5,7 +5,7 @@ import AppIntents
 /// doing something, Qeno opens on the chat instead and the task under way keeps running.
 struct SendTaskToPokiIntent: ForegroundContinuableIntent {
     static let title = LocalizedStringResource("Send Task to Qeno", table: "Entry")
-    static let description = IntentDescription(LocalizedStringResource("Qeno starts the task on this iPhone and tells you when it is done.", table: "Entry"))
+    static let description = IntentDescription(LocalizedStringResource("Qeno starts the task and tells you when it is done.", table: "Entry"))
     static let openAppWhenRun = false
     @available(iOS 26.0, *)
     static var supportedModes: IntentModes { [.background, .foreground(.dynamic)] }
