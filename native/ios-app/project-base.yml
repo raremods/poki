@@ -37,6 +37,9 @@ targets:
     sources:
       - path: Poki
       - path: Shared
+      # The mailbox the app and the Qeno keyboard share (tested on its own: KeyboardShared/Package.swift).
+      - path: KeyboardShared/Sources/KeyboardShared
+        group: KeyboardShared
       # The gym scorecard (native/ios-gym/check), run in-process by the Debug probe's `gym` mode.
       - path: ../ios-gym/check/GymScorecard.swift
         group: Poki/Debug

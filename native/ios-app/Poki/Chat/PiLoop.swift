@@ -43,12 +43,6 @@ final class PiLoop {
         // agent/pi-session.mjs: low thinking, one tool call at a time.
         agent = Agent(AgentOptions(
             initialState: AgentState(model: model, thinkingLevel: .low, tools: agentTools, messages: messages),
-            // Stable Go session affinity for all model and tool-continuation requests.
-            sessionId: provider == .opencodeGo ? sessionID : nil,
-            identity: provider == .opencodeGo
-                ? ClientIdentity(userAgent: .custom("qeno-ios/0.4.1"),
-                                 attribution: .value(ClientAttribution(name: "Qeno", url: "https://github.com/raremods/poki")))
-                : nil,
             getApiKey: { _ in await ModelCredential.apiKey(for: provider) },
             toolExecution: .sequential
         ))

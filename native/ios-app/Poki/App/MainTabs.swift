@@ -273,7 +273,7 @@ struct AdvancedView: View {
                     }
                 } header: { Text("Qeno Runner") }
             }
-            if model.automationPath == .nativeServices { TypingSettingsSection() }
+            TypingSettingsSection()
 
             Section {
                 Button("Notification Settings", systemImage: "bell.badge") {
