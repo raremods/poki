@@ -54,7 +54,7 @@ struct FirstRunGuide: View {
     @Binding var link: SetupStep?
     var done: () -> Void
 
-    enum Page: Int, CaseIterable { case hello, phone, model, voice, teach, try, ready }
+    enum Page: Int, CaseIterable { case hello, phone, model, voice, teach, tryIt, ready }
 
     @State private var page = Page.hello
     @State private var path = NavigationPath()
@@ -82,7 +82,7 @@ struct FirstRunGuide: View {
         case .model: .thinking
         case .voice: .listening
         case .teach: .thinking
-        case .try: .ready
+        case .tryIt: .ready
         case .ready: ready ? .done : .ready
         }
     }
@@ -94,7 +94,7 @@ struct FirstRunGuide: View {
         case .model: String(localized: "Pick a Model")
         case .voice: String(localized: "Talk Instead of Typing")
         case .teach: String(localized: "Teach Qeno")
-        case .try: String(localized: "What to Try")
+        case .tryIt: String(localized: "What to Try")
         case .ready: ready ? String(localized: "All Set") : String(localized: "Nearly There")
         }
     }
@@ -111,7 +111,7 @@ struct FirstRunGuide: View {
             return String(localized: "To hear you, I need the microphone and speech recognition.")
         case .teach:
             return String(localized: "Notes are the facts I read before every task. Teach me once, and I remember.")
-        case .try:
+        case .tryIt:
             return String(localized: "Ask like you would a person: who, where, and what.")
         case .ready:
             return ready
@@ -227,7 +227,7 @@ struct FirstRunGuide: View {
             .id(hasModel)
         case .teach:
             TeachNoteCard()
-        case .try:
+        case .tryIt:
             FirstRunCard {
                 ForEach(Array(Self.tryExamples.enumerated()), id: \.offset) { index, example in
                     if index > 0 { Divider().padding(.leading, 58) }
@@ -339,7 +339,7 @@ struct FirstRunGuide: View {
         case .model: hasModel ? "Continue" : "Add an Account"
         case .voice: voiceAllowed ? "Continue" : "Allow Microphone"
         case .teach: "Continue"
-        case .try: "Continue"
+        case .tryIt: "Continue"
         case .ready: "Start"
         }
     }
@@ -349,7 +349,7 @@ struct FirstRunGuide: View {
         case .phone: nextStep != nil
         case .model: !hasModel
         case .voice: !voiceAllowed
-        case .hello, .teach, .try, .ready: false
+        case .hello, .teach, .tryIt, .ready: false
         }
     }
 
@@ -369,7 +369,7 @@ struct FirstRunGuide: View {
                 go(next)
             }
         case .teach: go(next)
-        case .try: go(next)
+        case .tryIt: go(next)
         case .ready:
             FirstRun.finish()
             done()
