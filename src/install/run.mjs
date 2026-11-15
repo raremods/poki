@@ -18,7 +18,7 @@ import { signingRefused, ddiRecovery } from '../ddi-failure.mjs';
 const exec = promisify(execFile);
 export const manifest = JSON.parse(readFileSync(new URL('./steps.json', import.meta.url), 'utf8'));
 const fakeBridgePath = fileURLToPath(new URL('./fake-bridge.mjs', import.meta.url));
-export const defaultStateDir = () => join(homedir(), 'Library/Application Support/PokiInstall');
+export const defaultStateDir = () => join(homedir(), 'Library/Application Support/QenoInstall');
 const cliPath = fileURLToPath(new URL('../../bin/install-iphone.mjs', import.meta.url));
 const shellQuote = text => (/^[\w@%+=:,./-]+$/.test(text) ? text : `'${text.replaceAll("'", "'\\''")}'`);
 // What the person pastes into a new Terminal (which starts in their home folder, not in the checkout):

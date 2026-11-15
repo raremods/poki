@@ -62,7 +62,7 @@ Several iPhones plugged in: list them with `node bin/install-iphone.mjs phones` 
 
 The installer runs these in order. Most need nobody. Each step is complete when its `done` event confirms the result described below. A `wait` remains incomplete until its condition is met. Inspect every `skipped` reason; a skipped installation does not prove an update, and a manual step remains unverified until the user confirms it.
 
-1. **`setup_app`** Downloads Qeno Setup and checks its SHA-256, Developer ID team (`Q64ZL36CJN`) <!-- TODO: replace `Q64ZL36CJN` (Joseph Zhou's team) with the Uncut Rush team ID before a Qeno Setup release is published. --> and notarization. Nobody acts.
+1. **`setup_app`** Downloads Qeno Setup and checks its SHA-256, Developer ID team (`AJ9G5DH5ZQ`) and notarization. Nobody acts.
 2. **`bridge`** Starts Qeno Setup's helper without a window. Nobody acts.
 3. **`channel`** Chooses the release channel, Alpha by default, and saves it as Qeno Setup's channel on this Mac. Nobody acts.
 4. **`apple_account`** Signs in with the Apple Account, on the Mac only. Qeno Setup keeps the sign-in for renewals. Stops `apple_dialog` and `apple_code_dialog` when this Mac was never signed in.
@@ -160,7 +160,7 @@ The installer exits with code 2. The last `error` event has `code`, `reason` and
 |---|---|---|
 | `setup_download_failed` | GitHub did not serve a release asset or its metadata. | A 403 or 429 from `api.github.com` is usually GitHub's hourly limit on anonymous requests, shared by everyone on the same network, and is not retried: ask the user to switch to another network or proxy node and run the same command again, or to wait an hour. Other failures make at most 3 attempts per request, and asset requests switch to the release asset API after a 5xx or connection failure. Report the failed URL/status and rerun later if both routes fail. |
 | `setup_checksum_mismatch` | The DMG does not match `SHA256SUMS-desktop.txt`. | Fetched again once. Then stop and report. Never open the file. |
-| `setup_signature_invalid` | Qeno Setup is not signed by team `Q64ZL36CJN` or not notarized. | Stop. Do not run it. Report it. |
+| `setup_signature_invalid` | Qeno Setup is not signed by team `AJ9G5DH5ZQ` or not notarized. | Stop. Do not run it. Report it. |
 | `setup_app_missing` | `phones` or `diagnose` cannot find Qeno Setup.app. | Run `run`, which installs it, or pass `--app-dir` or `--bridge`. |
 | `bridge_start_failed` | Qeno Setup's helper did not start. | Delete `~/Applications/Qeno Setup.app` if the installer put it there, and run again. |
 | `usbmuxd_unreachable` | macOS does not list the iPhone (issue #6). | Ask the user to plug it in again, unlocked. Then run `diagnose`. |

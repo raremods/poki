@@ -10,8 +10,8 @@ import { join } from 'node:path';
 import { promisify } from 'node:util';
 
 const exec = promisify(execFile);
-export const REPO = 'JosssphZhou/poki';
-export const TEAM_ID = 'Q64ZL36CJN';
+export const REPO = 'raremods/poki';
+export const TEAM_ID = 'AJ9G5DH5ZQ';
 const ORDER = ['stable', 'beta', 'alpha', 'pre-alpha'];
 const BRIDGE = 'Contents/MacOS/poki-setup-bridge';
 
@@ -22,7 +22,7 @@ export class SetupError extends Error {
   }
 }
 
-// ios-* and desktop-* tags, and Poki's app-* tags (app-0.2.9-prealpha.640, app-prealpha-latest,
+// ios-* and desktop-* tags, and Qeno's app-* tags (app-0.2.9-prealpha.640, app-prealpha-latest,
 // app-0.2.9-alpha.640, app-alpha-latest, app-0.3.0-beta.1, app-0.3.0).
 export function channelOf(tag, prerelease) {
   const app = /^app-(.+)$/.exec(tag);
@@ -52,7 +52,7 @@ async function github(path) {
 }
 
 // The newest macOS installer a channel offers, with the release that carries it. A channel with no
-// installer of its own takes the next less stable channel's, as Poki Setup does (release.rs pick_desktop).
+// installer of its own takes the next less stable channel's, as Qeno Setup does (release.rs pick_desktop).
 export async function latestSetup(channel) {
   const at = ORDER.indexOf(channel);
   if (at < 0) throw new SetupError('unknown', `Unknown channel ${channel}; use ${ORDER.join(', ')}`);

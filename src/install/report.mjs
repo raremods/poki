@@ -70,7 +70,7 @@ function setupHomes(state, record, setupHome) {
   return [setupHome, record?.setup_home, join(state, 'setup-home'), join(homedir(), 'Library/Application Support/nz.Poki.Poki-Setup')].filter(Boolean);
 }
 
-// The same Poki Setup run used, so the usbmuxd view is never silently missing.
+// The same Qeno Setup run used, so the usbmuxd view is never silently missing.
 function locate({ bridge, appDir, record }) {
   try { return { path: bridge ?? findSetupBridge({ recorded: record?.setup_bridge, into: appDir }) }; } catch (error) { return { error }; }
 }
@@ -118,8 +118,8 @@ export async function issueDraft({ state }) {
   const step = manifest.steps.find(s => s.id === stepId);
   const title = `Install stops at ${step?.title ?? stepId}: ${code}`;
   const phone = bundle.phones?.[0];
-  const stepLabel = { setup_app: 'Get Poki Setup', bridge: 'Start Poki Setup', channel: 'Start Poki Setup', apple_account: 'Sign in with the Apple Account', phone: 'Find the iPhone', open_poki: 'Trust the developer and open Poki', relay: 'Relay', check: 'Self-check' }[stepId]
-    ?? (stepId === 'install' ? { trust_not_answered: 'Pair (Trust This Computer)', developer_mode_off: 'Developer Mode' }[code] ?? 'Sign and install Poki' : "Don't know");
+  const stepLabel = { setup_app: 'Get Qeno Setup', bridge: 'Start Qeno Setup', channel: 'Start Qeno Setup', apple_account: 'Sign in with the Apple Account', phone: 'Find the iPhone', open_poki: 'Trust the developer and open Qeno', relay: 'Relay', check: 'Self-check' }[stepId]
+    ?? (stepId === 'install' ? { trust_not_answered: 'Pair (Trust This Computer)', developer_mode_off: 'Developer Mode' }[code] ?? 'Sign and install Qeno' : "Don't know");
   // Headings are the install-failure template's labels, so the draft reads like a form submission.
   const body = [
     '<!-- Drafted by node bin/install-iphone.mjs issue. Identifiers and secrets were removed; read it before you submit. -->',
@@ -133,11 +133,11 @@ export async function issueDraft({ state }) {
     manifest.errors[code] ? `- The installer's fix for this code: ${manifest.errors[code].agent_fix}` : '', '',
     '### Diagnostics', '', '```json', JSON.stringify(bundle, null, 2), '```', '',
     '### Versions', '',
-    `Poki installer ${bundle.installer ? installerLabel(bundle.installer) : 'unknown'}; Poki Setup ${bundle.poki_setup ?? 'unknown'} (channel ${bundle.channel ?? 'unknown'}); Poki ${bundle.poki ?? 'not installed'}; macOS ${bundle.system.macos} ${bundle.system.arch}; Xcode: ${bundle.system.xcode}; ${phone?.product_type ?? 'iPhone unknown'} on iOS ${phone?.ios ?? 'unknown'}${phone?.build ? ` (${phone.build})` : ''} over ${phone?.link ?? 'unknown'}`,
+    `Qeno installer ${bundle.installer ? installerLabel(bundle.installer) : 'unknown'}; Qeno Setup ${bundle.poki_setup ?? 'unknown'} (channel ${bundle.channel ?? 'unknown'}); Qeno ${bundle.poki ?? 'not installed'}; macOS ${bundle.system.macos} ${bundle.system.arch}; Xcode: ${bundle.system.xcode}; ${phone?.product_type ?? 'iPhone unknown'} on iOS ${phone?.ios ?? 'unknown'}${phone?.build ? ` (${phone.build})` : ''} over ${phone?.link ?? 'unknown'}`,
     '',
   ].join('\n');
   const draftFile = join(state, 'issue-draft.md');
   await writeFile(draftFile, body);
-  const command = `gh issue create --repo JosssphZhou/poki --title ${JSON.stringify(title)} --body-file ${JSON.stringify(draftFile)} --label bug`;
+  const command = `gh issue create --repo raremods/poki --title ${JSON.stringify(title)} --body-file ${JSON.stringify(draftFile)} --label bug`;
   return { title, body, draftFile, command };
 }

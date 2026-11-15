@@ -8,15 +8,15 @@
 // The plan is one of scripts/release/plans/*.json (default with-compat-releases.json). Its Beta
 // (app-X.Y.Z-beta.K) is made a full release, as when it is marked Latest on GitHub. Per step this
 // prints, for every channel the installer accepts:
-//   - the Poki Setup DMG, from this checkout's own latestSetup() in src/install/setup-app.mjs, run
+//   - the Qeno Setup DMG, from this checkout's own latestSetup() in src/install/setup-app.mjs, run
 //     against the planned release list;
-//   - the release and IPA Poki Setup's helper installs, from scripts/release/first-hop-check.mjs,
+//   - the release and IPA Qeno Setup's helper installs, from scripts/release/first-hop-check.mjs,
 //     the port of desktop/core/src/release.rs (unchanged between Poki Setup 661 and main);
 //   - the files the installer's own fallback (downloadIpa) fetches when the helper cannot download;
 //   - which release GitHub's releases/latest then names, and what Poki MCP's update notice offers.
-// Then it resolves every github.com/JosssphZhou/poki/releases link in the install entry points and
+// Then it resolves every github.com/raremods/poki/releases link in the install entry points and
 // docs against the last step, and runs the real installer against a GitHub that answers 403.
-// Exit 1 when the default channel installs a Pre-alpha or nothing, a channel finds no Poki Setup,
+// Exit 1 when the default channel installs a Pre-alpha or nothing, a channel finds no Qeno Setup,
 // or a link points at a release that lacks what it promises.
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const REPO = 'JosssphZhou/poki';
+const REPO = 'raremods/poki';
 const CHANNELS = ['stable', 'beta', 'alpha', 'pre-alpha'];
 const DEFAULT_CHANNEL = 'alpha';
 const isBeta = tag => /^app-\d+\.\d+\.\d+-beta\.\d+$/.test(tag);
@@ -114,7 +114,7 @@ const short = url => url.replace(`https://api.github.com/repos/${REPO}`, 'api').
 
 console.log(`# One-click install of a new user, step by step\n`);
 console.log(`Plan: ${planFile.replace(`${root}/`, '')}, candidate build ${build}, releases today ${values.live ? 'read from GitHub now' : `from ${plan.base.replace(`${root}/`, '')}`}. The Beta is published as a full release and so becomes GitHub's Latest. Every later step is planned, not published.\n`);
-console.log(`Installer default channel: ${DEFAULT_CHANNEL} (bin/install-iphone.mjs). Poki Setup's helper picks the IPA (release.rs port); this checkout's latestSetup() picks Poki Setup.\n`);
+console.log(`Installer default channel: ${DEFAULT_CHANNEL} (bin/install-iphone.mjs). Qeno Setup's helper picks the IPA (release.rs port); this checkout's latestSetup() picks Poki Setup.\n`);
 
 let last;
 const states = readdirSync(join(work, 'states')).filter(f => f.endsWith('.in')).map(f => f.slice(0, -3)).sort((a, b) => Number(a.split('-')[1]) - Number(b.split('-')[1]));
@@ -123,7 +123,7 @@ for (const [index, name] of states.entries()) {
   last = { releases, picks };
   const isLast = index === states.length - 1;
   console.log(`## ${index}. ${stepNames[index]}\n`);
-  console.log('| Channel | Poki Setup the installer downloads | Release the helper installs | IPA | Poki | Result |');
+  console.log('| Channel | Qeno Setup the installer downloads | Release the helper installs | IPA | Qeno | Result |');
   console.log('| --- | --- | --- | --- | --- | --- |');
   for (const channel of CHANNELS) {
     const requests = [];
@@ -166,7 +166,7 @@ for (const [index, name] of states.entries()) {
   console.log(`GitHub Latest: ${latest ? `${latest.tag_name} (${latest.assets.join(', ') || 'no files'})` : 'none'}. Poki MCP ${mcpVersion}'s update notice: ${notice ? `offers ${notice.version}` : `none (newest Poki MCP release ${releases.filter(r => isMcp(r.tag_name)).map(r => r.tag_name).sort().at(-1) ?? 'missing'})`}.\n`);
   if (isLast) {
     const app = picks[DEFAULT_CHANNEL];
-    console.log(`Answer: a new user on the default channel gets ${app ? `${app.file} from ${app.tag}, Poki ${app.version} (${app.build})` : 'nothing'}${app && /prealpha/.test(app.tag) ? ', a Pre-alpha' : ', not a Pre-alpha'}.\n`);
+    console.log(`Answer: a new user on the default channel gets ${app ? `${app.file} from ${app.tag}, Qeno ${app.version} (${app.build})` : 'nothing'}${app && /prealpha/.test(app.tag) ? ', a Pre-alpha' : ', not a Pre-alpha'}.\n`);
   }
 }
 

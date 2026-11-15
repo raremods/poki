@@ -25,7 +25,7 @@ export async function installerVersion() {
 
 export const installerLabel = ({ version, commit: sha }) => `${version} (${sha})`;
 
-// Poki Setup's helper reports "0.2.1-319": version, then build.
+// Qeno Setup's helper reports "0.2.1-319": version, then build.
 export function setupLabel(text) {
   const match = /^(.+)-(\d+)$/.exec(text ?? '');
   return match ? `${match[1]} (${match[2]})` : text ?? null;
