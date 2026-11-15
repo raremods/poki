@@ -32,67 +32,67 @@ Poki MCP, the earlier way to drive an iPhone from an agent on a Mac, is no longe
 
 See what changed in each version in [CHANGELOG.md](CHANGELOG.md).
 
-## Install Poki on your iPhone
+## Install Qeno on your iPhone
 
-You need a computer once, to install Poki: a Mac or a Windows PC.
+You need a computer once, to install Qeno: a Mac or a Windows PC.
 
-- **On a Mac**, tell your agent to install Poki, or download Poki Setup for macOS and click through it.
-- **On Windows**, download Poki Setup for Windows and follow its window. Install Apple Devices or iTunes first, so the PC can find the iPhone over USB. Your agent can also run Poki Setup's own command line tool.
-- **After that**, Poki runs tasks on the iPhone without the computer. With a free Apple Account the signature lasts 7 days, and Poki Setup renews it while it stays open on the computer. See [Common questions](#common-questions).
+- **On a Mac**, tell your agent to install Qeno, or download Qeno Setup for macOS and click through it.
+- **On Windows**, download Qeno Setup for Windows and follow its window. Install Apple Devices or iTunes first, so the PC can find the iPhone over USB. Your agent can also run Qeno Setup's own command line tool.
+- **After that**, Qeno runs tasks on the iPhone without the computer. With a free Apple Account the signature lasts 7 days, and Qeno Setup renews it while it stays open on the computer. See [Common questions](#common-questions).
 
 ### With your agent (recommended)
 
 Tell your agent, such as Claude Code or Codex:
 
 ```text
-Install Poki on my iPhone from https://github.com/JosssphZhou/poki
+Install Qeno on my iPhone from https://github.com/raremods/poki
 ```
 
-The agent follows the [install-poki skill](skills/install-poki/SKILL.md) and runs `bin/install-iphone.mjs`, which does every step it can by itself. You only do what iOS asks of you: type your Apple Account into a Poki Setup window on the Mac, tap Trust and turn on Developer Mode on the iPhone, trust the developer, and open Poki. When Poki first opens it asks for Automation Mode: tap Continue and enter the iPhone passcode. If you cancel, turn Poki on again to be asked again. The agent tells you each step in a sentence when it comes up. A free Apple Account works.
+The agent follows the [install-qeno skill](skills/install-qeno/SKILL.md) and runs `bin/install-iphone.mjs`, which does every step it can by itself. You only do what iOS asks of you: type your Apple Account into a Qeno Setup window on the Mac, tap Trust and turn on Developer Mode on the iPhone, trust the developer, and open Qeno. When Qeno first opens it asks for Automation Mode: tap Continue and enter the iPhone passcode. If you cancel, turn Qeno on again to be asked again. The agent tells you each step in a sentence when it comes up. A free Apple Account works.
 
 The installer uses the Alpha channel unless you ask your agent for another one, such as Beta. Alpha gets each build first and Beta gets the same build after more testing.
 
-No Node.js 24, or on Windows? The same prompt works once Poki Setup is installed: the agent then uses the command line tool inside Poki Setup. Poki Setup's own menu also copies a prompt for your agent (Poki > Copy Prompt for Your Agent on a Mac, Settings > Use an agent on Windows).
+No Node.js 24, or on Windows? The same prompt works once Qeno Setup is installed: the agent then uses the command line tool inside Qeno Setup. Qeno Setup's own menu also copies a prompt for your agent (Qeno > Copy Prompt for Your Agent on a Mac, Settings > Use an agent on Windows).
 
-If GitHub answers 403 or 429 while the installer reads Poki's releases, it is usually GitHub's hourly limit on anonymous requests, which everyone on your network shares. Switch to another network or proxy node and run it again, or wait an hour.
+If GitHub answers 403 or 429 while the installer reads Qeno's releases, it is usually GitHub's hourly limit on anonymous requests, which everyone on your network shares. Switch to another network or proxy node and run it again, or wait an hour.
 
-### With Poki Setup
+### With Qeno Setup
 
-Prefer clicking through it yourself? Download Poki Setup for macOS (`.dmg`) or Windows (`.exe`, contributed by [ZhehanZhang](https://github.com/ZhehanZhang)) from the [Alpha release](https://github.com/JosssphZhou/poki/releases/tag/app-alpha-latest) and follow its window. The Beta release carries the same Poki Setup files. Until you pick a channel in its Settings, Poki Setup installs the newest Stable release, or the Beta while there is no Stable release yet. What Poki Setup does, step by step, is in [Poki Setup](desktop/README.md).
+Prefer clicking through it yourself? Download Qeno Setup for macOS (`.dmg`) or Windows (`.exe`, contributed by [ZhehanZhang](https://github.com/ZhehanZhang)) from the [Alpha release](https://github.com/raremods/poki/releases/tag/app-alpha-latest) and follow its window. The Beta release carries the same Qeno Setup files. Until you pick a channel in its Settings, Qeno Setup installs the newest Stable release, or the Beta while there is no Stable release yet. What Qeno Setup does, step by step, is in [Qeno Setup](desktop/README.md).
 
 ### What you need
 
 | | Requirement |
 | --- | --- |
-| iPhone | iOS 18 or later, so iPhone XS, XR, SE (2nd generation) or newer. Poki has been tested on physical iPhones with iOS 27. |
+| iPhone | iOS 18 or later, so iPhone XS, XR, SE (2nd generation) or newer. Qeno has been tested on physical iPhones with iOS 27. |
 | Computer | A Mac with macOS 14 or later, or a Windows PC (x64) with Apple Devices or iTunes installed. The agent install on a Mac also needs Node.js 24 or later. Xcode is not needed. |
-| Cable and account | A USB data cable and an Apple Account. With a free account the signature lasts 7 days, and Poki Setup can renew it for you. |
-| Connection | A VPN app on the iPhone that routes 10.7.0.1 back to the iPhone. The free LocalDevVPN from the App Store works, and so do Karing and Shadowrocket set up through Poki's instructions. |
+| Cable and account | A USB data cable and an Apple Account. With a free account the signature lasts 7 days, and Qeno Setup can renew it for you. |
+| Connection | A VPN app on the iPhone that routes 10.7.0.1 back to the iPhone. The free LocalDevVPN from the App Store works, and so do Karing and Shadowrocket set up through Qeno's instructions. |
 | Model account | Your own. Signing in with a ChatGPT Plus or Pro plan is the easiest start. You can also paste an API key from Anthropic, OpenAI, Gemini, DeepSeek or OpenRouter, or use your own OpenAI-compatible server. A Claude subscription cannot sign in, so use an Anthropic API key instead. |
 
-On iOS 27 and later Poki controls the iPhone through its native services. On iOS 18 to 26 it uses an XCTest session instead, which needs UI Automation turned on in the iPhone's Developer settings. The app also installs on iPad with iPadOS 18 or later.
+On iOS 27 and later Qeno controls the iPhone through its native services. On iOS 18 to 26 it uses an XCTest session instead, which needs UI Automation turned on in the iPhone's Developer settings. The app also installs on iPad with iPadOS 18 or later.
 
 ### Common questions
 
-**Can I install Poki from Windows?** Yes. Poki Setup for Windows installs, pairs and renews Poki like the Mac version. Install Apple Devices or iTunes first so the PC can find the iPhone. See [Poki Setup](desktop/README.md).
+**Can I install Qeno from Windows?** Yes. Qeno Setup for Windows installs, pairs and renews Qeno like the Mac version. Install Apple Devices or iTunes first so the PC can find the iPhone. See [Qeno Setup](desktop/README.md).
 
-**Do I still need the computer after installing?** Not to run tasks: Poki works on the iPhone alone. With a free Apple Account, keep Poki Setup open on the computer so it can renew the signature each week, or sign in to your Apple Account in Poki so the iPhone renews itself (that first sign-in can fail in 0.4.0; see [Known issues](#known-issues)). See [What to keep running](skills/install-poki/SKILL.md#what-to-keep-running).
+**Do I still need the computer after installing?** Not to run tasks: Qeno works on the iPhone alone. With a free Apple Account, keep Qeno Setup open on the computer so it can renew the signature each week, or sign in to your Apple Account in Qeno so the iPhone renews itself (that first sign-in can fail in 0.4.0; see [Known issues](#known-issues)). See [What to keep running](skills/install-qeno/SKILL.md#what-to-keep-running).
 
-**Does a free Apple Account work, and what is the 7-day limit?** A free account works, but Apple signs apps from it for 7 days only. While it is open, Poki Setup renews Poki every 6 hours once 2 days or fewer are left, as long as the computer is awake and the iPhone is reachable. Without a renewal, Poki stops opening when the signature ends, so it warns you in its last 2 days. See [No paid developer account](skills/install-poki/SKILL.md#no-paid-developer-account).
+**Does a free Apple Account work, and what is the 7-day limit?** A free account works, but Apple signs apps from it for 7 days only. While it is open, Qeno Setup renews Qeno every 6 hours once 2 days or fewer are left, as long as the computer is awake and the iPhone is reachable. Without a renewal, Qeno stops opening when the signature ends, so it warns you in its last 2 days. See [No paid developer account](skills/install-qeno/SKILL.md#no-paid-developer-account).
 
 **Which iPhone and iOS do I need?** iOS 18 or later, so iPhone XS, XR, SE (2nd generation) or newer, and iPad with iPadOS 18 or later. Physical testing so far has been on iOS 27; iOS 18 to 26 use a different control path that has not been tested on a physical iPhone yet. See [Verification and known limits](docs/verification.md).
 
-**Do I need my own model account?** Yes. Sign in with a ChatGPT Plus or Pro plan, or paste an API key from Anthropic, OpenAI, Gemini, DeepSeek or OpenRouter, or use your own OpenAI-compatible server. Talking with Poki also needs a voice model key. See [What you need](#what-you-need).
+**Do I need my own model account?** Yes. Sign in with a ChatGPT Plus or Pro plan, or paste an API key from Anthropic, OpenAI, Gemini, DeepSeek or OpenRouter, or use your own OpenAI-compatible server. Talking with Qeno also needs a voice model key. See [What you need](#what-you-need).
 
-**No update shows up, for example on a network in mainland China. What now?** Poki looks for updates on GitHub, and some networks cannot reach it or hit GitHub's 403 and 429 limits. Try another network or proxy node, or update from the computer with Renew in Poki Setup. See [Update Poki](#update-poki).
+**No update shows up, for example on a network in mainland China. What now?** Qeno looks for updates on GitHub, and some networks cannot reach it or hit GitHub's 403 and 429 limits. Try another network or proxy node, or update from the computer with Renew in Qeno Setup. See [Update Qeno](#update-qeno).
 
-**Will Poki change things on my iPhone, and does it ask first?** Poki works in your real apps and does what you ask, including sending messages, and the screen contents go to the model service you set up. Payments, deletions and actions in Wallet always need your confirmation. For other sensitive steps, such as sending a message or typing a password, you choose in Settings > Approvals how Poki asks, or whether it asks. See [Known issues](#known-issues).
+**Will Qeno change things on my iPhone, and does it ask first?** Qeno works in your real apps and does what you ask, including sending messages, and the screen contents go to the model service you set up. Payments, deletions and actions in Wallet always need your confirmation. For other sensitive steps, such as sending a message or typing a password, you choose in Settings > Approvals how Qeno asks, or whether it asks. See [Known issues](#known-issues).
 
-## Update Poki
+## Update Qeno
 
-- **On the iPhone.** Open Poki's signing and updates page: Settings > Connection > Signing & Updates in 0.4.0, or the Signing page in Settings in 0.3.1. When a newer build is out, the page offers to download and install it. If it asks you to sign in first, Poki was installed from a computer and the iPhone does not have your Apple Account yet. Sign in with the account you installed with, or update from the computer instead.
-- **From the computer.** Renew in Poki Setup installs the newest build on its channel over the installed app. On a Mac you can also tell your agent "Update Poki on my iPhone"; the install-poki skill has a separate update path that checks the installed version and signing identity first.
-- If an update stops at "Finishing the update", swipe Poki away in the app switcher and open it again, then check the version in Settings. If the version did not change, update from Poki Setup on the computer. Do not delete Poki to fix an update: deleting it deletes its conversations.
+- **On the iPhone.** Open Qeno's signing and updates page: Settings > Connection > Signing & Updates in 0.4.0, or the Signing page in Settings in 0.3.1. When a newer build is out, the page offers to download and install it. If it asks you to sign in first, Qeno was installed from a computer and the iPhone does not have your Apple Account yet. Sign in with the account you installed with, or update from the computer instead.
+- **From the computer.** Renew in Qeno Setup installs the newest build on its channel over the installed app. On a Mac you can also tell your agent "Update Qeno on my iPhone"; the install-qeno skill has a separate update path that checks the installed version and signing identity first.
+- If an update stops at "Finishing the update", swipe Qeno away in the app switcher and open it again, then check the version in Settings. If the version did not change, update from Qeno Setup on the computer. Do not delete Qeno to fix an update: deleting it deletes its conversations.
 
 The release channels and how a build moves from Alpha to Beta are in [Release channels](docs/release-channels.md).
 
@@ -145,7 +145,7 @@ This lists directions, not dates.
 | Topic | Read |
 | --- | --- |
 | What changed in each version | [CHANGELOG.md](CHANGELOG.md) |
-| Installing the iPhone app with an agent | [install-poki skill](skills/install-poki/SKILL.md) |
+| Installing the iPhone app with an agent | [install-qeno skill](skills/install-qeno/SKILL.md) |
 | Poki Setup for Mac and Windows | [Poki Setup](desktop/README.md) |
 | Release channels and how builds are promoted | [Release channels](docs/release-channels.md) |
 | Poki MCP installation, other MCP clients, and troubleshooting (no longer updated) | [Install guide](docs/install.md) |
@@ -275,7 +275,7 @@ Thanks to everyone who opened an issue or pull request. Your feedback and fixes 
 
 ## Poki MCP (earlier computer connection, no longer updated)
 
-Poki MCP is the earlier way to use Poki: an agent on your Mac, such as Claude Code or Codex, drives an iPhone or the iOS Simulator, and Qeno Agent, a terminal agent with iMessage and Telegram channels, runs on it. It is no longer updated and stays here as it is for people who already use it or want to build on it. For a maintained way to run Poki, [install the Poki app](#install-poki-on-your-iphone) on your iPhone.
+Poki MCP is the earlier way to use Poki: an agent on your Mac, such as Claude Code or Codex, drives an iPhone or the iOS Simulator, and Qeno Agent, a terminal agent with iMessage and Telegram channels, runs on it. It is no longer updated and stays here as it is for people who already use it or want to build on it. For a maintained way to run Qeno, [install the Qeno app](#install-qeno-on-your-iphone) on your iPhone.
 
 **Let your agent install it.** Copy this to your agent:
 

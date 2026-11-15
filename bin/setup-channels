@@ -28,7 +28,7 @@ NEXT_STEPS = '''Finish setup yourself (the installer does not open apps or send 
 3. In BlueBubbles Connection, set the same server password you supplied here
    and click the save icon. Keep the local server URL/port consistent with it.
    Follow any remaining onboarding prompts in BlueBubbles yourself.
-4. Private API and disabling SIP are not required for Poki's plain-text channel.
+4. Private API and disabling SIP are not required for Qeno's plain-text channel.
    See docs/imessage-gateway.md before checking or starting the channel.'''
 
 
@@ -52,7 +52,7 @@ def settings(answers):
         print('Choose a server password now, then set the same password in BlueBubbles during onboarding.')
         data = {'url': ask('Local BlueBubbles server URL', 'http://127.0.0.1:1234'),
                 'sender': ask('Allowed iMessage sender (email or phone number)'),
-                'device': ask('Poki device name or ID')}
+                'device': ask('Qeno device name or ID')}
         data['chatGuid'] = ask('Exact direct chat GUID', 'iMessage;-;' + data['sender'])
         data['password'] = getpass.getpass('BlueBubbles server password (hidden): ')
     if not isinstance(data, dict):
@@ -143,7 +143,7 @@ def install(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Optionally install the pinned BlueBubbles gateway and configure Poki iMessage.')
+    parser = argparse.ArgumentParser(description='Optionally install the pinned BlueBubbles gateway and configure Qeno iMessage.')
     parser.add_argument('--channel', choices=['none', 'imessage'], help='Omit to choose interactively; default is none.')
     parser.add_argument('--app-dir', default='~/Applications', help='Application destination directory; existing apps are never replaced.')
     parser.add_argument('--config-dir', default='~/.config/poki-agent/imessage', help='New private configuration directory.')
@@ -154,7 +154,7 @@ def main():
     if channel is None:
         channel = ask('Optional messaging channel: none or imessage', 'none').lower()
     if channel == 'none':
-        print('Skipped iMessage. No gateway downloaded or installed; existing Poki setup is unchanged.')
+        print('Skipped iMessage. No gateway downloaded or installed; existing Qeno setup is unchanged.')
     elif channel == 'imessage':
         install(args)
     else:

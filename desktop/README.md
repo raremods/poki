@@ -1,6 +1,6 @@
 # Qeno Setup
 
-The desktop companion for the Qeno iPhone app, for macOS and Windows. One click installs Poki on an iPhone with your own Apple ID, pairs the phone, keeps the app signed, and manages your relay and connector links. It is what SideStore and AltServer do for sideloading, done for Poki, and it is the way in for iPhones below iOS 27 (which cannot pair with themselves) and for free Apple IDs (which must re-sign every 7 days).
+The desktop companion for the Qeno iPhone app, for macOS and Windows. One click installs Qeno on an iPhone with your own Apple ID, pairs the phone, keeps the app signed, and manages your relay and connector links. It is what SideStore and AltServer do for sideloading, done for Qeno, and it is the way in for iPhones below iOS 27 (which cannot pair with themselves) and for free Apple IDs (which must re-sign every 7 days).
 
 ```
 desktop/
@@ -14,13 +14,13 @@ desktop/
 | Step | How |
 |---|---|
 | Finds the iPhone | usbmuxd over the cable (macOS has it; Windows gets it with iTunes or Apple Devices); Wi-Fi with a saved pairing record |
-| Pairs | lockdown pairing; the person taps Trust once; the record is saved for Poki |
+| Pairs | lockdown pairing; the person taps Trust once; the record is saved for Qeno |
 | Developer Mode | turned on through AMFI; the phone restarts once and asks |
 | Signs in | Apple's GSA (SRP-6a, 2FA by trusted device or SMS); anisette from macOS itself, or an anisette v3 server on Windows |
 | Developer portal | registers the phone, makes an RSA key and certificate for this computer, App IDs `com.owaiken.qeno.<TEAM>` and `.widgets`, the app group, team profiles |
-| Signs Poki | the newest release on the chosen channel (Settings › Updates, or `poki-setup channel`): Stable (default) = `ios-v*` full releases, Beta = `ios-v*` prereleases too, Alpha = `ios-alpha-*` builds too, Pre-alpha = `ios-prealpha-*` snapshots too, and a channel with no release yet falls back one step at a time toward Pre-alpha; its external edition, re-signed with apple-codesign (pure Rust); the packet-tunnel extension is left out because a team profile cannot carry its entitlement |
+| Signs Qeno | the newest release on the chosen channel (Settings › Updates, or `poki-setup channel`): Stable (default) = `ios-v*` full releases, Beta = `ios-v*` prereleases too, Alpha = `ios-alpha-*` builds too, Pre-alpha = `ios-prealpha-*` snapshots too, and a channel with no release yet falls back one step at a time toward Pre-alpha; its external edition, re-signed with apple-codesign (pure Rust); the packet-tunnel extension is left out because a team profile cannot carry its entitlement |
 | Installs | installation_proxy, profiles through misagent |
-| Pairing file | written straight into Poki's container, and offered as a `qeno://pairing?url=…&sha256=…` QR on the LAN |
+| Pairing file | written straight into Qeno's container, and offered as a `qeno://pairing?url=…&sha256=…` QR on the LAN |
 | Keeps it alive | the phones this computer set up, with their expiry; renewal is due with 2 days left and runs by itself every 6 h when the password is kept |
 | Relay | deploys `deploy/cf-relay/worker.js` to your own Cloudflare account through the API and shows the `qeno://setup?relay=` QR |
 | Connectors | keeps links the phone made, runs the OAuth round and `tools/list` through the phone, writes client snippets |
@@ -34,7 +34,7 @@ Qeno Setup ships its command line tool, `poki-setup`, inside the app: `/Applicat
 - With `--json`, every command prints its result on stdout and its progress on stderr, one JSON object per line. Exit codes: 0 done, 1 failed, 2 a person has to act, 3 waiting for Apple's sign-in code.
 - Sign-in works without a terminal: `login <email> --password-stdin`, then `login --code <code>` when Apple asks for one. The person can also run `login <email>` in their own terminal, which keeps the password out of the agent.
 - `poki-setup update` updates Qeno Setup itself on the chosen channel.
-- `poki-setup prompt` prints the instructions to hand an agent ([AGENT-PROMPT.md](AGENT-PROMPT.md)). The app copies the same text: Poki > Copy Prompt for Your Agent on a Mac, Settings > Use an agent on Windows.
+- `poki-setup prompt` prints the instructions to hand an agent ([AGENT-PROMPT.md](AGENT-PROMPT.md)). The app copies the same text: Qeno > Copy Prompt for Your Agent on a Mac, Settings > Use an agent on Windows.
 
 ## Build
 
@@ -50,11 +50,11 @@ Data lives in the OS app-data directory (`POKI_SETUP_HOME` overrides it): pairin
 
 ## Release approval
 
-Uploading Poki Setup installers requires the repository owner's approval. The Windows workflow
+Uploading Qeno Setup installers requires the repository owner's approval. The Windows workflow
 uses the protected `stable` environment. The macOS workflow only creates Actions artifacts.
 For app channels, Pre-alpha is automatic; Alpha, Beta, and Stable require the owner's approval.
 See [Release channels](../docs/release-channels.md).
 
 ## Licences
 
-The crate is AGPL-3.0-only like Poki. Logic ported from: SideStore's icloud-auth and omnisette (MPL-2.0; GSA and anisette protocol), Dadoum's Sideloader (GPL-3.0; developer portal shapes), AltSign (AGPL-3.0; the entitlement rule). Apple's corecrypto and ldid are not used. See THIRD_PARTY_NOTICES.md.
+The crate is AGPL-3.0-only like Qeno. Logic ported from: SideStore's icloud-auth and omnisette (MPL-2.0; GSA and anisette protocol), Dadoum's Sideloader (GPL-3.0; developer portal shapes), AltSign (AGPL-3.0; the entitlement rule). Apple's corecrypto and ldid are not used. See THIRD_PARTY_NOTICES.md.
