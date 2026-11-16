@@ -5,7 +5,7 @@
 <h1 align="center">Poki usa tu iPhone como lo harías tú</h1>
 
 <p align="center">
-  <img src="docs/images/poki-home.gif" width="720" alt="Animación de la página de inicio del sitio web de Poki">
+  <img src="docs/images/qeno-home.gif" width="720" alt="Animación de la página de inicio del sitio web de Qeno">
 </p>
 
 <p align="center">

@@ -5,7 +5,7 @@
 <h1 align="center">Poki 用你的 iPhone，就像你自己在用</h1>
 
 <p align="center">
-  <img src="docs/images/poki-home.gif" width="720" alt="Poki 官網首頁動畫">
+  <img src="docs/images/qeno-home.gif" width="720" alt="Qeno 官網首頁動畫">
 </p>
 
 <p align="center">

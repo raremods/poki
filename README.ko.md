@@ -5,7 +5,7 @@
 <h1 align="center">Poki는 당신의 iPhone을 당신처럼 씁니다</h1>
 
 <p align="center">
-  <img src="docs/images/poki-home.gif" width="720" alt="Poki 공식 웹사이트 홈페이지 애니메이션">
+  <img src="docs/images/qeno-home.gif" width="720" alt="Qeno 공식 웹사이트 홈페이지 애니메이션">
 </p>
 
 <p align="center">
