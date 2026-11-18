@@ -2550,12 +2550,13 @@ dependencies = [
  "rustls",
  "serde",
  "serde_json",
+ "sha2",
  "tokio",
 ]
 
 [[package]]
 name = "poki-setup-core"
-version = "0.2.2"
+version = "0.2.4"
 dependencies = [
  "aes",
  "aes-gcm",
@@ -2565,6 +2566,7 @@ dependencies = [
  "cms",
  "der",
  "directories",
+ "ed25519-dalek",
  "futures-util",
  "hex",
  "hmac",

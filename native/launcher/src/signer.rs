@@ -41,6 +41,7 @@ pub struct Failure {
 impl From<core::Error> for Failure {
     fn from(e: core::Error) -> Self {
         let code = match &e {
+            core::Error::NeedsCode(_) => "needs_code",
             core::Error::NeedsPerson(_) => "needs_person",
             core::Error::Apple { .. } => "apple",
             _ => e.kind(),
@@ -107,7 +108,7 @@ async fn signer(state: &mut State) -> std::result::Result<&mut Signer, Failure> 
 }
 
 fn channels() -> Value {
-    Value::Array(Channel::ALL.iter().map(|c| json!({"id": c.id(), "title": c.title()})).collect())
+    Value::Array([Channel::Beta].iter().map(|c| json!({"id": c.id(), "title": c.title()})).collect())
 }
 
 /// Runs one request. `emit` gets progress events while it runs.
@@ -161,8 +162,15 @@ pub async fn handle(request: Value, emit: impl Fn(Value) + Send + Sync + 'static
         "finish_sign_in" => {
             let mut state = STATE.lock().await;
             let code = str_of(&request, "code")?.to_string();
-            let pending = state.pending.take().ok_or_else(|| fail("Sign in again; the verification step has expired.", "needs_person"))?;
-            signer(&mut state).await?.finish_sign_in(pending, &code).await?;
+            let pending = state.pending.take().ok_or_else(|| fail("Sign in again. The verification step has expired.", "needs_person"))?;
+            let keep = pending.clone();
+            let result = signer(&mut state).await?.finish_sign_in(pending, &code).await;
+            if let Err(e) = result {
+                // A wrong code: keep the waiting sign-in so the code can be typed again. Starting
+                // over would ask Apple for another code, which replaces this one.
+                state.pending = Some(keep);
+                return Err(e.into());
+            }
             Ok(json!({}))
         }
         "sign_out" => {
@@ -174,8 +182,15 @@ pub async fn handle(request: Value, emit: impl Fn(Value) + Send + Sync + 'static
         "teams" => {
             let mut state = STATE.lock().await;
             let s = signer(&mut state).await?;
-            let teams = s.teams().await?;
-            Ok(Value::Array(teams.into_iter().map(|t| json!({"team_id": t.team_id, "name": t.name, "kind": t.kind, "is_free": t.is_free})).collect()))
+            match s.teams().await {
+                Ok(teams) => Ok(Value::Array(teams.into_iter().map(|t| json!({"team_id": t.team_id, "name": t.name, "kind": t.kind, "is_free": t.is_free})).collect())),
+                Err(core::Error::NeedsCode(pending)) => {
+                    let msg = core::Error::NeedsCode(pending.clone()).to_string();
+                    state.pending = Some(*pending);
+                    Err(fail(msg, "needs_code"))
+                }
+                Err(e) => Err(e.into()),
+            }
         }
         "choose_team" => {
             let mut state = STATE.lock().await;
@@ -194,12 +209,12 @@ pub async fn handle(request: Value, emit: impl Fn(Value) + Send + Sync + 'static
         "set_channel" => {
             let channel = Channel::parse(str_of(&request, "channel")?).ok_or_else(|| fail("unknown channel", "config"))?;
             release::set_channel(channel)?;
-            Ok(json!({"channel": channel.id()}))
+            Ok(json!({"channel": release::channel().id()}))
         }
         "import_identity" => import_identity(&request).await,
         "check_update" => {
             let r = release::latest().await?;
-            Ok(json!({"tag": r.tag, "version": r.version, "build": r.build, "channel": r.channel.id(), "published_at": r.published_at, "notes": r.notes}))
+            Ok(json!({"tag": r.tag, "version": r.version, "build": r.build, "channel": r.channel.id(), "published_at": r.published_at, "notes": r.notes, "source": r.source, "source_notice": r.source_notice}))
         }
         "udid" => {
             let phone: Phone = serde_json::from_value(request.clone()).map_err(|e| fail(e.to_string(), "config"))?;
@@ -288,12 +303,28 @@ async fn prepare(request: &Value, reporter: &Reporter) -> Out {
     if !s.signed_in() {
         return Err(fail("Sign in with your Apple Account in Setup first.", "needs_person"));
     }
-    let team = s.team().await?;
+    let team = match s.team().await {
+        Ok(team) => team,
+        Err(core::Error::NeedsCode(pending)) => {
+            let msg = core::Error::NeedsCode(pending.clone()).to_string();
+            state.pending = Some(*pending);
+            return Err(fail(msg, "needs_code"));
+        }
+        Err(e) => return Err(e.into()),
+    };
     let out = out_dir.join("Poki-signed.ipa");
     // Unpacking, signing and packing run synchronously inside; block_in_place moves the runtime's
     // other work (the runner's launcher) to another thread meanwhile instead of stalling it.
     let handle = tokio::runtime::Handle::current();
-    let built = tokio::task::block_in_place(|| handle.block_on(setup::sign_for_team(s, &team, Some((&udid, &name)), &ipa, signing_zip.as_deref(), &out, reporter)))?;
+    let built = match tokio::task::block_in_place(|| handle.block_on(setup::sign_for_team(s, &team, Some((&udid, &name)), &ipa, signing_zip.as_deref(), &out, reporter))) {
+        Ok(built) => built,
+        Err(core::Error::NeedsCode(pending)) => {
+            let msg = core::Error::NeedsCode(pending.clone()).to_string();
+            state.pending = Some(*pending);
+            return Err(fail(msg, "needs_code"));
+        }
+        Err(e) => return Err(e.into()),
+    };
     let _ = std::fs::remove_file(out_dir.join("installed.ipa"));
     let mut profiles = vec![];
     for (i, p) in built.profiles.iter().enumerate() {

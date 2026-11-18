@@ -8,10 +8,13 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
+import { releaseCatalog, downloadCatalogAsset, ReleaseUnavailable } from './release-catalog.mjs';
 
 const exec = promisify(execFile);
 export const REPO = 'raremods/poki';
 export const TEAM_ID = 'AJ9G5DH5ZQ';
+// Qeno's Developer ID team (Uncut Rush LLC).
+export const TEAM_IDS = ['AJ9G5DH5ZQ'];
 const ORDER = ['stable', 'beta', 'alpha', 'pre-alpha'];
 const BRIDGE = 'Contents/MacOS/poki-setup-bridge';
 
@@ -51,28 +54,49 @@ async function github(path) {
   return response.json();
 }
 
-// The newest macOS installer a channel offers, with the release that carries it. A channel with no
-// installer of its own takes the next less stable channel's, as Qeno Setup does (release.rs pick_desktop).
-export async function latestSetup(channel) {
-  const at = ORDER.indexOf(channel);
-  if (at < 0) throw new SetupError('unknown', `Unknown channel ${channel}; use ${ORDER.join(', ')}`);
-  const releases = (await github('/releases?per_page=40')).filter(release => !release.draft);
+async function releases(onNote, tag) {
+  try { return { list: await releaseCatalog(), source: 'r2', source_notice: null }; }
+  catch (error) {
+    if (!(error instanceof ReleaseUnavailable)) throw new SetupError('setup_download_failed', error.message);
+    onNote(error.message);
+    const list = tag ? [await github(`/releases/tags/${encodeURIComponent(tag)}`)] : await github('/releases?per_page=100');
+    return { list, source: 'github', source_notice: error.message };
+  }
+}
+
+export async function latestSetup(channel = 'beta', onNote = () => {}) {
+  if (!ORDER.includes(channel)) throw new SetupError('unknown', `Unknown channel ${channel}`);
+  const catalog = await releases(onNote);
   let best = null;
-  for (let level = at; level < ORDER.length && !best; level++) {
-    const allowed = ORDER.slice(0, level + 1);
-    for (const release of releases) {
-      if (!allowed.includes(channelOf(release.tag_name, release.prerelease))) continue;
-      for (const asset of release.assets) {
-        const match = /^PokiSetup-(.+)-(\d+)-macos\.dmg$/.exec(asset.name);
-        if (!match || (best && Number(match[2]) <= best.build)) continue;
-        const sums = release.assets.find(a => a.name === 'SHA256SUMS-desktop.txt');
-        best = { tag: release.tag_name, name: asset.name, version: match[1], build: Number(match[2]), url: asset.browser_download_url, apiUrl: asset.url, sums: sums?.browser_download_url, sumsApiUrl: sums?.url };
-      }
+  for (const release of catalog.list) {
+    if (release.draft || channelOf(release.tag_name, release.prerelease) !== 'beta') continue;
+    for (const asset of release.assets) {
+      const match = /^PokiSetup-(.+)-(\d+)-macos\.dmg$/.exec(asset.name);
+      if (!match || (best && Number(match[2]) <= best.build)) continue;
+      const sums = release.assets.find(a => a.name === 'SHA256SUMS-desktop.txt');
+      best = { tag: release.tag_name, name: asset.name, version: match[1], build: Number(match[2]), url: asset.browser_download_url, apiUrl: asset.url, sums: sums?.browser_download_url, sumsApiUrl: sums?.url,
+        source: catalog.source, source_notice: catalog.source_notice, asset: catalog.source === 'r2' ? asset : null };
     }
   }
-  if (!best) throw new SetupError('setup_download_failed', `No Poki Setup for macOS on the ${channel} channel`);
-  if (!best.sums) throw new SetupError('setup_download_failed', `${best.tag} has no SHA256SUMS-desktop.txt`);
+  if (!best) throw new SetupError('setup_download_failed', 'No Qeno Setup for macOS on the Beta channel');
+  if (!best.asset && !best.sums) throw new SetupError('setup_download_failed', `${best.tag} has no SHA256SUMS-desktop.txt`);
   return best;
+}
+
+async function catalogDownload(tag, asset, onNote) {
+  try { return await downloadCatalogAsset(asset); }
+  catch (error) {
+    if (!(error instanceof ReleaseUnavailable)) throw new SetupError(error.code ?? 'setup_download_failed', error.message);
+    onNote(error.message);
+    const release = await github(`/releases/tags/${encodeURIComponent(tag)}`);
+    const mirror = release.assets.find(a => a.name === asset.name);
+    if (!mirror) throw new SetupError('setup_download_failed', `GitHub has no matching ${asset.name}`);
+    const bytes = Buffer.from(await request(mirror.browser_download_url, 'application/octet-stream', mirror.url, response => response.arrayBuffer()));
+    if (bytes.length !== asset.size || createHash('sha256').update(bytes).digest('hex') !== asset.sha256.toLowerCase()) {
+      throw new SetupError('setup_checksum_mismatch', `${asset.name} from GitHub does not match the signed catalog`);
+    }
+    return bytes;
+  }
 }
 
 async function request(url, accept, apiUrl, consume = response => response) {
@@ -97,8 +121,10 @@ async function download(url, file, apiUrl) {
   await writeFile(file, Buffer.from(bytes));
 }
 
-export async function downloadIpa(tag, downloads, ipaName) {
-  const release = await github(`/releases/tags/${encodeURIComponent(tag)}`);
+export async function downloadIpa(tag, downloads, ipaName, onNote = () => {}) {
+  const catalog = await releases(onNote, tag);
+  const release = catalog.list.find(r => !r.draft && r.tag_name === tag);
+  if (!release) throw new SetupError('setup_download_failed', 'The selected release is no longer available. Check for updates again.');
   const ipa = release.assets.find(a => ipaName ? a.name === ipaName : /^Poki-external-.+\.ipa$/.test(a.name));
   const signing = release.assets.find(a => a.name === 'Poki-signing.zip');
   const sums = release.assets.find(a => a.name === 'SHA256SUMS');
@@ -108,7 +134,8 @@ export async function downloadIpa(tag, downloads, ipaName) {
   try {
     for (const asset of [sums, ipa, signing]) {
       if (asset.name.includes('/') || asset.name.includes('\\')) throw new SetupError('setup_download_failed', 'Invalid release asset name');
-      await download(asset.browser_download_url, join(dir, asset.name), asset.url);
+      if (catalog.source === 'r2') await writeFile(join(dir, asset.name), await catalogDownload(tag, asset, onNote));
+      else await download(asset.browser_download_url, join(dir, asset.name), asset.url);
     }
     const hashes = new Map((await readFile(join(dir, sums.name), 'utf8')).trim().split('\n').map(line => {
       const [hash, name] = line.trim().split(/\s+/);
@@ -117,7 +144,7 @@ export async function downloadIpa(tag, downloads, ipaName) {
     for (const asset of [ipa, signing]) {
       const expected = hashes.get(asset.name);
       // Current releases list the IPA but not the signing archive in SHA256SUMS.
-      if (!expected && asset === signing) continue;
+      if (!expected && (asset === signing || catalog.source === 'r2')) continue;
       if (!expected || await sha256(join(dir, asset.name)) !== expected.toLowerCase()) throw new SetupError('setup_checksum_mismatch', `${asset.name} does not match SHA256SUMS`);
     }
     return join(dir, ipa.name);
@@ -133,15 +160,45 @@ async function sha256(file) {
   return hash.digest('hex');
 }
 
-// Developer ID team and notarization; throws setup_signature_invalid otherwise.
+export async function downloadSetup(release, downloads, onNote = () => {}) {
+  await mkdir(downloads, { recursive: true });
+  const dmg = join(downloads, release.name);
+  const sumsFile = join(downloads, `${release.tag}-SHA256SUMS-desktop.txt`);
+  if (release.asset) {
+    await writeFile(dmg, await catalogDownload(release.tag, release.asset, onNote));
+    onNote('Installer matches the signed release catalog');
+  } else for (let attempt = 0; ; attempt++) {
+    onNote(`Downloading ${release.name} from ${release.tag}`);
+    await download(release.url, dmg, release.apiUrl);
+    await download(release.sums, sumsFile, release.sumsApiUrl);
+    const want = (await readFile(sumsFile, 'utf8')).split('\n').map(line => line.trim().split(/\s+/)).find(([, name]) => name === release.name)?.[0];
+    if (!want) throw new SetupError('setup_checksum_mismatch', `${release.name} is not listed in SHA256SUMS-desktop.txt`);
+    if ((await sha256(dmg)) === want) break;
+    await rm(dmg, { force: true });
+    if (attempt >= 1) throw new SetupError('setup_checksum_mismatch', `${release.name} does not match SHA256SUMS-desktop.txt twice in a row`);
+  }
+  if (!release.asset) onNote('Checksum matches SHA256SUMS-desktop.txt');
+  return dmg;
+}
+
+// The team in `codesign -dv` output when it is one of Poki's, else null. The whole line has to match:
+// a team whose identifier merely starts with ours is another team.
+export function pokiTeamOf(codesignText) {
+  const team = /^TeamIdentifier=(.*)$/m.exec(codesignText)?.[1].trim();
+  return TEAM_IDS.includes(team) ? team : null;
+}
+
+// Developer ID team and notarization; throws setup_signature_invalid otherwise. Returns the team.
 export async function verifyApp(app) {
   try {
     await exec('codesign', ['--verify', '--deep', '--strict', app]);
     const { stderr } = await exec('codesign', ['-dv', '--verbose=2', app]);
-    if (!stderr.includes(`TeamIdentifier=${TEAM_ID}`)) throw new Error(`not signed by team ${TEAM_ID}`);
+    const team = pokiTeamOf(stderr);
+    if (!team) throw new Error(`not signed by team ${TEAM_IDS.join(' or ')}`);
     const assessed = await exec('spctl', ['-a', '-t', 'exec', '-vv', app]).catch(error => error);
     const text = `${assessed.stdout ?? ''}${assessed.stderr ?? ''}`;
     if (!/accepted/.test(text) || !/Notarized Developer ID/.test(text)) throw new Error(`Gatekeeper: ${text.trim()}`);
+    return team;
   } catch (error) {
     throw new SetupError('setup_signature_invalid', `${app}: ${error.stderr?.trim() || error.message}`);
   }
@@ -172,7 +229,7 @@ export function findSetupBridge({ recorded, into, roots = setupAppRoots(into) } 
 // Returns { app, bridge, build, source }. An app already in /Applications or ~/Applications is used
 // when it is at least as new as the channel's; otherwise the release is installed into `into`.
 export async function ensureSetupApp({ channel, into = join(homedir(), 'Applications'), downloads, onNote = () => {} }) {
-  const release = await latestSetup(channel);
+  const release = await latestSetup(channel, onNote);
   for (const app of ['/Applications/Poki Setup.app', join(homedir(), 'Applications/Poki Setup.app'), join(into, 'Poki Setup.app')]) {
     if (!existsSync(join(app, BRIDGE))) continue;
     const build = await buildOf(app);
@@ -180,26 +237,13 @@ export async function ensureSetupApp({ channel, into = join(homedir(), 'Applicat
     await verifyApp(app);
     return { app, bridge: join(app, BRIDGE), build, version: release.version, source: 'installed' };
   }
-  await mkdir(downloads, { recursive: true });
-  const dmg = join(downloads, release.name);
-  const sumsFile = join(downloads, `${release.tag}-SHA256SUMS-desktop.txt`);
-  for (let attempt = 0; ; attempt++) {
-    onNote(`Downloading ${release.name} from ${release.tag}`);
-    await download(release.url, dmg, release.apiUrl);
-    await download(release.sums, sumsFile, release.sumsApiUrl);
-    const want = (await readFile(sumsFile, 'utf8')).split('\n').map(line => line.trim().split(/\s+/)).find(([, name]) => name === release.name)?.[0];
-    if (!want) throw new SetupError('setup_checksum_mismatch', `${release.name} is not listed in SHA256SUMS-desktop.txt`);
-    if ((await sha256(dmg)) === want) break;
-    await rm(dmg, { force: true });
-    if (attempt >= 1) throw new SetupError('setup_checksum_mismatch', `${release.name} does not match SHA256SUMS-desktop.txt twice in a row`);
-  }
-  onNote('Checksum matches SHA256SUMS-desktop.txt');
+  const dmg = await downloadSetup(release, downloads, onNote);
   const mount = await mkdtemp(join(downloads, 'mount-'));
   await exec('hdiutil', ['attach', '-nobrowse', '-readonly', '-noautoopen', '-mountpoint', mount, dmg]);
   try {
     const source = join(mount, 'Poki Setup.app');
-    await verifyApp(source);
-    onNote(`Signed by Developer ID team ${TEAM_ID} and notarized`);
+    const team = await verifyApp(source);
+    onNote(`Signed by Developer ID team ${team} and notarized`);
     await mkdir(into, { recursive: true });
     const app = join(into, 'Poki Setup.app');
     await rm(app, { recursive: true, force: true });

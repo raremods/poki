@@ -3,10 +3,16 @@
 The native macOS app: a SwiftUI shell (`Sources/PokiSetup`) over the Rust core, which runs as the
 bundled `poki-setup-bridge` helper (JSON lines over a pipe). Build on a Mac with Xcode and Rust:
 
-    desktop/mac/scripts/bundle.sh native dist      # or: universal
+    desktop/mac/scripts/bundle.sh universal "$PWD/dist"
+
+The default build is universal. It includes arm64 and x86_64 in the app, bridge, and command line
+tool. Use `native` only for local development on the build Mac.
 
 CI (`.github/workflows/desktop-mac.yml`) builds it, checks the core against Apple, re-signs a real
-Poki IPA and verifies it with Apple's codesign, and saves screenshots of every page.
+Poki IPA and verifies it with Apple's codesign, and saves screenshots of every page. Before CI
+uploads an installer, it mounts the DMG and checks that every Mach-O file contains both architectures:
+
+    desktop/mac/scripts/check-universal.sh dist/*.dmg
 
 ## Developer ID signing and notarization
 

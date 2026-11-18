@@ -3,7 +3,7 @@
 One app for everything a user does on the phone: setup (Developer Mode, on-device pairing, UI
 Automation, the loopback, the first-session passcode), starting and stopping a session, the Live
 Activity with Approve/Deny for sensitive actions, the MCP address for each client (text, QR, copy),
-and a Debug tab (the former Qeno Probe). Native SwiftUI on the iOS 26 SDK with Liquid Glass.
+and a Debug tab (the former Qeno Probe). Native SwiftUI with Liquid Glass.
 
 Qeno automates the phone in its own process: it opens the XCTest automation session itself
 (`Qeno/Native/InProcess.m`, answered to PokiCore by `Qeno/Runtime/InProcessWDA.swift`), so Qeno is
@@ -20,6 +20,16 @@ only from iOS 27 (#1 on iOS 18.6.2 and #18 on iOS 26.6 could not tap). The norma
 and approval logic is unchanged. Its state, screenshot and input lanes remain connected independently
 while active; the Diagnostics path comparison records tap, type, swipe and parallel tree/screenshot timings against
 the in-process path. Changing paths takes effect on the next app launch.
+
+## iPhone Duo Split View
+
+On an unfolded Duo in landscape, ask Qeno in chat to work across two apps, such as dragging an
+image from Safari into Notes. Qeno checks whether the request benefits from Split View, opens the
+two apps, and works with both visible while it runs in the background.
+
+For a pair of apps that's already open, you can also use the **Send Task to Qeno** action in
+Shortcuts with **Use Split View** turned on. Both ways use Qeno's usual approvals and leave the two
+apps open when the task finishes.
 
 ## Layout
 
@@ -53,30 +63,90 @@ xcodegen generate --spec native/ios-app/project.yml
 open native/ios-app/Qeno.xcodeproj
 ```
 
+Use Xcode 27.1 or later to build and test on iPhone Duo. The iOS 27.1 SDK lets the app extend to the
+edges of the unfolded display. In Split View, Qeno sizes its chat and conversations drawer to the
+space assigned by the system. The iOS deployment target remains unchanged.
+
+A build made with an earlier SDK is letterboxed on both of the Duo's displays. Qeno's own screen is
+then the letterbox while the picture it takes is the whole panel, so every screen read is refused
+(`duo_needs_ios_27_1_sdk_build`, before that `screenshot_does_not_match_active_display`, #419). The
+release IPA is therefore built on GitHub's `xcode-27` runner, and `.github/actions/build-ipa` stops
+when the iOS SDK is older than 27.1.
+
 `native/ios-app/scripts/app-tests.sh SIMULATOR_UDID` builds `PokiTests` and runs it inside Qeno on a booted simulator (the in-process transport's clipboard and session answers).
 
-`-pokiScreen home|setup|connect|debug|activity|steps|status|connector|details|model|voice|session|hands|rules|health|memory|appearance|voiceSettings|conversations|updates` opens that screen at launch (the app opens on the chat; home is the chat with the conversations drawer open, details Settings, hands and setup its Connection page, rules and health the Approvals and Advanced pages, connect the Agents page, memory, appearance, voiceSettings (Dictation & Mute), conversations (Archived Conversations) and updates (Signing & Updates) their pages, debug Diagnostics under Advanced, steps the Activity Log, session an outside agent's session); `-pokiChat empty|working|approval|handoff|approved|failed` shows the sample chat scenes (the greeting, a task under way, a step waiting for approval, a hand-over, a finished task, a failed one) and `-pokiVoice ready|listening|working` the voice faces; `-pokiSetupStep N` opens setup at step N, `-pokiSettingsEnd YES` opens Settings scrolled to its end, and `-pokiSample B|C` fills the status, history and Live Activity with sample steps and an approval, and `-pokiSample PIN` shows a sample pairing code, for screenshots only; on a simulator `-pokiLoopback cellular` forces the cellular-only loopback hint, `-pokiLoopback working` a loopback that answers, and `-pokiSigningDays 1` a signing that ends in a day.
+### Notification permission before UI and Live Activity tests
 
-Qeno is in English and Simplified Chinese and follows the iPhone's language. The app's screens use the String Catalog `Shared/Localizable.xcstrings`, the Live Activity its own table `Shared/LiveActivity.xcstrings` (see `Shared/ActivityWords.swift`), and the permission prompts `Qeno/InfoPlist.xcstrings`. Qeno's own status words stay in English inside the app (the code compares them and the agent reads them) and are looked up where they reach the screen; the launcher's fix sentences have entries too. Steps an agent reports, logs and diagnostics output stay as they come. Add `-AppleLanguages '(zh-Hans)'` to a launch to see Chinese without changing the simulator's language.
+A new simulator has no notification decision for Qeno. Tests that start a session can request
+permission asynchronously, leaving the system alert above later tests, even after the test app
+exits. While that alert is present, Qeno is inactive: a foreground-only Live Activity must not
+start, and accessibility reads describe the alert instead of the preview or browser header.
+An absent activity or missing localized text in this state is not a completed product check.
+
+Use this preparation whenever the simulator is new or its notification permission was reset:
+
+1. Record the simulator UUID and use that explicit UUID for every command; do not select a physical
+   iPhone or rely on a default device. Build and install the test host, then run the session-starting
+   tests with the normal runner above.
+2. If a notification alert interrupts the run, preserve its screenshot and the failed log. Stop the
+   test command and terminate its host with `xcrun simctl terminate SIMULATOR_UDID APP_BUNDLE_ID`.
+   Read the actual bundle ID from the built app's `Info.plist`; do not guess it. The notification
+   alert can remain above the simulator's Home Screen after termination.
+3. On that simulator, answer the notification alert with **Don't Allow**. Denial is sufficient for
+   the layout and activity-lifecycle checks; those checks do not require permission to post
+   notifications. With Poki MCP, use `handle_alert` with the simulator's explicit `device` UUID and
+   the observed button label. Do not answer unrelated alerts or change a real phone's permissions.
+4. Confirm the alert is gone, then restart the affected tests in a fresh Qeno process on the same
+   simulator. Preserve the new result separately from the interrupted run. For screen-reading
+   tests, check that the captured application is Qeno and the expected preview or browser header
+   is visible; for activity tests, Qeno must be active before an activity can be created.
+5. Delete only the temporary simulator after collecting logs, screenshots and XML. Repeat this
+   preparation when creating another simulator; a decision on one simulator does not apply to
+   another. `simctl privacy grant all` does not grant notification permission.
+
+This procedure was checked on iOS 27.0: with the alert present the Split View stop test failed
+while Qeno was inactive, and the language test captured the permission alert; after denying
+notifications, the unchanged 20 chat tests and the language-preview test passed. The navigation
+font test is separate: English uses Geist scaled by `UIFontMetrics`, while Chinese uses the system
+font. Its expected sizes must follow the chosen font rather than assume both scaling curves match.
+
+`-pokiScreen home|setup|connect|debug|activity|steps|status|connector|details|model|voice|session|hands|rules|health|memory|appearance|voiceSettings|conversations|updates|language` opens that screen at launch (the app opens on the chat; home is the chat with the conversations drawer open, details Settings, hands and setup its Connection page, rules and health the Approvals and Advanced pages, connect the Agents page, memory, appearance, voiceSettings (Dictation & Mute), conversations (Archived Conversations) updates (Signing & Updates) and language (Language) their pages, debug Diagnostics under Advanced, steps the Activity Log, session an outside agent's session); `-pokiChat empty|working|approval|handoff|approved|failed` shows the sample chat scenes (the greeting, a task under way, a step waiting for approval, a hand-over, a finished task, a failed one) and `-pokiVoice ready|listening|working` the voice faces; `-pokiSetupStep N` opens setup at step N, `-pokiSettingsEnd YES` opens Settings scrolled to its end, and `-pokiSample B|C` fills the status, history and Live Activity with sample steps and an approval, and `-pokiSample PIN` shows a sample pairing code, for screenshots only; on a simulator `-pokiLoopback cellular` forces the cellular-only loopback hint, `-pokiLoopback working` a loopback that answers, and `-pokiSigningDays 1` a signing that ends in a day.
+
+Qeno ships English, Simplified Chinese and Traditional Chinese. Settings › Language lets the owner follow the effective iOS app language or choose a Qeno UI language. See [iOS UI language](../../docs/ios-localization.md) for scope and verification. The app's screens use the String Catalog `Shared/Localizable.xcstrings`, the Live Activity its own table `Shared/LiveActivity.xcstrings` (see `Shared/ActivityWords.swift`), and the permission prompts `Qeno/InfoPlist.xcstrings`. Qeno's own status words stay in English inside the app (the code compares them and the agent reads them) and are looked up where they reach the screen; the launcher's fix sentences have entries too. Steps an agent reports, logs and diagnostics output stay as they come. Add `-AppleLanguages '(zh-Hans)'` to a launch to see Chinese without changing the simulator's language.
 
 ## How it runs
 
-- Qeno stays on once turned on, and turns on again at launch. Turning on asks for everything at once:
-  with Qeno in front and no automation since the iPhone restarted, Qeno first says iOS will ask for
-  the passcode, and Continue opens the session as soon as the launcher is ready, which brings up iOS's
-  passcode screen. Once the launcher has mounted the
-  disk image, Qeno opens its automation session (the log says `in-process session ready`), so the
-  first look does not wait for it. The session, and with it iOS's automation banner, is closed after
-  the idle time (default 60 s), from Stop on the Live Activity or in Qeno, and when Qeno is turned off;
-  the next agent request opens a new one (a few seconds; iOS asks for the passcode only once per
-  boot). If it cannot be opened, an agent's call answers at once with the reason, and the next call,
-  Qeno coming to the front, or an agent connecting tries again. An open that has not answered in 5 s
-  is waiting on iOS's passcode prompt (after Qeno restarts, and 8 hours after the passcode was last
-  entered): the Live Activity shows Passcode for automation, Qeno's home asks the owner, and the agent
-  reads that only the owner can enter it. When iOS gives up, after about a minute, the call fails with
-  that reason. A passcode screen that was cancelled or missed is not opened again, by Qeno or by an
-  agent's call, until the owner turns Qeno on again. Opens go through one gate: one at a time, and
-  none from the background before the boot's first automation.
+- Qeno stays on once turned on, and turns on again at launch. With the default in-process path,
+  opening Qeno, focusing the message field, starting dictation, choosing a shortcut, sending a
+  message, and an agent connecting only prepare dependencies. They do not open an automation
+  session. Pure chat and sandbox-browser tasks leave Automation Mode off; the read-only `status`
+  tool also leaves it off. The first phone step opens the session and waits for it before reading
+  or acting. Qeno shows Preparing during this wait, then continues the same step without a model
+  retry. Session timing events record submission, the open request, readiness and successful reads.
+- Once opened, the session stays open while a task works, including pauses between its phone steps.
+  Qeno stands by when the task ends, when Qeno comes to the front, or when a step hands the screen
+  to the owner. An outside agent's task ends when its MCP session ends and no other agent is at work.
+  The idle timeout, 60 s by default, also puts Qeno on standby when an outside agent goes quiet.
+  `AppModel.idleSessionPolicy` selects the standby behavior by iOS version. On iOS 18 to 26, Qeno
+  turns Automation Mode off and keeps the session for the next phone step. If the pause fails,
+  Qeno closes the session instead. On iOS 27 and later, standby closes the session as before.
+  Stop, Turn Off, and an update close the session on every version, even if a pause is still in
+  progress. An update waits for that close before it continues. A later phone step opens a new
+  session after a close, or resumes a kept session and checks that it can still read. If a resume
+  fails, Qeno closes the session and tries a new one, except when opening was refused or iOS's
+  passcode prompt timed out. Nothing is tapped or typed while Qeno itself is in front.
+  There is no Hide Banner When Idle setting.
+- A new session is ready only once it has answered with an element tree. One that cannot read is
+  closed, the step fails with the reason (`session_unreadable`), nothing is sent to it, and the next
+  phone step opens a new session. An app that is slow to answer is not a session failure.
+  Same-process close/reopen and the actual system banner must be checked on the physical release
+  candidate; simulator tests do not establish either device behavior.
+- If the first phone step needs the boot's first automation, Qeno asks the owner before opening
+  iOS's passcode screen. Only an open that iOS has held in its own allow-automation call for 3 s is treated as waiting for the passcode (a session that is slow to open or to read is not):
+  the Live Activity shows Passcode for automation, Qeno asks the owner, and the agent reads that only
+  the owner can enter it. If opening fails, the call reports the reason and a later phone request
+  may retry. A cancelled or missed passcode prompt is not opened again until the owner turns Qeno
+  on again. Opens go through one gate: one at a time, with no first automation from the background.
 - Nothing listens on a port: PokiCore's requests are answered inside Qeno.
 - The built-in local connection dials itself again when it fails or drops while Qeno is on: 1, 2, 4, 8,
   16, 30, 30, 30 s, then it stops until the owner taps Enable Local Connection in Setup. Opening Qeno
@@ -233,6 +303,21 @@ is smaller than the screen (its half of the Duo, its window on the iPad) that fr
 `/wda/screen` reports its size, and touches are moved back onto the screen. An app that fills the
 screen has no viewport. Not yet checked in the gym on an iPad simulator with two windows.
 
+### Two apps beside each other with Qeno in the background
+
+On a Duo running the in-process automation path, open two different apps using iOS Split View, or
+restore an existing app pair. Start Qeno's automation before moving it to the background. An agent
+can read one of the visible apps with `look {"pane":"left"}` or `look {"pane":"right"}`. Actions use
+the most recent pane read, including its screenshot, element numbers and keyboard focus. Read the
+other pane before targeting it. `look {"pane":"auto"}` returns to normal control, and finishing a
+task leaves both windows in place. A layout change needs a fresh pane read.
+
+Some Duo windows report local frames on both sides. In that case Qeno checks visible labels against
+the full display on the device before using either crop. If the keyboard obscures the text, Qeno
+can use the still-visible parts of the previously verified windows to recheck their positions.
+It refuses input when it cannot establish which app is on each side. Two windows from the same
+app are currently unsupported.
+
 ## Pairing by iOS version, and the pairing file's life
 
 Pairing on the phone itself (Settings > Privacy & Security > Developer Mode > Pair with Qeno) exists
@@ -265,8 +350,9 @@ Setup
 - [ ] Let Qeno stay on: Allow location shows iOS's prompt; Live Activities show as on.
 
 Turned on
-- [ ] Turn on: the Live Activity says "On. Waiting for an agent"; once the session opens, the log says `in-process session ready` and the automation banner shows.
-- [ ] An agent's first call finds the session open; its steps show on the Lock Screen and in the chat.
+- [ ] Turn on or bring Qeno to the foreground: no automation banner. Focus the field, start dictation, choose a shortcut, and complete a pure-chat or sandbox-browser task: still no banner.
+- [ ] Connect an agent and call `status`: no banner or automation passcode prompt. Its first phone step shows Preparing, opens the session, and reads the screen successfully; steps show on the Lock Screen and in the chat.
+- [ ] After a phone task ends, and separately after an outside agent reaches the idle timeout, the banner disappears. On iOS 18 to 26, the next phone task in the same app launch resumes the kept session and reads successfully without another passcode prompt. On iOS 27 and later, the next task opens a new session and reads successfully. Check both behaviors on physical phones; simulator tests do not establish them. If a pause fails, the log reports a close instead, and the banner must still disappear.
 - [ ] No banner flicker during a run; a slow swipe or drag does not reopen the session.
 - [ ] Runner path only: no banner until an agent's first call starts the runner; opening Qeno Runner while in use shows "Qeno is using this iPhone"; Stop on the Live Activity or in Qeno takes the banner away within seconds and the next call starts it again; after the idle time with no calls, the banner goes away by itself.
 - [ ] Ten minutes in the background: the location pill shows and agents still reach the phone.

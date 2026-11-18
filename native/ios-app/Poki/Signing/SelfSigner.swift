@@ -58,17 +58,23 @@ final class SelfSigner {
         let version: String
         let build: String
         let channel: String
+        let source: String?
+        let source_notice: String?
     }
 
     /// Prepare a fresh build when the installed profile has this many days left or fewer.
     static let refreshWithDaysLeft: Double = 3
     /// Home warns, and a notification reminds once a day, when the installed profile has this many days left.
     static let warnWithDaysLeft: Double = 2
+    /// How often Qeno looks after its signing by itself while it stays up. Without an Apple Account it
+    /// only looks up the channel, and no more often than this: GitHub limits unsigned reads per hour.
+    static let checkEvery: TimeInterval = 3 * 3600
 
     private(set) var status: Status?
     private(set) var teams: [Team] = []
     private(set) var ready: [String: Prepared] = [:]
     private(set) var latest: Release?
+    private(set) var updateCheckError: String?
     /// What the signer is doing now, for the Setup page.
     private(set) var working: String?
     private(set) var fraction: Double?
@@ -88,9 +94,8 @@ final class SelfSigner {
     var isIdle: () -> Bool = { false }
     /// Why an install waits, for the message under the button.
     var busyReason: () -> String? = { nil }
-    /// Before an install the owner asked for: Qeno winds down (automation session, Live Activity)
-    /// so it exits cleanly when iOS replaces it, and comes back on after.
-    var beforeInstall: () -> Void = {}
+    /// Stops runtime work before the confirmed update saves state and exits.
+    var beforeExit: () async -> Void = {}
 
     enum InstallFinish: Equatable {
         case idle, installing, waitingForExit
@@ -101,15 +106,11 @@ final class SelfSigner {
     private var foregroundObserver: NSObjectProtocol?
 
     var installMessage: String? {
-        switch installFinish {
-        case .idle: nil
-        case .installing: String(localized: "Installing the update. Do not close Qeno in the app switcher. Features are unavailable until you reopen Qeno.")
-            + "\n\n" + String(localized: "You can return to the Home Screen and wait. Qeno closes by itself when the update is installed. Open Qeno again afterwards. If nothing changes, update Qeno from Qeno Setup on your computer.")
-        case .waitingForExit: String(localized: "The update is installed. Waiting for Qeno to close. Features are unavailable until you reopen Qeno.")
-        case .needsReopen(let installed): installed
-            ? String(localized: "The update is installed. Swipe up on Qeno in the app switcher to close it, then open Qeno again. Features are unavailable until you reopen Qeno.")
-            : String(localized: "To finish the update, swipe up on Qeno in the app switcher to close it, then open Qeno again. If the update is still available, try again. Features are unavailable until you reopen Qeno.")
+        guard installFinish != .idle else { return nil }
+        if exitRequest == .unconfirmed && !needsReopen {
+            return AppLocalization.text(LocalizedStringResource("Installing the update. Features are unavailable until you reopen Qeno."))
         }
+        return AppLocalization.text(LocalizedStringResource("If the update has not finished after a few seconds, swipe up on Qeno in the app switcher to close it, then open Qeno again. Features are unavailable until you reopen Qeno."))
     }
 
     var needsReopen: Bool {
@@ -126,8 +127,9 @@ final class SelfSigner {
     private var timer: Timer?
     private let log = AppLog.shared
 
-    var signedIn: Bool { status?.signed_in == true }
+    var signedIn: Bool { status?.signed_in == true || Self.screenshotSignedIn }
     var needsCode: Bool { status?.needs_code == true }
+    var needsCodeSheet = false
     var daysLeft: Double? { expiry.map { $0.timeIntervalSinceNow / 86_400 } }
     /// The build Install would put on: an update when one is ready, else a refresh.
     var next: Prepared? { ready["update"] ?? ready["refresh"] }
@@ -144,10 +146,12 @@ final class SelfSigner {
     /// Why Qeno cannot download the update by itself, when it cannot. Nil when it can.
     var updateBlocker: String? {
         guard updateNotReady else { return nil }
-        if !signedIn { return String(localized: "To download updates by itself, Qeno needs your Apple Account: sign in under Signing Options. Or update Qeno from Qeno Setup on your Mac.") }
+        if !signedIn { return AppLocalization.text(LocalizedStringResource("To download updates by itself, Qeno needs your Apple Account: sign in under Signing Options. Or update Qeno from Qeno Setup on your Mac.")) }
         if phone() == nil { return unreachable }
         return nil
     }
+    /// How to get the channel's newer Qeno from here, or nil when there is none.
+    var updateStep: UpdateStep? { UpdateStep(updateAvailable: updateAvailable, copyReady: !updateNotReady, signedIn: signedIn) }
     var channelTitle: String { status?.channels.first { $0.id == status?.channel }?.title ?? status?.channel ?? "" }
 
     static var home: URL {
@@ -182,7 +186,7 @@ final class SelfSigner {
         }
         // Qeno stays up in the background while it is on; a check every three hours is plenty for
         // a 7-day profile.
-        timer = Timer.scheduledTimer(withTimeInterval: 3 * 3600, repeats: true) { [weak self] _ in
+        timer = Timer.scheduledTimer(withTimeInterval: Self.checkEvery, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.maintain() }
         }
     }
@@ -204,17 +208,36 @@ final class SelfSigner {
     func finishSignIn(code: String) async {
         await run("Checking the code") { _ = try await SignerBridge.call(["op": "finish_sign_in", "code": code]) }
         await reload()
+        if !needsCode { needsCodeSheet = false }
         if signedIn { await loadTeams() }
     }
 
+    func presentCodeSheet() {
+        if needsCode { needsCodeSheet = true }
+    }
+
+    func dismissCodeSheet() {
+        needsCodeSheet = false
+    }
+
     func signOut() async {
+        needsCodeSheet = false
         await run("Signing out") { _ = try await SignerBridge.call(["op": "sign_out"]) }
         teams = []
         await reload()
     }
 
     func loadTeams() async {
-        do { teams = try await SignerBridge.decode([Team].self, ["op": "teams"]) } catch { lastError = error.localizedDescription }
+        do {
+            teams = try await SignerBridge.decode([Team].self, ["op": "teams"])
+        } catch {
+            lastError = error.localizedDescription
+            if (error as? SignerError)?.code == "needs_code" {
+                await reload()
+                if needsCode { needsCodeSheet = true }
+                return
+            }
+        }
         await reload()
     }
 
@@ -227,7 +250,7 @@ final class SelfSigner {
         await run(nil) { _ = try await SignerBridge.call(["op": "set_channel", "channel": id]) }
         await reload()
         latest = nil
-        maintain()
+        await checkLatest()
     }
 
     func setAnisette(_ url: String) async {
@@ -252,37 +275,67 @@ final class SelfSigner {
         ready = found
     }
 
-    /// Prepares what is due, by itself: an update when the channel has a newer Qeno, a refresh when
-    /// the installed profile is close to expiring. Never installs.
+    /// At launch, back in front and every few hours: looks up the channel's newest build, so Home and
+    /// Signing can say an update is out, and prepares what is due. Without an Apple Account or the
+    /// loopback it only looks, at most once every `checkEvery`.
     func maintain() {
-        guard installFinish == .idle, signedIn, working == nil, phone() != nil else { return }
-        Task {
-            lastCheck = Date()
-            if let rel = try? await SignerBridge.decode(Release.self, ["op": "check_update"]) {
-                latest = rel
-                if updateNotReady {
-                    await prepare(kind: "update")
-                    return
-                }
-            }
-            if let days = daysLeft, days <= Self.refreshWithDaysLeft, ready["refresh"] == nil, ready["update"] == nil {
-                await prepare(kind: "refresh")
-            }
-            remindIfExpiring()
-        }
+        guard installFinish == .idle else { return }
+        // Not before start() has the signer configured (it calls this itself once it has).
+        guard status != nil else { return }
+        // A minute short of the interval, so the timer's own run is never just too early.
+        if !canPrepare, let last = lastCheck, Date().timeIntervalSince(last) < Self.checkEvery - 60 { return }
+        Task { await checkLatest() }
     }
 
-    /// Looks up the newest build on the chosen channel without preparing it, for the version rows.
-    /// Works without an Apple Account. False when GitHub could not be read.
+    /// Looks up the newest build on the Beta channel, then prepares what is due. Works without an
+    /// Apple Account, and the Signing page calls it when it opens. False when the lookup failed.
     @discardableResult
     func checkLatest() async -> Bool {
-        guard let rel = try? await SignerBridge.decode(Release.self, ["op": "check_update"]) else { return false }
-        latest = rel
-        lastCheck = Date()
-        // Found here first (the Signing page looks without waiting for the 3-hour check): the
-        // download starts now too, as it would from that check.
-        if updateNotReady { maintain() }
-        return true
+        let found = await lookUp()
+        await prepareDue()
+        return found
+    }
+
+    /// One lookup at a time: a caller that comes while one runs gets its answer.
+    private var lookup: Task<Bool, Never>?
+
+    private func lookUp() async -> Bool {
+        if let lookup { return await lookup.value }
+        let task = Task { () -> Bool in
+            do {
+                var found = Self.screenshotRelease(installedVersion: installedVersion, installedBuild: installedBuild)
+                if found == nil { found = try await SignerBridge.decode(Release.self, ["op": "check_update"]) }
+                guard let rel = found else { return false }
+                if rel != latest { log.add("signing", "newest on the channel: \(rel.version) (\(rel.build)), \(rel.channel)") }
+                latest = rel
+                lastCheck = Date()
+                updateCheckError = nil
+                return true
+            } catch {
+                latest = nil
+                updateCheckError = error.localizedDescription
+                return false
+            }
+        }
+        lookup = task
+        defer { lookup = nil }
+        return await task.value
+    }
+
+    private var canPrepare: Bool { installFinish == .idle && signedIn && phone() != nil }
+
+    /// Prepares what is due, by itself: an update when the channel has a newer Qeno, a refresh when
+    /// the installed profile is close to expiring. Never installs.
+    private func prepareDue() async {
+        guard canPrepare, working == nil else { return }
+        if updateNotReady {
+            await prepare(kind: "update")
+            return
+        }
+        if let days = daysLeft, days <= Self.refreshWithDaysLeft, ready["refresh"] == nil, ready["update"] == nil {
+            await prepare(kind: "refresh")
+        }
+        remindIfExpiring()
     }
 
     /// Download and Install Update, in one tap: gets the newest build and signs it, then installs it.
@@ -320,8 +373,8 @@ final class SelfSigner {
             }
             self.ready[kind] = p
             self.log.add("signing", "prepared \(kind): \(p.version) (\(p.build)), profile until \(p.expires)")
-            self.notify(title: kind == "update" ? String(localized: "Qeno Update Ready") : String(localized: "Qeno Refresh Ready"),
-                        body: String(localized: "Open Settings > Connection > Signing & Updates and install the prepared build when Qeno isn't running a task."))
+            self.notify(title: kind == "update" ? AppLocalization.text(LocalizedStringResource("Qeno Update Ready")) : AppLocalization.text(LocalizedStringResource("Qeno Refresh Ready")),
+                        body: AppLocalization.text(LocalizedStringResource("Open Settings > Connection > Signing & Updates and install the prepared build when Qeno isn't running a task.")))
         }
     }
 
@@ -332,7 +385,7 @@ final class SelfSigner {
         log.add("signing", "install tapped: \(p.kind) \(p.version) (\(p.build))")
         guard isIdle() else {
             let why = busyReason() ?? ""
-            lastError = String(localized: "Qeno is running a task. Install when it has finished.") + (why.isEmpty ? "" : " " + why)
+            lastError = AppLocalization.text(LocalizedStringResource("Qeno is running a task. Install when it has finished.")) + (why.isEmpty ? "" : " " + why)
             log.add("signing", "install waits: \(why)")
             return
         }
@@ -351,14 +404,10 @@ final class SelfSigner {
         ) { [weak self] _ in
             Task { @MainActor in self?.exitWaitEnded() }
         }
-        beforeInstall()
         steppedAside = false
         installFraction = nil
-        // iOS holds the last part of an upgrade until the app it replaces leaves the screen: Qeno
-        // steps aside to the Home Screen by itself once the new copy is almost in (or has stalled
-        // there), keeping a background task so the request can finish; iOS then ends Qeno, and the
-        // notice above reopens it.
-        let background = UIApplication.shared.beginBackgroundTask(withName: "Qeno update")
+        // Keep the upload alive until installation_proxy has accepted the package.
+        installBackground = UIApplication.shared.beginBackgroundTask(withName: "Qeno update")
         let watch = Task { @MainActor [weak self] in
             var last: (fraction: Double, since: Date)?
             while !Task.isCancelled, let self, self.working != nil {
@@ -374,17 +423,23 @@ final class SelfSigner {
             }
         }
         watch.cancel()
-        UIApplication.shared.endBackgroundTask(background)
+        endInstallBackground()
         if lastError != nil {
             UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [reopen])
             requireReopen()
+        } else if needsReopen {
+            installFinish = .needsReopen(installed: true)
+            working = installMessage
         } else {
             installFinish = .waitingForExit
-            finishTimer = Timer.scheduledTimer(withTimeInterval: 15, repeats: false) { [weak self] _ in
-                Task { @MainActor in self?.exitWaitEnded() }
+            if exitRequest != .closing {
+                finishTimer = Timer.scheduledTimer(withTimeInterval: 15, repeats: false) { [weak self] _ in
+                    Task { @MainActor in self?.exitWaitEnded() }
+                }
             }
             if !steppedAside { stepAside() }
             working = installMessage
+            exitIfReady()
         }
     }
 
@@ -392,9 +447,9 @@ final class SelfSigner {
 
     private var unreachable: String {
         switch whyUnreachable() {
-        case .unpaired: String(localized: "Pair this iPhone first (Setup).")
+        case .unpaired: AppLocalization.text(LocalizedStringResource("Pair this iPhone first (Setup)."))
         case .cellular: LoopbackMonitor.needsWiFi
-        case .loopback: String(localized: "Qeno can't reach this iPhone. Turn on the loopback, then try again.")
+        case .loopback: AppLocalization.text(LocalizedStringResource("Qeno can't reach this iPhone. Turn on the loopback, then try again."))
         }
     }
 
@@ -407,42 +462,71 @@ final class SelfSigner {
             let code = (error as? SignerError)?.code ?? ""
             lastError = whyUnreachable() == .cellular && ["loopback", "handshake", "unreachable"].contains(code) ? LoopbackMonitor.needsWiFi : error.localizedDescription
             log.add("signing", "\(title ?? "signer"): \(error.localizedDescription)")
+            if code == "needs_code" {
+                await reload()
+                if needsCode { needsCodeSheet = true }
+            }
         }
     }
 
     /// The upgrade's progress while it installs, for `install`'s watch.
     private var installFraction: Double?
     private var steppedAside = false
+    private enum ExitRequest { case unconfirmed, stopping, stopped, closing }
+    private var exitRequest = ExitRequest.unconfirmed
+    private var installBackground: UIBackgroundTaskIdentifier = .invalid
 
-    /// Qeno to the Home Screen, as the person swiping up would: iOS finishes the upgrade only once the
-    /// app it replaces is no longer in front. Once per install.
+    private func endInstallBackground() {
+        guard installBackground != .invalid else { return }
+        UIApplication.shared.endBackgroundTask(installBackground)
+        installBackground = .invalid
+    }
+
+    /// Ask before ending the process. The install step can announce itself before upload finishes.
     private func stepAside() {
         guard !steppedAside else { return }
         log.add("signing", "the install's last step: telling the owner Qeno will close to finish")
         steppedAside = true
-        working = String(localized: "Finishing the update: Qeno will close to finish it")
-        // The last step: the owner is told Qeno will close (the alert's OK steps aside, and iOS ends
-        // Qeno by itself otherwise); the notice says it again in case the alert was missed.
+        working = AppLocalization.text(LocalizedStringResource("Finishing the update: Qeno will close to finish it"))
         finishNotice = true
-        notify(title: String(localized: "Qeno Will Close to Finish the Update"),
-               body: String(localized: "Qeno will close by itself. Open it again once the update is in."))
+        notify(title: AppLocalization.text(LocalizedStringResource("Qeno Will Close to Finish the Update")),
+               body: AppLocalization.text(LocalizedStringResource("Qeno will close by itself. Open it again once the update is in.")))
     }
     /// The last install step's alert: Qeno has to exit for the update to finish.
     var finishNotice = false
-    /// OK on that alert: Qeno leaves for the Home Screen.
     func finishNoticeAnswered() {
         guard finishNotice else { return }
         finishNotice = false
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-            guard let self, !self.needsReopen else { return }
+        exitRequest = .stopping
+        log.add("signing", "update confirmed: stopping runtime before installation progress")
+        Task { @MainActor in
+            await beforeExit()
+            SessionStore.shared.flush()
+            UserDefaults.standard.synchronize()
+            exitRequest = .stopped
+            guard !needsReopen else { return }
+            log.add("signing", "update runtime stopped and state saved; moving to background")
             UIApplication.shared.perform(NSSelectorFromString("suspend"))
+            exitIfReady()
         }
     }
 
-    /// iOS has not ended Qeno after the install. Until the install returns, Qeno carries the upload
-    /// and the upgrade request, so nothing asks the owner to close it before then.
+    private func exitIfReady() {
+        guard exitRequest == .stopped, !needsReopen,
+              installFraction != nil || installFinish == .waitingForExit else { return }
+        exitRequest = .closing
+        finishTimer?.invalidate()
+        finishTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: false) { [weak self] _ in
+            Task { @MainActor in self?.requireReopen() }
+        }
+        endInstallBackground()
+        log.add("signing", "update accepted: runtime stopped and state saved; exiting normally")
+        exit(0)
+    }
+
+    /// An install result is required before foreground return or the timer can claim success.
     private func exitWaitEnded() {
-        guard installFinish == .waitingForExit else { return }
+        guard installFinish == .waitingForExit || exitRequest == .closing else { return }
         requireReopen()
     }
 
@@ -461,13 +545,14 @@ final class SelfSigner {
         switch progress["kind"] as? String {
         case "step":
             working = progress["title"] as? String ?? working; fraction = nil
-            // The install itself has begun (the build is on the phone): the last step, where Qeno
-            // must exit for iOS to finish. The owner is told now rather than at a percentage that a
-            // fast or stalled install may never report.
+            // This step precedes upload. Only part/install comes from the system upgrade callback.
             if progress["id"] as? String == "install" { stepAside() }
         case "part":
             fraction = progress["fraction"] as? Double
-            if progress["id"] as? String == "install" { installFraction = fraction }
+            if progress["id"] as? String == "install" {
+                installFraction = fraction
+                exitIfReady()
+            }
             if let d = progress["detail"] as? String { working = d }
         case "note", "waiting": if let t = progress["text"] as? String { working = t }
         default: break
@@ -484,7 +569,7 @@ final class SelfSigner {
     }
 
     private func scheduleReopenNotice(id: String) {
-        notify(title: String(localized: "Qeno Was Updated"), body: String(localized: "Tap to open Qeno again."), id: id, after: 20)
+        notify(title: AppLocalization.text(LocalizedStringResource("Qeno Was Updated")), body: AppLocalization.text(LocalizedStringResource("Tap to open Qeno again.")), id: id, after: 20)
     }
 
     /// Once a day in the last two days: the build is ready (or can't be made) and nothing installed it.
@@ -493,9 +578,9 @@ final class SelfSigner {
         let key = "signing.reminded"
         if let last = UserDefaults.standard.object(forKey: key) as? Date, Date().timeIntervalSince(last) < 20 * 3600 { return }
         UserDefaults.standard.set(Date(), forKey: key)
-        let when = expiry.map { $0.formatted(date: .abbreviated, time: .shortened) } ?? ""
-        notify(title: String(localized: "Qeno Expires Soon"),
-               body: next != nil ? String(localized: "A refreshed Qeno is ready. Open Setup and tap Install before \(when).") : String(localized: "Open Setup to refresh Qeno before \(when)."))
+        let when = expiry.map { $0.formatted(Date.FormatStyle(date: .abbreviated, time: .shortened).locale(AppLocalization.locale)) } ?? ""
+        notify(title: AppLocalization.text(LocalizedStringResource("Qeno Expires Soon")),
+               body: next != nil ? AppLocalization.text(LocalizedStringResource("A refreshed Qeno is ready. Open Setup and tap Install before \(when).")) : AppLocalization.text(LocalizedStringResource("Open Setup to refresh Qeno before \(when).")))
     }
 
     /// `-pokiSigningDays 1`: a simulator has no profile, so a screenshot gives Qeno one that ends then.
@@ -505,6 +590,30 @@ final class SelfSigner {
         return Date().addingTimeInterval(UserDefaults.standard.double(forKey: "pokiSigningDays") * 86_400)
         #else
         nil
+        #endif
+    }
+
+    /// `-pokiLatest newer|same`: a simulator's screenshots and tests get a channel build one past the
+    /// installed one, or the installed one, as the Beta channel's newest build instead of the network's.
+    nonisolated private static func screenshotRelease(installedVersion: String, installedBuild: String) -> Release? {
+        #if targetEnvironment(simulator)
+        let build = Int(installedBuild) ?? 0
+        switch UserDefaults.standard.string(forKey: "pokiLatest") {
+        case "newer": return Release(tag: "app-\(installedVersion)-beta.\(build + 1)", version: installedVersion, build: String(build + 1), channel: "beta", source: nil, source_notice: nil)
+        case "same": return Release(tag: "app-\(installedVersion)-beta.\(build)", version: installedVersion, build: installedBuild, channel: "beta", source: nil, source_notice: nil)
+        default: return nil
+        }
+        #else
+        nil
+        #endif
+    }
+
+    /// `-pokiSignedIn YES`: a simulator's screenshots show the Signing page as it is with an Apple Account.
+    nonisolated private static var screenshotSignedIn: Bool {
+        #if targetEnvironment(simulator)
+        UserDefaults.standard.bool(forKey: "pokiSignedIn")
+        #else
+        false
         #endif
     }
 

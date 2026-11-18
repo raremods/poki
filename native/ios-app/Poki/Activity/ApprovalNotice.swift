@@ -1,26 +1,35 @@
 import Foundation
 import UserNotifications
 
-/// A time-sensitive notification for each approval, so the person hears about it even when the Live
-/// Activity is off, dismissed or hidden (and, before iOS 26, as the way to answer it). Touch and hold
-/// it for Allow (Face ID or the passcode first) and Don't Allow. PokiCore sends no input while an
+/// A time-sensitive notification for an approval when no Live Activity can ask (off, dismissed, or
+/// never started), so the person still hears about it. Never both: AppModel's askOwner posts it only
+/// without a Live Activity. Touch and hold
+/// it for Allow (Face ID or the passcode first), Don't Allow, and on a step that turning asking off
+/// reaches, Don't Ask Again (Face ID or the passcode first). PokiCore sends no input while an
 /// approval waits, so only the person can press them.
 enum ApprovalNotice {
     static let category = "approval"
+    /// The same buttons and Don't Ask Again, for a step the owner can stop being asked about.
+    static let optionalCategory = "approval.optional"
     static let allow = "approval.allow"
     static let deny = "approval.deny"
+    static let stopAsking = "approval.stop"
 
     /// Allow and Don't Allow on the notification itself (touch and hold it, or pull it down), so an
     /// approval can be answered without opening Qeno. Allow asks for Face ID or the passcode first.
     @MainActor static func registerActions() {
-        let allowAction = UNNotificationAction(identifier: allow, title: String(localized: "Allow"),
+        let allowAction = UNNotificationAction(identifier: allow, title: AppLocalization.text(LocalizedStringResource("Allow")),
                                                options: [.authenticationRequired], icon: UNNotificationActionIcon(systemImageName: "checkmark"))
-        let denyAction = UNNotificationAction(identifier: deny, title: String(localized: "Don’t Allow"),
+        let denyAction = UNNotificationAction(identifier: deny, title: AppLocalization.text(LocalizedStringResource("Don’t Allow")),
                                               options: [.destructive], icon: UNNotificationActionIcon(systemImageName: "xmark"))
+        let stopAction = UNNotificationAction(identifier: stopAsking, title: AppLocalization.text(LocalizedStringResource("Don’t ask again")),
+                                              options: [.authenticationRequired], icon: UNNotificationActionIcon(systemImageName: "bell.slash"))
         let approvals = UNNotificationCategory(identifier: category, actions: [allowAction, denyAction], intentIdentifiers: [],
                                                options: [.hiddenPreviewsShowTitle])
+        let optional = UNNotificationCategory(identifier: optionalCategory, actions: [allowAction, denyAction, stopAction], intentIdentifiers: [],
+                                              options: [.hiddenPreviewsShowTitle])
         let center = UNUserNotificationCenter.current()
-        center.setNotificationCategories([approvals])
+        center.setNotificationCategories([approvals, optional])
         center.delegate = ApprovalNoticeDelegate.shared
     }
 
@@ -35,7 +44,7 @@ enum ApprovalNotice {
         let content = UNMutableNotificationContent()
         // The one question, as on the card: from the rules' kind, never the agent's words.
         content.title = approval.question
-        content.categoryIdentifier = category
+        content.categoryIdentifier = approval.offersStopAsking ? optionalCategory : category
         content.userInfo = ["approval": approval.id]
         content.sound = .default
         content.interruptionLevel = .timeSensitive
@@ -55,11 +64,16 @@ enum ApprovalNotice {
 final class ApprovalNoticeDelegate: NSObject, UNUserNotificationCenterDelegate, @unchecked Sendable {
     static let shared = ApprovalNoticeDelegate()
 
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-        guard let id = response.notification.request.content.userInfo["approval"] as? String else { return }
-        let action = response.actionIdentifier
-        guard action == ApprovalNotice.allow || action == ApprovalNotice.deny else { return }
-        await MainActor.run { ApprovalIntentBridge.submit(ApprovalDecision(approvalID: id, approved: action == ApprovalNotice.allow)) }
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        DispatchQueue.main.async {
+            defer { completionHandler() }
+            guard let id = response.notification.request.content.userInfo["approval"] as? String else { return }
+            let action = response.actionIdentifier
+            guard [ApprovalNotice.allow, ApprovalNotice.deny, ApprovalNotice.stopAsking].contains(action) else { return }
+            ApprovalIntentBridge.submit(ApprovalDecision(approvalID: id, approved: action != ApprovalNotice.deny,
+                                                         stopAsking: action == ApprovalNotice.stopAsking))
+        }
     }
 
     /// While Qeno is open the banner still shows, so the buttons are there too.
@@ -73,8 +87,8 @@ final class ApprovalNoticeDelegate: NSObject, UNUserNotificationCenterDelegate, 
 enum ConnectionNotice {
     @MainActor static func post(_ ask: AppModel.ConnectionAsk) {
         let content = UNMutableNotificationContent()
-        content.title = String(localized: "Allow \(ask.client) to connect?")
-        content.body = String(localized: "A client Qeno doesn’t know (\(ask.callback)) is signing in with \(ask.connector). Open Qeno to allow or deny it.")
+        content.title = AppLocalization.text(LocalizedStringResource("Allow \(ask.client) to connect?"))
+        content.body = AppLocalization.text(LocalizedStringResource("A client (\(ask.callback)) is signing in with \(ask.connector). Open Qeno to allow or deny it."))
         content.sound = .default
         content.interruptionLevel = .timeSensitive
         content.threadIdentifier = "connections"
@@ -92,8 +106,8 @@ enum PairingNotice {
     @MainActor static func post(pin: String) {
         let content = UNMutableNotificationContent()
         let shown = pin.count == 6 ? "\(pin.prefix(3)) \(pin.suffix(3))" : pin
-        content.title = String(localized: "Pairing code \(shown)")
-        content.body = String(localized: "Type it on the Pair with Qeno screen in Settings.")
+        content.title = AppLocalization.text(LocalizedStringResource("Pairing code \(shown)"))
+        content.body = AppLocalization.text(LocalizedStringResource("Type it on the Pair with Qeno screen in Settings."))
         content.sound = .default
         content.interruptionLevel = .timeSensitive
         UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [id])

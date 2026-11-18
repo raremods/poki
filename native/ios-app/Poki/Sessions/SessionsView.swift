@@ -22,8 +22,12 @@ struct SessionsView: View {
     @State private var newName = ""
     @Environment(\.inThreadsDrawer) private var inDrawer
     @Environment(\.drawerSliding) private var sliding
+    @Environment(\.dynamicTypeSize) private var typeSize
+    @ScaledMetric(relativeTo: .title) private var headerIcon = 32.0
+    var controlSize = CompactControlMetrics()
+    var sessionStore: SessionStore = .shared
 
-    private var store: SessionStore { SessionStore.shared }
+    private var store: SessionStore { sessionStore }
     private var sampleHome: String? { UserDefaults.standard.string(forKey: "pokiHome") }
 
     var body: some View {
@@ -62,10 +66,11 @@ struct SessionsView: View {
     }
 
     private var header: some View {
-        HStack(spacing: 10) {
+        let iconSide = min(44, headerIcon)
+        return HStack(spacing: 10) {
             // The app's icon, small, rounded in the system's proportion for app icons.
-            Image("PokiIcon").resizable().scaledToFit().frame(width: 32, height: 32)
-                .clipShape(RoundedRectangle(cornerRadius: 32 * 0.225, style: .continuous))
+            Image("PokiIcon").resizable().scaledToFit().frame(width: iconSide, height: iconSide)
+                .clipShape(RoundedRectangle(cornerRadius: iconSide * 0.225, style: .continuous))
                 .accessibilityHidden(true)
             Text(verbatim: "Qeno").font(Prominent.font(size: 28, relativeTo: .title, .bold)).foregroundStyle(Color(.label))
                 .accessibilityAddTraits(.isHeader)
@@ -73,38 +78,51 @@ struct SessionsView: View {
         }
         .padding(.horizontal, 32).padding(.top, 8).padding(.bottom, 12)
         .background(Tint.sidebar)
-        .dynamicTypeSize(...DynamicTypeSize.accessibility1)
     }
 
-    /// Floating over the list's foot: a new conversation, in the leading corner, and Settings in the trailing one.
+    /// A new conversation in the leading corner, and Settings in the trailing one.
     private var controls: some View {
-        HStack(alignment: .center) {
+        HStack(spacing: 12) {
             Button {
                 guard !sliding else { return }
                 if !chat.running { chat.newConversation() }
                 openChat()
             } label: {
-                Label("New Conversation", systemImage: "square.and.pencil")
-                    .labelStyle(PillLabelStyle())
-                    .font(.body.weight(.semibold)).foregroundStyle(.white)
-                    // One line: "New Conversation" in English is the longest, and in a narrow drawer it
-                    // shrinks a little rather than wrapping.
-                    .lineLimit(1).minimumScaleFactor(0.8)
-                    .padding(.horizontal, 18).frame(minHeight: 48)
-                    .contentShape(.capsule)
+                ViewThatFits(in: .horizontal) {
+                    Label("New Conversation", systemImage: "square.and.pencil")
+                        .labelStyle(PillLabelStyle())
+                        .fixedSize()
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 8)
+                        .frame(minHeight: controlSize.side)
+                    Image(systemName: "square.and.pencil")
+                        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+                        .frame(width: controlSize.side, height: controlSize.side)
+                }
+                .font(.body.weight(.semibold))
+                .foregroundStyle(.white)
+                .contentShape(.capsule)
             }
             .buttonStyle(.plain)
             // Qeno's blue, the send button's own.
             .glassSurface(in: Capsule(), tint: Tint.blue, interactive: true)
             .opacity(chat.running ? 0.5 : 1)
             .disabled(chat.running)
+            .accessibilityLabel(Text("New Conversation"))
             .accessibilityIdentifier("threads.newChat")
-            Spacer(minLength: 12)
+            .accessibilityShowsLargeContentViewer {
+                Label("New Conversation", systemImage: "square.and.pencil")
+            }
+            Spacer(minLength: 0)
             SettingsEntryButton()
+                .fixedSize()
         }
         .glassGroup(spacing: 8)
         .padding(.horizontal, 20).padding(.top, 8).padding(.bottom, 4)
-        .dynamicTypeSize(...DynamicTypeSize.accessibility1)
+        .background {
+            // Keep large text and status marks from showing through the floating controls.
+            if typeSize.isAccessibilitySize { Tint.sidebar.ignoresSafeArea(edges: .bottom) }
+        }
     }
 
     private func heading(_ day: Day) -> some View {
@@ -156,7 +174,8 @@ struct SessionsView: View {
                 if needs { Circle().fill(Tint.amber).frame(width: 8, height: 8).accessibilityHidden(true) }
                 else if let trouble {
                     Image(systemName: trouble == .failed ? "exclamationmark.circle.fill" : "pause.circle.fill")
-                        .font(.system(size: 14)).foregroundStyle(trouble == .failed ? Tint.red : Color.secondary)
+                        .font(.subheadline).dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+                        .foregroundStyle(trouble == .failed ? Tint.red : Color.secondary)
                         .accessibilityHidden(true)
                 }
             }
@@ -170,8 +189,8 @@ struct SessionsView: View {
         .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: 14, style: .continuous))
         .accessibilityElement(children: .combine)
         // The icon says which app the conversation worked in; VoiceOver says its name, as the iPhone names it.
-        .accessibilityValue(Text(verbatim: [AppName.display(app), needs ? String(localized: "Needs your attention") : nil,
-                                                         trouble.map { $0 == .failed ? String(localized: "Failed") : String(localized: "Stopped") }]
+        .accessibilityValue(Text(verbatim: [AppName.display(app), needs ? AppLocalization.text(LocalizedStringResource("Needs your attention")) : nil,
+                                                         trouble.map { $0 == .failed ? AppLocalization.text(LocalizedStringResource("Failed")) : AppLocalization.text(LocalizedStringResource("Stopped")) }]
             .compactMap { $0 }.joined(separator: ", ")))
         // In the drawer a sideways drag closes it, so Rename, Archive and Delete are only in the menu there.
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -211,9 +230,9 @@ struct SessionsView: View {
 
         var title: String {
             switch self {
-            case .today: String(localized: "Today")
-            case .yesterday: String(localized: "Yesterday")
-            case .earlier: String(localized: "Earlier")
+            case .today: AppLocalization.text(LocalizedStringResource("Today"))
+            case .yesterday: AppLocalization.text(LocalizedStringResource("Yesterday"))
+            case .earlier: AppLocalization.text(LocalizedStringResource("Earlier"))
             }
         }
 
@@ -227,10 +246,22 @@ struct SessionsView: View {
     /// The conversations by day, each day keeping the store's order.
     private var grouped: [(day: Day, sessions: [SavedSession])] {
         let all = shown
-        return Day.allCases.compactMap { day in
-            let sessions = all.filter { Day.of($0) == day }
-            return sessions.isEmpty ? nil : (day, sessions)
+        let calendar = Calendar.current
+        let todayStart = calendar.startOfDay(for: Date())
+        let yesterdayStart = calendar.date(byAdding: .day, value: -1, to: todayStart) ?? todayStart
+        var today: [SavedSession] = []
+        var yesterday: [SavedSession] = []
+        var earlier: [SavedSession] = []
+        for session in all {
+            if session.live || session.updated >= todayStart {
+                today.append(session)
+            } else if session.updated >= yesterdayStart {
+                yesterday.append(session)
+            } else {
+                earlier.append(session)
+            }
         }
+        return [(.today, today), (.yesterday, yesterday), (.earlier, earlier)].compactMap { $0.1.isEmpty ? nil : $0 }
     }
 
     /// Held by a step that waits for the owner: its own last plan says so, or it is the conversation
@@ -253,7 +284,7 @@ struct SessionsView: View {
                 updated: now,
                 live: true,
                 outcome: nil,
-                entries: [ChatEntry(.poki(String(localized: "Needs your OK: send “On my way” to Mom"))), ChatEntry(.note(.waiting))],
+                entries: [ChatEntry(.poki(AppLocalization.text(LocalizedStringResource("Needs your OK: send “On my way” to Mom")))), ChatEntry(.note(.waiting))],
                 calls: [],
                 customName: "Claude → Qeno"
             ),
@@ -261,12 +292,12 @@ struct SessionsView: View {
                 id: "sample-2",
                 kind: .poki,
                 client: nil,
-                title: String(localized: "What iOS version is this?"),
+                title: AppLocalization.text(LocalizedStringResource("What iOS version is this?")),
                 started: now,
                 updated: now,
                 live: false,
                 outcome: .done,
-                entries: [ChatEntry(.poki(String(localized: "It’s iOS 27.3. Want me to check for an update?")))],
+                entries: [ChatEntry(.poki(AppLocalization.text(LocalizedStringResource("It’s iOS 27.3. Want me to check for an update?"))))],
                 calls: []
             ),
             SavedSession(
@@ -278,7 +309,7 @@ struct SessionsView: View {
                 updated: now,
                 live: false,
                 outcome: .done,
-                entries: [ChatEntry(.poki(String(localized: "Opened Photos and tapped “Albums”. Done in 3 steps.")))],
+                entries: [ChatEntry(.poki(AppLocalization.text(LocalizedStringResource("Opened Photos and tapped “Albums”. Done in 3 steps."))))],
                 calls: [],
                 customName: "Codex"
             ),
@@ -286,12 +317,12 @@ struct SessionsView: View {
                 id: "sample-4",
                 kind: .poki,
                 client: nil,
-                title: String(localized: "Order oat milk again"),
+                title: AppLocalization.text(LocalizedStringResource("Order oat milk again")),
                 started: yesterday,
                 updated: yesterday,
                 live: false,
                 outcome: .done,
-                entries: [ChatEntry(.poki(String(localized: "Ran your routine: same order as last week, $4.99.")))],
+                entries: [ChatEntry(.poki(AppLocalization.text(LocalizedStringResource("Ran your routine: same order as last week, $4.99."))))],
                 calls: []
             ),
             SavedSession(
@@ -303,7 +334,7 @@ struct SessionsView: View {
                 updated: yesterday,
                 live: false,
                 outcome: .done,
-                entries: [ChatEntry(.poki(String(localized: "Your turn, enter your Apple Account password")))],
+                entries: [ChatEntry(.poki(AppLocalization.text(LocalizedStringResource("Your turn, enter your Apple Account password"))))],
                 calls: [],
                 customName: "Claude Code"
             ),
@@ -368,13 +399,14 @@ struct ConversationTitle: View {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var typeSize
     @ScaledMetric(relativeTo: .body) private var nameSize: CGFloat = 18
+    @ScaledMetric(relativeTo: .body) private var iconSize = 22.0
 
     var body: some View {
         let app = app ?? session.app
         HStack(spacing: 12) {
-            if let app, AppIconStore.shared.icon(app, dark: scheme == .dark) != nil { AppIconView(app: app, size: 22) }
+            if let app, AppIconStore.shared.icon(app, dark: scheme == .dark) != nil { AppIconView(app: app, size: min(34, iconSize)) }
             Text(verbatim: session.name).font(.system(size: nameSize)).foregroundStyle(Color(.label))
-                .lineLimit(typeSize.isAccessibilitySize ? 3 : 1)
+                .lineLimit(typeSize.isAccessibilitySize ? nil : 1)
         }
         .task(id: app) { if let app { await AppIconStore.shared.load(app) } }
     }
@@ -447,12 +479,12 @@ struct AgentBadge: View {
 /// outside agent borrowing Qeno's hands, at step 2 of 3. Nothing runs.
 private enum GuestSample {
     static var isOn: Bool { UserDefaults.standard.string(forKey: "pokiHome") != nil }
-    static let plan = [String(localized: "Open TestFlight"), String(localized: "Find Qeno"), String(localized: "Tap Update")]
+    static var plan: [String] { [AppLocalization.text(LocalizedStringResource("Open TestFlight")), AppLocalization.text(LocalizedStringResource("Find Qeno")), AppLocalization.text(LocalizedStringResource("Tap Update"))] }
     static let entries: [ChatEntry] = {
         var steps = ChatEntry(.plan([PlanStep(plan[0], state: .done), PlanStep(plan[1])]))
         steps.at = Date().addingTimeInterval(-42)
-        steps.title = String(localized: "Install the newest build")
-        return [ChatEntry(.request(String(localized: "Open TestFlight and install the newest Qeno build."), from: "Claude Code")), steps]
+        steps.title = AppLocalization.text(LocalizedStringResource("Install the newest build"))
+        return [ChatEntry(.request(AppLocalization.text(LocalizedStringResource("Open TestFlight and install the newest Qeno build.")), from: "Claude Code")), steps]
     }()
 }
 
@@ -488,7 +520,7 @@ struct SessionView: View {
                         ApprovalAskCard(title: approval.question, expires: approval.expires,
                                         answer: { approved in model.resolve(approval, approved: approved) })
                     } else if session?.live == true, let text = model.handoffText {
-                        TurnCard(text: Bundle.main.localizedString(forKey: text, value: text, table: nil), done: model.handoffDoneInApp)
+                        TurnCard(text: AppLocalization.bundle.localizedString(forKey: text, value: text, table: nil), done: model.handoffDoneInApp)
                     }
                     if running != nil || sample {
                         // Said where Stop is, and only there: the words promise what the button does.
@@ -521,9 +553,9 @@ struct SessionView: View {
     private func caption(_ session: SavedSession?) -> String {
         guard let session else { return "" }
         switch session.kind {
-        case .agent: return String(localized: "Over MCP, \(ChatTime.row(session.started))")
-        case .handoff: return String(localized: "Handed to Qeno, \(ChatTime.row(session.started))")
-        case .voice: return String(localized: "Voice, \(ChatTime.row(session.started))")
+        case .agent: return AppLocalization.text(LocalizedStringResource("Over MCP, \(ChatTime.row(session.started))"))
+        case .handoff: return AppLocalization.text(LocalizedStringResource("Handed to Qeno, \(ChatTime.row(session.started))"))
+        case .voice: return AppLocalization.text(LocalizedStringResource("Voice, \(ChatTime.row(session.started))"))
         case .poki: return ""
         }
     }

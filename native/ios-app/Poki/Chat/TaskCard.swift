@@ -52,6 +52,8 @@ struct TaskCard: View {
     /// Nil until you fold or unfold it. A task that tripped starts unfolded, so the step it tripped on
     /// shows; so does one handed back to you. One waiting for your answer folds: the approval card speaks.
     @State private var open: Bool?
+    @ScaledMetric(relativeTo: .footnote) private var endingSide = 20.0
+    @ScaledMetric(relativeTo: .subheadline) private var cardInset = 12.0
     @Environment(\.dynamicTypeSize) private var typeSize
 
     private var total: Int { steps.count + upcoming.count }
@@ -84,7 +86,7 @@ struct TaskCard: View {
                             .transition(.opacity)
                     }
                 }
-                .padding(.vertical, 12).padding(.horizontal, 14)
+                .padding(.vertical, min(18, cardInset)).padding(.horizontal, min(20, cardInset + 2))
             } else if blue {
                 VStack(alignment: .leading, spacing: 14) {
                     header
@@ -101,7 +103,9 @@ struct TaskCard: View {
                     header
                 }
                 .tint(Color(.tertiaryLabel))
-                .padding(.vertical, isOpen ? 16 : 12).padding(.leading, isOpen ? 16 : 12).padding(.trailing, isOpen ? 16 : 14)
+                .padding(.vertical, min(20, cardInset + (isOpen ? 4 : 0)))
+                .padding(.leading, min(20, cardInset + (isOpen ? 4 : 0)))
+                .padding(.trailing, min(20, cardInset + (isOpen ? 4 : 2)))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -117,8 +121,8 @@ struct TaskCard: View {
         HStack(spacing: over ? 12 : 10) {
             mark
             VStack(alignment: .leading, spacing: over ? 2 : 1) {
-                Text(verbatim: title).font(.subheadline.weight(.semibold)).foregroundStyle(ink).lineLimit(big ? 3 : 1)
-                subline.font(over ? .footnote : .caption).foregroundStyle(soft).lineLimit(big ? 2 : 1)
+                Text(verbatim: title).font(.subheadline.weight(.semibold)).foregroundStyle(ink).lineLimit(big ? nil : 1)
+                subline.font(over ? .footnote : .caption).foregroundStyle(soft).lineLimit(big ? nil : 1)
                 // At the accessibility text sizes the title wraps and the label goes under it.
                 if big, !over || asker != nil { pill }
             }
@@ -139,8 +143,8 @@ struct TaskCard: View {
     }
 
     private func endMark(_ name: String, _ color: Color, size: CGFloat = 9) -> some View {
-        Image(systemName: name).font(.system(size: size, weight: .heavy)).foregroundStyle(.white)
-            .frame(width: 20, height: 20).background(color, in: .circle)
+        Image(systemName: name).font(.system(size: size * min(32, endingSide) / 20, weight: .heavy)).foregroundStyle(.white)
+            .frame(width: min(32, endingSide), height: min(32, endingSide)).background(color, in: .circle)
     }
 
     /// Qeno's face while the task is alive; a tick, a cross or a stop sign once it is over.
@@ -253,10 +257,9 @@ private struct TaskPill: View {
     var ink: Color
     var ground: Color
     var body: some View {
-        text.font(.caption.weight(.medium)).foregroundStyle(ink).lineLimit(1)
+        text.font(.caption.weight(.medium)).foregroundStyle(ink).fixedSize(horizontal: false, vertical: true)
             .padding(.horizontal, 10).frame(minHeight: 24)
             .background(ground, in: .capsule)
-            .dynamicTypeSize(...DynamicTypeSize.accessibility1)
     }
 }
 
@@ -384,12 +387,14 @@ private struct TaskStepRow: View {
 
 /// A step waiting for your answer, above the message field: what is asked, where, the words or the
 /// button it is about, how long it waits, and the two answers. Allow takes a hold, so a stray tap
-/// never lets a step through.
+/// never lets a step through, and so does Don’t ask again, which allows the step too.
 /// An approval, as one question from the rules' kind ("Allow payment?"), its countdown and the answers.
 struct ApprovalAskCard: View {
     var title: String
     var expires: Date?
     var answer: (Bool) -> Void
+    /// Allows this step and turns asking off. Nil on a step turning asking off does not reach.
+    var stopAsking: (() -> Void)? = nil
     @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
@@ -419,6 +424,10 @@ struct ApprovalAskCard: View {
                 }
                 .buttonStyle(QuietCapsuleButtonStyle())
                 HoldToAllowButton { answer(true) }
+            }
+            if let stopAsking {
+                // Allows this step and turns every approval off, so like Allow it takes a hold.
+                HoldToAllowButton(title: "Don’t ask again", quiet: true, action: stopAsking)
             }
         }
         .padding(18)
@@ -519,8 +528,11 @@ private struct AnswerRow: Layout {
 }
 
 /// Touch and hold: the button fills from the leading edge and allows when it is full. VoiceOver and
-/// Switch Control activate it directly, as they can't hold.
+/// Switch Control activate it directly, as they can't hold. `quiet` is Don’t ask again: the same hold
+/// as plain text under the two answers, which allows this step and turns approvals off.
 struct HoldToAllowButton: View {
+    var title: LocalizedStringKey = "Hold to Allow"
+    var quiet = false
     var action: () -> Void
     @State private var filled: CGFloat = 0
     @State private var pressing = false
@@ -531,14 +543,14 @@ struct HoldToAllowButton: View {
     static let hold: Double = 0.7
 
     var body: some View {
-        Text("Hold to Allow")
-            .font(.subheadline.weight(.semibold)).foregroundStyle(Tint.onSolid)
-            .frame(maxWidth: .infinity, minHeight: 50)
+        Text(title)
+            .font(.subheadline.weight(quiet ? .medium : .semibold)).foregroundStyle(quiet ? AnyShapeStyle(.secondary) : AnyShapeStyle(Tint.onSolid))
+            .frame(maxWidth: .infinity, minHeight: quiet ? 36 : 50)
             .background {
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
-                        Tint.solid
-                        Tint.onSolid.opacity(0.32).frame(width: geometry.size.width * filled)
+                        if !quiet { Tint.solid }
+                        (quiet ? Color.primary.opacity(0.14) : Tint.onSolid.opacity(0.32)).frame(width: geometry.size.width * filled)
                     }
                 }
                 .clipShape(.capsule)
@@ -556,11 +568,11 @@ struct HoldToAllowButton: View {
             .sensoryFeedback(.success, trigger: allowed)
             .sensoryFeedback(.impact(weight: .light), trigger: pressing) { _, down in down }
             .accessibilityElement()
-            .accessibilityLabel(Text("Allow"))
-            .accessibilityHint(Text("Allows this step"))
+            .accessibilityLabel(quiet ? Text(title) : Text("Allow"))
+            .accessibilityHint(quiet ? Text("Allows this step and turns approvals off.") : Text("Allows this step"))
             .accessibilityAddTraits(.isButton)
             .accessibilityAction { action() }
-            .accessibilityIdentifier("approval.allow")
+            .accessibilityIdentifier(quiet ? "approval.stopAsking" : "approval.allow")
     }
 }
 

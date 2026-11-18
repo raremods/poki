@@ -13,10 +13,10 @@ For a first install, start the installer, relay its person stops, and verify its
 Pick one branch:
 
 - **First install.** Qeno is not on the iPhone. Follow "Before you start", "Run it", "Check the version" and "What to keep running".
-- **Update.** Qeno is on the iPhone and the user asks to update it, or Qeno's own update failed, could not download or stopped moving. Follow "Update an installed Qeno". Qeno's own update downloads from GitHub on the iPhone, and that download sometimes cannot reach GitHub; this branch is the backup, where the Mac downloads the build and installs it over USB.
+- **Update.** Qeno is on the iPhone and the user asks to update it, or Qeno's own update failed, could not download or stopped moving. Follow "Update an installed Qeno". Qeno's own update downloads from R2 with a GitHub network-failure fallback on the iPhone, and that download sometimes cannot reach GitHub; this branch is the backup, where the Mac downloads the build and installs it over USB.
 - **Stuck on "Finishing the update".** Follow "When Qeno's own update stalls".
 
-In Qeno 0.4.0, open the conversations drawer and tap the Settings button at the bottom. Paths below such as Settings > General > Updates start there. Current builds group these pages under Settings > Connection: Settings > General > Updates is Settings > Connection > Signing & Updates, and Settings > Automation > Setup is Settings > Connection. Give the user the path their build shows.
+In current builds, open the conversations drawer and tap Settings at the bottom. Local Connection is under Settings > Connection; model accounts are under Settings > Models; version and renewal are under Settings > Signing & Updates. Older builds may place these under Automation > Setup, General > Updates, or Connection > Signing & Updates. Give the user the path their build shows.
 
 ## Before you start
 
@@ -26,9 +26,11 @@ In Qeno 0.4.0, open the conversations drawer and tap the Settings button at the 
 2. Check: a Mac with macOS 14 or later, Node.js 24 or later, an iPhone on iOS 18 or later, a USB data cable, and the user's Apple Account. A free account works with 7-day signing; see "No paid developer account" below. The iPhone also needs a VPN app that routes 10.7.0.1 back to the iPhone; see "No VPN app" below. On iOS 27 and later Qeno controls the iPhone through its native services by default; on iOS 18 to 26 it uses the XCTest session, which needs UI Automation. That path was not tested on a physical iPhone below iOS 27 for this release: tell the user so before installing on an older iOS. Xcode is not required. With Xcode installed, the installer can see when Qeno opens and give it the model key even with an older Qeno Setup. Without Node.js 24, or on Windows, use "Without Node.js, or on Windows" below instead of the checkout. Done when the prerequisites are present and the user has confirmed the phone is ready.
 3. Ask the user one question: "Should I also give Qeno on the iPhone your model API key from this Mac's keychain?" Default is no. On yes, ask which provider (`openai`, `anthropic`, `deepseek`, `gemini` or `openrouter`) and add `--model-key <provider>` below. The installer reads the keychain item `<provider>-api-key` (for example `openai-api-key`; another name with `--model-key-item <item>`). Never read the key yourself and never ask for it in chat. Done when the user has chosen whether to transfer a key.
 
+Before starting, describe this as the recommended one-click installation. Under that heading, tell the user: "You only need to connect and unlock your iPhone, sign in when prompted, and complete the iPhone permissions, local connection and model-account steps." The iPhone app uses the user’s own model account; the coding agent’s subscription does not connect it automatically.
+
 ## Which Qeno you get
 
-The installer installs the newest build on its channel: Alpha, unless you pass `--channel stable`, `beta` or `pre-alpha`. A channel also offers the more stable channels' builds, and a channel with no release yet takes the next less stable channel's newest (Stable, then Beta, then Alpha, then Pre-alpha). Stable and Beta therefore use the Alpha build while neither Stable nor Beta offers an installable release. Do not state a version from memory; read it from the run:
+The installer uses Beta. Historical stable, alpha and pre-alpha preferences also resolve to Beta. R2 is the primary source and GitHub is the network-failure fallback. Do not state a version from memory; read it from the run:
 
 - The `channel` step prints `<channel>: Qeno <version> (<build>)`, the release this run installs. For a Beta or Stable release the part in brackets is the release name (`beta.1`) or empty, not the build number.
 - The `install` step prints `Qeno <version> (<build>) installed`, with the build number from the app itself.
@@ -54,7 +56,7 @@ Each line is one JSON event with an `at` time:
 - `{"event":"result","ok":true,"check":{...}}` is the last line only when the checks passed without manual steps left unverified.
 - A result with `ok:false` and `unverified` exits with code 3. Relay every entry's `say`, including instructions from skipped steps. Have the user finish them in Qeno and confirm each result. Report what was manually confirmed and what remains unverified; do not call the phone ready just because the app was installed. Older Qeno Setup without Xcode can require manual model-key entry and loopback setup.
 
-Some helper prompts still name older pages. After relaying the prompt, give the 0.4.0 path: Setup > Connect to this iPhone means Settings > Connection > Local Connection (Settings > Automation > Setup > Local Connection in older 0.4.0 builds); Agents > Accounts and Models means Settings > Models > Add Account. Do not follow a helper instruction to delete an existing app.
+Some helper prompts still name older pages. After relaying the prompt, give the current path: Setup > Connect to this iPhone means Settings > Connection > Local Connection (Settings > Automation > Setup > Local Connection in older 0.4.0 builds); Agents > Accounts and Models means Settings > Models > Add Account. Do not follow a helper instruction to delete an existing app.
 
 Several iPhones plugged in: list them with `node bin/install-iphone.mjs phones` and add `--udid <udid>`.
 
@@ -64,7 +66,7 @@ The installer runs these in order. Most need nobody. Each step is complete when 
 
 1. **`setup_app`** Downloads Qeno Setup and checks its SHA-256, Developer ID team (`AJ9G5DH5ZQ`) and notarization. Nobody acts.
 2. **`bridge`** Starts Qeno Setup's helper without a window. Nobody acts.
-3. **`channel`** Chooses the release channel, Alpha by default, and saves it as Qeno Setup's channel on this Mac. Nobody acts.
+3. **`channel`** Finds the newest Beta release for this installation. Nobody acts.
 4. **`apple_account`** Signs in with the Apple Account, on the Mac only. Qeno Setup keeps the sign-in for renewals. Stops `apple_dialog` and `apple_code_dialog` when this Mac was never signed in.
 5. **`phone`** Waits for the iPhone. Stop `phone_plug`.
 6. **`install`** Pairs, turns on Developer Mode, signs and installs Qeno, gives it its pairing file and disk image. Stops `pair` and `devmode` on a phone that needs them, `pairing_file` rarely.
@@ -74,7 +76,15 @@ The installer runs these in order. Most need nobody. Each step is complete when 
 10. **`relay`** Deploys the relay when `CLOUDFLARE_API_TOKEN` is set or Qeno Setup keeps a token. Skipped otherwise. Qeno and its own chat work without it; agents on other computers need it.
 11. **`check`** Self-check: the install record, Developer Mode, pairing, disk image and relay.
 
-Qeno turns itself on after this install, and ticks Developer Mode and UI Automation in Settings > Automation > Setup once it runs. The iPhone's own switch for UI Automation (iOS Settings > Developer > Enable UI Automation) is still the user's to turn on; Qeno's UI Automation row and Allow UI Automation page says so. When Qeno first opens it asks for Automation Mode: tell the user to tap Continue and enter the iPhone passcode on iOS's screen. If they cancel, Qeno does not ask again until they turn it on again.
+Qeno turns itself on after this install, and ticks Developer Mode and UI Automation in Settings > Connection once it runs. The iPhone's own switch for UI Automation (iOS Settings > Developer > Enable UI Automation) is still the user's to turn on; Qeno's UI Automation row and Allow UI Automation page says so. When Qeno first opens it asks for Automation Mode: tell the user to tap Continue and enter the iPhone passcode on iOS's screen. If they cancel, Qeno does not ask again until they turn it on again.
+
+## Download source and failures
+
+Configured builds read an Ed25519-signed R2 catalog. Every R2 resource, including the signing archive, must match the signed size and SHA-256. One operation keeps the selected metadata even if the catalog changes during download.
+
+When R2 is unreachable, the updater reports that it is using GitHub. If an R2 resource was already selected, its GitHub copy must have the same release tag, filename, size and signed checksum. A catalog signature error, redirect, unsafe address or checksum mismatch stops the operation. Report that error and retry after the source is repaired. Do not bypass it with a manual download.
+
+A build without R2 configuration explicitly reports that it uses GitHub. This does not prove the R2 migration is deployed. GitHub-only discovery retains the existing GitHub release checksum policy; older signing archives may lack a checksum. Keep that distinction in any validation report.
 
 ## Person stops
 
@@ -100,7 +110,7 @@ An installation is complete only after the installer reports success and the pho
 
 1. The `install` step's `Qeno <version> (<build>) installed`.
 2. The `open_poki` step's `Qeno <version> (<build>) is open on the iPhone`. Qeno writes this itself when it starts, so it is the iPhone's own answer. The result's `check.poki` is only this Mac's install record.
-3. What the user reads in Qeno at Settings > General > Updates > Qeno Version.
+3. What the user reads in Qeno at Settings > Signing & Updates > Qeno Version.
 
 When `open_poki` ended with "the person said Qeno is open" or "a version that does not write its hello yet", the third is the only readback: ask the user for it. Tell the user the version, the build and the channel it came from.
 
@@ -108,7 +118,7 @@ When `open_poki` ended with "the person said Qeno is open" or "a version that do
 
 - `install` was `skipped` with "already installed from this computer": nothing was installed. Follow "Update an installed Qeno" before forcing another install.
 - Qeno Version still shows the old build: the old copy may still be running while iOS finishes replacing it. Ask the user to swipe Qeno away in the app switcher, wait a moment, open it again and read Qeno Version again.
-- Qeno Version matches the `install` line but not what the user expected: the channel chose it (see "Which Qeno you get"). Tell the user the channel and build. Change the channel only when they ask, and only to one whose newest build is not lower than the phone's.
+- Qeno Version matches the `install` line but not what the user expected: the channel chose it (see "Which Qeno you get"). Tell the user the channel and build. Do not switch to preview releases to work around a missing Beta.
 
 Done when Qeno Version equals the selected release's actual version and numeric build, as well as the `install` line. Otherwise report the installation as incomplete and name the mismatch. On an existing installation, use the preservation checks below before any retry.
 
@@ -118,17 +128,31 @@ A paid developer membership is not required. A free Apple Account works. Qeno Se
 
 ## No VPN app
 
-Qeno reaches the iPhone's developer services at 10.7.0.1, and a VPN app on the phone routes that address back to the phone. Qeno offers instructions for the free LocalDevVPN from the App Store. In Qeno it is listed at Settings > Automation > Setup > Local Connection (the Turn On Loopback page), under Use Your Proxy App, with its steps. At the `loopback` stop, tell the user `say`, and to install LocalDevVPN when they have no VPN app. Done when the `loopback` step ends `done`. If the user does not want a VPN app now, Qeno stays installed but cannot operate other apps: after 15 minutes the installer exits with code 3; report the local connection as not set up.
+Qeno reaches the iPhone's developer services at 10.7.0.1, and a VPN app on the phone routes that address back to the phone. Qeno offers instructions for the free LocalDevVPN from the App Store. In Qeno it is listed at Settings > Connection > Local Connection (the Turn On Loopback page), under Use Your Proxy App, with its steps. At the `loopback` stop, tell the user `say`, and to install LocalDevVPN when they have no VPN app. Done when the `loopback` step ends `done`. If the user does not want a VPN app now, Qeno stays installed but cannot operate other apps: after 15 minutes the installer exits with code 3; report the local connection as not set up.
 
 ## What to keep running
 
 Tell the user these after the result:
 
 - **Qeno Setup on the Mac renews Qeno.** The installer runs Qeno Setup's helper only while it runs. Renewal on the Mac is done by the Qeno Setup app while it is open (closing its window leaves it in the menu bar): every 6 hours it renews each iPhone this Mac set up that has 2 days of signing left or fewer, with the Apple Account password it kept. The Mac must be awake and the iPhone reachable and trusted. USB is the fallback when network discovery on the same Wi-Fi does not find it. Ask the user to open Qeno Setup and keep it open, and not to sign out of it or delete it.
-- **Or Qeno renews itself.** The installer gives Qeno this Mac's signing key, but not the Apple sign-in. When the user signs in at Settings > General > Updates > Signing Options > Apple Account, Qeno prepares a refreshed build 3 days before signing ends and asks the user to tap Install Refresh or Install Update.
+- **Or Qeno renews itself.** The installer gives Qeno this Mac's signing key, but not the Apple sign-in. When the user signs in at Settings > Signing & Updates > Signing Options > Apple Account, Qeno prepares a refreshed build 3 days before signing ends and asks the user to tap Install Refresh or Install Update.
 - **Keep the VPN app connected and Developer Mode on.** Qeno needs 10.7.0.1 to operate the phone and to install its own updates and refreshes.
 
 With neither renewal, Qeno stops opening when signing ends. Qeno warns on its home screen and with a daily notification in the last 2 days. For an existing installation, use the update branch below when installing a newer build. Renewal downloads the newest release on the Mac's channel and can also update the app; explain the selected version before proceeding. The update-only command refuses equal builds; an explicitly requested signature refresh needs its own preservation review. Done when the user knows which renewal method is configured, the signing expiry, and which apps must remain running. Automatic renewal while asleep, locked, or disconnected has not been verified here.
+
+## Finish a first installation
+
+After the installer exits, use the version checks above and report the installed version and numeric build, the selected release, and every `unverified` item. An `ok:true` result confirms the installer’s checks, not a working model account or a completed phone task. Keep the installation incomplete if a required check remains unverified.
+
+Tell the user where to finish the local connection and model-account steps. Use their existing model account; Qeno does not provide model credits. Never request credentials in chat. Explain the signing expiry and the renewal method actually configured, using "What to keep running" above.
+
+Once setup is complete, offer this first task for the user to send in Qeno:
+
+```text
+Create a new note in Notes titled "Qeno Demo" with these three lines: Milk, Eggs, Coffee. Open the note when finished. Leave existing notes unchanged.
+```
+
+Verify the title and three separate lines in Notes, or ask the user to confirm them when you cannot inspect the screen. Report whether the result was observed, user-confirmed, or untested. If Notes is unavailable, the model request fails, or setup is incomplete, name that step and leave the task unfinished. After an interruption, check for an existing note before retrying. Done when the installation result, remaining steps, first-task result and renewal instructions are clear; never claim the first task succeeded from an installer result or model reply alone.
 
 ## Update an installed Qeno
 
@@ -141,16 +165,16 @@ Use this branch when an existing Qeno cannot download its update on the iPhone. 
    node bin/install-iphone.mjs --update-only --json
    ```
 
-3. Read the installed version, numeric build, channel and team verification status, followed by the target version and build. Team and device identifiers are deliberately withheld from output. The helper reads the live installation, requests fresh public metadata from the running app, checks the original record and public certificate, and inspects the downloaded IPA. It rejects equal or lower builds, channel or identity mismatches, changed app groups, and missing extensions. It preserves the saved phone and computer channels, and performs no pairing, model-key transfer, signing-identity import or relay deployment.
+3. Read the installed version, numeric build, channel and team verification status, followed by the target version and build. Team and device identifiers are deliberately withheld from output. The helper reads the live installation, requests fresh public metadata from the running app, checks the original record and public certificate, and inspects the downloaded IPA. It rejects equal or lower builds, non-Beta targets or identity mismatches, changed app groups, and missing extensions. Historical phone and computer channel preferences converge to Beta. It performs no pairing, model-key transfer, signing-identity import or relay deployment.
 4. On exit **2**, quote the single `reason` sentence and stop. Say that installation did not start; the only phone-side preflight write is a non-secret freshness request. Do not fall back to `run --reinstall`, unguarded `renew`, uninstalling the app, replacing certificates or clearing its data. An unavailable public snapshot is a compatibility limitation, not permission to infer identity from the Mac's record.
 5. On exit **3**, report installation as failed or unconfirmed and keep Qeno installed. On exit **4**, report that installation finished but the target version was not verified. Resolve the named failure before another update-only attempt. Never describe either result as success.
 6. Exit **0** means the live installed version and build matched the inspected target after guarded renewal. A result with `simulated: true` proves only the simulated path. For a real update, ask the user to open Qeno and confirm conversations, model accounts, settings, signing options, release channel, connections and required extensions. Do not display secret values. Done only when the version matches and those retained items are confirmed.
 
-In current builds the update page is Settings > Connection > Signing & Updates; older 0.4.0 builds use Settings > General > Updates. This path only installs a higher numeric build. An equal-build signature refresh is a separate operation and must not be substituted automatically. Physical-device preservation remains unverified until the checks above are performed on the intended phone.
+In current builds the update page is Settings > Signing & Updates; earlier builds may use Settings > Connection > Signing & Updates or Settings > General > Updates. This path only installs a higher numeric build. An equal-build signature refresh is a separate operation and must not be substituted automatically. Physical-device preservation remains unverified until the checks above are performed on the intended phone.
 
 ## When Qeno's own update stalls
 
-After the user taps Install Update or Download and Install Update in Qeno (Settings > General > Updates), Qeno can stay on "Finishing the update: Qeno will close to finish it", after the alert "Qeno Will Close to Finish the Update". Qeno shows this once iOS has begun installing the new copy, and iOS finishes only after the old Qeno leaves the screen. For the reported 0.4.0 case where installation has succeeded, tell the user the new version is installed and to swipe Qeno away in the app switcher and reopen it. This closes the process without deleting the app or its data. The status text alone is not proof that installation succeeded; always read back the version. Done when Settings > General > Updates > Qeno Version shows the new build. If it still shows the old build a minute later, or Qeno does not open, follow "Update an installed Qeno".
+After the user taps Install Update or Download and Install Update in Qeno (Settings > Signing & Updates in current builds), Qeno can stay on "Finishing the update: Qeno will close to finish it", after the alert "Qeno Will Close to Finish the Update". Qeno shows this once iOS has begun installing the new copy, and iOS finishes only after the old Qeno leaves the screen. For the reported 0.4.0 case where installation has succeeded, tell the user the new version is installed and to swipe Qeno away in the app switcher and reopen it. This closes the process without deleting the app or its data. The status text alone is not proof that installation succeeded; always read back the version. Done when Settings > Signing & Updates > Qeno Version shows the new build. If it still shows the old build a minute later, or Qeno does not open, follow "Update an installed Qeno".
 
 ## When a step fails
 
@@ -158,9 +182,9 @@ The installer exits with code 2. The last `error` event has `code`, `reason` and
 
 | Code | Meaning | What you do |
 |---|---|---|
-| `setup_download_failed` | GitHub did not serve a release asset or its metadata. | A 403 or 429 from `api.github.com` is usually GitHub's hourly limit on anonymous requests, shared by everyone on the same network, and is not retried: ask the user to switch to another network or proxy node and run the same command again, or to wait an hour. Other failures make at most 3 attempts per request, and asset requests switch to the release asset API after a 5xx or connection failure. Report the failed URL/status and rerun later if both routes fail. |
-| `setup_checksum_mismatch` | The DMG does not match `SHA256SUMS-desktop.txt`. | Fetched again once. Then stop and report. Never open the file. |
-| `setup_signature_invalid` | Qeno Setup is not signed by team `AJ9G5DH5ZQ` or not notarized. | Stop. Do not run it. Report it. |
+| `setup_download_failed` | Release metadata or an asset could not be read or trusted. | Read the source notice. Network failures can fall back to GitHub. Signature, redirect and address-validation failures stop the operation; report them without switching sources manually. For a GitHub refusal, report the status and retry later. |
+| `setup_checksum_mismatch` | A downloaded file differs from its expected checksum or signed size. | Stop and report. Keep the installed app and its data. Never open the downloaded file. |
+| `setup_signature_invalid` | Qeno Setup is not signed by team `AJ9G5DH5ZQ`, or not notarized. | Stop. Do not run it. Report it. |
 | `setup_app_missing` | `phones` or `diagnose` cannot find Qeno Setup.app. | Run `run`, which installs it, or pass `--app-dir` or `--bridge`. |
 | `bridge_start_failed` | Qeno Setup's helper did not start. | Delete `~/Applications/Qeno Setup.app` if the installer put it there, and run again. |
 | `usbmuxd_unreachable` | macOS does not list the iPhone (issue #6). | Ask the user to plug it in again, unlocked. Then run `diagnose`. |
@@ -186,15 +210,15 @@ The installer exits with code 2. The last `error` event has `code`, `reason` and
 
 ## Download and upgrade recovery
 
-When Qeno Setup reports an HTTP error during installation, the installer downloads the selected release's external IPA, SHA256SUMS and Qeno-signing.zip into a fresh folder. It checks the IPA's SHA-256, then passes the local IPA to the helper; the helper reads the signing zip beside it. Current releases do not list the signing zip in SHA256SUMS, so its integrity is provided by HTTPS, not a published checksum. If a release lists its checksum, the installer checks it too. Local installation records use a `local:` tag. No desktop update is required for this fallback.
+When Qeno Setup reports an HTTP error during installation, the installer retries the selected release through its download code and passes the verified IPA and matching signing archive to the helper. R2 downloads verify both against the signed catalog. GitHub-only discovery uses SHA256SUMS and checks a signing archive checksum when the release includes one. Local installation records use a `local:` tag.
 
-If both download routes fail, do not skip checksum checks or substitute another release's signing zip. A manual recovery can use `gh release download <selected-tag> --repo raremods/poki --pattern '<selected-IPA-name>' --pattern SHA256SUMS --pattern Qeno-signing.zip --dir <new-empty-folder>`. Check the IPA against that release's SHA256SUMS before using Qeno Setup's local IPA install. This is a manual fallback, not an installer success.
+If both sources fail, retain the installed app and report the error. A signature or checksum failure must not be bypassed through manual downloads or another release's signing archive. See "Download source and failures" for the allowed recovery boundary.
 
 Before an upgrade, ask the user to save their work and leave Qeno for the Home Screen. If installation stalls, retry with the phone unlocked and Qeno swiped away. Do not delete Qeno or revoke certificates without explaining the data/signing impact and getting permission. An unavailable old app is not proof that its data is lost.
 
 ## Without Node.js, or on Windows
 
-Qeno Setup 0.2.2 and later carry their own command line tool, which needs no checkout and no Node.js: `"/Applications/Qeno Setup.app/Contents/MacOS/poki-setup"` on a Mac (or under `~/Applications`), `"$env:LOCALAPPDATA\Qeno Setup\poki-setup.exe"` on Windows. When Node.js 24 is missing (`node_too_old`) or the computer runs Windows, ask the user to install Qeno Setup from https://github.com/raremods/poki/releases/tag/app-alpha-latest and open it once, then, for a first install, run `"<tool>" prompt` and follow what it prints. For an existing app, return to "Update an installed Qeno" and apply its preservation gate before any command that installs or renews. If this tool lacks the documented read-only commands or `renew`, stop and report the unsupported build. In short: `"<tool>" next --json` lists what is done and what is next, with `who`, `command` and `say` for each step; exit code 2 means a person has to act and 3 that Apple's sign-in code is needed. The person signs in by running `"<tool>" login <email> --keep-password` in their own terminal.
+Qeno Setup 0.2.2 and later carry their own command line tool, which needs no checkout and no Node.js: `"/Applications/Qeno Setup.app/Contents/MacOS/poki-setup"` on a Mac (or under `~/Applications`), `"$env:LOCALAPPDATA\Qeno Setup\poki-setup.exe"` on Windows. When Node.js 24 is missing (`node_too_old`) or the computer runs Windows, ask the user to install Qeno Setup from the newest Beta at https://github.com/raremods/poki/releases and open it once, then, for a first install, run `"<tool>" prompt` and follow what it prints. For an existing app, return to "Update an installed Qeno" and apply its preservation gate before any command that installs or renews. If this tool lacks the documented read-only commands or `renew`, stop and report the unsupported build. In short: `"<tool>" next --json` lists what is done and what is next, with `who`, `command` and `say` for each step; exit code 2 means a person has to act and 3 that Apple's sign-in code is needed. The person signs in by running `"<tool>" login <email> --keep-password` in their own terminal.
 
 ## Read Qeno's records on the Mac
 

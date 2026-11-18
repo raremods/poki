@@ -12,6 +12,7 @@ import SwiftUI
 struct ChatView: View {
     @Environment(AppModel.self) private var model
     @Environment(ChatModel.self) private var chat
+    var sharedDraft: Binding<String>? = nil
     /// Opens Qeno's card: under Qeno's picture over the greeting on the home page (the bottom of the
     /// picture, in global points), under the top bar in the chat (nil).
     var openDetails: (_ under: CGFloat?) -> Void
@@ -27,6 +28,8 @@ struct ChatView: View {
     var openAgents: () -> Void = {}
     /// Opens Updates, from the home page's hint.
     var openUpdates: () -> Void = {}
+    var sessionStore: SessionStore = .shared
+    var shortcutStore: HomeShortcutStore = .shared
 
     private var voice: VoiceModel { model.voice }
     /// The taps on Qeno's picture, for the bear to answer.
@@ -41,14 +44,14 @@ struct ChatView: View {
         pokes += 1
         openDetails(isGreeting ? homeBottom : nil)
     }
-    /// `-pokiDraft <text>` starts with a message already written, for recordings.
-    @State private var draft = UserDefaults.standard.string(forKey: "pokiDraft") ?? ""
     /// The message field has the keyboard.
     @State private var writing = false
     /// The "Remember this for next time" card, after a task that went well while Qeno knows
     /// nothing about its owner yet.
     @State private var showRemember = false
     @State private var rememberText = ""
+    @State private var standaloneDraft = ""
+    private var draft: Binding<String> { sharedDraft ?? $standaloneDraft }
     /// Taps on New Conversation on the home page, for the message field (`ComposerInputView.restarts`).
     @State private var restarts = 0
     /// The page's height, for how far your first words rise.
@@ -125,7 +128,8 @@ struct ChatView: View {
             }
             // The home page stays in the tree while the conversation is in front, neither seen nor
             // touched, so a new conversation brings it back on the same animation.
-            HomePage(home: home, writing: writing, rise: flightRise, pick: { draft = $0; writing = true }) {
+            HomePage(home: home, writing: writing, rise: flightRise, sessionStore: sessionStore, shortcutStore: shortcutStore,
+                     pick: { model.prepareForTask(); chat.setDraftActivity(true); draft.wrappedValue = $0; writing = true }) {
                 if home, let update { UpdatePill(version: update, open: openUpdates) }
                 if home, let hint = homeHint {
                     SetupHintLine(hint: hint, openSetupStep: openSetupStep, openSetup: openSetup, openModel: openModel,
@@ -144,11 +148,16 @@ struct ChatView: View {
                            newConversation: { if home { restarts += 1 } else { chat.newConversation() } }, openDetails: tapQeno)
             }
         }
-        .bottomBar {
+        .bottomBar(softEdge: true) {
             if !bare { VStack(spacing: 8) {
                 asks
-                ComposerInputView(input: $draft, focused: $writing, running: busy, progress: progress, restarts: restarts,
-                                  send: { chat.send($0, attachments: $1) }, stop: chat.stop, openVoice: openVoice, openVoiceKey: openVoiceKey)
+                if chat.waitingForSplitView {
+                    Label(ActivityWords.local("Waiting for Split View"), systemImage: "rectangle.split.2x1")
+                        .font(.footnote).foregroundStyle(.secondary)
+                }
+                ComposerInputView(input: draft, focused: $writing, running: busy, progress: progress, restarts: restarts,
+                                  send: { chat.send($0, attachments: $1) }, stop: chat.stop, openVoice: openVoice, openVoiceKey: openVoiceKey,
+                                  noticeHeight: max(120, pageHeight * 0.6))
             }
             .padding(.horizontal, 18).padding(.top, 6).padding(.bottom, 10)
             .frame(maxWidth: 720) }
@@ -173,6 +182,10 @@ struct ChatView: View {
         }
         // The bear says hi as a talk begins.
         .onChange(of: voice.isOn) { _, on in if on { pokes += 1 } }
+        .onChange(of: writing) { _, focused in if focused { model.prepareForTask() } }
+        .onChange(of: draft.wrappedValue) { _, text in
+            chat.setDraftActivity(!text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        }
         .onGeometryChange(for: CGFloat.self, of: { $0.size.height }) { pageHeight = $0 }
         .animation(.snappy, value: voice.isOn)
         .animation(.snappy, value: model.approvals.first?.id)
@@ -206,7 +219,7 @@ struct ChatView: View {
     @ViewBuilder private var asks: some View {
         if sampleScene == "approval" {
             let sample = ChatModel.Sample.approval
-            ApprovalAskCard(title: sample.question, expires: sample.expires, answer: { _ in })
+            ApprovalAskCard(title: sample.question, expires: sample.expires, answer: { _ in }, stopAsking: {})
         } else if sampleScene == "handoff" {
             TurnCard(text: Self.local(AppModel.handoffWording(.passcode)), done: {})
         } else if let ask = chat.demoAsk {
@@ -214,8 +227,22 @@ struct ChatView: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity))
         } else if let approval = model.approvals.first {
             ApprovalAskCard(title: approval.question, expires: approval.expires,
-                            answer: { approved in model.resolve(approval, approved: approved) })
+                            answer: { approved in model.resolve(approval, approved: approved) },
+                            stopAsking: approval.offersStopAsking ? { model.stopAsking(approval) } : nil)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
+        } else if model.passcodeHint {
+            Label(Self.local(AppModel.handoffWording(.automationPasscode)), systemImage: "lock")
+                .font(.callout).padding(12)
+                .frame(maxWidth: .infinity)
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .accessibilityIdentifier("session.passcode")
+        } else if model.preparingPhone {
+            HStack(spacing: 8) {
+                ProgressView()
+                Text("Preparing")
+            }
+            .font(.callout).padding(8)
+            .accessibilityIdentifier("session.preparing")
         } else if let text = model.handoffText {
             TurnCard(text: Self.local(text), done: model.handoffDoneInApp)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -242,7 +269,7 @@ struct ChatView: View {
 
     /// The app's own hand-over wordings in the phone's language; the model's own words as they are.
     private static func local(_ text: String) -> String {
-        Bundle.main.localizedString(forKey: text, value: text, table: nil)
+        AppLocalization.bundle.localizedString(forKey: text, value: text, table: nil)
     }
 
     /// How far the task is, for the ring around Stop: the finished steps out of the model's plan, or
@@ -279,8 +306,8 @@ struct ChatView: View {
     private var currentSetupHint: SetupIssueHint? {
         if sampleScene == "setupHint" {
             return SetupIssueHint(
-                message: String(localized: "Qeno can’t tap Send yet: UI Automation is off."),
-                link: String(localized: "Turn On UI Automation ›"),
+                message: AppLocalization.text(LocalizedStringResource("Qeno can’t tap Send yet: UI Automation is off.")),
+                link: AppLocalization.text(LocalizedStringResource("Turn On UI Automation ›")),
                 target: .step(.automation)
             )
         }
@@ -296,9 +323,10 @@ struct ChatView: View {
 extension View {
     /// The message field's place on the bottom edge: a safe-area bar on iOS 26 (the conversation fades
     /// under it, as under the system's bars), an inset before it.
-    @ViewBuilder func bottomBar<Bar: View>(@ViewBuilder _ bar: () -> Bar) -> some View {
+    @ViewBuilder func bottomBar<Bar: View>(softEdge: Bool = false, @ViewBuilder _ bar: () -> Bar) -> some View {
         if #available(iOS 26.0, *) {
             safeAreaBar(edge: .bottom, spacing: 0) { GlassEffectContainer(spacing: 8) { bar() } }
+                .scrollEdgeEffectStyle(softEdge ? .soft : .automatic, for: .bottom)
         } else {
             safeAreaInset(edge: .bottom, spacing: 0) { bar() }
         }
@@ -350,8 +378,8 @@ struct SetupIssueHint: Equatable {
     @MainActor static func runnerIssue(model: AppModel) -> SetupIssueHint? {
         if let trouble = model.pairingTrouble {
             return SetupIssueHint(
-                message: String(localized: "The phone no longer accepts Qeno’s pairing (\(trouble)). Pair again in Setup, it takes a minute."),
-                link: String(localized: "Pair This iPhone ›"),
+                message: AppLocalization.text(LocalizedStringResource("The phone no longer accepts Qeno’s pairing (\(trouble)). Pair again in Setup, it takes a minute.")),
+                link: AppLocalization.text(LocalizedStringResource("Pair This iPhone ›")),
                 target: .step(.pairing)
             )
         }
@@ -359,47 +387,47 @@ struct SetupIssueHint: Equatable {
         if runner.state == "failed" || model.servicesSilent {
             let code = runner.code ?? (model.servicesSilent ? "handshake" : nil)
             let headline = AppModel.problemText(code: code, fix: runner.fix ?? "Can’t Reach iPhone")
-            let localizedHeadline = Bundle.main.localizedString(forKey: headline, value: headline, table: "LiveActivity")
+            let localizedHeadline = AppLocalization.bundle.localizedString(forKey: headline, value: headline, table: "LiveActivity")
             let rawFix = runner.fix ?? ""
             let detail = rawFix.isEmpty
                 ? localizedHeadline
-                : Bundle.main.localizedString(forKey: rawFix, value: rawFix, table: nil)
+                : AppLocalization.bundle.localizedString(forKey: rawFix, value: rawFix, table: nil)
             let message = detail.contains(localizedHeadline) ? detail : "\(localizedHeadline): \(detail)"
             switch code {
             case "unreachable", "handshake", "loopback":
                 return SetupIssueHint(
                     message: message,
-                    link: String(localized: "Turn On Local Connection ›"),
+                    link: AppLocalization.text(LocalizedStringResource("Turn On Local Connection ›")),
                     target: .step(.loopback)
                 )
             case "pairing":
                 return SetupIssueHint(
                     message: message,
-                    link: String(localized: "Pair This iPhone ›"),
+                    link: AppLocalization.text(LocalizedStringResource("Pair This iPhone ›")),
                     target: .step(.pairing)
                 )
             case "developer_mode", "no_cryptexd":
                 return SetupIssueHint(
                     message: message,
-                    link: String(localized: "Turn On Developer Mode ›"),
+                    link: AppLocalization.text(LocalizedStringResource("Turn On Developer Mode ›")),
                     target: .step(.developerMode)
                 )
             case "runner_blocked":
                 return SetupIssueHint(
                     message: message,
-                    link: String(localized: "Turn On UI Automation ›"),
+                    link: AppLocalization.text(LocalizedStringResource("Turn On UI Automation ›")),
                     target: .step(.automation)
                 )
             case "runner":
                 return SetupIssueHint(
                     message: message,
-                    link: String(localized: "Install Qeno Runner ›"),
+                    link: AppLocalization.text(LocalizedStringResource("Install Qeno Runner ›")),
                     target: .step(.runner)
                 )
             default:
                 return SetupIssueHint(
                     message: message,
-                    link: String(localized: "Open Setup ›"),
+                    link: AppLocalization.text(LocalizedStringResource("Open Setup ›")),
                     target: .setup
                 )
             }
@@ -407,54 +435,52 @@ struct SetupIssueHint: Equatable {
         return nil
     }
 
-    /// `looks` counts a step as Home shows it (`AppModel.looksDone`), so the loopback's first check after
-    /// launch doesn't flash a hint.
-    @MainActor static func first(model: AppModel, looks: Bool = false) -> SetupIssueHint? {
+    /// Steps count as `AppModel.stepReadyForUse` shows them, so a configured loopback check in flight
+    /// or an active local session does not flash an off hint.
+    @MainActor static func first(model: AppModel) -> SetupIssueHint? {
         if let runnerHint = runnerIssue(model: model) {
             return runnerHint
         }
         if let localHint = localSessionIssue(model: model) {
             return localHint
         }
-        let done: (SetupStep) -> Bool = looks ? model.looksDone : model.isDone
-        let steps = model.canStartTasks ? SetupStep.shown.filter { $0 != .loopback } : SetupStep.shown
-        if !steps.allSatisfy(done) {
-            for step in steps where !done(step) {
+        if !model.setupReadyForUse {
+            for step in SetupStep.shown where !model.stepReadyForUse(step) {
                 switch step {
                 case .runner:
                     return SetupIssueHint(
-                        message: String(localized: "Qeno can’t act yet: Qeno Runner isn’t installed."),
-                        link: String(localized: "Install Qeno Runner ›"),
+                        message: AppLocalization.text(LocalizedStringResource("Qeno can’t act yet: Qeno Runner isn’t installed.")),
+                        link: AppLocalization.text(LocalizedStringResource("Install Qeno Runner ›")),
                         target: .step(.runner)
                     )
                 case .developerMode:
                     return SetupIssueHint(
-                        message: String(localized: "Qeno can’t act yet: Developer Mode is off."),
-                        link: String(localized: "Turn On Developer Mode ›"),
+                        message: AppLocalization.text(LocalizedStringResource("Qeno can’t act yet: Developer Mode is off.")),
+                        link: AppLocalization.text(LocalizedStringResource("Turn On Developer Mode ›")),
                         target: .step(.developerMode)
                     )
                 case .loopback:
                     return SetupIssueHint(
-                        message: String(localized: "Qeno can’t connect yet: Local Connection is off."),
-                        link: String(localized: "Turn On Local Connection ›"),
+                        message: AppLocalization.text(LocalizedStringResource("Qeno can’t connect yet: Local Connection is off.")),
+                        link: AppLocalization.text(LocalizedStringResource("Turn On Local Connection ›")),
                         target: .step(.loopback)
                     )
                 case .pairing:
                     return SetupIssueHint(
-                        message: String(localized: "Qeno can’t act yet: this iPhone isn’t paired."),
-                        link: String(localized: "Pair This iPhone ›"),
+                        message: AppLocalization.text(LocalizedStringResource("Qeno can’t act yet: this iPhone isn’t paired.")),
+                        link: AppLocalization.text(LocalizedStringResource("Pair This iPhone ›")),
                         target: .step(.pairing)
                     )
                 case .automation:
                     return SetupIssueHint(
-                        message: String(localized: "Qeno can’t tap Send yet: UI Automation is off."),
-                        link: String(localized: "Turn On UI Automation ›"),
+                        message: AppLocalization.text(LocalizedStringResource("Qeno can’t tap Send yet: UI Automation is off.")),
+                        link: AppLocalization.text(LocalizedStringResource("Turn On UI Automation ›")),
                         target: .step(.automation)
                     )
                 case .background:
                     return SetupIssueHint(
-                        message: String(localized: "Qeno can’t stay on in the background yet."),
-                        link: String(localized: "Turn On Background ›"),
+                        message: AppLocalization.text(LocalizedStringResource("Qeno can’t stay on in the background yet.")),
+                        link: AppLocalization.text(LocalizedStringResource("Turn On Background ›")),
                         target: .step(.background)
                     )
                 }
@@ -462,8 +488,8 @@ struct SetupIssueHint: Equatable {
         }
         if !ModelKeys.hasUsableKey {
             return SetupIssueHint(
-                message: String(localized: "Qeno needs a model account before it can reply."),
-                link: String(localized: "Add an Account ›"),
+                message: AppLocalization.text(LocalizedStringResource("Qeno needs a model account before it can reply.")),
+                link: AppLocalization.text(LocalizedStringResource("Add an Account ›")),
                 target: .model
             )
         }
@@ -472,21 +498,20 @@ struct SetupIssueHint: Equatable {
 
     /// Qeno's own session did not open on the mounted image (ESP-448).
     @MainActor static func localSessionIssue(model: AppModel) -> SetupIssueHint? {
-        model.localSessionTrouble.map { SetupIssueHint(message: $0.text, link: String(localized: "Open Setup ›"), target: .setup) }
+        model.localSessionTrouble.map { SetupIssueHint(message: $0.text, link: AppLocalization.text(LocalizedStringResource("Open Setup ›")), target: .setup) }
     }
 }
 
 extension SetupIssueHint {
     /// The home page's line. In the last two days of signing it says Qeno stops opening (main's home
     /// warning, ESP-222): after what keeps the current task from running, ahead of open setup steps.
-    /// `looks` as in `first`.
-    @MainActor static func homeLine(model: AppModel, looks: Bool = false) -> SetupIssueHint? {
+    @MainActor static func homeLine(model: AppModel) -> SetupIssueHint? {
         if let now = runnerIssue(model: model) ?? localSessionIssue(model: model) { return now }
         if let warning = ExpiryWarning(expiry: model.signer.expiry) {
-            return SetupIssueHint(message: String(localized: "Qeno’s signing ends soon") + "\n" + warning.message,
-                                  link: String(localized: "Open Updates ›"), target: .updates)
+            return SetupIssueHint(message: AppLocalization.text(LocalizedStringResource("Qeno’s signing ends soon")) + "\n" + warning.message,
+                                  link: AppLocalization.text(LocalizedStringResource("Open Updates ›")), target: .updates)
         }
-        return first(model: model, looks: looks) ?? relayIssue(model: model)
+        return first(model: model) ?? relayIssue(model: model)
     }
 
     /// The conversations drawer's reminder row (ESP-321): what main's two tab dots said, one problem at
@@ -494,7 +519,7 @@ extension SetupIssueHint {
     /// then an open setup step (Setup's dot), then no chat account, then the relay offline (the Agents
     /// dot). The chat doesn't show the relay: it needs no relay to reply.
     @MainActor static func home(model: AppModel) -> SetupIssueHint? {
-        homeLine(model: model, looks: true)
+        homeLine(model: model)
     }
 
     /// The relay is offline, so agents can't reach this iPhone (main's Agents dot and its "Relay
@@ -502,8 +527,8 @@ extension SetupIssueHint {
     @MainActor static func relayIssue(model: AppModel) -> SetupIssueHint? {
         guard model.relayStatus.isOffline else { return nil }
         return SetupIssueHint(
-            message: String(localized: "MCP Relay is offline: agents can’t reach this iPhone."),
-            link: String(localized: "Agents ›"),
+            message: AppLocalization.text(LocalizedStringResource("MCP Relay is offline: agents can’t reach this iPhone.")),
+            link: AppLocalization.text(LocalizedStringResource("Agents ›")),
             target: .agents
         )
     }
@@ -517,6 +542,8 @@ struct SetupHintLine: View {
     var openModel: () -> Void
     var openAgents: () -> Void = {}
     var openUpdates: () -> Void = {}
+    var sessionStore: SessionStore = .shared
+    var shortcutStore: HomeShortcutStore = .shared
 
     var body: some View {
         VStack(spacing: 2) {
@@ -653,6 +680,10 @@ struct ChatTranscript<Footer: View>: View {
         // Opens at the newest message; a short chat starts under the top bar, as the boards draw it
         // (ESP-376). A frame fixed to the screen's height here cut off everything above it.
         .scrollPosition($position)
+        // No vertical scroll bar: dragging the drawer open and back moves the whole chat, and the bar
+        // the drag's vertical part showed could stay on the screen as a grey line over the messages.
+        // The newest button below brings you back down.
+        .scrollIndicators(.hidden, axes: .vertical)
         .defaultScrollAnchor(.bottom)
         .defaultScrollAnchor(.top, for: .alignment)
         // At the newest message, every reply, step, card and keyboard keeps it in view; read back and
@@ -710,6 +741,11 @@ struct ChatTranscript<Footer: View>: View {
                     }
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel(Text("^[\(pictures.count) attachment](inflect: true)"))
+                }
+                if let documents = entry.textDocuments {
+                    ForEach(Array(documents.enumerated()), id: \.offset) { _, document in
+                        ChatTextDocumentChip(document: document)
+                    }
                 }
                 if !text.isEmpty { MessageBubble(direction: .outgoing, text: text, tail: last) }
                 if last, delivered {
@@ -794,7 +830,7 @@ struct ChatTranscript<Footer: View>: View {
             default: continue
             }
         }
-        return (taskTitle ?? String(localized: "Task"), taskAsker)
+        return (taskTitle ?? AppLocalization.text(LocalizedStringResource("Task")), taskAsker)
     }
 
     /// No plan follows entry `i`: it is the task under way, if one is.
@@ -869,19 +905,24 @@ enum ChatFollow: Equatable {
 /// Back to the newest message, over the bottom of a conversation you have scrolled up in.
 private struct NewestButton: View {
     var action: () -> Void
+    var controlSize = CompactControlMetrics(base: 44, maximum: 52)
 
     var body: some View {
         Button(action: action) {
             Image(systemName: "arrow.down")
                 .font(.body.weight(.semibold))
+                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                 .foregroundStyle(Color(.label))
-                .frame(width: 40, height: 40)
+                .frame(width: controlSize.side, height: controlSize.side)
                 .contentShape(.circle)
         }
         .buttonStyle(.plain)
         .glassSurface(in: Circle(), interactive: true)
         .accessibilityLabel(Text("Newest Messages", tableName: "Chat"))
         .accessibilityIdentifier("chat.latest")
+        .accessibilityShowsLargeContentViewer {
+            Label { Text("Newest Messages", tableName: "Chat") } icon: { Image(systemName: "arrow.down") }
+        }
     }
 }
 
@@ -893,14 +934,14 @@ extension ChatTranscript where Footer == EmptyView {
 enum ChatTime {
     static func header(_ date: Date) -> AttributedString {
         let calendar = Calendar.current
-        let time = date.formatted(date: .omitted, time: .shortened)
+        let time = date.formatted(Date.FormatStyle(date: .omitted, time: .shortened).locale(AppLocalization.locale))
         let day: String
-        if calendar.isDateInToday(date) { day = String(localized: "Today") }
-        else if calendar.isDateInYesterday(date) { day = String(localized: "Yesterday") }
+        if calendar.isDateInToday(date) { day = AppLocalization.text(LocalizedStringResource("Today")) }
+        else if calendar.isDateInYesterday(date) { day = AppLocalization.text(LocalizedStringResource("Yesterday")) }
         else if let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: date), to: calendar.startOfDay(for: Date())).day, days < 7 {
-            day = date.formatted(.dateTime.weekday(.wide))
+            day = date.formatted(.dateTime.weekday(.wide).locale(AppLocalization.locale))
         } else {
-            day = date.formatted(.dateTime.month(.abbreviated).day())
+            day = date.formatted(.dateTime.month(.abbreviated).day().locale(AppLocalization.locale))
         }
         var bold = AttributedString(day)
         bold.font = .caption.weight(.semibold)
@@ -910,12 +951,12 @@ enum ChatTime {
     /// The Sessions list's right-hand time: "9:41 AM", "Yesterday", "Monday", "10/3/26".
     static func row(_ date: Date) -> String {
         let calendar = Calendar.current
-        if calendar.isDateInToday(date) { return date.formatted(date: .omitted, time: .shortened) }
-        if calendar.isDateInYesterday(date) { return String(localized: "Yesterday") }
+        if calendar.isDateInToday(date) { return date.formatted(Date.FormatStyle(date: .omitted, time: .shortened).locale(AppLocalization.locale)) }
+        if calendar.isDateInYesterday(date) { return AppLocalization.text(LocalizedStringResource("Yesterday")) }
         if let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: date), to: calendar.startOfDay(for: Date())).day, days < 7 {
-            return date.formatted(.dateTime.weekday(.wide))
+            return date.formatted(.dateTime.weekday(.wide).locale(AppLocalization.locale))
         }
-        return date.formatted(date: .numeric, time: .omitted)
+        return date.formatted(Date.FormatStyle(date: .numeric, time: .omitted).locale(AppLocalization.locale))
     }
 }
 
@@ -1004,6 +1045,7 @@ private struct StepLine: View {
 // licence file). Changed: Qeno's picture at the board's 56 pt instead of 20, the 12 pt name with its
 // chevron, no video button, and a view of its own instead of a toolbar item.
 struct MessageListHeader: View {
+    var backSize = CompactControlMetrics(base: 44, maximum: 52)
     var dark: Bool
     /// The model answering, under the name (the chat); nil on the voice page.
     var subtitle: String? = nil
@@ -1040,11 +1082,17 @@ struct MessageListHeader: View {
         .overlay(alignment: .topLeading) {
             if let back, UserDefaults.standard.string(forKey: "pokiChat") == nil, UserDefaults.standard.string(forKey: "pokiVoiceSample") == nil {
                 Button(action: back) {
-                    Image(systemName: "chevron.left").font(.system(size: 20, weight: .semibold)).foregroundStyle(dark ? .white : Site.blue)
-                        .frame(width: 44, height: 44).contentShape(.rect)
+                    Image(systemName: "chevron.backward")
+                        .font(.title3.weight(.semibold))
+                        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+                        .foregroundStyle(dark ? .white : Site.blue)
+                        .frame(width: backSize.side, height: backSize.side).contentShape(.rect)
                 }
                 .buttonStyle(.plain).padding(.leading, 6)
                 .accessibilityLabel(Text("Sessions"))
+                .accessibilityShowsLargeContentViewer {
+                    Label("Sessions", systemImage: "chevron.backward")
+                }
             }
         }
         .background {
@@ -1078,17 +1126,17 @@ private struct NoteLine: View {
 
     private var text: String {
         switch note {
-        case .waiting: String(localized: "Waiting for your approval")
-        case .approved(let at): String(localized: "Approved, \(at.formatted(date: .omitted, time: .shortened))")
-        case .declined: String(localized: "Not approved, so Qeno skipped that step")
-        case .expired: String(localized: "The approval ran out, so Qeno skipped that step")
+        case .waiting: AppLocalization.text(LocalizedStringResource("Waiting for your approval"))
+        case .approved(let at): AppLocalization.text(LocalizedStringResource("Approved, \(at.formatted(Date.FormatStyle(date: .omitted, time: .shortened).locale(AppLocalization.locale)))"))
+        case .declined: AppLocalization.text(LocalizedStringResource("Not approved, so Qeno skipped that step"))
+        case .expired: AppLocalization.text(LocalizedStringResource("The approval ran out, so Qeno skipped that step"))
         case .problem(let text): text
         case .approval(let note): ActivityWords.label(note.summary)
-        case .modelChecking: String(localized: "The model is checking this step")
-        case .modelApproved(let why): why.isEmpty ? String(localized: "Approved by model") : String(localized: "Approved by model, \(why)")
+        case .modelChecking: AppLocalization.text(LocalizedStringResource("The model is checking this step"))
+        case .modelApproved(let why): why.isEmpty ? AppLocalization.text(LocalizedStringResource("Approved by model")) : AppLocalization.text(LocalizedStringResource("Approved by model, \(why)"))
         case .modelDeclined(let why):
-            why.isEmpty ? String(localized: "Not approved by model. Say yes in the chat to allow it.")
-                : String(localized: "Not approved by model, \(why). Say yes in the chat to allow it.")
+            why.isEmpty ? AppLocalization.text(LocalizedStringResource("Not approved by model. Say yes in the chat to allow it."))
+                : AppLocalization.text(LocalizedStringResource("Not approved by model, \(why). Say yes in the chat to allow it."))
         }
     }
 }
@@ -1099,13 +1147,13 @@ struct ApprovalNoteCard: View {
 
     private var title: String {
         switch (note.state, note.byModel) {
-        case (.asking, true): String(localized: "Checking This Step")
-        case (.asking, false): String(localized: "Waiting for Your Approval")
-        case (.allowed, true): String(localized: "Approved Automatically")
-        case (.allowed, false): String(localized: "You Approved")
-        case (.refused, true): String(localized: "Not Approved")
-        case (.refused, false): String(localized: "You Did Not Approve")
-        case (.expired, _): String(localized: "Approval Ran Out")
+        case (.asking, true): AppLocalization.text(LocalizedStringResource("Checking This Step"))
+        case (.asking, false): AppLocalization.text(LocalizedStringResource("Waiting for Your Approval"))
+        case (.allowed, true): AppLocalization.text(LocalizedStringResource("Approved Automatically"))
+        case (.allowed, false): AppLocalization.text(LocalizedStringResource("You Approved"))
+        case (.refused, true): AppLocalization.text(LocalizedStringResource("Not Approved"))
+        case (.refused, false): AppLocalization.text(LocalizedStringResource("You Did Not Approve"))
+        case (.expired, _): AppLocalization.text(LocalizedStringResource("Approval Ran Out"))
         }
     }
 
@@ -1143,7 +1191,7 @@ struct ApprovalNoteCard: View {
                 if note.state == .asking, note.byModel {
                     ProgressView().controlSize(.mini)
                 } else if let at = note.answered {
-                    Text(at.formatted(date: .omitted, time: .shortened)).font(.caption2).foregroundStyle(Color(.secondaryLabel))
+                    Text(at.formatted(Date.FormatStyle(date: .omitted, time: .shortened).locale(AppLocalization.locale))).font(.caption2).foregroundStyle(Color(.secondaryLabel))
                 }
             }
             Text(verbatim: ActivityWords.label(note.summary)).font(.subheadline).foregroundStyle(Color(.label))
@@ -1152,7 +1200,7 @@ struct ApprovalNoteCard: View {
                 Text(verbatim: context).font(.caption).foregroundStyle(Color(.secondaryLabel))
             }
             if !note.reason.isEmpty {
-                Text(verbatim: Bundle.main.localizedString(forKey: note.reason, value: note.reason, table: nil)).font(.footnote).foregroundStyle(Color(.secondaryLabel))
+                Text(verbatim: AppLocalization.bundle.localizedString(forKey: note.reason, value: note.reason, table: nil)).font(.footnote).foregroundStyle(Color(.secondaryLabel))
                     .fixedSize(horizontal: false, vertical: true)
             }
             if note.state == .refused, note.reply {
@@ -1211,7 +1259,7 @@ struct ModeLabels: View {
 // iMessageClone/MessageList/View/Composer/ComposerInputView.swift, by Stefan Blos; no licence file in
 // the repository), with the plus button in front from exyte/Chat (commit f382a14,
 // Sources/ExyteChat/Views/InputView/InputView.swift, Copyright (c) 2019 exyte, MIT License). Now one
-// row on one sheet of glass (the owner's home of 2026-11-12, boards 定稿 04 and 06): the plus menu, the
+// row on one sheet of glass: the plus menu, the
 // message, the microphone when Settings › Voice shows it, and one button that talks, sends or stops;
 // the photos and PDFs picked for the message stand over it.
 struct ComposerInputView: View {
@@ -1233,6 +1281,9 @@ struct ComposerInputView: View {
     var openVoice: () -> Void
     /// Settings, where the OpenAI key that Talk with Qeno needs is added (or Live Voice turned on).
     var openVoiceKey: () -> Void = {}
+    /// Leave conversation context above a long voice notice; its content remains scrollable.
+    var noticeHeight: CGFloat = 360
+    @State private var voiceContentHeight: CGFloat = 0
     @State private var dictation = FieldDictation()
     /// Talk with Qeno was asked for with no voice key: the field says so, in its own place.
     @State private var needsKey = false
@@ -1254,6 +1305,22 @@ struct ComposerInputView: View {
     /// A swipe down that started on a message scrolled away from its first line: it scrolls the message.
     @State private var swipeScrolls: Bool?
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @ScaledMetric(relativeTo: .body) private var scaledButtonDiameter = 44.0
+    @ScaledMetric(relativeTo: .body) private var scaledControlInset = 6.0
+    @ScaledMetric(relativeTo: .body) private var scaledControlSpacing = 8.0
+    @ScaledMetric(relativeTo: .body) private var fieldHeight = 112.0
+
+    private var buttonDiameter: CGFloat { min(56, max(36, scaledButtonDiameter)) }
+    private var buttonHitSide: CGFloat { max(44, buttonDiameter) }
+    private var controlInset: CGFloat { min(8, max(4, scaledControlInset)) }
+    private var controlSpacing: CGFloat { min(12, max(6, scaledControlSpacing)) }
+    private var cornerRadius: CGFloat {
+        let radius = (buttonHitSide + 2 * controlInset) / 2
+        return expanded ? min(24, radius) : radius
+    }
+    private var expanded: Bool { typeSize >= .xxxLarge }
 
     private var voice: VoiceModel { model.voice }
     private var hasText: Bool { !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
@@ -1274,44 +1341,54 @@ struct ComposerInputView: View {
             }
             // One row on one glass sheet (ESP-376): plus, the message, and the one button that talks,
             // sends or stops. The buttons inside are plain fills: no glass on glass.
-            HStack(alignment: .bottom, spacing: 10) {
-                if let talk = voice.talkState {
-                    TalkBar(state: talk, since: talkStarted, muted: voice.muted, toggleMute: { voice.muted.toggle() },
-                            interrupt: voice.stopTalking, end: voice.stop,
-                            retry: { voice.dismissProblem(); openVoice() }, dismiss: voice.dismissProblem)
-                        .transition(.blurReplace)
-                } else if needsKey {
-                    // In the field's own place and on its glass, as the talk's bar is: nothing floats
-                    // over the field or slides out from behind it.
-                    VoiceKeyNotice(addKey: { needsKey = false; openVoiceKey() }, close: { needsKey = false })
-                        .transition(.blurReplace)
-                } else {
-                Group {
-                plus
-                // An app's name in the message shows as its capsule (ESP-377); the text itself stays plain.
-                CapsuleField(text: $input, focused: $focused, maxLines: 6, scroll: fieldScroll,
-                             onSwipe: { up in if up { focused = true } else if focused { focused = false } }, onSubmit: submit)
-                    .overlay(alignment: .topLeading) {
-                        if input.isEmpty {
-                            Text(dictation.on ? "Listening…" : attachments.isEmpty ? "Message Qeno" : "Add a message")
-                                .foregroundStyle(Tint.homePlaceholder).lineLimit(1)
-                                .padding(.top, 6).allowsHitTesting(false).accessibilityHidden(true)
+            Group {
+                if voice.talkState != nil || needsKey {
+                    ScrollView {
+                        Group {
+                            if let talk = voice.talkState {
+                                TalkBar(state: talk, since: talkStarted, muted: voice.muted, toggleMute: { voice.muted.toggle() },
+                                        interrupt: voice.stopTalking, end: voice.stop,
+                                        retry: { voice.dismissProblem(); openVoice() }, dismiss: voice.dismissProblem)
+                            } else {
+                                VoiceKeyNotice(addKey: { needsKey = false; openVoiceKey() }, close: { needsKey = false })
+                            }
                         }
+                        .fixedSize(horizontal: false, vertical: true)
+                        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { voiceContentHeight = $0 }
                     }
-                    .frame(minHeight: 48)
-                if dictation.on { dictating } else if dictationButton, !running { microphone }
-                mainButton
-                }
-                .transition(.blurReplace)
+                    .scrollBounceBehavior(.basedOnSize)
+                    .frame(height: min(voiceContentHeight, noticeHeight))
+                    .transition(.blurReplace)
+                } else {
+                    ComposerLayout(expansion: expanded ? 1 : 0, spacing: controlSpacing) {
+                        plus
+                        // An app's name in the message shows as its capsule (ESP-377); the text itself stays plain.
+                        CapsuleField(text: $input, focused: $focused, maxLines: 6, maxHeight: min(200, fieldHeight), scroll: fieldScroll,
+                                     onSwipe: { up in if up { focused = true } else if focused { focused = false } }, onSubmit: submit)
+                            .overlay(alignment: .topLeading) {
+                                if input.isEmpty {
+                                    Text(dictation.on ? "Listening…" : attachments.isEmpty ? "Message Qeno" : "Add a message")
+                                        .foregroundStyle(Tint.homePlaceholder).lineLimit(1)
+                                        .padding(.top, 6).allowsHitTesting(false).accessibilityHidden(true)
+                                }
+                            }
+                            .padding(.horizontal, expanded ? 8 : 0)
+                            .accessibilitySortPriority(1)
+                        HStack(spacing: 4) {
+                            if dictation.on { dictating } else if dictationButton, !running { microphone }
+                            mainButton
+                        }
+                        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+                    }
+                    .simultaneousGesture(swipe)
+                    .transition(.blurReplace)
                 }
             }
-            .padding(8)
+            .padding(controlInset)
             .contentShape(.rect)
             .onTapGesture { if voice.talkState == nil, !needsKey { focused = true } }
-            .simultaneousGesture(swipe)
-            .glassSurface(in: RoundedRectangle(cornerRadius: 32, style: .continuous), fallback: .bar)
-            // Controls in a bar stop growing where the system's bars do; the message itself grows freely.
-            .dynamicTypeSize(...DynamicTypeSize.accessibility1)
+            .glassSurface(in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous), fallback: .bar)
+            .animation(reduceMotion ? nil : .easeInOut(duration: 0.24), value: expanded)
         }
         .animation(.snappy, value: dictation.on)
         .animation(TalkMotion.enter, value: voice.talkState != nil)
@@ -1358,7 +1435,7 @@ struct ComposerInputView: View {
             picked = []
             Task { await addPhotos(items) }
         }
-        .fileImporter(isPresented: $choosingFiles, allowedContentTypes: [.image, .pdf], allowsMultipleSelection: true) { result in
+        .fileImporter(isPresented: $choosingFiles, allowedContentTypes: AttachmentReader.fileTypes, allowsMultipleSelection: true) { result in
             guard case .success(let urls) = result else { return }
             for url in urls { add { try AttachmentReader.file(url) } }
         }
@@ -1407,8 +1484,8 @@ struct ComposerInputView: View {
         #endif
     }
 
-    /// A swipe up on the message field brings the keyboard, a swipe down puts it away (the owner,
-    /// 2026-11-13), on the home page and in the chat. Only a mostly upright drag of some length counts,
+    /// A swipe up on the message field brings the keyboard, a swipe down puts it away on the home
+    /// page and in the chat. Only a mostly upright drag of some length counts,
     /// so a tap on plus or Send stays a tap and a sideways drag does nothing. It lives on the field
     /// alone, so the conversation above scrolls as before; a swipe down on a long message scrolled
     /// away from its first line scrolls it back instead.
@@ -1432,10 +1509,13 @@ struct ComposerInputView: View {
             Image(systemName: "mic.fill")
                 .font(.body.weight(.medium)).foregroundStyle(Tint.red)
                 .symbolEffect(.pulse, isActive: true)
-                .frame(width: 40, height: 48).contentShape(.rect)
+                .frame(width: buttonHitSide, height: buttonHitSide).contentShape(.rect)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(Text("Stop Dictation"))
+        .accessibilityShowsLargeContentViewer {
+            Label("Stop Dictation", systemImage: "mic.fill")
+        }
     }
 
     /// Settings › Voice turned it on: dictation into the field. The words appear in the field; nothing
@@ -1444,12 +1524,15 @@ struct ComposerInputView: View {
         Button { dictation.start(model, after: input) } label: {
             Image(systemName: "mic")
                 .font(.body.weight(.medium)).foregroundStyle(Color(.label))
-                .frame(width: 40, height: 48).contentShape(.rect)
+                .frame(width: buttonHitSide, height: buttonHitSide).contentShape(.rect)
         }
         .buttonStyle(.plain)
         .disabled(voice.isOn)
         .accessibilityLabel(Text("Dictate"))
         .accessibilityIdentifier("composer.dictate")
+        .accessibilityShowsLargeContentViewer {
+            Label("Dictate", systemImage: "mic")
+        }
     }
 
     // MARK: The plus menu
@@ -1471,22 +1554,26 @@ struct ComposerInputView: View {
                 .accessibilityIdentifier("composer.files")
         } label: {
             Image(systemName: "plus")
-                .font(.title3.weight(.medium)).foregroundStyle(Color(.label))
-                .frame(width: 48, height: 48)
+                .font(.title3.weight(.medium)).dynamicTypeSize(...DynamicTypeSize.xxxLarge).foregroundStyle(Color(.label))
+                .frame(width: buttonDiameter, height: buttonDiameter)
                 .background(Color(.label).opacity(scheme == .dark ? 0.16 : 0.12), in: .circle)
-                .contentShape(.circle)
+                .frame(width: buttonHitSide, height: buttonHitSide)
+                .contentShape(.interaction, Rectangle())
         }
         // Photos first, as on the board, though the menu opens upward from the button.
         .menuOrder(.fixed)
         .disabled(attachments.count >= Self.most)
         .accessibilityLabel(Text("Add Photos or Files"))
         .accessibilityIdentifier("composer.plus")
+        .accessibilityShowsLargeContentViewer {
+            Label("Add Photos or Files", systemImage: "plus")
+        }
     }
 
     private func addPhotos(_ items: [PhotosPickerItem]) async {
         for item in items {
             guard let data = try? await item.loadTransferable(type: Data.self) else {
-                problem = String(localized: "Couldn’t read this file.")
+                problem = AppLocalization.text(LocalizedStringResource("Couldn’t read this file."))
                 continue
             }
             add { try AttachmentReader.photo(data) }
@@ -1499,10 +1586,14 @@ struct ComposerInputView: View {
         do {
             let item = try read()
             withAnimation(.snappy) { attachments.append(item) }
+        } catch AttachmentReader.Failure.tooLarge {
+            problem = AppLocalization.text(LocalizedStringResource("Text files must be 100 KB or smaller."))
+        } catch AttachmentReader.Failure.invalidUTF8 {
+            problem = AppLocalization.text(LocalizedStringResource("This text file must use UTF-8 encoding."))
         } catch AttachmentReader.Failure.unsupported {
-            problem = String(localized: "Only photos and PDFs can be added.")
+            problem = AppLocalization.text(LocalizedStringResource("Only images, PDFs, JSON, Markdown, and plain text files can be added."))
         } catch {
-            problem = String(localized: "Couldn’t read this file.")
+            problem = AppLocalization.text(LocalizedStringResource("Couldn’t read this file."))
         }
     }
 
@@ -1519,7 +1610,7 @@ struct ComposerInputView: View {
                 .font(.body.weight(.semibold))
                 .contentTransition(.symbolEffect(.replace))
                 .foregroundStyle(running ? Tint.onSolid : .white)
-                .frame(width: 48, height: 48)
+                .frame(width: buttonDiameter, height: buttonDiameter)
                 .background(running ? Tint.solid : Tint.blue, in: .circle)
                 .overlay {
                     if running {
@@ -1530,11 +1621,16 @@ struct ComposerInputView: View {
                             .animation(.easeInOut(duration: 0.4), value: progress)
                     }
                 }
-                .contentShape(.circle)
+                .frame(width: buttonHitSide, height: buttonHitSide)
+                .contentShape(.interaction, Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(Text(running ? "Stop" : canSend ? "Send" : "Talk with Qeno"))
         .accessibilityIdentifier("composer.main")
+        .accessibilityShowsLargeContentViewer {
+            Label(running ? "Stop" : canSend ? "Send" : "Talk with Qeno",
+                  systemImage: running ? "stop.fill" : canSend ? "arrow.up" : "waveform")
+        }
         .contextMenu {
             if !running, hasText {
                 Button("New Line", systemImage: "return") {
@@ -1599,6 +1695,7 @@ final class FieldDictation {
 
     func start(_ model: AppModel, after current: String) {
         guard !on, !starting else { return }
+        model.prepareForTask()
         starting = true
         problem = nil
         let trimmed = current.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -1607,7 +1704,7 @@ final class FieldDictation {
         Task {
             guard await Dictation.allowed() else {
                 starting = false
-                problem = String(localized: "Qeno needs the microphone and speech recognition: allow them in Settings › Qeno.")
+                problem = AppLocalization.text(LocalizedStringResource("Qeno needs the microphone and speech recognition. Allow them in Settings › Qeno."))
                 return
             }
             guard starting else { return }
@@ -1660,7 +1757,7 @@ struct LiveVoiceTranscript: View {
             let lines = voice.lines
             VStack(spacing: 4) {
                 Label(voice.isOn ? LocalizedStringKey("Talk with Qeno") : LocalizedStringKey("Voice conversation"), systemImage: "waveform")
-                    .font(.system(size: 12, weight: .medium)).foregroundStyle(ChatColor.secondary)
+                    .font(.caption.weight(.medium)).foregroundStyle(ChatColor.secondary)
                     .padding(.top, 12).padding(.bottom, 4).frame(maxWidth: .infinity)
                 ForEach(Array(lines.enumerated()), id: \.element.id) { i, line in
                     let pending = i == lines.count - 1 && line.role == .you && voice.phase == .hearing
@@ -1674,7 +1771,7 @@ struct LiveVoiceTranscript: View {
                     }
                 }
                 if voice.phase == .hearing, lines.last?.role != .you {
-                    MessageBubble(direction: .outgoing, text: String(localized: "Listening…"), tail: true).opacity(hearing)
+                    MessageBubble(direction: .outgoing, text: AppLocalization.text(LocalizedStringResource("Listening…")), tail: true).opacity(hearing)
                 }
             }
             .animation(PlanMotion.enter, value: voice.lines)

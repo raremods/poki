@@ -54,8 +54,8 @@ targets:
         # follows the iPhone's language.
         CFBundleDevelopmentRegion: en
         CFBundleLocalizations: [en, zh-Hans, zh-Hant]
-        # Every page is the website's blue (or the night blue): white status bar text throughout.
-        UIStatusBarStyle: UIStatusBarStyleLightContent
+        # The status bar follows the system appearance: dark text in Light Mode, white in Dark Mode.
+        UIStatusBarStyle: UIStatusBarStyleDefault
         # Display links may run at the display's full rate (120 a second on ProMotion iPhones): the
         # home page's suggestion rows move once a frame.
         CADisableMinimumFrameDurationOnPhone: true
@@ -88,6 +88,7 @@ targets:
           - CFBundleURLName: com.owaiken.qeno
             CFBundleURLSchemes: [qeno]
         NSLocalNetworkUsageDescription: Qeno connects to this iPhone's own developer services to pair with it and to run the automation, and to the voice bridge on your Mac.
+        NSFaceIDUsageDescription: Qeno uses Face ID to unlock Screen History, so only you can open it.
         NSCameraUsageDescription: Qeno uses the camera to take photos you send in a message, and to scan the pairing code Qeno Setup shows on your computer.
         NSMicrophoneUsageDescription: Qeno listens while you talk to it in Voice, and sends that audio to OpenAI to understand what you ask.
         NSSpeechRecognitionUsageDescription: Without an OpenAI key, Qeno turns what you say in Voice into text on this iPhone and sends the text to your chosen model.

@@ -54,6 +54,12 @@ impl Signer {
                 Ok(None)
             }
             SignInOutcome::NeedsCode(p) => {
+                // The code is checked with the anisette identity that asked for it. Keep the server
+                // that answered (the client may have moved to a fallback), so a second run
+                // (`poki-setup login --code`) checks the code as the same "Mac".
+                let saved_password = self.account.password.clone();
+                self.remember_anisette();
+                store::save(&store::Account { password: saved_password, ..self.account.clone() })?;
                 self.account.password = keep_password.then(|| password.to_string());
                 Ok(Some(p))
             }
@@ -94,7 +100,11 @@ impl Signer {
                         self.account.session = Some(s);
                         t
                     }
-                    SignInOutcome::NeedsCode(_) => return Err(Error::NeedsPerson("Apple wants a new verification code. Open Qeno Setup and sign in again.".into())),
+                    SignInOutcome::NeedsCode(pending) => {
+                        self.remember_anisette();
+                        let _ = store::save(&self.account);
+                        return Err(Error::NeedsCode(Box::new(pending)));
+                    }
                 }
             }
             Err(e) => return Err(e),
@@ -201,14 +211,14 @@ async fn hand_signing_identity(phone: &device::Phone, built: &SignedBuild, apple
     }
     .await;
     match res {
-        Ok(()) => reporter.note("pairing_file", "Gave Poki its signing identity, so it can renew itself"),
-        Err(e) => reporter.note("pairing_file", format!("Could not give Poki its signing identity ({e}); renewals stay on this computer.")),
+        Ok(()) => reporter.note("pairing_file", "Gave Qeno its signing identity, so it can renew itself"),
+        Err(e) => reporter.note("pairing_file", format!("Could not give Qeno its signing identity ({e}); renewals stay on this computer.")),
     }
 }
 
 /// Signs an IPA for a team: device, identity, App IDs, group, profiles, signature.
 pub async fn sign_for_team(signer: &mut Signer, team: &Team, phone: Option<(&str, &str)>, ipa: &Path, signing_zip: Option<&Path>, out: &Path, reporter: &Reporter) -> Result<SignedBuild> {
-    reporter.step("sign", &format!("Signing Poki for {}", team.name));
+    reporter.step("sign", &format!("Signing Qeno for {}", team.name));
     let token = signer.token().await?;
     let session = signer.account.session.clone().unwrap();
     let mut portal = Portal::new(&session, &token, signer.client.anisette())?;
@@ -242,7 +252,7 @@ async fn sign_prepared(portal: &mut Portal<'_>, team: &Team, unpacked: sign::Unp
             let merged = sign::entitlements::merge(&b.requested, &parsed.entitlements);
             let groups = merged.get("com.apple.security.application-groups").and_then(|v| v.as_array());
             if !groups.is_some_and(|groups| groups.iter().any(|v| v.as_string() == Some(unpacked.app_group.as_str()))) {
-                return Err(Error::UpdateCheck("The signing profile cannot preserve the installed app group; keep Poki installed and use the original signing setup."));
+                return Err(Error::UpdateCheck("The signing profile cannot preserve the installed app group; keep Qeno installed and use the original signing setup."));
             }
         }
         expires = expires.min(parsed.expires_at);
@@ -252,10 +262,10 @@ async fn sign_prepared(portal: &mut Portal<'_>, team: &Team, unpacked: sign::Unp
     let notes = sign::sign(&unpacked, &ident, &profiles, reporter)?;
     reporter.part("sign", 0.9, Some("Packing".into()));
     sign::pack(&unpacked, out)?;
-    reporter.done("sign", Some(format!("Poki {} ({}) signed for {}", unpacked.version, unpacked.build, team.name)));
+    reporter.done("sign", Some(format!("Qeno {} ({}) signed for {}", unpacked.version, unpacked.build, team.name)));
     let mut all_notes = notes;
     for d in &unpacked.dropped_extensions {
-        all_notes.push(format!("{d} left out: a team profile cannot carry the packet-tunnel entitlement, so Poki uses your proxy app's loopback instead."));
+        all_notes.push(format!("{d} left out: a team profile cannot carry the packet-tunnel entitlement, so Qeno uses your proxy app's loopback instead."));
     }
     Ok(SignedBuild { ipa: out.to_path_buf(), bundle_id: unpacked.bundles[0].new_id.clone(), app_group: unpacked.app_group.clone(), version: unpacked.version.clone(), build: unpacked.build.clone(), profile_expires_at: expires, profiles: raw_profiles, notes: all_notes, identity: ident })
 }
@@ -316,7 +326,7 @@ pub async fn run(signer: &mut Signer, opts: Options, reporter: &Reporter) -> Res
     reporter.step("pair", "Pairing with the iPhone");
     let lockdown_record = device::pairing::pair(&phone, reporter, wait).await?;
     if let Err(e) = device::pairing::enable_network(&phone).await {
-        reporter.note("pair", format!("Could not let the iPhone use this pairing over the network ({e}); Poki may need to pair on the phone."));
+        reporter.note("pair", format!("Could not let the iPhone use this pairing over the network ({e}); Qeno may need to pair on the phone."));
     }
     let facts = device::info::read(&phone).await?;
     // iOS 26.4 and later only accept an RPPairing record over the loopback Poki uses.
@@ -324,7 +334,7 @@ pub async fn run(signer: &mut Signer, opts: Options, reporter: &Reporter) -> Res
     let record = match device::pairing::pair_remote(&phone, reporter, wait).await {
         Ok(r) => Some(r),
         Err(e) if needs_remote => {
-            reporter.note("pair", format!("Remote pairing did not finish ({e}). Poki can pair on the iPhone instead."));
+            reporter.note("pair", format!("Remote pairing did not finish ({e}). Qeno can pair on the iPhone instead."));
             None
         }
         Err(e) => {
@@ -347,7 +357,7 @@ pub async fn run(signer: &mut Signer, opts: Options, reporter: &Reporter) -> Res
     let team = signer.team().await?;
     reporter.done("account", Some(format!("{} ({})", team.name, if team.is_free { "free, 7-day signing" } else { "paid" })));
 
-    reporter.step("release", "Getting Poki");
+    reporter.step("release", "Getting Qeno");
     let (ipa, signing_zip, tag) = match &opts.ipa {
         Some(p) => {
             let beside = p.with_file_name("Qeno-signing.zip");
@@ -371,10 +381,10 @@ pub async fn run(signer: &mut Signer, opts: Options, reporter: &Reporter) -> Res
     let upgrade = existing.iter().any(|a| a.bundle_id == built.bundle_id);
     device::install::install_ipa(&phone, &built.ipa, upgrade, reporter).await?;
 
-    reporter.step("pairing_file", "Giving Poki its pairing file");
+    reporter.step("pairing_file", "Giving Qeno its pairing file");
     let mut handed = false;
     match &record {
-        None => reporter.done("pairing_file", Some("Poki pairs on the iPhone itself".into())),
+        None => reporter.done("pairing_file", Some("Qeno pairs on the iPhone itself".into())),
         Some(record) => {
             // Right after an install the phone sometimes drops the first container connection; try again.
             let mut placed = device::container::place_pairing_file(&phone, &built.bundle_id, record).await;
@@ -386,13 +396,13 @@ pub async fn run(signer: &mut Signer, opts: Options, reporter: &Reporter) -> Res
             match placed {
                 Ok(true) => {
                     handed = true;
-                    reporter.done("pairing_file", Some("placed in Poki's container".into()));
+                    reporter.done("pairing_file", Some("placed in Qeno's container".into()));
                 }
                 Ok(false) => {
                     handed = true;
-                    reporter.done("pairing_file", Some("Poki already has its own pairing; kept it".into()));
+                    reporter.done("pairing_file", Some("Qeno already has its own pairing; kept it".into()));
                 }
-                Err(e) => reporter.note("pairing_file", format!("Could not write into Poki's container ({e}); the QR hand-off below does it instead.")),
+                Err(e) => reporter.note("pairing_file", format!("Could not write into Qeno's container ({e}); the QR hand-off below does it instead.")),
             }
         }
     }
@@ -400,7 +410,7 @@ pub async fn run(signer: &mut Signer, opts: Options, reporter: &Reporter) -> Res
     hand_signing_identity(&phone, &built, &apple_id, reporter).await;
     if opts.seed_ddi {
         if let Err(e) = device::ddi::seed_container(&phone, &built.bundle_id, reporter).await {
-            reporter.note("pairing_file", format!("Developer disk image not pre-seeded ({e}); Poki downloads it itself."));
+            reporter.note("pairing_file", format!("Developer disk image not pre-seeded ({e}); Qeno downloads it itself."));
         }
     }
     let handoff = if let (true, Some(record)) = (opts.hand_off || !handed, &record) {
@@ -432,7 +442,7 @@ pub async fn run(signer: &mut Signer, opts: Options, reporter: &Reporter) -> Res
         pairing_handed_off: handed,
     };
     keeper::put(rec.clone())?;
-    reporter.done("all", Some(format!("Poki {} is on {}", built.version, facts.name)));
+    reporter.done("all", Some(format!("Qeno {} is on {}", built.version, facts.name)));
     Ok(Done { record: rec, handoff, notes: built.notes })
 }
 
