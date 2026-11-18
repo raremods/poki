@@ -1,11 +1,10 @@
-// Which Developer ID teams the installer trusts for Poki Setup. Poki Setup 0.2.2 and earlier are signed by
-// team Q64ZL36CJN, 0.2.3 and later by ANVS3UQK9W; the installer has to accept both, and nothing else.
+// Which Developer ID team the installer trusts for Qeno Setup. Qeno Setup is signed by
+// Uncut Rush LLC, team AJ9G5DH5ZQ; the installer has to accept that team, and nothing else.
 //
 // The first two tests run everywhere. The rest run verifyApp for real (codesign and spctl), so they need a
 // Mac; the signed disk images are too large and too private to keep in the repository, so point the
 // environment at them:
-//   POKI_TEST_SETUP_DMG_NEW=<PokiSetup-0.2.3-*-macos.dmg>   signed by ANVS3UQK9W
-//   POKI_TEST_SETUP_DMG_OLD=<PokiSetup-0.2.2-661-macos.dmg> signed by Q64ZL36CJN (a release asset)
+//   POKI_TEST_SETUP_DMG_NEW=<QenoSetup-*-macos.dmg>   signed by AJ9G5DH5ZQ
 //   POKI_TEST_OTHER_TEAM_APP=<a notarized .app from any other Developer ID team>   (optional)
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
@@ -21,17 +20,16 @@ const mac = process.platform === 'darwin';
 
 const signing = team => `Identifier=nz.zheha.poki.setup\nAuthority=Developer ID Application: Someone\nTeamIdentifier=${team}\nTimestamp=Nov 15, 2026\n`;
 
-test('both of Poki\'s Developer ID teams are trusted', () => {
-  assert.deepEqual([...(installer.TEAM_IDS ?? [])].sort(), ['ANVS3UQK9W', 'Q64ZL36CJN']);
-  assert.equal(installer.pokiTeamOf(signing('ANVS3UQK9W')), 'ANVS3UQK9W');
-  assert.equal(installer.pokiTeamOf(signing('Q64ZL36CJN')), 'Q64ZL36CJN');
+test('Qeno\'s Developer ID team is trusted', () => {
+  assert.deepEqual([...(installer.TEAM_IDS ?? [])].sort(), ['AJ9G5DH5ZQ']);
+  assert.equal(installer.pokiTeamOf(signing('AJ9G5DH5ZQ')), 'AJ9G5DH5ZQ');
 });
 
 test('any other team, an unsigned team, or a look-alike is not trusted', () => {
-  for (const team of ['ZZZZZZZZZZ', 'not set', '', 'ANVS3UQK9WX', 'XANVS3UQK9W', 'anvs3uqk9w', 'ANVS3UQK9W Q64ZL36CJN']) {
+  for (const team of ['ZZZZZZZZZZ', 'not set', '', 'AJ9G5DH5ZQX', 'XAJ9G5DH5ZQ', 'aj9g5dh5zq', 'AJ9G5DH5ZQ Q64ZL36CJN']) {
     assert.equal(installer.pokiTeamOf(signing(team)), null, team);
   }
-  assert.equal(installer.pokiTeamOf('Identifier=x\nAuthority=Developer ID Application: Someone (ANVS3UQK9W)\n'), null, 'a team named in an authority line is not the TeamIdentifier');
+  assert.equal(installer.pokiTeamOf('Identifier=x\nAuthority=Developer ID Application: Someone (AJ9G5DH5ZQ)\n'), null, 'a team named in an authority line is not the TeamIdentifier');
   assert.equal(installer.pokiTeamOf(''), null);
 });
 
@@ -43,19 +41,14 @@ async function withMounted(dmg, run) {
 }
 
 const newDmg = process.env.POKI_TEST_SETUP_DMG_NEW;
-const oldDmg = process.env.POKI_TEST_SETUP_DMG_OLD;
 const otherApp = process.env.POKI_TEST_OTHER_TEAM_APP;
 
-test('verifyApp accepts Poki Setup signed by the new team (ANVS3UQK9W)', { skip: !mac ? 'needs macOS' : !newDmg ? 'POKI_TEST_SETUP_DMG_NEW is not set' : false }, async () => {
+test('verifyApp accepts Qeno Setup signed by the team (AJ9G5DH5ZQ)', { skip: !mac ? 'needs macOS' : !newDmg ? 'POKI_TEST_SETUP_DMG_NEW is not set' : false }, async () => {
   await withMounted(newDmg, installer.verifyApp);
 });
 
-test('verifyApp still accepts the published Poki Setup 0.2.2 (Q64ZL36CJN)', { skip: !mac ? 'needs macOS' : !oldDmg ? 'POKI_TEST_SETUP_DMG_OLD is not set' : false }, async () => {
-  await withMounted(oldDmg, installer.verifyApp);
-});
-
 test('verifyApp rejects a notarized app from another team', { skip: !mac ? 'needs macOS' : !otherApp ? 'POKI_TEST_OTHER_TEAM_APP is not set' : false }, async () => {
-  await assert.rejects(installer.verifyApp(otherApp), error => error.code === 'setup_signature_invalid' && /not signed by team ANVS3UQK9W or Q64ZL36CJN/.test(error.message));
+  await assert.rejects(installer.verifyApp(otherApp), error => error.code === 'setup_signature_invalid' && /not signed by team AJ9G5DH5ZQ/.test(error.message));
 });
 
 test('verifyApp rejects an app that has no team at all', { skip: mac ? false : 'needs macOS' }, async () => {

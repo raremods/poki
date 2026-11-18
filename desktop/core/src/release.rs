@@ -257,7 +257,7 @@ fn installable(r: &GhRelease) -> Option<(Channel, Release)> {
             source: r.source,
             source_notice: r.source_notice.clone(),
             ipa_pin: ipa.pin.clone(),
-            signing_pin: r.assets.iter().find(|a| a.name == "Poki-signing.zip").and_then(|a| a.pin.clone()),
+            signing_pin: r.assets.iter().find(|a| a.name == "Qeno-signing.zip").and_then(|a| a.pin.clone()),
         },
     ))
 }
@@ -561,8 +561,8 @@ pub async fn fetch(release: &Release, reporter: &Reporter) -> Result<(PathBuf, O
         }
         let signing = if let Some(url) = &release.signing_url {
             let pin = release.signing_pin.as_ref().ok_or_else(|| Error::msg("Signing archive integrity metadata is missing"))?;
-            let path = dir.join("Poki-signing.zip");
-            if !pin.matches(&path) { download_pinned(url, pin, &release.tag, "Poki-signing.zip", &path, reporter).await?; }
+            let path = dir.join("Qeno-signing.zip");
+            if !pin.matches(&path) { download_pinned(url, pin, &release.tag, "Qeno-signing.zip", &path, reporter).await?; }
             Some(path)
         } else { None };
         return Ok((ipa, signing));
@@ -720,11 +720,11 @@ mod tests {
         let server = Server::start().await;
         let ipa_name = "Poki-external-0.4.2-700.ipa";
         let ipa_url = server.url("/releases/700/Poki-external-0.4.2-700.ipa");
-        let zip_url = server.url("/releases/700/Poki-signing.zip");
-        let entries = vec![release("app-0.4.2-beta.700", vec![asset(ipa_name, &ipa_url, b"ipa"), asset("Poki-signing.zip", &zip_url, b"zip")])];
+        let zip_url = server.url("/releases/700/Qeno-signing.zip");
+        let entries = vec![release("app-0.4.2-beta.700", vec![asset(ipa_name, &ipa_url, b"ipa"), asset("Qeno-signing.zip", &zip_url, b"zip")])];
         server.put("/catalog.json", Reply::Body(signed(entries)));
         server.put("/releases/700/Poki-external-0.4.2-700.ipa", Reply::Body(b"ipa".to_vec()));
-        server.put("/releases/700/Poki-signing.zip", Reply::Body(b"zip".to_vec()));
+        server.put("/releases/700/Qeno-signing.zip", Reply::Body(b"zip".to_vec()));
         let entries = crate::release_catalog::read_from(&Source { url: server.url("/catalog.json"), public_key: public_key() }).await.unwrap();
         let mut entry: GhRelease = serde_json::from_value(entries[0].clone()).unwrap();
         entry.source = ReleaseSource::R2;
