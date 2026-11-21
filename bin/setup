@@ -2,7 +2,7 @@
 set -eu
 project_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 if [ "$(uname -s)" != Darwin ]; then
-  echo 'Poki MCP requires macOS and a full Xcode installation.' >&2
+  echo 'Qeno MCP requires macOS and a full Xcode installation.' >&2
   exit 1
 fi
 require_tools() {
@@ -19,9 +19,9 @@ require_tools 'Install the full Xcode from the App Store and open it once. It in
 require_tools 'Install Node.js 24 or newer from https://nodejs.org or with: brew install node.' node npm
 require_tools 'Install the Rust toolchain from https://rustup.rs and open a new terminal.' cargo rustc
 require_tools 'Install FFmpeg, which includes ffprobe, with: brew install ffmpeg.' ffmpeg ffprobe
-node -e 'if (Number(process.versions.node.split(".")[0]) < 24) { console.error("Poki MCP requires Node.js 24 or newer. Install it from https://nodejs.org or with: brew install node."); process.exit(1); }'
+node -e 'if (Number(process.versions.node.split(".")[0]) < 24) { console.error("Qeno MCP requires Node.js 24 or newer. Install it from https://nodejs.org or with: brew install node."); process.exit(1); }'
 if ! xcodebuild -version >/dev/null 2>&1 || ! xcrun --find swiftc >/dev/null 2>&1 || ! xcrun --find clang >/dev/null 2>&1; then
-  echo 'Poki MCP needs the full Xcode. The Command Line Tools alone are not enough. Install Xcode from the App Store, then run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer && sudo xcodebuild -runFirstLaunch' >&2
+  echo 'Qeno MCP needs the full Xcode. The Command Line Tools alone are not enough. Install Xcode from the App Store, then run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer && sudo xcodebuild -runFirstLaunch' >&2
   exit 1
 fi
 idevice_dir="$project_dir/.deps/idevice"

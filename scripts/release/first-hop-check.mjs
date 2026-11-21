@@ -69,7 +69,7 @@ function installable(release) {
   const [version, build] = cut > 0
     ? [stem.slice(0, cut), stem.slice(cut + 1)]
     : [['app-', 'ios-v', 'ios-prealpha-', 'ios-alpha-', 'ios-beta-'].reduce(trimStart, release.tag_name), ''];
-  return { channel, tag: release.tag_name, version, build, published_at: release.published_at ?? '', ipa_name: ipa.name, hasSigningZip: release.assets.some(a => a.name === 'Poki-signing.zip') };
+  return { channel, tag: release.tag_name, version, build, published_at: release.published_at ?? '', ipa_name: ipa.name, hasSigningZip: release.assets.some(a => a.name === 'Qeno-signing.zip') };
 }
 
 // release.rs:503-512. [numbers before the first '-', 0 pre-release / 1 plain / 2 build, suffix parts]
@@ -229,7 +229,7 @@ function selfCheck() {
 
 // ---- The plan: today's releases, then what each publish step leaves on GitHub. ----
 
-const SUPPORT_FILES = ['Poki-signing.zip', 'SHA256SUMS', 'poki-relay-worker.js'];
+const SUPPORT_FILES = ['Qeno-signing.zip', 'SHA256SUMS', 'poki-relay-worker.js'];
 
 function loadPlan(file, { build, entitlements, live }) {
   const text = readFileSync(file, 'utf8').replaceAll('{N+1}', String(build + 1)).replaceAll('{N}', String(build));

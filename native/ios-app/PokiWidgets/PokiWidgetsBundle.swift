@@ -16,13 +16,15 @@ struct PokiWidgetsBundle: WidgetBundle {
 /// Qeno's Live Activity: what the agent is doing on the phone, or what it needs from you. The pairing
 /// code while pairing, the current setup step while setting up, and Allow/Deny for sensitive actions.
 /// The buttons are for the person; PokiCore sends no input while an approval waits, so the runner never
-/// taps them. A tap anywhere else opens the screen the state is about (`ActivityFace.link`).
+/// taps them. A tap anywhere else opens the screen the state is about (`ActivityFace.link`), except on
+/// the expanded island while the agent may be acting, where it does nothing (`TapShield`).
 struct PokiLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: PokiActivityAttributes.self) { context in
             let face = context.face
             LockScreenCard(face: face).dynamicTypeSize(...ActivityMetrics.largestType)
                 .environment(\.colorScheme, .dark)
+                .environment(\.locale, AppLocalization.locale)
                 // Outside the line above, where the system's own appearance can still be read: the flat
                 // colour that goes with the card's gradient, and light or dark handed down to the card.
                 .modifier(CardTint())
@@ -31,15 +33,15 @@ struct PokiLiveActivity: Widget {
         } dynamicIsland: { context in
             let face = context.face
             return DynamicIsland {
-                DynamicIslandExpandedRegion(.leading) { IslandLeading(face: face).dynamicTypeSize(...ActivityMetrics.largestType) }
-                DynamicIslandExpandedRegion(.trailing) { IslandTrailing(face: face).dynamicTypeSize(...ActivityMetrics.largestType) }
-                DynamicIslandExpandedRegion(.bottom) { IslandBottom(face: face).dynamicTypeSize(...ActivityMetrics.largestType) }
+                DynamicIslandExpandedRegion(.leading) { IslandLeading(face: face).dynamicTypeSize(...ActivityMetrics.largestType).environment(\.locale, AppLocalization.locale).modifier(TapShield(on: face.shieldsTaps)) }
+                DynamicIslandExpandedRegion(.trailing) { IslandTrailing(face: face).dynamicTypeSize(...ActivityMetrics.largestType).environment(\.locale, AppLocalization.locale).modifier(TapShield(on: face.shieldsTaps)) }
+                DynamicIslandExpandedRegion(.bottom) { IslandBottom(face: face).dynamicTypeSize(...ActivityMetrics.largestType).environment(\.locale, AppLocalization.locale).modifier(TapShield(on: face.shieldsTaps)) }
             } compactLeading: {
-                CompactLeading(face: face).dynamicTypeSize(...ActivityMetrics.largestType)
+                CompactLeading(face: face).dynamicTypeSize(...ActivityMetrics.largestType).environment(\.locale, AppLocalization.locale)
             } compactTrailing: {
-                CompactTrailing(face: face).dynamicTypeSize(...ActivityMetrics.largestType)
+                CompactTrailing(face: face).dynamicTypeSize(...ActivityMetrics.largestType).environment(\.locale, AppLocalization.locale)
             } minimal: {
-                MinimalView(face: face).dynamicTypeSize(...ActivityMetrics.largestType)
+                MinimalView(face: face).dynamicTypeSize(...ActivityMetrics.largestType).environment(\.locale, AppLocalization.locale)
             }
             .widgetURL(face.link)
             // Always Qeno's blue; the system draws the outline only over a dark background, at its own width.

@@ -2,6 +2,7 @@ import Foundation
 import Network
 import Observation
 import PokiCore
+import WebKit
 import XCTest
 @testable import Qeno
 
@@ -13,8 +14,65 @@ import XCTest
 /// was tapped into the page, so a test reads the page to see whether a tap happened.
 @MainActor
 final class BrowserGuardTests: XCTestCase {
+    private var language = AppLocalization.system
+
+    /// The steps' words follow Poki's language; these tests read the English ones.
+    override func setUp() async throws {
+        language = AppLocalization.shared.preference
+        AppLocalization.shared.preference = "en"
+    }
+
     override func tearDown() async throws {
         PokiBrowser.shared.close()
+        AppLocalization.shared.preference = language
+    }
+
+    /// A step is worded in the language chosen in Poki when it starts, whatever the iPhone's language.
+    /// Steps already listed keep their words, and what the model reads stays as it was.
+    func testNewStepsUseTheChosenLanguageAndListedStepsKeepTheirs() async throws {
+        let server = try PageServer(pages: ["/": "<html><title>Notes</title><body>Public notes</body></html>"])
+        let opened = await WebTools.perform("web_open", arguments: Self.json(["url": "http://127.0.0.1:\(server.port)/"]))
+        XCTAssertFalse(opened.isError, opened.text)
+
+        AppLocalization.shared.preference = "zh-Hans"
+        let read = await WebTools.perform("web_read", arguments: "{}")
+        XCTAssertTrue(read.text.contains("Public notes"), read.text)
+        let found = await WebTools.perform("web_read", arguments: Self.json(["find": "notes"]))
+        XCTAssertFalse(found.isError, found.text)
+        let refused = await WebTools.perform("web_click", arguments: "{}")
+        XCTAssertEqual(refused.text, "web_click needs a ref from the latest page read.")
+
+        AppLocalization.shared.preference = "zh-Hant"
+        _ = await WebTools.perform("web_read", arguments: "{}")
+        XCTAssertEqual(PokiBrowser.shared.steps.map(\.text), ["Open 127.0.0.1", "读取页面", "查找“notes”", "讀取頁面"])
+    }
+
+    func testCloseThenOpenReadsTheNewPageAndCloseClearsIt() async throws {
+        let pages = try PageServer(pages: [
+            "/first": "<html><title>First fixture</title><body>First result</body></html>",
+            "/second": "<html><title>Second fixture</title><body>Second result</body></html>",
+        ])
+        let browser = PokiBrowser.shared
+        for index in 0..<20 {
+            let path = index.isMultiple(of: 2) ? "/first" : "/second"
+            let expected = index.isMultiple(of: 2) ? "First result" : "Second result"
+            print("Browser reopen cycle \(index + 1): opening \(path)")
+            let answer = await WebTools.perform("web_open", arguments: Self.json(["url": "http://127.0.0.1:\(pages.port)\(path)"]))
+            XCTAssertFalse(answer.isError, answer.text)
+            XCTAssertTrue(answer.text.contains(expected), answer.text)
+            browser.close()
+            print("Browser reopen cycle \(index + 1): complete")
+        }
+
+        let cleared = expectation(description: "Closing replaces the page with an empty document")
+        let observation = browser.webView.observe(\.isLoading, options: [.initial, .new]) { view, _ in
+            if !view.isLoading, view.url?.absoluteString == "about:blank" { cleared.fulfill() }
+        }
+        await fulfillment(of: [cleared], timeout: 5)
+        observation.invalidate()
+        XCTAssertFalse(browser.isOpen)
+        let text = try await browser.webView.evaluateJavaScript("document.body.innerText") as? String
+        XCTAssertEqual(text, "")
     }
 
     func testWikipediaTaskKeepsPhoneAutomationOff() async throws {
@@ -51,6 +109,41 @@ final class BrowserGuardTests: XCTestCase {
         let prompt = FakeCompletions.system(try XCTUnwrap(server.requests.first))
         XCTAssertFalse(prompt.contains("Start the task with a do in your first reply"))
         XCTAssertTrue(prompt.contains("For a website task, start with web_open"))
+    }
+
+    /// Poki's browser is for public websites: this iPhone and its local network are not opened, in
+    /// any way an address can be written. (These tests serve from 127.0.0.1, which only a test run allows.)
+    func testLocalAddressesAreNotWebsites() async throws {
+        for host in ["localhost", "127.0.0.1", "2130706433", "0x7f.1", "10.0.0.1", "172.20.1.1", "192.168.1.1", "169.254.1.1", "100.64.0.1",
+                     "0.0.0.0", "router", "printer.local", "nas.lan", "[::1]", "::ffff:192.168.1.1", "fe80::1", "fd00::1"] {
+            XCTAssertTrue(BrowserAddress.isLocal(host), host)
+        }
+        for host in ["example.com", "example.com.", "www.fandango.com", "8.8.8.8", "172.32.0.1", "100.128.0.1", "2606:4700::1111", "local.example.com"] {
+            XCTAssertFalse(BrowserAddress.isLocal(host), host)
+        }
+        XCTAssertEqual(WebTools.address("http://example.com/a")?.absoluteString, "https://example.com/a", "a public site is opened over https")
+        XCTAssertEqual(WebTools.address("http://192.168.1.1/")?.scheme, "http")
+        XCTAssertNil(WebTools.address("https://user:secret@example.com/"))
+
+        BrowserAddress.allowsLocal = false
+        defer { BrowserAddress.allowsLocal = true }
+        XCTAssertEqual(BrowserAddress.refusal(try XCTUnwrap(URL(string: "http://192.168.1.1/admin"))), .local)
+        XCTAssertNil(BrowserAddress.refusal(try XCTUnwrap(URL(string: "https://example.com/"))))
+        let opened = await WebTools.perform("web_open", arguments: Self.json(["url": "http://192.168.1.1/admin"]))
+        XCTAssertTrue(opened.isError, opened.text)
+        XCTAssertTrue(opened.text.contains("public websites only"), opened.text)
+    }
+
+    /// Deleting, sending, posting, moving money and cancelling are the owner's on a site that knows
+    /// them, in English and in both Chinese forms. A name that only contains such a word is not.
+    func testChangesToWhatTheOwnerHoldsAreTheOwners() {
+        for label in ["Delete", "Delete account", "Send message", "Post", "Transfer $50", "Withdraw", "Cancel subscription", "Close my account",
+                      "Place your order", "Donate", "Book now", "删除", "刪除", "發送", "轉帳", "取消訂閱", "購買", "訂閱", "註冊"] {
+            XCTAssertNotNil(WebTools.ownersTap(label), label)
+        }
+        for label in ["The Washington Post", "How to send a parcel", "Showtimes", "Next", "Reject all", "Search", "苹果发布会定于下周举行，新品抢先看"] {
+            XCTAssertNil(WebTools.ownersTap(label), label)
+        }
     }
 
     func testPokiRejectsCookiesAndLeavesSignInAgeAndTermsToTheOwner() async throws {
@@ -297,7 +390,7 @@ final class BrowserGuardTests: XCTestCase {
 }
 
 /// HTML pages on 127.0.0.1 by path; any other path is not found.
-private final class PageServer: @unchecked Sendable {
+final class PageServer: @unchecked Sendable {
     private let listener: NWListener
     private let queue = DispatchQueue(label: "page-server")
     private let pages: [String: String]

@@ -258,7 +258,7 @@ test('the issue draft is only printed: it never runs gh, and it says the person 
   const { stdout } = await exec(process.execPath, [cli, 'issue', '--state', state], { env: { ...process.env, PATH: `${bin}:${process.env.PATH}` } });
   await assert.rejects(readFile(join(state, 'gh-called')), { code: 'ENOENT' }, 'gh was not run');
   assert.match(stdout, /Show this draft to the person and submit it only after they say yes/);
-  assert.match(stdout, /gh issue create --repo JosssphZhou\/poki --template install-failure.yml|gh issue create --repo JosssphZhou\/poki --title/);
+  assert.match(stdout, /gh issue create --repo raremods\/poki --template install-failure.yml|gh issue create --repo raremods\/poki --title/);
   const draft = await readFile(join(state, 'issue-draft.md'), 'utf8');
   const template = await readFile(join(root, '.github/ISSUE_TEMPLATE/install-failure.yml'), 'utf8');
   const labels = [...template.matchAll(/^\s+label: (.+)$/gm)].map(m => m[1]);
@@ -268,8 +268,8 @@ test('the issue draft is only printed: it never runs gh, and it says the person 
 
 test('the agent guide documents every error code the installer can print', async () => {
   const { errors } = JSON.parse(await readFile(join(root, 'src/install/steps.json'), 'utf8'));
-  const guide = await readFile(join(root, 'skills/install-poki/SKILL.md'), 'utf8');
-  for (const code of Object.keys(errors)) assert.ok(guide.includes(`\`${code}\``), `skills/install-poki/SKILL.md explains ${code}`);
+  const guide = await readFile(join(root, 'skills/install-qeno/SKILL.md'), 'utf8');
+  for (const code of Object.keys(errors)) assert.ok(guide.includes(`\`${code}\``), `skills/install-qeno/SKILL.md explains ${code}`);
 });
 
 // A Poki Setup.app laid out as the installer puts it, whose helper is the fake bridge.
@@ -337,7 +337,7 @@ test('the Apple code never goes on a command line: it is typed to stdin, and a c
   assert.equal((await readFile(join(state, 'inbox/apple-code'), 'utf8')).trim(), '654321');
   const manifest = await readFile(join(root, 'src/install/steps.json'), 'utf8');
   assert.doesNotMatch(manifest, /code 123456|Tell me the code/, 'the person stop does not ask for the code in chat or in arguments');
-  const guide = await readFile(join(root, 'skills/install-poki/SKILL.md'), 'utf8');
+  const guide = await readFile(join(root, 'skills/install-qeno/SKILL.md'), 'utf8');
   assert.doesNotMatch(guide, /code <digits>|pass through chat/);
 });
 
@@ -360,7 +360,7 @@ test('the Apple code command in the prompt works pasted into a new Terminal outs
   const withState = await runInstaller(state, { answer: { ...personAnswers(state), apple_code: async event => assert.equal(await pasteIntoNewTerminal(event.say, { cwd: elsewhere, env: { HOME: home } }), 0) } });
   assert.equal(withState.code, 0, withState.stderr);
   // The default state: no --state was given, so the command needs none, and finds the same folder from HOME.
-  const defaultState = join(home, 'Library/Application Support/PokiInstall');
+  const defaultState = join(home, 'Library/Application Support/QenoInstall');
   const withDefault = await runInstaller(defaultState, { stateArgs: [], env: { HOME: home }, answer: { ...personAnswers(defaultState), apple_code: async event => {
     assert.doesNotMatch(event.say, /--state/);
     assert.equal(await pasteIntoNewTerminal(event.say, { cwd: elsewhere, env: { HOME: home } }), 0);
@@ -368,14 +368,14 @@ test('the Apple code command in the prompt works pasted into a new Terminal outs
   assert.equal(withDefault.code, 0, withDefault.stderr);
 });
 
-test('the installer shows its own version and build, and diagnose and the issue draft carry the versions of the installer, Poki Setup and the installed Poki', async t => {
+test('the installer shows its own version and build, and diagnose and the issue draft carry the versions of the installer, Qeno Setup and the installed Qeno', async t => {
   const pkg = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
   const noGit = await mkdtemp(join(tmpdir(), 'poki-install-nogit-'));
   t.after(() => rm(noGit, { recursive: true, force: true }));
   const { stdout: version } = await exec(process.execPath, [cli, '--version'], { env: { ...process.env, PATH: noGit, POKI_BUILD_COMMIT: 'abc1234' } });
-  assert.equal(version.trim(), `Poki installer ${pkg.version} (abc1234)`, 'without git the recorded build commit is shown');
+  assert.equal(version.trim(), `Qeno installer ${pkg.version} (abc1234)`, 'without git the recorded build commit is shown');
   const { stdout: withGit } = await exec(process.execPath, [cli, '--version']);
-  assert.match(withGit.trim(), new RegExp(`^Poki installer ${pkg.version.replaceAll('.', '\\.')} \\([0-9a-f]{7,}\\)$`));
+  assert.match(withGit.trim(), new RegExp(`^Qeno installer ${pkg.version.replaceAll('.', '\\.')} \\([0-9a-f]{7,}\\)$`));
 
   const state = await stateDir(t);
   const { code, events, stderr } = await runInstaller(state, { env: { POKI_BUILD_COMMIT: 'abc1234', PATH: `${noGit}:${dirname(process.execPath)}` }, answer: personAnswers(state) });
@@ -389,8 +389,8 @@ test('the installer shows its own version and build, and diagnose and the issue 
   assert.equal(bundle.poki_setup, '0.2.1 (319)');
   assert.equal(bundle.poki, '0.2.8 (501)');
   const draft = (await exec(process.execPath, [cli, 'issue', '--state', state], { env })).stdout;
-  assert.match(draft, new RegExp(`Poki Setup 0\\.2\\.1 \\(319\\)`));
-  assert.match(draft, /Poki 0\.2\.8 \(501\)/);
+  assert.match(draft, new RegExp(`Qeno Setup 0\\.2\\.1 \\(319\\)`));
+  assert.match(draft, /Qeno 0\.2\.8 \(501\)/);
   assert.match(draft, new RegExp(`installer ${pkg.version.replaceAll('.', '\\.')} \\(abc1234\\)`));
 });
 
@@ -677,10 +677,10 @@ test('when Poki\'s local connection does not answer, the installer says Poki\'s 
   assert.ok(events.findIndex(e => e === wait) < events.findIndex(e => e.event === 'done' && e.step === 'loopback'));
 });
 
-test('the install-poki skill walks the same steps and person stops as the installer, in order', async () => {
+test('the install-qeno skill walks the same steps and person stops as the installer, in order', async () => {
   const manifest = JSON.parse(await readFile(join(root, 'src/install/steps.json'), 'utf8'));
-  const skill = await readFile(join(root, 'skills/install-poki/SKILL.md'), 'utf8');
-  assert.match(skill, /^---\nname: install-poki\ndescription: .+\n/, 'the skill has a name and a description');
+  const skill = await readFile(join(root, 'skills/install-qeno/SKILL.md'), 'utf8');
+  assert.match(skill, /^---\nname: install-qeno\ndescription: .+\n/, 'the skill has a name and a description');
   const listed = [...skill.matchAll(/^\d+\. \*\*`(\w+)`\*\*/gm)].map(m => m[1]);
   assert.deepEqual(listed, manifest.steps.map(s => s.id), 'one numbered line per installer step, in the installer\'s order');
   for (const wait of Object.keys(manifest.waits)) assert.ok(skill.includes(`\`${wait}\``), `the skill says what to do at ${wait}`);

@@ -28,7 +28,8 @@ permissions:
 jobs:
   prealpha:
     if: github.ref == 'refs/heads/main'
-    runs-on: macos-latest
+    # The Xcode 27 image: the iOS 27.1 SDK or later, which the iPhone Duo needs (build-ipa).
+    runs-on: xcode-27
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
@@ -66,21 +67,23 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: .github/scripts/publish-rolling.sh prealpha "${{ steps.v.outputs.version }}" "${{ steps.v.outputs.build }}" out
 
-      # After publishing, so saving never delays the release. Same paths as the build-ipa action.
-      - if: steps.build.outputs.rust-hit != 'true'
+      # After publishing, so saving never delays the release, but also when publishing fails, so a
+      # re-run starts warm. Same paths as the build-ipa action.
+      - if: always() && steps.build.outcome == 'success' && steps.build.outputs.rust-hit != 'true'
         uses: actions/cache/save@v4
         with:
           path: |
             ~/.cargo/registry
             native/launcher/target
           key: ${{ steps.build.outputs.rust-key }}
-      - uses: actions/cache/save@v4
+      - if: always() && steps.build.outcome == 'success'
+        uses: actions/cache/save@v4
         with:
           path: |
             build/app-external
             build/app-local
             ~/Library/Developer/Xcode/DerivedData/ModuleCache.noindex
-          key: ipa-fast-${{ github.sha }}
+          key: ipa-xcode27-${{ github.sha }}
 
       - name: Summary
         if: always()

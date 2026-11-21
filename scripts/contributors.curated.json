@@ -311,9 +311,9 @@
       "#69",
       "#70"
     ],
-    "summary": "Posted a full timeline of Runner pairing failing after 25 idle minutes in #69; Setup now points to Loopback and Pairing (#70).",
+    "summary": "Shared a full timeline of Runner pairing failing after 25 idle minutes in #69; Poki Setup now points to Loopback and Pairing (#70).",
     "lines": {
-      "en": "Posted a full timeline of Runner pairing failing after 25 idle minutes in #69; Setup now points to Loopback and Pairing (#70).",
+      "en": "Shared a full timeline of Runner pairing failing after 25 idle minutes in #69; Poki Setup now points to Loopback and Pairing (#70).",
       "zh-CN": "在 #69 中给出了 Runner 空闲约 25 分钟后配对失败的完整时间线；设置页现在会指向回环和配对检查（#70）。",
       "zh-TW": "在 #69 中提供了 Runner 閒置約 25 分鐘後配對失敗的完整時間線；設定頁現在會指向回環和配對檢查（#70）。",
       "ja": "#69 で Runner が約 25 分の待機後にペアリングに失敗する経過を詳しく記録。Setup は Loopback と Pairing の確認を案内するようになりました（#70）。",
@@ -422,7 +422,7 @@
     "categories": [
       "community"
     ],
-    "summary": "Reported a foldable iPhone whose accessibility and touch used the wrong panel in #20 and shared experiments in #47; tracking continues in #47 and #76.",
+    "summary": "Reported in #20 that accessibility and touch targeted the wrong panel on a foldable iPhone, and shared experiments in #47; tracking continues in #47 and #76.",
     "basis": [
       "#20",
       "#47"
@@ -516,5 +516,97 @@
       "#267",
       "#268"
     ]
+  },
+  "whiteluw": {
+    "status": "counted",
+    "categories": [
+      "code",
+      "testing"
+    ],
+    "basis": [
+      "#326"
+    ],
+    "summary": "Contributed #326 to avoid a 3D bear startup crash on iPhone.",
+    "lines": {
+      "en": "Contributed #326 to avoid a 3D bear startup crash on iPhone.",
+      "zh-CN": "在 #326 中修复 iPhone 上三维小熊初始化时的闪退。",
+      "zh-TW": "在 #326 修正 iPhone 上三維小熊初始化時的閃退。",
+      "ja": "#326 で iPhone の 3D クマの初期化時に発生するクラッシュを修正しました。",
+      "ko": "#326에서 iPhone의 3D 곰 초기화 중 발생하는 충돌을 수정했습니다.",
+      "es": "Corrigió en #326 un fallo al inicializar el oso 3D en el iPhone."
+    }
+  },
+  "Ryanwu316": {
+    "status": "counted",
+    "categories": [
+      "code",
+      "testing"
+    ],
+    "basis": [
+      "#354"
+    ],
+    "summary": "Brought two-app workspaces to iPhone Duo in #354, so a task waits through rotation and resumes on the same app pair.",
+    "lines": {
+      "en": "Brought two-app workspaces to iPhone Duo in #354, so a task waits through rotation and resumes on the same app pair.",
+      "zh-CN": "在 #354 中为 iPhone Duo 加入双应用工作区，任务在旋转时会等待，并在同一对应用上继续。",
+      "zh-TW": "在 #354 為 iPhone Duo 加入雙 App 工作區，任務在旋轉時會等待，並在同一組 App 上繼續。",
+      "ja": "#354 で iPhone Duo に 2 つのアプリのワークスペースを追加し、回転中もタスクが待機して同じアプリの組み合わせで再開するようにしました。",
+      "ko": "#354에서 iPhone Duo에 두 앱 작업 공간을 추가해, 화면을 돌리는 동안 작업이 기다렸다가 같은 앱 쌍에서 이어지도록 했습니다.",
+      "es": "Añadió en #354 los espacios de trabajo con dos apps en el iPhone Duo: la tarea espera durante la rotación y continúa en el mismo par de apps."
+    }
+  },
+  "soloface": {
+    "status": "counted",
+    "categories": [
+      "report"
+    ],
+    "basis": [
+      "#311"
+    ],
+    "summary": "Traced MCP 503 errors on a phone that showed online to a relay reconnect bug in #311, with a reproducing test and a patch.",
+    "lines": {
+      "en": "Traced MCP 503 errors on a phone that showed online to a relay reconnect bug in #311, with a reproducing test and a patch.",
+      "zh-CN": "在 #311 中查明手机显示在线却返回 MCP 503 错误的原因是中继重连缺陷，并附上可复现的测试和补丁。",
+      "zh-TW": "在 #311 查明手機顯示在線卻回傳 MCP 503 錯誤的原因是中繼重新連線缺陷，並附上可重現的測試和修補。",
+      "ja": "#311 で、電話がオンライン表示なのに MCP が 503 を返す原因がリレーの再接続の不具合だと突き止め、再現テストとパッチを添えました。",
+      "ko": "#311에서 휴대폰이 온라인으로 표시되는데도 MCP가 503을 반환하는 원인이 릴레이 재연결 결함임을 찾아내고, 재현 테스트와 패치를 함께 제공했습니다.",
+      "es": "Descubrió en #311 que los errores 503 de MCP con el teléfono en línea venían de un fallo de reconexión del relé, y aportó una prueba que lo reproduce y un parche."
+    }
+  },
+  "cs50Mu": {
+    "status": "counted",
+    "categories": [
+      "report"
+    ],
+    "basis": [
+      "#362"
+    ],
+    "summary": "Found in #362 that the Poki Setup macOS download only ran on Apple silicon; the universal build that followed also runs on Intel Macs.",
+    "lines": {
+      "en": "Found in #362 that the Poki Setup macOS download only ran on Apple silicon; the universal build that followed also runs on Intel Macs.",
+      "zh-CN": "在 #362 中发现 Poki Setup 的 macOS 安装包只能在 Apple 芯片上运行；随后的通用版本也能在 Intel Mac 上运行。",
+      "zh-TW": "在 #362 發現 Poki Setup 的 macOS 安裝檔只能在 Apple 晶片上執行；隨後的通用版本也能在 Intel Mac 上執行。",
+      "ja": "#362 で、Poki Setup の macOS 版が Apple シリコンでしか動かないことを見つけ、その後のユニバーサルビルドで Intel Mac でも動くようになりました。",
+      "ko": "#362에서 Poki Setup의 macOS 설치 파일이 Apple 실리콘에서만 실행된다는 것을 찾아냈고, 이후의 유니버설 빌드는 Intel Mac에서도 실행됩니다.",
+      "es": "Descubrió en #362 que la descarga de Poki Setup para macOS solo funcionaba en Apple silicon; la compilación universal posterior también funciona en Mac con Intel."
+    }
+  },
+  "mgkvibez": {
+    "status": "counted",
+    "categories": [
+      "testing"
+    ],
+    "basis": [
+      "#380"
+    ],
+    "summary": "Added a test in #380 that keeps payment checks ahead of message sending, so a Send money button in Mail still asks for approval.",
+    "lines": {
+      "en": "Added a test in #380 that keeps payment checks ahead of message sending, so a Send money button in Mail still asks for approval.",
+      "zh-CN": "在 #380 中新增一个测试，保证付款判断先于发送消息判断，因此 Mail 里的 “Send money” 这类按钮仍需先审批。",
+      "zh-TW": "在 #380 新增一個測試，確保付款判斷先於傳送訊息判斷，因此 Mail 裡的 “Send money” 這類按鈕仍需先審批。",
+      "ja": "#380 で、支払いの判定をメッセージ送信の判定より先に行う順序を守るテストを追加し、Mail の “Send money” のようなボタンでも承認が必要なままになります。",
+      "ko": "#380에서 결제 판단이 메시지 전송 판단보다 먼저 이루어지도록 지키는 테스트를 추가해, Mail의 “Send money” 같은 버튼도 계속 승인을 먼저 받습니다.",
+      "es": "Añadió en #380 una prueba que mantiene la comprobación de pagos antes que la de envío de mensajes, de modo que un botón “Send money” en Mail sigue pidiendo aprobación."
+    }
   }
 }

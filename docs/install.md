@@ -1,8 +1,8 @@
 # Install
 
-This guide installs Poki MCP from source, which needs full Xcode. Poki MCP is no longer updated and stays available as it is. To put the Poki app on an iPhone,
-use the [install-poki skill](../skills/install-poki/SKILL.md) or Poki Setup instead, as the
-[README](../README.md#install-poki-on-your-iphone) describes; that path does not need Xcode.
+This guide installs Poki MCP from source, which needs full Xcode. Poki MCP is no longer updated and stays available as it is. To put the Qeno app on an iPhone,
+use the [install-qeno skill](../skills/install-qeno/SKILL.md) or Qeno Setup instead, as the
+[README](../README.md#install-qeno-on-your-iphone) describes; that path does not need Xcode.
 
 For remote access, see [Remote iPhone over LAN or Tailscale](remote-iphone.md). Both paths require initial trusted USB setup; cross-network access also requires Tailscale.
 
@@ -26,7 +26,7 @@ If you received the optional `poki-v0.1.1-macos-arm64.tar.gz` build, follow its 
 ## 1. Build from Source and Start the Daemon
 
 ```sh
-git clone https://github.com/JosssphZhou/poki.git
+git clone https://github.com/raremods/poki.git
 cd poki
 ./bin/setup
 npm start
@@ -92,7 +92,7 @@ tool_timeout_sec = 900
 Paste this prompt into your agent:
 
 ```text
-Install https://github.com/JosssphZhou/poki following its root AGENTS.md, including the MCP skill, and stop whenever you need me to act.
+Install https://github.com/raremods/poki following its root AGENTS.md, including the MCP skill, and stop whenever you need me to act.
 ```
 
 [AGENTS.md](../AGENTS.md) covers prerequisites, source setup, the background daemon, registration in your own client, skill installation, iPhone pairing, Qeno Agent, optional iMessage, and verification. It names each user-only stop, including Xcode setup, Trust This Computer, Developer Mode, UI Automation, and model login.

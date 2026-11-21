@@ -151,14 +151,14 @@ struct SetupView: View {
 
 extension SetupStep {
     /// The page's title (board 03: title case).
-    var pageTitle: LocalizedStringKey {
+    var pageTitle: String {
         switch self {
-        case .runner: "Install Qeno Runner"
-        case .developerMode: "Turn On Developer Mode"
-        case .loopback: "Turn On Loopback"
-        case .pairing: "Pair This iPhone"
-        case .automation: "Allow UI Automation"
-        case .background: "Keep Qeno Running"
+        case .runner: AppLocalization.text("Install Qeno Runner")
+        case .developerMode: AppLocalization.text("Turn On Developer Mode")
+        case .loopback: AppLocalization.text("Turn On Loopback")
+        case .pairing: AppLocalization.text("Pair This iPhone")
+        case .automation: AppLocalization.text("Allow UI Automation")
+        case .background: AppLocalization.text("Keep Qeno Running")
         }
     }
 
@@ -345,12 +345,12 @@ private struct LoopbackPage: View {
                     LabeledContent("Built-in Connection") { ProgressView() }
                     Button("Cancel Connection", role: .destructive) { model.tunnel.disconnect() }.disabled(connectionLocked)
                 case .connected:
-                    LabeledContent("Built-in Connection", value: String(localized: "Connected"))
+                    LabeledContent("Built-in Connection", value: AppLocalization.text(LocalizedStringResource("Connected")))
                     Button("Disconnect Local Connection") { model.tunnel.disconnect() }.disabled(connectionLocked)
                 case .disconnecting:
                     LabeledContent("Built-in Connection") { ProgressView() }
                 case .failed(let message):
-                    Label(Bundle.main.localizedString(forKey: message, value: message, table: nil), systemImage: "exclamationmark.triangle").foregroundStyle(.red)
+                    Label(AppLocalization.bundle.localizedString(forKey: message, value: message, table: nil), systemImage: "exclamationmark.triangle").foregroundStyle(.red)
                     enableButton
                 case .off, .unavailable:
                     enableButton
@@ -557,14 +557,14 @@ private struct PairingPage: View {
         default:
             if let trouble = model.pairingTrouble {
                 Section {
-                    Label(String(localized: "The phone no longer accepts this pairing: \(trouble)"), systemImage: "exclamationmark.triangle")
+                    Label(AppLocalization.text(LocalizedStringResource("The phone no longer accepts this pairing: \(trouble)")), systemImage: "exclamationmark.triangle")
                 } footer: {
                     Text(SetupStep.onDevicePairing ? "This happens after a restore, a reset of Location & Privacy, or when the phone forgot Qeno. Pair again; the old key is replaced." : "This happens after a restore, a reset of Location & Privacy, or when the phone forgot Qeno. Pair again from Qeno Setup on your computer and send the new file here; the old key is replaced.")
                 }
             } else if model.pairingPath != nil {
                 Section {
-                    Label(model.pairingVerifiedAt.map { String(localized: "Paired. The phone accepted it at \($0.formatted(date: .omitted, time: .shortened)).") }
-                            ?? String(localized: "Paired. Checked the next time the runner starts."), systemImage: "checkmark.seal.fill")
+                    Label(model.pairingVerifiedAt.map { AppLocalization.text(LocalizedStringResource("Paired. The phone accepted it at \($0.formatted(Date.FormatStyle(date: .omitted, time: .shortened).locale(AppLocalization.locale))).")) }
+                            ?? AppLocalization.text(LocalizedStringResource("Paired. Checked the next time the runner starts.")), systemImage: "checkmark.seal.fill")
                 }
             } else if SetupStep.onDevicePairing {
                 Section("How To") {
@@ -613,18 +613,25 @@ private struct PairingPage: View {
         .task { while !Task.isCancelled { model.lookForHandedPairing(); try? await Task.sleep(for: .seconds(3)) } }
         .fileImporter(isPresented: $importing, allowedContentTypes: [.propertyList, .xml, .data]) { result in
             do { try model.importPairingFile(from: result.get()); importError = nil }
-            catch { importError = String(localized: "Invalid Pairing File: \(error.localizedDescription)") }
+            catch { importError = AppLocalization.text(LocalizedStringResource("Invalid Pairing File: \(error.localizedDescription)")) }
         }
     }
 
     @ViewBuilder private var diskImage: some View {
         switch model.diskImage.state {
         case .ready:
-            LabeledContent("Status", value: String(localized: "Ready"))
+            LabeledContent("Status", value: AppLocalization.text(LocalizedStringResource("Ready")))
+        case .downloaded:
+            LabeledContent("Status", value: AppLocalization.text(LocalizedStringResource("Downloaded, not available")))
+            Text(DiskImageStore.unavailableMessage).font(.footnote).foregroundStyle(.orange)
         case .downloading(let step):
             LabeledContent("Downloading") { HStack { Text(verbatim: "\(step)"); ProgressView() } }
         case .missing:
-            Button("Download Developer Disk Image") { Task { await model.diskImage.download() } }
+            if model.diskImage.isChecking {
+                LabeledContent("Status") { HStack { Text("Checking…").foregroundStyle(.secondary); ProgressView() } }
+            } else {
+                Button("Download Developer Disk Image") { Task { await model.diskImage.download() } }
+            }
         case .failed(let why):
             Label(why, systemImage: "exclamationmark.triangle").foregroundStyle(.orange)
             Button("Download Again") { Task { await model.diskImage.download() } }
@@ -683,6 +690,7 @@ private struct BackgroundPage: View {
 /// wrong, and a tap opens its fix. It is on the Chats page (the steps still open) and in the Qeno tab.
 struct SetupChecklist: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.pokiDetailsOpen) private var detailsOpen
     @State private var guiding = false
 
     var body: some View {
@@ -695,7 +703,7 @@ struct SetupChecklist: View {
                 // back: without it, plain text is still typed with key presses.
                 NavigationLink { PokiKeyboardPage() } label: { PokiKeyboardSetupRow() }
             } footer: {
-                Text(model.setupComplete ? "Everything Qeno needs is in place." : "Qeno needs every item ticked before an agent or the chat can use this iPhone. Items tick themselves when the phone can check them.")
+                Text(model.setupReadyForUse ? "Everything Qeno needs is in place." : "Qeno needs every item ticked before an agent or the chat can use this iPhone. Items tick themselves when the phone can check them.")
             }
             SigningSection()
             Section {
@@ -705,9 +713,10 @@ struct SetupChecklist: View {
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("Setup")
+        .navigationTitle(AppLocalization.text("Setup"))
         .onAppear { model.loopback.resume() }
         .sheet(isPresented: $guiding) { SetupGuide(start: SetupStep.shown.first { !model.isDone($0) }) }
+        .background(EmptyView().sheet(isPresented: Binding(get: { model.signer.needsCodeSheet && !detailsOpen }, set: { model.signer.needsCodeSheet = $0 })) { VerificationCodeSheet() })
     }
 }
 
@@ -717,10 +726,12 @@ struct SetupStepRow: View {
     var step: SetupStep
 
     var body: some View {
-        let done = model.isDone(step)
+        let done = model.stepReadyForUse(step)
         LabeledContent {
-            if step == .loopback && !model.loopback.isWorking && model.hasOpenInProcessSession {
+            if step == .loopback && !model.loopback.isWorking && (model.hasOpenInProcessSession || model.canStartTasks) {
                 Text("Local automation ready").foregroundStyle(.secondary)
+            } else if step == .loopback && model.loopback.state == .checking && model.setup.loopback != .none {
+                Text("Checking…").foregroundStyle(.secondary)
             } else if done {
                 Image(systemName: "checkmark.circle.fill").foregroundStyle(.green).accessibilityLabel(Text("Done"))
             } else {
@@ -734,13 +745,14 @@ struct SetupStepRow: View {
     private var problem: String {
         switch step {
         case .loopback:
-            if model.loopback.state == .noAnswer { return String(localized: "No Answer") }
-            return model.setup.loopback == .none ? String(localized: "Needed") : String(localized: "Off")
+            if model.loopback.state == .noAnswer { return AppLocalization.text(LocalizedStringResource("No Answer")) }
+            return model.setup.loopback == .none ? AppLocalization.text(LocalizedStringResource("Needed")) : AppLocalization.text(LocalizedStringResource("Off"))
         case .pairing:
-            if model.pairingTrouble != nil { return String(localized: "Pair Again") }
-            if model.pairingPath != nil, !model.diskImage.isReady { return String(localized: "Downloading") }
-            return String(localized: "Needed")
-        default: return String(localized: "Needed")
+            if model.pairingTrouble != nil { return AppLocalization.text(LocalizedStringResource("Pair Again")) }
+            if model.diskImage.isChecking { return AppLocalization.text(LocalizedStringResource("Checking…")) }
+            if model.pairingPath != nil, !model.diskImage.hasFiles { return AppLocalization.text(LocalizedStringResource("Downloading")) }
+            return AppLocalization.text(LocalizedStringResource("Needed"))
+        default: return AppLocalization.text(LocalizedStringResource("Needed"))
         }
     }
 }
@@ -781,7 +793,7 @@ struct SetupStepPage: View {
                 Text("iOS doesn’t let Qeno check this one, so turn the switch on once it’s done.")
             }
         }
-        .navigationTitle(Text(step.pageTitle))
+        .navigationTitle(step.pageTitle)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { model.loopback.resume() }
     }
@@ -826,7 +838,11 @@ struct SetupStepPage: View {
         Form {
             Section {
                 LabeledContent {
-                    Text(model.isDone(step) ? "Done" : "Needed").foregroundStyle(model.isDone(step) ? Color.green : Color.orange)
+                    if step == .loopback && model.loopback.state == .checking && model.setup.loopback != .none {
+                        Text("Checking…").foregroundStyle(.secondary)
+                    } else {
+                        Text(model.stepReadyForUse(step) ? "Done" : "Needed").foregroundStyle(model.stepReadyForUse(step) ? Color.green : Color.orange)
+                    }
                 } label: {
                     Label(step.pageTitle, systemImage: step.symbol)
                 }
@@ -835,7 +851,7 @@ struct SetupStepPage: View {
             }
             content
         }
-        .navigationTitle(Text(step.pageTitle))
+        .navigationTitle(step.pageTitle)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             model.loopback.resume()

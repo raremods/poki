@@ -1,4 +1,4 @@
-// Poki Setup's poki-setup-bridge over a pipe: one JSON request per line in, replies and progress
+// Qeno Setup's poki-setup-bridge over a pipe: one JSON request per line in, replies and progress
 // events out (protocol in desktop/bridge/src/main.rs). Secrets go in over stdin, never in argv.
 import { spawn } from 'node:child_process';
 import { createWriteStream } from 'node:fs';
@@ -51,7 +51,7 @@ export class Bridge {
   }
 
   #closed() {
-    for (const waiter of this.#pending.values()) waiter.reject(new BridgeError('bridge_start_failed', 'Poki Setup\'s helper stopped while a request was running'));
+    for (const waiter of this.#pending.values()) waiter.reject(new BridgeError('bridge_start_failed', 'Qeno Setup\'s helper stopped while a request was running'));
     this.#pending.clear();
   }
 

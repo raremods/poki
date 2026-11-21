@@ -38,6 +38,8 @@ struct InputMedia {
     client: idevice::core_device::DisplayServiceClient<Box<dyn ReadWrite>>,
     receivers: tokio::task::JoinSet<()>,
     ready_at: tokio::time::Instant,
+    last_input: tokio::time::Instant,
+    last_activity: tokio::time::Instant,
 }
 
 impl InputMedia {
@@ -66,10 +68,13 @@ impl InputMedia {
             receivers.spawn(async move { while socket.recv().await.is_ok() {} });
         }
         trace("input media connected");
+        let ready_at = tokio::time::Instant::now() + Duration::from_millis(1000);
         Ok(Self {
             client: stream.client,
             receivers,
-            ready_at: tokio::time::Instant::now() + Duration::from_millis(1000),
+            ready_at,
+            last_input: ready_at,
+            last_activity: ready_at,
         })
     }
 }
@@ -264,6 +269,23 @@ impl Request {
         )
     }
 
+    fn uses_input_media(&self) -> bool {
+        !matches!(
+            self,
+            Self::DisplayInfo
+                | Self::DeviceInfo
+                | Self::Screenshot { .. }
+                | Self::ListApps
+                | Self::InstallApp { .. }
+                | Self::UninstallApp { .. }
+                | Self::AxTree { .. }
+                | Self::AppForPid { .. }
+                | Self::Pasteboard { .. }
+                | Self::Configuration { .. }
+                | Self::LaunchApp(_)
+        )
+    }
+
     fn validate(&self) -> Result<()> {
         match self {
             Self::LaunchApp(request) => request.validate()?,
@@ -396,6 +418,94 @@ async fn main() {
     }
 }
 
+fn select_usbmux_device(
+    devices: Vec<idevice::usbmuxd::UsbmuxdDevice>,
+    udid: &str,
+) -> Option<idevice::usbmuxd::UsbmuxdDevice> {
+    // A Wi-Fi sync entry can precede the same phone's working cable link.
+    devices
+        .into_iter()
+        .filter(|device| device.udid == udid)
+        .min_by_key(|device| !matches!(device.connection_type, idevice::usbmuxd::Connection::Usb))
+}
+
+#[cfg(test)]
+mod usbmux_selection_tests {
+    use super::select_usbmux_device;
+    use idevice::usbmuxd::{Connection, UsbmuxdDevice};
+
+    fn device(udid: &str, id: u32, connection_type: Connection) -> UsbmuxdDevice {
+        UsbmuxdDevice {
+            udid: udid.into(),
+            device_id: id,
+            connection_type,
+        }
+    }
+    fn wifi(udid: &str, id: u32) -> UsbmuxdDevice {
+        device(udid, id, Connection::Network("127.0.0.1".parse().unwrap()))
+    }
+
+    #[test]
+    fn prefers_the_requested_phones_usb_link_in_either_inventory_order() {
+        for devices in [
+            vec![wifi("target", 1), device("target", 2, Connection::Usb)],
+            vec![device("target", 2, Connection::Usb), wifi("target", 1)],
+        ] {
+            assert_eq!(
+                select_usbmux_device(devices, "target").unwrap().device_id,
+                2
+            );
+        }
+    }
+
+    #[test]
+    fn keeps_the_existing_first_match_when_no_usb_link_is_available() {
+        assert_eq!(
+            select_usbmux_device(vec![wifi("target", 1), wifi("target", 2)], "target")
+                .unwrap()
+                .device_id,
+            1
+        );
+        assert_eq!(
+            select_usbmux_device(
+                vec![device("target", 3, Connection::Unknown("other".into()))],
+                "target"
+            )
+            .unwrap()
+            .device_id,
+            3
+        );
+    }
+
+    #[test]
+    fn never_selects_another_phone_or_changes_the_first_equal_priority_match() {
+        assert_eq!(
+            select_usbmux_device(
+                vec![device("other", 1, Connection::Usb), wifi("target", 2)],
+                "target"
+            )
+            .unwrap()
+            .device_id,
+            2
+        );
+        assert!(
+            select_usbmux_device(vec![device("other", 1, Connection::Usb)], "target").is_none()
+        );
+        assert_eq!(
+            select_usbmux_device(
+                vec![
+                    device("target", 2, Connection::Usb),
+                    device("target", 3, Connection::Usb)
+                ],
+                "target"
+            )
+            .unwrap()
+            .device_id,
+            2
+        );
+    }
+}
+
 async fn connect_device(
     udid: &str,
 ) -> Result<(
@@ -405,7 +515,8 @@ async fn connect_device(
     idevice::provider::UsbmuxdProvider,
 )> {
     let mut mux = UsbmuxdConnection::default().await?;
-    let device = mux.get_device(udid).await?;
+    let device = select_usbmux_device(mux.get_devices().await?, udid)
+        .ok_or(idevice::IdeviceError::DeviceNotFound)?;
     let provider = device.to_provider(UsbmuxdAddr::from_env_var()?, "poki-mcp");
     let proxy = CoreDeviceProxy::connect(&provider).await?;
     let port = proxy.tunnel_info().server_rsd_port;
@@ -474,59 +585,84 @@ async fn execute_connected(
     request: Request,
     media: &mut Option<InputMedia>,
 ) -> Result<Value> {
-    if let Request::LaunchApp(request) = request {
-        return match apps::launch(adapter, rsd, request).await {
-            Err(error) if error.is::<NotSent>() => Err(error),
-            result => Ok(result.unwrap_or_else(apps::not_sent)),
+    if !request.uses_input_media() {
+        let max_hold = media
+            .as_ref()
+            .map(|m| m.last_input + remote::INPUT_MEDIA_MAX_READ_HOLD);
+        let op = async {
+            if let Request::LaunchApp(request) = request {
+                return match apps::launch(adapter, rsd, request).await {
+                    Err(error) if error.is::<NotSent>() => Err(error),
+                    result => Ok(result.unwrap_or_else(apps::not_sent)),
+                };
+            }
+            if let Request::Screenshot { path } = request {
+                let mut dvt =
+                    idevice::dvt::remote_server::RemoteServerClient::connect_rsd(adapter, rsd)
+                        .await?;
+                dvt.read_message(0).await?;
+                let mut screenshot =
+                    idevice::dvt::screenshot::ScreenshotClient::new(&mut dvt).await?;
+                let bytes = screenshot.take_screenshot().await?;
+                use std::io::Write;
+                use std::os::unix::fs::OpenOptionsExt;
+                let mut file = std::fs::OpenOptions::new()
+                    .write(true)
+                    .create_new(true)
+                    .mode(0o600)
+                    .open(path)?;
+                file.write_all(&bytes)?;
+                return Ok(json!({"saved":true}));
+            }
+            if matches!(request, Request::DeviceInfo) {
+                let mut lockdown =
+                    idevice::lockdown::LockdownClient::connect_rsd(adapter, rsd).await?;
+                let scale = lockdown
+                    .get_value(Some("ScreenScaleFactor"), Some("com.apple.mobile.iTunes"))
+                    .await?;
+                let properties = ["DeviceName", "ProductType", "ProductVersion"]
+                    .into_iter()
+                    .filter_map(|key| rsd.properties.get(key).map(|value| (key, value)))
+                    .collect::<std::collections::HashMap<_, _>>();
+                return Ok(json!({"scale":scale,"properties":properties}));
+            }
+            if matches!(request, Request::ListApps) {
+                return apps::list(adapter, rsd, provider).await;
+            }
+            if let Request::Configuration { method, value } = request {
+                return configuration::execute(adapter, rsd, &method, value).await;
+            }
+            if let Request::AxTree { include_offscreen } = request {
+                return ax::read_tree(adapter, rsd, include_offscreen).await;
+            }
+            if let Request::AppForPid { pid } = request {
+                return apps::app_for_pid(adapter, rsd, pid).await;
+            }
+            if let Request::Pasteboard { action, text } = request {
+                return device_ops::pasteboard(adapter, rsd, &action, text.as_deref()).await;
+            }
+            if matches!(request, Request::DisplayInfo) {
+                let mut display =
+                    idevice::core_device::DisplayServiceClient::connect_rsd(adapter, rsd).await?;
+                let info = display.get_media_support_info().await?;
+                return Ok(serde_json::to_value(info)?);
+            }
+            unreachable!()
         };
-    }
-    if let Request::Screenshot { path } = request {
-        let mut dvt =
-            idevice::dvt::remote_server::RemoteServerClient::connect_rsd(adapter, rsd).await?;
-        dvt.read_message(0).await?;
-        let mut screenshot = idevice::dvt::screenshot::ScreenshotClient::new(&mut dvt).await?;
-        let bytes = screenshot.take_screenshot().await?;
-        use std::io::Write;
-        use std::os::unix::fs::OpenOptionsExt;
-        let mut file = std::fs::OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .mode(0o600)
-            .open(path)?;
-        file.write_all(&bytes)?;
-        return Ok(json!({"saved":true}));
-    }
-    if matches!(request, Request::DeviceInfo) {
-        let mut lockdown = idevice::lockdown::LockdownClient::connect_rsd(adapter, rsd).await?;
-        let scale = lockdown
-            .get_value(Some("ScreenScaleFactor"), Some("com.apple.mobile.iTunes"))
-            .await?;
-        let properties = ["DeviceName", "ProductType", "ProductVersion"]
-            .into_iter()
-            .filter_map(|key| rsd.properties.get(key).map(|value| (key, value)))
-            .collect::<std::collections::HashMap<_, _>>();
-        return Ok(json!({"scale":scale,"properties":properties}));
-    }
-    if matches!(request, Request::ListApps) {
-        return apps::list(adapter, rsd, provider).await;
-    }
-    if let Request::Configuration { method, value } = request {
-        return configuration::execute(adapter, rsd, &method, value).await;
-    }
-    if let Request::AxTree { include_offscreen } = request {
-        return ax::read_tree(adapter, rsd, include_offscreen).await;
-    }
-    if let Request::AppForPid { pid } = request {
-        return apps::app_for_pid(adapter, rsd, pid).await;
-    }
-    if let Request::Pasteboard { action, text } = request {
-        return device_ops::pasteboard(adapter, rsd, &action, text.as_deref()).await;
-    }
-    if matches!(request, Request::DisplayInfo) {
-        let mut display =
-            idevice::core_device::DisplayServiceClient::connect_rsd(adapter, rsd).await?;
-        let info = display.get_media_support_info().await?;
-        return Ok(serde_json::to_value(info)?);
+        tokio::pin!(op);
+        return tokio::select! {
+            biased;
+            res = &mut op => res,
+            () = async {
+                match max_hold {
+                    Some(deadline) => tokio::time::sleep_until(deadline).await,
+                    None => std::future::pending::<()>().await,
+                }
+            } => {
+                let _ = close_input(media).await;
+                op.await
+            }
+        };
     }
     if media.is_none() {
         *media = Some(
@@ -713,6 +849,15 @@ async fn execute_connected(
     .await;
     tokio::time::sleep(Duration::from_millis(300)).await;
     drop(touch);
+    if action
+        .as_ref()
+        .is_ok_and(|value| value["outcome"] != "not_sent" && value["sent"] != false)
+        && let Some(media) = media.as_mut()
+    {
+        let now = tokio::time::Instant::now();
+        media.last_input = now;
+        media.last_activity = now;
+    }
     action
 }
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Installs Poki on an iPhone through Poki Setup without its window. Agents follow skills/install-poki/SKILL.md.
+// Installs Qeno on an iPhone through Qeno Setup without its window. Agents follow skills/install-qeno/SKILL.md.
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -16,12 +16,12 @@ import { updateOnly, updateResult } from '../src/install/update.mjs';
 const usage = `Usage: node bin/install-iphone.mjs <command> [options]
 
 Commands:
-  run                 Install Poki on the iPhone, stopping only where a person has to act.
+  run                 Install Qeno on the iPhone, stopping only where a person has to act.
   code                Hand the running install the Apple two-factor code. The person runs this in their own
                       Terminal and types the code at the hidden prompt (or pipes it in). Never as an argument.
   done <step>         Tell the running install that the person finished a step it cannot see (open_poki).
-  phones              List the iPhones Poki Setup can reach (to choose one with --udid).
-  records             Copy Poki's chats, voice conversations and log off the iPhone over USB (read-only) and
+  phones              List the iPhones Qeno Setup can reach (to choose one with --udid).
+  records             Copy Qeno's chats, voice conversations and log off the iPhone over USB (read-only) and
                       write them in time order to a text file (default <state>/records/). Keys, pairing
                       records and relay addresses are left out. Prints only the file's path.
   diagnose            Print a diagnostics bundle with identifiers and secrets removed.
@@ -30,34 +30,34 @@ Commands:
   steps               Print the steps, who does each one, and the error codes.
 
 Options:
-  --update-only       Update an existing Poki without changing its configuration (alone or with run).
-  --channel <name>    stable, beta, alpha (default) or pre-alpha.
+  --update-only       Update an existing Qeno without changing its configuration (alone or with run).
+  --channel <name>    Beta updates. Legacy channel names also use Beta.
   --udid <udid>       The iPhone to use when several are plugged in.
-  --dry-run           Download and check the real Poki Setup, start its real helper, then simulate the
+  --dry-run           Download and check the real Qeno Setup, start its real helper, then simulate the
                       iPhone and the Apple Account. Nothing touches a device or Apple.
   --json              One JSON event per line (for agents).
-  --state <dir>       Where the run keeps its record (default ~/Library/Application Support/PokiInstall).
-  --setup-home <dir>  Poki Setup's data directory (default: Poki Setup's own, shared with the app).
-  --bridge <path>     Use this poki-setup-bridge instead of the one in Poki Setup.app.
-  --app-dir <dir>     Where to put Poki Setup.app when it is not installed (default ~/Applications).
-  --reinstall         Sign and install again even when the last run installed Poki.
-  --model-key <name>  Also give Poki on the iPhone this provider's model key from the Mac's login keychain
+  --state <dir>       Where the run keeps its record (default ~/Library/Application Support/QenoInstall).
+  --setup-home <dir>  Qeno Setup's data directory (default: Qeno Setup's own, shared with the app).
+  --bridge <path>     Use this poki-setup-bridge instead of the one in Qeno Setup.app.
+  --app-dir <dir>     Where to put Qeno Setup.app when it is not installed (default ~/Applications).
+  --reinstall         Sign and install again even when the last run installed Qeno.
+  --model-key <name>  Also give Qeno on the iPhone this provider's model key from the Mac's login keychain
                       (${PROVIDERS.join(', ')}). Off unless given: ask the person first. The key is sealed
-                      to a key Poki makes on the phone and never printed, logged or put on a command line.
+                      to a key Qeno makes on the phone and never printed, logged or put on a command line.
   --model-key-item <item>  The keychain item to read it from (default <name>-api-key, e.g. openai-api-key).
   --version           Print the installer's version and build commit.
   --out <file>        records only: write the text here instead.
-  --bundle <id>       records only: Poki's bundle id, when iOS does not list it as Poki.
+  --bundle <id>       records only: Qeno's bundle id, when iOS does not list it as Qeno.
   --no-device         diagnose only: do not ask usbmuxd, devicectl or Bonjour about devices.
 
 Exit codes: 0 done, 1 bad usage, 2 a step failed (see the code), 3 a person step is still open (run again).
 Update-only: 0 verified update, 2 stopped before installation, 3 installation failed, 4 readback failed.`;
 
 // Node 24 or later (package.json engines). An older Node fails later in a step that has nothing to
-// do with it, so it is named here, with the way around it: Poki Setup's own command line tool.
+// do with it, so it is named here, with the way around it: Qeno Setup's own command line tool.
 if (Number(process.versions.node.split('.')[0]) < 24 && process.env.POKI_INSTALL_ANY_NODE !== '1') {
   const reason = `This installer needs Node.js 24 or later; this is ${process.version}.`;
-  const agentFix = 'Install Node.js 24 or later and run again, or use the command line tool inside Poki Setup (320 or later), which needs no Node: "/Applications/Poki Setup.app/Contents/MacOS/poki-setup" next --json (see the skill).';
+  const agentFix = 'Install Node.js 24 or later and run again, or use the command line tool inside Qeno Setup (320 or later), which needs no Node: "/Applications/Qeno Setup.app/Contents/MacOS/poki-setup" next --json (see the skill).';
   if (process.argv.includes('--json')) console.log(JSON.stringify({ event: 'error', code: 'node_too_old', reason, agent_fix: agentFix, retrying: false, at: new Date().toISOString() }));
   else console.error(`${reason} ${agentFix}`);
   process.exit(2);
@@ -96,7 +96,7 @@ try {
 }
 const { values: opts, positionals } = parsed;
 if (opts.version) {
-  console.log(`Poki installer ${installerLabel(await installerVersion())}`);
+  console.log(`Qeno installer ${installerLabel(await installerVersion())}`);
   process.exit(0);
 }
 const [command, arg] = positionals;
@@ -141,7 +141,7 @@ async function inbox(name, value) {
   await writeFile(file, value, { mode: 0o600 });
 }
 
-// phones and diagnose start the helper the last run used, else the Poki Setup run would use.
+// phones and diagnose start the helper the last run used, else the Qeno Setup run would use.
 async function bridgePath() {
   if (opts.bridge) {
     if (!existsSync(resolve(opts.bridge))) throw new SetupError('setup_app_missing', `${resolve(opts.bridge)} does not exist`);
@@ -156,7 +156,7 @@ switch (opts.help ? 'help' : opts['update-only'] ? 'update-only' : command) {
     break;
   case 'run':
     if (opts['model-key'] !== undefined && !PROVIDERS.includes(opts['model-key'])) { console.error(`--model-key is one of ${PROVIDERS.join(', ')}.`); process.exitCode = 1; break; }
-    process.exitCode = await run({ modelKey: opts['model-key'], modelKeyItem: opts['model-key-item'], state, setupHome, channel: opts.channel ?? 'alpha', udid: opts.udid, dryRun, json: opts.json, bridge: opts.bridge && resolve(opts.bridge), appDir, reinstall: opts.reinstall });
+    process.exitCode = await run({ modelKey: opts['model-key'], modelKeyItem: opts['model-key-item'], state, setupHome, channel: opts.channel ?? 'beta', udid: opts.udid, dryRun, json: opts.json, bridge: opts.bridge && resolve(opts.bridge), appDir, reinstall: opts.reinstall });
     break;
   case 'code':
     if (arg !== undefined) { console.error(`Do not put the Apple code on the command line. Run: ${codeCommand(state)} (and type it at the hidden prompt).`); process.exitCode = 1; break; }
@@ -188,7 +188,7 @@ switch (opts.help ? 'help' : opts['update-only'] ? 'update-only' : command) {
   case 'records':
     try {
       const done = await readRecords({ udid: opts.udid, bundle: opts.bundle, out: opts.out && resolve(opts.out), state });
-      console.log(`Wrote ${done.sessions} conversation${done.sessions === 1 ? '' : 's'} and ${done.logLines} log lines from Poki ${done.poki.version} to ${done.file}`);
+      console.log(`Wrote ${done.sessions} conversation${done.sessions === 1 ? '' : 's'} and ${done.logLines} log lines from Qeno ${done.poki.version} to ${done.file}`);
     } catch (error) {
       console.error(`${error.code ?? 'error'}: ${error.message}`);
       process.exitCode = 2;

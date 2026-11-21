@@ -39,7 +39,15 @@ async fn with_signer<T>(state: &Shared, f: impl AsyncFnOnce(&mut setup::Signer) 
     if guard.is_none() {
         *guard = Some(setup::Signer::open()?);
     }
-    Ok(f(guard.as_mut().unwrap()).await?)
+    match f(guard.as_mut().unwrap()).await {
+        Ok(v) => Ok(v),
+        Err(poki_setup_core::Error::NeedsCode(pending)) => {
+            let msg = poki_setup_core::Error::NeedsCode(pending.clone()).to_string();
+            *state.pending.lock().await = Some(*pending);
+            Err(Failure { kind: "needs_code", message: msg })
+        }
+        Err(e) => Err(e.into()),
+    }
 }
 
 #[derive(Serialize)]
@@ -166,11 +174,12 @@ pub async fn sign_in(state: State<'_, Shared>, apple_id: String, password: Strin
 #[tauri::command]
 pub async fn finish_sign_in(state: State<'_, Shared>, code: String) -> R<()> {
     let pending = state.pending.lock().await.take().ok_or_else(|| poki_setup_core::Error::msg("Start the sign-in again."))?;
+    let keep = pending.clone();
     let result = with_signer(&state, async |s| s.finish_sign_in(pending, &code).await).await;
-    if let Err(f) = &result {
-        if f.kind == "needs_person" {
-            // A wrong code: the page asks again; the person starts over if the pending is gone.
-        }
+    if result.is_err() {
+        // A wrong code: keep the waiting sign-in so the person can type the code again. Starting
+        // over would ask Apple for another code, which replaces this one and counts toward its limit.
+        *state.pending.lock().await = Some(keep);
     }
     result
 }

@@ -18,7 +18,7 @@ import { signingRefused, ddiRecovery } from '../ddi-failure.mjs';
 const exec = promisify(execFile);
 export const manifest = JSON.parse(readFileSync(new URL('./steps.json', import.meta.url), 'utf8'));
 const fakeBridgePath = fileURLToPath(new URL('./fake-bridge.mjs', import.meta.url));
-export const defaultStateDir = () => join(homedir(), 'Library/Application Support/PokiInstall');
+export const defaultStateDir = () => join(homedir(), 'Library/Application Support/QenoInstall');
 const cliPath = fileURLToPath(new URL('../../bin/install-iphone.mjs', import.meta.url));
 const shellQuote = text => (/^[\w@%+=:,./-]+$/.test(text) ? text : `'${text.replaceAll("'", "'\\''")}'`);
 // What the person pastes into a new Terminal (which starts in their home folder, not in the checkout):
@@ -128,6 +128,7 @@ function format(event) {
 
 class Run {
   constructor(opts) {
+    opts = { ...opts, channel: 'beta' };
     this.opts = opts;
     this.state = opts.state;
     this.inbox = join(opts.state, 'inbox');
@@ -247,6 +248,7 @@ class Run {
     const chosen = rows.find(r => r.selected) ?? rows[0];
     this.releaseTag = chosen?.latest?.tag;
     this.releaseIpaName = chosen?.latest?.ipa_name;
+    if (chosen?.latest?.source_notice) this.emit({ event: 'note', text: chosen.latest.source_notice });
     return `${this.opts.channel}: Poki ${chosen?.latest?.version ?? '?'} (${chosen?.latest?.build ?? '?'})`;
   }
 
@@ -415,7 +417,7 @@ class Run {
         const failure = classify('install', error);
         if (!localIpa && error.kind === 'http' && this.releaseTag) {
           this.emit({ event: 'note', text: 'Poki Setup could not download the release. Downloading and verifying a local IPA with its matching signing archive.' });
-          localIpa = await downloadIpa(this.releaseTag, join(this.state, 'downloads'), this.releaseIpaName);
+          localIpa = await downloadIpa(this.releaseTag, join(this.state, 'downloads'), this.releaseIpaName, text => this.emit({ event: 'note', text }));
           continue;
         }
         const limit = manifest.errors[failure.code].retry;

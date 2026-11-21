@@ -3,7 +3,7 @@
 #   desktop/mac/scripts/bundle.sh [universal|native] [out-dir]
 # Needs Xcode (swift) and Rust. Signs ad hoc unless MAC_SIGN_IDENTITY is set.
 set -euo pipefail
-MODE="${1:-native}"
+MODE="${1:-universal}"
 OUT="${2:-$(pwd)/dist}"
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 DESKTOP="$(cd "$HERE/.." && pwd)"

@@ -36,7 +36,7 @@ enum HomeMotion {
     static func flight(_ reduce: Bool) -> Animation { paced(reduce ? fade : .smooth(duration: 0.35)) }
     /// The message field taking the home page up, or letting it down: the greeting and Qeno's picture
     /// over it move on this one animation.
-    static let lift = Animation.snappy(duration: 0.3)
+    static let lift = Animation.smooth(duration: 0.3)
 
     static func ground(_ reduce: Bool) -> Animation { paced(reduce ? fade : .easeInOut(duration: 0.45).delay(0.06)) }
     static func pills(_ home: Bool, _ reduce: Bool) -> Animation {
@@ -46,6 +46,15 @@ enum HomeMotion {
     static func landing(_ home: Bool, _ reduce: Bool) -> Animation {
         paced(reduce ? fade : home ? .easeOut(duration: 0.12) : .easeOut(duration: 0.18).delay(0.3))
     }
+}
+
+/// The portrait and both of its anchors must use the same scale during the home-to-chat flight.
+struct HomeSizes: DynamicProperty {
+    @ScaledMetric(relativeTo: .body) private var factor = 1.0
+    private var scale: CGFloat { min(1.2, max(0.9, factor)) }
+    var avatar: CGFloat { HomeMotion.avatar * scale }
+    var homeAvatar: CGFloat { HomeMotion.homeAvatar * scale }
+    var button: CGFloat { max(44, HomeMotion.button * scale) }
 }
 
 // MARK: Qeno's picture
@@ -143,6 +152,7 @@ extension View {
 /// is drawn at one size, so nothing is made again on the way. A tap says hi and opens Qeno's
 /// card. In the chat VoiceOver reads the top bar's Qeno instead, which is the same button.
 struct PokiFlight: View {
+    var sizes = HomeSizes()
     var status: PokiStatus
     var home: Bool
     var writing = false
@@ -156,7 +166,7 @@ struct PokiFlight: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        let side = home ? HomeMotion.homeAvatar : HomeMotion.avatar
+        let side = home ? sizes.homeAvatar : sizes.avatar
         if let place = places[home ? .home : .top] {
             Button(action: tap) {
                 PokiPicture(mood: status.mood, side: side, pokes: pokes).contentShape(.circle)
@@ -188,24 +198,25 @@ struct PokiFlight: View {
 /// in the picture's face; the word for it is at the top of Qeno's card and in what VoiceOver reads.
 /// On the home page the picture is over the greeting and the bar's middle is empty.
 struct PokiHead: View {
+    var sizes = HomeSizes()
     var home: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 6) {
-            Color.clear.frame(width: HomeMotion.avatar, height: HomeMotion.avatar).picturePlace(.top)
+            Color.clear.frame(width: sizes.avatar, height: sizes.avatar).picturePlace(.top)
             // Glass in a group is drawn by the group, so the capsule comes and goes rather than fading;
             // its place stays, and the bar keeps its height on both pages.
             ZStack {
                 if !home {
                     Text(verbatim: "Qeno")
-                        .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color(.label))
-                        .padding(.horizontal, 12).frame(height: 24)
+                        .font(.caption.weight(.semibold)).foregroundStyle(Color(.label))
+                        .padding(.horizontal, 12).frame(minHeight: 24)
                         .glassSurface(in: Capsule())
                         .glassAppearing()
                 }
             }
-            .frame(height: 24)
+            .frame(minHeight: 24)
             .animation(HomeMotion.landing(home, reduceMotion), value: home)
         }
     }
@@ -226,6 +237,7 @@ struct PokiHead: View {
 /// edge effect. The new-conversation button looks the same on the home page: there, the page already
 /// being a new conversation, a tap starts the message instead (`newConversation` decides what).
 struct ChatTopBar: View {
+    var sizes = HomeSizes()
     var status: PokiStatus
     var home: Bool
     /// A task is under way: no new conversation until it ends or is stopped.
@@ -248,6 +260,9 @@ struct ChatTopBar: View {
                         .glassSurface(in: Circle(), interactive: true)
                         .accessibilityLabel(Text("Conversations"))
                         .accessibilityIdentifier("chat.threads")
+                        .accessibilityShowsLargeContentViewer {
+                            Label("Conversations", systemImage: "line.3.horizontal")
+                        }
                 }
                 Spacer(minLength: 8)
                 Button {
@@ -262,8 +277,11 @@ struct ChatTopBar: View {
                 .sensoryFeedback(.impact(weight: .light), trigger: homeTaps)
                 .accessibilityLabel(Text("New Conversation"))
                 .accessibilityIdentifier("home.newChat")
+                .accessibilityShowsLargeContentViewer {
+                    Label("New Conversation", systemImage: "square.and.pencil")
+                }
             }
-            .padding(.top, (HomeMotion.avatar - HomeMotion.button) / 2)
+            .padding(.top, (sizes.avatar - sizes.button) / 2)
             Button(action: openDetails) {
                 PokiHead(home: home).contentShape(.rect)
             }
@@ -274,7 +292,8 @@ struct ChatTopBar: View {
             .accessibilityLabel(Text(verbatim: "Qeno, " + PokiStatusCopy.word(status)))
             .accessibilityAddTraits(.isButton)
             .accessibilityIdentifier("chat.header.details")
-            .padding(.horizontal, HomeMotion.button + 12)
+            .accessibilityShowsLargeContentViewer()
+            .padding(.horizontal, sizes.button + 12)
         }
         .glassGroup()
         .padding(.horizontal, 16).padding(.top, 2).padding(.bottom, 4)
@@ -287,7 +306,7 @@ struct ChatTopBar: View {
         Image(systemName: symbol)
             .font(.body.weight(.semibold))
             .foregroundStyle(Color(.label).opacity(dim ? 0.35 : 1))
-            .frame(width: HomeMotion.button, height: HomeMotion.button)
+            .frame(width: sizes.button, height: sizes.button)
             .contentShape(.circle)
     }
 }
@@ -303,7 +322,9 @@ struct UpdatePill: View {
                 Image(systemName: "arrow.down.circle.fill").foregroundStyle(Tint.blue)
                 Text("Update Available").foregroundStyle(Color(.label))
             }
-            .font(.subheadline.weight(.medium)).lineLimit(1).minimumScaleFactor(0.8)
+            .font(.subheadline.weight(.medium))
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.vertical, 8)
             .padding(.horizontal, 16).frame(minHeight: 44)
             .contentShape(.capsule)
         }
@@ -324,7 +345,7 @@ enum HomeIdea {
     private static func idea(_ app: String, _ text: String) -> HomeShortcut? {
         guard let capsule = AppCapsule.catalog.first(where: { $0.names.contains(app) }), let shown = ShortcutApp.named(capsule.id) else { return nil }
         return HomeShortcut(key: HomeShortcuts.normalize(text), app: shown.id, appName: shown.name, text: text,
-                            prompt: CapsuleText.prefill(app: app, sentence: text))
+                            prompt: CapsuleText.prefill(app: shown.name, sentence: text))
     }
     /// An app by its bundle ID, the action its pill shows and the whole request a tap puts in the field.
     private static func idea(app: String, _ text: String, prompt: String) -> HomeShortcut? {
@@ -334,15 +355,11 @@ enum HomeIdea {
 
     static var examples: [HomeShortcut] { examples(for: .current) }
 
-    /// Starring Qeno on GitHub, second on the home page from the first open, for a new owner and one
-    /// who updates alike: the list is worked out again at each launch, so nothing is stored for it.
-    /// Like every pill it reads as an icon, a name in bold and an action (GitHub's mark, GitHub,
-    /// starring Qeno), but it has no app this iPhone opens: the task runs in Qeno's own browser, which
-    /// hands the page over when GitHub asks to sign in. Its key does not change with the language, so
-    /// Forget holds after the iPhone's language changes.
+    /// The fixed key keeps Forget stable across language changes. The carried mark also appears
+    /// when GitHub is not installed, so the task can explain how to install it.
     static var star: HomeShortcut {
-        HomeShortcut(key: "starpokiongithub", app: "", appName: "GitHub", text: String(localized: "Star Qeno"),
-                     prompt: String(localized: "Open https://github.com/JosssphZhou/poki in the built-in browser and star it"), icon: "github")
+        HomeShortcut(key: "starpokiongithub", app: "", appName: "GitHub", text: AppLocalization.text(LocalizedStringResource("Star Qeno")),
+                     prompt: AppLocalization.text(LocalizedStringResource("Open the GitHub app on this iPhone, go to the JosssphZhou/poki repository, and star it. If the app is not installed, stop and ask me to install it from the App Store. Do not use a browser. If I am not signed in, stop on the login screen and let me sign in myself. If I have already starred the repository, tell me and leave it starred.")), icon: "github")
     }
 
     static func examples(for language: AppLanguage) -> [HomeShortcut] {
@@ -350,28 +367,38 @@ enum HomeIdea {
     }
 
     private static var english: [HomeShortcut] {
-        [idea("Slack", String(localized: "Tell the team I’m late")),
-         idea("Messages", String(localized: "Text Mom I’m on my way")),
-         idea("Uber", String(localized: "Book a ride home")),
-         idea("Starbucks", String(localized: "Order my usual coffee")),
-         idea("Notes", String(localized: "Add milk to my list")),
-         idea("Instagram", String(localized: "Post today’s photo"))].compactMap { $0 }
+        [idea("Slack", AppLocalization.text(LocalizedStringResource("Tell the team I’m late"))),
+         idea("Messages", AppLocalization.text(LocalizedStringResource("Text Mom I’m on my way"))),
+         idea("Uber", AppLocalization.text(LocalizedStringResource("Book a ride home"))),
+         idea("Starbucks", AppLocalization.text(LocalizedStringResource("Order my usual coffee"))),
+         idea("Notes", AppLocalization.text(LocalizedStringResource("Add milk to my list"))),
+         idea("Instagram", AppLocalization.text(LocalizedStringResource("Post today’s photo")))].compactMap { $0 }
     }
 
     /// The apps people in mainland China use every day, written in Chinese rather than translated from
     /// the English set. A tap only fills the field and the caret lands at the end, so a request that
     /// needs a contact, a topic, a product or a place ends where that goes, for the owner to finish.
     private static var simplifiedChinese: [HomeShortcut] {
-        [idea(app: "com.tencent.xin", "发消息", prompt: "用微信发一条消息给"),
-         idea(app: "com.taobao.taobao4iphone", "查物流", prompt: "打开淘宝，看看我最近一单的物流到哪了"),
-         idea(app: "com.dianping.dpscope", "找附近餐厅", prompt: "用大众点评找附近评分高的餐厅"),
-         idea(app: "com.meituan.itakeaway", "点外卖", prompt: "打开美团外卖，帮我看看附近有什么好吃的"),
-         idea(app: "com.xunmeng.pinduoduo", "查订单", prompt: "打开拼多多，看看我的订单到哪了"),
-         idea(app: "com.xingin.discover", "搜攻略", prompt: "在小红书搜一下攻略："),
-         idea(app: "com.taobao.fleamarket", "看我的闲置", prompt: "打开闲鱼，看看我发布的闲置有没有新消息"),
-         idea(app: "com.360buy.jdmobile", "查价格", prompt: "在京东查一下价格："),
-         idea(app: "com.baidu.map", "导航回家", prompt: "打开百度地图，导航回家"),
-         idea(app: "com.autonavi.amap", "查路线", prompt: "打开高德地图，查一下路线，目的地是")].compactMap { $0 }
+        [idea(app: "com.tencent.xin", AppLocalization.text(LocalizedStringResource("Send a message")),
+              prompt: AppLocalization.text(LocalizedStringResource("Send a WeChat message to "))),
+         idea(app: "com.taobao.taobao4iphone", AppLocalization.text(LocalizedStringResource("Check delivery")),
+              prompt: AppLocalization.text(LocalizedStringResource("Open Taobao and check the delivery status of my latest order"))),
+         idea(app: "com.dianping.dpscope", AppLocalization.text(LocalizedStringResource("Find nearby restaurants")),
+              prompt: AppLocalization.text(LocalizedStringResource("Find top-rated nearby restaurants on Dianping"))),
+         idea(app: "com.meituan.itakeaway", AppLocalization.text(LocalizedStringResource("Order takeout")),
+              prompt: AppLocalization.text(LocalizedStringResource("Open Meituan Waimai and find good food nearby"))),
+         idea(app: "com.xunmeng.pinduoduo", AppLocalization.text(LocalizedStringResource("Check orders")),
+              prompt: AppLocalization.text(LocalizedStringResource("Open Pinduoduo and check my order status"))),
+         idea(app: "com.xingin.discover", AppLocalization.text(LocalizedStringResource("Search guides")),
+              prompt: AppLocalization.text(LocalizedStringResource("Search Xiaohongshu for guides: "))),
+         idea(app: "com.taobao.fleamarket", AppLocalization.text(LocalizedStringResource("View my listings")),
+              prompt: AppLocalization.text(LocalizedStringResource("Open Xianyu and check for new messages on my listings"))),
+         idea(app: "com.360buy.jdmobile", AppLocalization.text(LocalizedStringResource("Check prices")),
+              prompt: AppLocalization.text(LocalizedStringResource("Check the price on JD: "))),
+         idea(app: "com.baidu.map", AppLocalization.text(LocalizedStringResource("Navigate home")),
+              prompt: AppLocalization.text(LocalizedStringResource("Open Baidu Maps and navigate home"))),
+         idea(app: "com.autonavi.amap", AppLocalization.text(LocalizedStringResource("Check routes")),
+              prompt: AppLocalization.text(LocalizedStringResource("Open Amap and check the route to ")))].compactMap { $0 }
     }
 }
 
@@ -386,15 +413,15 @@ enum HomeGreeting {
 
     static func hello(at date: Date = .now, calendar: Calendar = .current) -> String {
         switch calendar.component(.hour, from: date) {
-        case 5..<11: String(localized: "Good morning.")
-        case 11..<18: String(localized: "Good afternoon.")
-        case 18..<23: String(localized: "Good evening.")
-        default: String(localized: "Up late.")
+        case 5..<11: AppLocalization.text(LocalizedStringResource("Good morning."))
+        case 11..<18: AppLocalization.text(LocalizedStringResource("Good afternoon."))
+        case 18..<23: AppLocalization.text(LocalizedStringResource("Good evening."))
+        default: AppLocalization.text(LocalizedStringResource("Up late."))
         }
     }
 
     /// The line under the hello, the same at any hour.
-    static var ask: String { String(localized: "What should Qeno do?") }
+    static var ask: String { AppLocalization.text(LocalizedStringResource("What should Qeno do?")) }
 }
 
 /// The greeting as the home page draws it, for the time `date` falls in: the hello in ink and the
@@ -410,10 +437,9 @@ struct HomeGreetingView: View {
         VStack(spacing: 0) {
             Text(verbatim: HomeGreeting.hello(at: date))
                 .foregroundStyle(dark ? Color(hex: 0xF4F4F1) : Color(hex: 0x111110))
-            // One line at any type size: at the largest sizes two lines of it reach down to the pills.
             Text(verbatim: HomeGreeting.ask)
                 .foregroundStyle(dark ? Color(hex: 0x8D8D87) : Color(hex: 0x6F6F69))
-                .lineLimit(1).minimumScaleFactor(0.5)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .font(.system(size: size, weight: .semibold))
         .tracking(-0.6 * size / 28)
@@ -430,18 +456,22 @@ struct HomeGreetingView: View {
 /// rows of glass pills over the message field. A pill fills the message field; nothing is sent until
 /// you send it.
 struct HomePage<Footer: View>: View {
+    var sizes = HomeSizes()
     var home: Bool
     /// Suggestions yield their space while the message field has focus.
     var writing = false
     /// How far Qeno's picture rises into the top bar as the conversation begins: the greeting rises with it.
     var rise: CGFloat = 0
+    var sessionStore: SessionStore = .shared
+    var shortcutStore: HomeShortcutStore = .shared
     var pick: (String) -> Void
     @ViewBuilder var footer: () -> Footer
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.coveredByDrawer) private var covered
     @Environment(\.accessibilityVoiceOverEnabled) private var voiceOver
-    private let shortcutStore = HomeShortcutStore.shared
+    @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     /// Picked as the page comes in, so it does not change while you look at it.
     @State private var greetedAt = Date.now
     /// The pill whose menu is open, and where it is on the screen: both rows stand still under it.
@@ -460,53 +490,24 @@ struct HomePage<Footer: View>: View {
 
     var body: some View {
         GeometryReader { geometry in
-            ScrollView {
-                VStack(spacing: 0) {
-                    VStack(spacing: 12) {
-                        // Qeno's picture, 16 points over the greeting (board 头像位置 丙); the chat draws it here.
-                        Color.clear.frame(width: HomeMotion.homeAvatar, height: HomeMotion.homeAvatar)
-                            .picturePlace(.home)
-                            .padding(.bottom, 4)
-                        HomeGreetingView(date: greetedAt)
-                        footer()
-                    }
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
-                    // The board's picture 258 points from the screen's top, the greeting 354: under the top
-                    // bar, whose middle keeps the chat's picture and name in height, that is 112 points.
-                    .padding(.top, writing ? 24 : max(24, min(112, geometry.size.height * 0.29 - 72)))
-                    .opacity(home ? 1 : 0)
-                    .offset(y: home || reduceMotion ? 0 : -rise)
-                    .animation(HomeMotion.flight(reduceMotion), value: home)
-                    .onChange(of: home) { _, shown in if shown { greetedAt = .now } }
-
-                    Spacer(minLength: 24)
-                    if !writing, !editorTyping {
-                        VStack(spacing: 8) {
-                            let shortcuts = shortcutStore.shortcuts
-                            // Three on top, or the larger half of more than six.
-                            let top = max(3, (shortcuts.count + 1) / 2)
-                            row(Array(shortcuts.prefix(top)), at: 0, speed: HomeMotion.pillSpeeds.top, start: 64)
-                            if shortcuts.count > top { row(Array(shortcuts.dropFirst(top)), at: 1, speed: HomeMotion.pillSpeeds.bottom, start: 0) }
-                        }
-                        .padding(.top, 2)
-                        // A sideways drag on the rows scrolls them; it does not pull the drawer out.
-                        .scrollsSideways(home)
-                        .opacity(home ? 1 : 0)
-                        .offset(y: home || reduceMotion ? 0 : 14)
-                        .animation(HomeMotion.pills(home, reduceMotion), value: home)
-                    }
-                    Spacer().frame(height: 34)
+            let inset = max(24, min(112, geometry.size.height * 0.29 - 72))
+            // A regular-height greeting fits without a vertical scroll view. Keeping the same
+            // layout as the keyboard opens avoids scroll corrections while the composer expands.
+            if typeSize.isAccessibilitySize || verticalSizeClass == .compact {
+                ScrollView {
+                    content(inset: inset, height: geometry.size.height, scrolls: true)
                 }
-                .frame(maxWidth: .infinity, minHeight: geometry.size.height)
+                    .scrollBounceBehavior(.basedOnSize)
+                    .scrollDismissesKeyboard(.interactively)
+            } else {
+                content(inset: inset, height: geometry.size.height, scrolls: false)
             }
-            .scrollBounceBehavior(.basedOnSize)
-            .scrollDismissesKeyboard(.interactively)
         }
-        .animation(HomeMotion.lift, value: writing)
-        .animation(HomeMotion.lift, value: editorTyping)
-        .task(id: SessionStore.shared.sessions.count) {
-            shortcutStore.refresh(sessions: SessionStore.shared.sessions, routines: RoutineStore.shared.routines)
+        .task(id: sessionStore.sessions.count) {
+            shortcutStore.refreshInBackground(sessions: sessionStore.sessions, routines: { RoutineStore.shared.routines })
+        }
+        .onChange(of: AppLocalization.language, initial: true) { _, _ in
+            shortcutStore.refreshInBackground(sessions: sessionStore.sessions, routines: { RoutineStore.shared.routines })
         }
         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { page = $0 }
         // The menu, over the pill (the owner: it opened under the pill, on the message field). The
@@ -526,6 +527,57 @@ struct HomePage<Footer: View>: View {
         }
         .onChange(of: editing) { _, open in if open == nil { editorTyping = false } }
         .sensoryFeedback(.impact(weight: .medium), trigger: holds)
+    }
+
+    private func content(inset: CGFloat, height: CGFloat, scrolls: Bool) -> some View {
+        VStack(spacing: 0) {
+            VStack(spacing: 12) {
+                // Qeno's picture, 16 points over the greeting (board 头像位置 丙); the chat draws it here.
+                Color.clear.frame(width: sizes.homeAvatar, height: sizes.homeAvatar)
+                    .picturePlace(.home)
+                    .padding(.bottom, 4)
+                HomeGreetingView(date: greetedAt)
+                footer()
+            }
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 24)
+            // The board's picture 258 points from the screen's top, the greeting 354: under the top
+            // bar, whose middle keeps the chat's picture and name in height, that is 112 points.
+            // A fixed top layout keeps the regular greeting out of the keyboard's layout pass.
+            // In a scrollable layout, reserve the actual space so large text stays reachable.
+            .padding(.top, scrolls && !writing ? inset : 24)
+            .offset(y: scrolls || writing ? 0 : inset - 24)
+            .animation(reduceMotion ? nil : HomeMotion.lift, value: writing)
+            .opacity(home ? 1 : 0)
+            .offset(y: home || reduceMotion ? 0 : -rise)
+            .animation(HomeMotion.flight(reduceMotion), value: home)
+            .onChange(of: home) { _, shown in if shown { greetedAt = .now } }
+
+            Spacer(minLength: 24)
+            if !writing, !editorTyping {
+                VStack(spacing: 8) {
+                    let shortcuts = shortcutStore.shortcuts
+                    if typeSize.isAccessibilitySize {
+                        ForEach(shortcuts) { idea in shortcut(idea, row: 0) }
+                    } else {
+                        // Three on top, or the larger half of more than six.
+                        let top = max(3, (shortcuts.count + 1) / 2)
+                        row(Array(shortcuts.prefix(top)), at: 0, speed: HomeMotion.pillSpeeds.top, start: 64)
+                        if shortcuts.count > top { row(Array(shortcuts.dropFirst(top)), at: 1, speed: HomeMotion.pillSpeeds.bottom, start: 0) }
+                    }
+                }
+                .padding(.top, 2)
+                .padding(.horizontal, typeSize.isAccessibilitySize ? 18 : 0)
+                // A sideways drag on the rows scrolls them; it does not pull the drawer out.
+                .scrollsSideways(home && !typeSize.isAccessibilitySize)
+                .opacity(home ? 1 : 0)
+                .offset(y: home || reduceMotion ? 0 : 14)
+                .animation(HomeMotion.pills(home, reduceMotion), value: home)
+                .transition(.opacity)
+            }
+            Spacer().frame(height: 34)
+        }
+        .frame(maxWidth: .infinity, minHeight: height)
     }
 
     /// The part of the pressed pill that shows, in the page's own points: a pill at an end of a row is
@@ -551,16 +603,18 @@ struct HomePage<Footer: View>: View {
     private func row(_ ideas: [HomeShortcut], at index: Int, speed: Double, start: CGFloat) -> some View {
         Marquee(speed: speed, spacing: 8, start: start, edgeFade: 32, running: !reduceMotion && !DeviceStrain.shared.resting && !writing && !PerfSwitch.on(.pillsStill),
                 active: home && scenePhase == .active && !covered, loops: !voiceOver, stopped: busy) {
-            ForEach(ideas) { idea in
-                ShortcutPill(idea: idea, row: index, locked: busy, pick: { pick(idea.prompt) },
-                             hold: { frame in
-                                 guard home, !busy else { return }
-                                 holds += 1
-                                 held = HeldShortcut(shortcut: idea, frame: frame)
-                             },
-                             edit: { edit(idea) }, forget: { shortcutStore.forget(idea) })
-            }
+            ForEach(ideas) { idea in shortcut(idea, row: index) }
         }
+    }
+
+    private func shortcut(_ idea: HomeShortcut, row: Int) -> some View {
+        ShortcutPill(idea: idea, row: row, locked: busy, pick: { pick(idea.prompt) },
+                     hold: { frame in
+                         guard home, !busy else { return }
+                         holds += 1
+                         held = HeldShortcut(shortcut: idea, frame: frame)
+                     },
+                     edit: { edit(idea) }, forget: { shortcutStore.forget(idea) })
     }
 
     /// A pill's menu or its Edit popup is open, or about to: the rows stand still, and no pill is tapped.
@@ -591,21 +645,33 @@ private struct ShortcutPill: View {
     var edit: () -> Void
     var forget: () -> Void
     @State private var place = ScreenPlace.Probe()
+    @Environment(\.dynamicTypeSize) private var typeSize
+    @ScaledMetric(relativeTo: .subheadline) private var iconSide = 24.0
+    @ScaledMetric(relativeTo: .subheadline) private var pillHeight = 48.0
+    @ScaledMetric(relativeTo: .subheadline) private var sideInset = 12.0
 
     var body: some View {
         Button { if !locked { pick() } } label: {
             HStack(spacing: 8) {
-                AppIconView(app: idea.app, size: 24, alwaysLight: true, carried: idea.icon)
-                HStack(spacing: 5) {
+                AppIconView(app: idea.app, size: min(40, iconSide), alwaysLight: true, carried: idea.icon)
+                let layout = typeSize.isAccessibilitySize
+                    ? AnyLayout(VStackLayout(alignment: .leading, spacing: 2))
+                    : AnyLayout(HStackLayout(spacing: 5))
+                layout {
                     if !idea.appName.isEmpty {
                         Text(verbatim: idea.appName).font(.subheadline.weight(.semibold)).foregroundStyle(Color(.label))
                     }
                     Text(verbatim: idea.text).font(.subheadline).foregroundStyle(Color(.label).opacity(0.7))
                 }
-                .lineLimit(1)
+                .lineLimit(typeSize.isAccessibilitySize ? nil : 1)
+                .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(.leading, 12).padding(.trailing, 18).frame(minHeight: 48)
-            .contentShape(.capsule)
+            .padding(.vertical, typeSize.isAccessibilitySize ? 10 : 0)
+            .frame(maxWidth: typeSize.isAccessibilitySize ? .infinity : nil, alignment: .leading)
+            .padding(.leading, min(18, sideInset))
+            .padding(.trailing, min(24, sideInset * 1.5))
+            .frame(minHeight: min(64, max(44, pillHeight)))
+            .contentShape(.rect)
         }
         .pillButtonStyle(row: row)
         .background(ScreenPlace(probe: place))
@@ -618,8 +684,6 @@ private struct ShortcutPill: View {
         .accessibilityAction(named: Text("Edit"), edit)
         .accessibilityAction(named: Text("Forget"), forget)
         .accessibilityIdentifier("home.idea." + (idea.app.isEmpty ? idea.icon ?? "poki" : idea.app))
-        // Said here and not on the row: the pills live in the scroll view's own hosting view.
-        .dynamicTypeSize(...DynamicTypeSize.accessibility1)
     }
 }
 

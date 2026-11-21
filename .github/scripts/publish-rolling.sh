@@ -5,7 +5,7 @@
 # Until every Poki Setup reads app-* tags, the same files also go to the old ios-<channel>-latest
 # release, which Poki Setup 0.2.2 and earlier read.
 #
-#   publish-rolling.sh <prealpha|alpha> <version> <build> <dir with Poki-external-unsigned.ipa and Poki-signing.zip> [desktop source release]
+#   publish-rolling.sh <prealpha|alpha> <version> <build> <dir with Poki-external-unsigned.ipa and Qeno-signing.zip> [desktop source release]
 #
 # Run from the checkout of the built commit with GH_TOKEN set. New files go up before the previous
 # build's are removed, so the release always has an installable IPA. With a desktop source release
@@ -13,8 +13,8 @@
 set -euo pipefail
 CHANNEL="$1" VERSION="$2" BUILD="$3" SRC="$4" DESKTOP_FROM="${5:-}"
 case "$CHANNEL" in
-  prealpha) TITLE=Pre-alpha; BLURB="An untested snapshot of main for the Pre-alpha channel in Poki Setup; it can break." ;;
-  alpha) TITLE=Alpha; BLURB="A pre-alpha that passed the alpha tests, for the Alpha channel in Poki Setup; expect rough edges." ;;
+  prealpha) TITLE=Pre-alpha; BLURB="An untested snapshot of main for the Pre-alpha channel in Qeno Setup; it can break." ;;
+  alpha) TITLE=Alpha; BLURB="A pre-alpha that passed the alpha tests, for the Alpha channel in Qeno Setup; expect rough edges." ;;
   *) echo "::error::channel is prealpha or alpha"; exit 2 ;;
 esac
 ROLLING="app-$CHANNEL-latest"
@@ -27,7 +27,7 @@ git config user.email >/dev/null || git config user.email "41898282+github-actio
 rm -rf dist && mkdir dist
 if [ -f "$SRC/Poki-unsigned.ipa" ]; then cp "$SRC/Poki-unsigned.ipa" "dist/Poki-$VERSION-$BUILD.ipa"; fi
 cp "$SRC/Poki-external-unsigned.ipa" "dist/Poki-external-$VERSION-$BUILD.ipa"
-cp "$SRC/Poki-signing.zip" dist/
+cp "$SRC/Qeno-signing.zip" dist/
 # The relay Worker from this commit, so Poki Setup deploys the relay that matches this build.
 cp deploy/cf-relay/worker.js dist/poki-relay-worker.js
 (cd dist && sha256sum *.ipa poki-relay-worker.js > SHA256SUMS && cat SHA256SUMS)
@@ -46,9 +46,9 @@ fi
 {
   echo "$TITLE: Poki $VERSION ($BUILD), built from ${SHA:0:7} (tag $TAG). $BLURB Use the Beta or Stable channel for anything you rely on. This release is updated in place with every $TITLE build."
   echo
-  echo "Install Poki-external with Poki Setup, or sign either IPA with your own tool (entitlements in Poki-signing.zip). See native/ios-app/README.md."
+  echo "Install Poki-external with Qeno Setup, or sign either IPA with your own tool (entitlements in Qeno-signing.zip). See native/ios-app/README.md."
   echo
-  echo "Relay: Poki Setup's Update Relay deploys this release's relay Worker. To update it yourself, download [poki-relay-worker.js](https://github.com/$GITHUB_REPOSITORY/releases/download/$ROLLING/poki-relay-worker.js) (SHA-256 in SHA256SUMS), open your poki-relay Worker in the Cloudflare dashboard, choose Edit code, replace everything with this file and deploy. For a new relay, use deploy/cf-relay/deploy.sh."
+  echo "Relay: Qeno Setup's Update Relay deploys this release's relay Worker. To update it yourself, download [poki-relay-worker.js](https://github.com/$GITHUB_REPOSITORY/releases/download/$ROLLING/poki-relay-worker.js) (SHA-256 in SHA256SUMS), open your poki-relay Worker in the Cloudflare dashboard, choose Edit code, replace everything with this file and deploy. For a new relay, use deploy/cf-relay/deploy.sh."
   echo
   echo "### Changes $since"
   # -n, not | head: with pipefail, head closing the pipe early fails the step (exit 141) once

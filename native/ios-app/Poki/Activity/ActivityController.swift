@@ -53,6 +53,7 @@ final class ActivityController {
     private var worker: Task<Void, Never>?
     private var tail: Task<Void, Never>?
     private var finishTimer: Task<Void, Never>?
+    private var chatOwnsCompletion = false
     private var foldTimer: Task<Void, Never>?
     /// Halfway to an approval's deadline the island is popped open once more (ESP-467).
     private var approvalReminder: Task<Void, Never>?
@@ -85,6 +86,30 @@ final class ActivityController {
 
     var isRunning: Bool { activity != nil }
 
+    /// The sensor housing's smallest safe-area inset, in points of the screen's native size. iOS has no
+    /// call that says whether the phone has a Dynamic Island, so this reads the window's top inset (59
+    /// to 68 on the island phones) against the notch phones' (47 to 50). A phone this cannot read
+    /// counts as having none, which keeps the banner.
+    private static let dynamicIslandMinInset: CGFloat = 51
+
+    private static func hasDynamicIsland() -> Bool {
+        guard UIDevice.current.userInterfaceIdiom == .phone else { return false }
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        for scene in scenes {
+            let zoom = scene.screen.scale > 0 ? max(1, scene.screen.nativeScale / scene.screen.scale) : 1
+            let visible = scene.windows.filter { !$0.isHidden }
+            if let window = visible.first(where: \.isKeyWindow) ?? visible.first {
+                let insets = window.safeAreaInsets
+                let sensorInset = max(insets.top, max(insets.left, insets.right)) * zoom
+                if sensorInset > 0 { return sensorInset >= dynamicIslandMinInset }
+            }
+            if let statusHeight = scene.statusBarManager?.statusBarFrame.height, statusHeight > 0 {
+                return statusHeight * zoom >= dynamicIslandMinInset
+            }
+        }
+        return false
+    }
+
     /// Ends every Live Activity of Qeno's: at launch, the ones a crashed or closed earlier run left
     /// behind (only this process updates its activity, so one it did not start is out of date); when
     /// Qeno closes, its own, since nothing would update it after that. Detached, because Qeno holds
@@ -101,6 +126,9 @@ final class ActivityController {
     func start(deviceName: String) {
         wanted = deviceName
         guard activity == nil else { return }
+        // Keep it wanted for the next foreground update, without asking ActivityKit to start from
+        // the background. Direct callers and update-driven restarts share the same restriction.
+        guard canStart() else { return }
         if state.isQuiet, hidesWhenIdle() { lastError = nil; return }
         guard enabled else { lastError = "Live Activities are off for Qeno (Settings > Qeno > Live Activities)."; return }
         // A Live Activity left from an earlier run of the app is replaced.
@@ -121,7 +149,7 @@ final class ActivityController {
                     await MainActor.run { if self?.activity?.id == started.id { self?.activity = nil } }
                 }
             }
-        } catch { lastError = String(localized: "The Live Activity did not start. \(error.localizedDescription)") }
+        } catch { lastError = AppLocalization.text(LocalizedStringResource("The Live Activity did not start. \(error.localizedDescription)")) }
     }
 
     /// Counts a finished step for the step line and the run's summary.
@@ -141,22 +169,25 @@ final class ActivityController {
 
     /// Ends the Live Activity at once, after the updates already on their way, so nothing is left on
     /// the Lock Screen or in the island.
-    func end() {
+    @discardableResult
+    func end(dismissalPolicy: ActivityUIDismissalPolicy? = nil) -> Task<Void, Never>? {
         wanted = nil
+        chatOwnsCompletion = false
         finishTimer?.cancel(); foldTimer?.cancel(); eventTimer?.cancel()
         if Self.runPhases.contains(state.phase) { logRun("cut off by ending the Live Activity") }
         worker?.cancel(); worker = nil; plainWaiting = false
-        guard let activity else { return }
+        guard let activity else { return tail }
         self.activity = nil
         // A finished run or a problem stays on the Lock Screen with its final content for a while (HIG:
         // end at once, keep the outcome readable); anything else goes at once.
         let final: ActivityContent<PokiState>? = state.phase == .done || state.phase == .problem
             ? ActivityContent(state: state, staleDate: nil, relevanceScore: 0) : nil
-        let policy: ActivityUIDismissalPolicy = final == nil ? .immediate : .after(.now.addingTimeInterval(15 * 60))
+        let policy = dismissalPolicy ?? (final == nil ? .immediate : .after(.now.addingTimeInterval(15 * 60)))
         state.guide = nil; state.pin = nil; state.since = nil; state.event = nil; state.previous = nil
         state.stepCount = 0; state.failedCount = 0; state.failedSteps = nil; state.endedAt = nil; state.decision = nil; state.plan = nil
         let previous = tail
         tail = Task { await previous?.value; await activity.end(final, dismissalPolicy: policy) }
+        return tail
     }
 
     /// Takes the activity off the screen but keeps it wanted: the next work brings it back.
@@ -166,6 +197,12 @@ final class ActivityController {
         self.activity = nil
         let previous = tail
         tail = Task { await previous?.value; await activity.end(nil, dismissalPolicy: .immediate) }
+    }
+
+    /// Language is a presentation update, never an activity transition or a new automation session.
+    func languageChanged() {
+        state.uiLanguage = AppLocalization.language
+        send(alert: nil, critical: true)
     }
 
     func update(_ change: (inout PokiState) -> Void) {
@@ -292,7 +329,7 @@ final class ActivityController {
         }
         if state.stepCount != old.stepCount { inStep = false }
         // The finish timer: re-armed by every change during a run; never fires in the middle of a step.
-        if state.phase == .working, state.approval == nil, state.handoff == nil, state.stepCount > 0 { armFinish() } else { finishTimer?.cancel() }
+        if !chatOwnsCompletion, state.phase == .working, state.approval == nil, state.handoff == nil, state.stepCount > 0 { armFinish() } else { finishTimer?.cancel() }
         return alert
     }
 
@@ -326,24 +363,44 @@ final class ActivityController {
         }
     }
 
+    /// The local chat can be waiting for its model after a phone step has finished.
+    func setChatOwnsCompletion(_ ownsCompletion: Bool) {
+        chatOwnsCompletion = ownsCompletion
+        if ownsCompletion { finishTimer?.cancel() }
+    }
+
+    func endStoppedRun() {
+        update { state in
+            state.phase = .idle
+            state.headline = "Waiting for agent"
+            state.plan = nil
+            state.since = nil
+        }
+        end(dismissalPolicy: .immediate)
+    }
+
     /// The chat's task ended: the run is finished now, not after the quiet wait. `alert` false when
-    /// the chat tells the owner itself (its reply notification).
-    func finishNow(alert: Bool) {
+    /// the chat tells the owner itself (its reply notification). True when the finish pop-up went to a
+    /// Dynamic Island, so no banner is needed on top of it.
+    @discardableResult
+    func finishNow(alert: Bool) -> Bool {
         finishTimer?.cancel()
         guard state.phase == .working, state.approval == nil, state.handoff == nil else {
             if Self.runPhases.contains(state.phase) { AppLog.shared.add("activity", "the run was not marked finished: the activity shows \(state.phase.rawValue)") }
-            return
+            return false
         }
         inStep = false
-        finish(alert: alert)
+        return finish(alert: alert)
     }
 
     private func finishRun(ifCount count: Int) {
-        guard state.phase == .working, state.approval == nil, !inStep, state.stepCount == count, count > 0 else { return }
+        guard !chatOwnsCompletion, state.phase == .working, state.approval == nil, !inStep, state.stepCount == count, count > 0 else { return }
         finish(alert: true)
     }
 
-    private func finish(alert: Bool) {
+    /// True when the finish pop-up went to a Dynamic Island, which already tells the owner the run is over.
+    @discardableResult
+    private func finish(alert: Bool) -> Bool {
         state.phase = .done
         planFinished = true
         logRun("finished")
@@ -353,8 +410,10 @@ final class ActivityController {
         state.headline = "Finished"
         setEvent(.finished, "Run finished")
         let summary = state.runSummary ?? state.doneTitle
-        send(alert: alert ? ordinary(StatusWord.done.text, summary) : nil, critical: true)
+        let popUp = alert ? ordinary(StatusWord.done.text, summary) : nil
+        send(alert: popUp, critical: true)
         armFold()
+        return popUp != nil && isRunning && Self.hasDynamicIsland()
     }
 
     /// What a run's updates did, once iOS has had time to take the last one.

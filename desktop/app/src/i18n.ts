@@ -18,6 +18,8 @@ const zh: Record<string, string> = {
   "Set up Qeno": "安装 Qeno",
   "Setting up…": "正在安装…",
   "Sign in with your Apple ID first.": "请先登录 Apple ID。",
+  "Apple refused the Mac identity Poki signs in with (it asks for macOS 10.13 or later). Update Poki and Poki Setup to the latest version, then try again.":
+    "Apple 拒绝了 Poki 登录时使用的 Mac 身份（要求 macOS 10.13 或更高版本）。请把 Poki 和 Poki Setup 更新到最新版本后再试。",
   "Sign in": "登录",
   "Sign out": "退出登录",
   "Password": "密码",
@@ -60,6 +62,7 @@ const zh: Record<string, string> = {
   "Start": "开始",
   "Filter": "过滤",
   "Support bundle": "支持包",
+  "Support bundles can contain device identifiers, local paths and raw logs. Review the archive before sharing.": "支持包可能包含设备标识、本机路径和原始日志。分享前请先检查压缩包。",
   "Save support bundle…": "保存支持包…",
   "Mount developer disk image": "挂载开发者磁盘映像",
   "Language": "语言",
